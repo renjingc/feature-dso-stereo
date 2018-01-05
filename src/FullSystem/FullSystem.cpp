@@ -399,6 +399,7 @@ void FullSystem::printResult(std::string file)
  */
 Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,Eigen::Matrix3d R)
 {
+
 	assert(allFrameHistory.size() > 0);
 	// set pose initialization.
 
@@ -409,6 +410,10 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,Eigen::
 	{
 		ow->pushStereoLiveFrame(fh,fh_right);
 	}
+
+	Sophus::SO3 init_R(R);
+	Eigen::Vector3d t(0,0,0); //
+	Sophus::SE3 init_Rt(R, t); //
 
 	//参考帧
 	FrameHessian* lastF = coarseTracker->lastRef;
@@ -424,7 +429,8 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,Eigen::
 	{
 		initializeFromInitializer(fh);
 
-		lastF_2_fh_tries.push_back(SE3(Eigen::Matrix<double, 3, 3>::Identity(), Eigen::Matrix<double,3,1>::Zero() ));
+		lastF_2_fh_tries.push_back(init_Rt);
+		lastF_2_fh_tries.push_back(SE3(R, Eigen::Matrix<double,3,1>::Zero() ));
 
 	        for(float rotDelta=0.02; rotDelta < 0.05; rotDelta = rotDelta + 0.02)
 	        {
@@ -466,25 +472,37 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,Eigen::
 	}
 	else
 	{
+		//上一帧
 		FrameShell* slast = allFrameHistory[allFrameHistory.size()-2];
+		//上上一帧
 		FrameShell* sprelast = allFrameHistory[allFrameHistory.size()-3];
 		SE3 slast_2_sprelast;
 		SE3 lastF_2_slast;
 		{	// lock on global pose consistency!
 			boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
+			//上上一帧相对与上一帧的相对位姿
 			slast_2_sprelast = sprelast->camToWorld.inverse() * slast->camToWorld;
+			//上一帧相对与参考帧的位姿的变换
 			lastF_2_slast = slast->camToWorld.inverse() * lastF->shell->camToWorld;
+			//上一帧的a和b变换
 			aff_last_2_l = slast->aff_g2l;
 		}
 
+		//上上一帧
 		SE3 fh_2_slast = slast_2_sprelast;// assumed to be the same as fh_2_slast.
 
 
 		// get last delta-movement.
-		lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast);	// assume constant motion.
+		 lastF_2_fh_tries.push_back(init_Rt.inverse()*lastF_2_slast);
+		 //匀速模型，上一次的位移*上一帧相对参考帧的位姿
+		 lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast);	// assume constant motion.
+		 //两次运动
 	       lastF_2_fh_tries.push_back(fh_2_slast.inverse() * fh_2_slast.inverse() * lastF_2_slast);	// assume double motion (frame skipped)
+	       //一半的运动
 	       lastF_2_fh_tries.push_back(SE3::exp(fh_2_slast.log()*0.5).inverse() * lastF_2_slast); // assume half motion.
+	       //无运动
 	       lastF_2_fh_tries.push_back(lastF_2_slast); // assume zero motion.
+	       //与关键帧无运动
 	       lastF_2_fh_tries.push_back(SE3()); // assume zero motion FROM KF.
 
 /*        lastF_2_fh_tries.push_back(SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() * lastF_2_slast);
@@ -495,12 +513,13 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,Eigen::
         	lastF_2_fh_tries.push_back(fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * lastF_2_slast);
         	lastF_2_fh_tries.push_back(SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() *  SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() * lastF_2_slast);
 
-        lastF_2_fh_tries.push_back(fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * lastF_2_slast);
-        lastF_2_fh_tries.push_back(SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() *  SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() * lastF_2_slast);*/
+        	lastF_2_fh_tries.push_back(fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * lastF_2_slast);
+        	lastF_2_fh_tries.push_back(SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() *  SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() * lastF_2_slast);*/
 
 		// just try a TON of different initializations (all rotations). In the end,
 		// if they don't work they will only be tried on the coarsest level, which is super fast anyway.
 		// also, if tracking rails here we loose, so we really, really want to avoid that.
+		// 匀速模型*角度的噪声	
         for(float rotDelta=0.02; rotDelta < 0.02; rotDelta++)
         {
             lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1,rotDelta,0,0), Vec3(0,0,0)));			// assume constant motion.
