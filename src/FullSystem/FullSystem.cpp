@@ -255,8 +255,8 @@ FullSystem::FullSystem():matcher_flann_(new cv::flann::LshIndexParams(5,10,2))
 	minIdJetVisTracker = -1;
 	maxIdJetVisTracker = -1;
 
-	mpORBextractorLeft = new ORBextractor(150,1.2,3,20,8);
-	mpORBextractorRight = new ORBextractor(150,1.2,3,20,8);
+	mpORBextractorLeft = new ORBextractor(300,1.2,3,20,8);
+	mpORBextractorRight = new ORBextractor(300,1.2,3,20,8);
 }
 
 /**
@@ -493,7 +493,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,Eigen::
 
 
 		// get last delta-movement.
-		 lastF_2_fh_tries.push_back(init_Rt.inverse()*lastF_2_slast);
+		 //lastF_2_fh_tries.push_back(init_Rt.inverse()*lastF_2_slast);
 		 //匀速模型，上一次的位移*上一帧相对参考帧的位姿
 		 lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast);	// assume constant motion.
 		 //两次运动
@@ -691,25 +691,35 @@ void FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_r
     shell->aff_g2l = AffLight(0,0);
     shell->marginalizedAt = shell->id = allFrameHistory.size();
     shell->timestamp = image->timestamp;
+
+    //一直递增的id
     shell->incoming_id = id; // id passed into DSO
+
+    //当前帧的信息
     fh->shell = shell;
     fh_right->shell=shell;
 
     // =========================== make Images / derivatives etc. =========================
     fh->ab_exposure = image->exposure_time;
+
+    //左图的梯度点
     fh->makeImages(image->image, &Hcalib);
     fh_right->ab_exposure = image_right->exposure_time;
+
+    //右图的梯度点
     fh_right->makeImages(image_right->image,&Hcalib);
 
+    //内参
     Mat33f K = Mat33f::Identity();
     K(0,0) = Hcalib.fxl();
     K(1,1) = Hcalib.fyl();
     K(0,2) = Hcalib.cxl();
     K(1,2) = Hcalib.cyl();
 
-
+    //计数
     int counter = 0;
 
+    //创建新的一帧中的点
     makeNewTraces(fh, fh_right, 0);
 
     unsigned  char * idepthMapPtr = idepthMap.data;
@@ -1898,11 +1908,12 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 	allKeyFramesHistory.push_back(firstFrame->shell);
 	//能量函数插入当前帧
 	ef->insertFrame(firstFrame, &Hcalib);
-	//设置每一阵的目标帧，这时候只有第一帧
+	//设置每一帧的目标帧，这时候只有第一帧
 	setPrecalcValues();
 
-
+	//第一帧的右帧
 	FrameHessian* firstFrameRight = coarseInitializer->firstRightFrame;
+	//
     	frameHessiansRight.push_back(firstFrameRight);
 
 	//设置第一帧的点Hessian矩阵
@@ -1912,6 +1923,8 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 
     	float idepthStereo = 0;
 	float sumID=1e-5, numID=1e-5;
+
+	//遍历每一个点
 	for(int i=0;i<coarseInitializer->numPoints[0];i++)
 	{
 		sumID += coarseInitializer->points[0][i].iR;
@@ -1970,12 +1983,13 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 		ef->insertPoint(ph);
 	}
 
-	//
+	//第一帧到最新一阵的位姿变换
 	SE3 firstToNew = coarseInitializer->thisToNext;
 
 	//设置这两帧的位姿
 	// really no lock required, as we are initializing.
 	{
+		//设置第一帧
 		boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
 		firstFrame->shell->camToWorld = SE3();
 		firstFrame->shell->aff_g2l = AffLight(0,0);
@@ -1983,6 +1997,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 		firstFrame->shell->trackingRef=0;
 		firstFrame->shell->camToTrackingRef = SE3();
 
+		//设置最新的一帧
 		newFrame->shell->camToWorld = firstToNew.inverse();
 		newFrame->shell->aff_g2l = AffLight(0,0);
 		newFrame->setEvalPT_scaled(newFrame->shell->camToWorld.inverse(),newFrame->shell->aff_g2l);
@@ -2010,12 +2025,13 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 	//筛选新的点，点的总数
 	int numPointsTotal = pixelSelector->makeMaps(newFrame, selectionMap,setting_desiredImmatureDensity);
 
-	//设置新参考帧的
+	//设置新参考帧的点Hessian矩阵
 	newFrame->pointHessians.reserve(numPointsTotal*1.2f);
 	//fh->pointHessiansInactive.reserve(numPointsTotal*1.2f);
 	newFrame->pointHessiansMarginalized.reserve(numPointsTotal*1.2f);
 	newFrame->pointHessiansOut.reserve(numPointsTotal*1.2f);
 
+	//遍历每一个点
 	for(int y=patternPadding+1;y<hG[0]-patternPadding-2;y++)
 		for(int x=patternPadding+1;x<wG[0]-patternPadding-2;x++)
 		{

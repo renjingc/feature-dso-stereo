@@ -572,7 +572,7 @@ HEX	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	420;"	d	file:
 HEX	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	415;"	d	file:
 HKmeansStep	thirdparty/loop-closure/ThirdParty/DBoW/TemplatedVocabulary.h	/^void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id, $/;"	f	class:DBoW2::TemplatedVocabulary
 HM	src/OptimizationBackend/EnergyFunctional.h	/^	MatXX HM;$/;"	m	class:fdso::EnergyFunctional
-Hcalib	src/FullSystem/FullSystem.h	/^	CalibHessian Hcalib;$/;"	m	class:fdso::FullSystem
+Hcalib	src/FullSystem/FullSystem.h	/^	C　alibHessian Hcalib;$/;"	m	class:fdso::FullSystem
 Hcd_accAF	src/OptimizationBackend/EnergyFunctionalStructs.h	/^	VecCf Hcd_accAF;$/;"	m	class:fdso::EFPoint
 Hcd_accLF	src/OptimizationBackend/EnergyFunctionalStructs.h	/^	VecCf Hcd_accLF;$/;"	m	class:fdso::EFPoint
 Hdd_accAF	src/OptimizationBackend/EnergyFunctionalStructs.h	/^	float Hdd_accAF;$/;"	m	class:fdso::EFPoint
@@ -3302,7 +3302,7 @@ traceStereo	src/FullSystem/ImmaturePoint.cpp	/^ImmaturePointStatus ImmaturePoint
 trackFrame	src/FullSystem/CoarseInitializer.cpp	/^bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian, FrameHessian* newFrameHessian_Right, std::vector<IOWrap::Output3DWrapper*> &wraps)$/;"	f	class:fdso::CoarseInitializer
 trackMapSyncMutex	src/FullSystem/FullSystem.h	/^	boost::mutex trackMapSyncMutex;$/;"	m	class:fdso::FullSystem
 trackMutex	src/FullSystem/FullSystem.h	/^	boost::mutex trackMutex;$/;"	m	class:fdso::FullSystem
-trackNewCoarse	src/FullSystem/FullSystem.cpp	/^Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,)$/;"	f	class:fdso::FullSystem
+trackNewCoarse	src/FullSystem/FullSystem.cpp	/^Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,Eigen::Matrix3d R)$/;"	f	class:fdso::FullSystem
 trackNewestCoarse	src/FullSystem/CoarseTracker.cpp	/^bool CoarseTracker::trackNewestCoarse($/;"	f	class:fdso::CoarseTracker
 trackedFrameSignal	src/FullSystem/FullSystem.h	/^	boost::condition_variable trackedFrameSignal;$/;"	m	class:fdso::FullSystem
 trackingRef	src/util/FrameShell.h	/^	FrameShell* trackingRef;$/;"	m	class:fdso::FrameShell

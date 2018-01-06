@@ -45,23 +45,39 @@ class FrameShell
 {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+	//一直递增的id
 	int id; 			// INTERNAL ID, starting at zero.
+
+	//插入dso的ｉｄ
 	int incoming_id;	// ID passed into DSO
+	//时间戳
 	double timestamp;		// timestamp passed into DSO.
 
 	// set once after tracking
+	//相对与参考帧的变换
 	SE3 camToTrackingRef;
+	//参考帧的信息
 	FrameShell* trackingRef;
 
 	// constantly adapted.
+	//相对于世界坐标系的变换
 	SE3 camToWorld;				// Write: TRACKING, while frame is still fresh; MAPPING: only when locked [shellPoseMutex].
+	//a和ｂ
 	AffLight aff_g2l;
+	//位姿的有效性
 	bool poseValid;
 
 	// statisitcs
+	//out的
 	int statistics_outlierResOnThis;
+	//good
 	int statistics_goodResOnThis;
+
+	//边缘
 	int marginalizedAt;
+
+	//
 	double movedByOpt;
 
 	cv::Mat imageLeft,imageRight;

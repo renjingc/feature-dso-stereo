@@ -56,7 +56,10 @@ extern bool EFIndicesValid;
 extern bool EFDeltaValid;
 
 
-
+/**
+ * @brief      Class for energy functional.
+ * 后端优化类
+ */
 class EnergyFunctional {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -71,17 +74,21 @@ public:
 	EnergyFunctional();
 	~EnergyFunctional();
 
-
+	//插入点和帧之间的残差
 	EFResidual* insertResidual(PointFrameResidual* r);
+	//插入帧的残差
 	EFFrame* insertFrame(FrameHessian* fh, CalibHessian* Hcalib);
+	//插入点的残差
 	EFPoint* insertPoint(PointHessian* ph);
 
+	//移除残差
 	void dropResidual(EFResidual* r);
+	//移除帧
 	void marginalizeFrame(EFFrame* fh);
+	//移除点
 	void removePoint(EFPoint* ph);
 
-
-
+	//
 	void marginalizePointsF();
 	void dropPointsF();
 	void solveSystemF(int iteration, double lambda, CalibHessian* HCalib);
@@ -98,13 +105,18 @@ public:
 	std::vector<EFFrame*> frames;
 	int nPoints, nFrames, nResiduals;
 
+	//Hessian矩阵
 	MatXX HM;
+	//b矩阵
 	VecX bM;
 
+	//残差
 	int resInA, resInL, resInM;
 	MatXX lastHS;
 	VecX lastbS;
 	VecX lastX;
+
+	//上一时刻的
 	std::vector<VecX> lastNullspaces_forLogging;
 	std::vector<VecX> lastNullspaces_pose;
 	std::vector<VecX> lastNullspaces_scale;

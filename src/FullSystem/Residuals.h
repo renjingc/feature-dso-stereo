@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -24,10 +24,10 @@
 
 #pragma once
 
- 
+
 #include "util/globalCalib.h"
 #include "vector"
- 
+
 #include "util/NumType.h"
 #include <iostream>
 #include <fstream>
@@ -42,9 +42,12 @@ class CalibHessian;
 
 class EFResidual;
 
-
-enum ResLocation {ACTIVE=0, LINEARIZED, MARGINALIZED, NONE};
-enum ResState {IN=0, OOB, OUTLIER};
+/**
+ *  当前帧残差处于模式，激活，线性化，边缘化
+ */
+enum ResLocation {ACTIVE = 0, LINEARIZED, MARGINALIZED, NONE};
+//残差状态
+enum ResState {IN = 0, OOB, OUTLIER};
 
 struct FullJacRowT
 {
@@ -54,33 +57,40 @@ struct FullJacRowT
 class PointFrameResidual
 {
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+	//残差
 	EFResidual* efResidual;
 
+	//计数
 	static int instanceCounter;
 
-
+	//残差状态
 	ResState state_state;
 	double state_energy;
 	ResState state_NewState;
 	double state_NewEnergy;
 	double state_NewEnergyWithOutlier;
 
-
+	//设置残差状态
 	void setState(ResState s) {state_state = s;}
 
-
+	//点的Hessian矩阵
 	PointHessian* point;
+	//主导帧
 	FrameHessian* host;
+	//参考帧
 	FrameHessian* target;
+
+	//原始的残差雅克比
 	RawResidualJacobian* J;
 
-
+	//是否是新的
 	bool isNew;
-
-
+	//重投影
 	Eigen::Vector2f projectedTo[MAX_RES_PER_POINT];
+
+	//投影到中心
 	Vec3f centerProjectedTo;
 
 	~PointFrameResidual();
@@ -88,12 +98,15 @@ public:
 	PointFrameResidual(PointHessian* point_, FrameHessian* host_, FrameHessian* target_);
 	double linearize(CalibHessian* HCalib);
 
-
+	//重置
 	void resetOOB()
 	{
+		//能量值＝０
 		state_NewEnergy = state_energy = 0;
+		//最新的状态为outlier
 		state_NewState = ResState::OUTLIER;
 
+		//设置初始状态位ＩＮ
 		setState(ResState::IN);
 	};
 	void applyRes( bool copyJacobians);

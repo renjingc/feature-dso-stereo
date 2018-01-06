@@ -545,12 +545,12 @@ setPrecalcValues	src/FullSystem/FullSystem.cpp	/^void FullSystem::setPrecalcValu
 stereoMatch	src/FullSystem/FullSystem.cpp	/^void FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_right, int id, cv::Mat &idepthMap)$/;"	f	class:fdso::FullSystem
 traceNewCoarseKey	src/FullSystem/FullSystem.cpp	/^void FullSystem::traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right)$/;"	f	class:fdso::FullSystem
 traceNewCoarseNonKey	src/FullSystem/FullSystem.cpp	/^void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)$/;"	f	class:fdso::FullSystem
-trackNewCoarse	src/FullSystem/FullSystem.cpp	/^Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,)$/;"	f	class:fdso::FullSystem
+trackNewCoarse	src/FullSystem/FullSystem.cpp	/^Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,Eigen::Matrix3d R)$/;"	f	class:fdso::FullSystem
 ~FullSystem	src/FullSystem/FullSystem.cpp	/^FullSystem::~FullSystem()$/;"	f	class:fdso::FullSystem
 DiagonalLog	src/FullSystem/FullSystem.h	/^	std::ofstream* DiagonalLog;$/;"	m	class:fdso::FullSystem
 EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/FullSystem/FullSystem.h	/^	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	class:fdso::FullSystem
 FullSystem	src/FullSystem/FullSystem.h	/^class FullSystem {$/;"	c	namespace:fdso
-Hcalib	src/FullSystem/FullSystem.h	/^	CalibHessian Hcalib;$/;"	m	class:fdso::FullSystem
+Hcalib	src/FullSystem/FullSystem.h	/^	C　alibHessian Hcalib;$/;"	m	class:fdso::FullSystem
 IOWrap	src/FullSystem/FullSystem.h	/^namespace IOWrap$/;"	n	namespace:fdso
 MAX_ACTIVE_FRAMES	src/FullSystem/FullSystem.h	26;"	d
 activeResiduals	src/FullSystem/FullSystem.h	/^	std::vector<PointFrameResidual*> activeResiduals;$/;"	m	class:fdso::FullSystem

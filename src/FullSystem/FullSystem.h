@@ -170,20 +170,29 @@ public:
 
 private:
 
+	//矫正类
 	CalibHessian Hcalib;
 
 
 	// opt single point
+	//　优化一个点
 	int optimizePoint(PointHessian* point, int minObs, bool flagOOB);
+
+	//优化一个未成熟点
 	PointHessian* optimizeImmaturePoint(ImmaturePoint* point, int minObs, ImmaturePointTemporaryResidual* residuals);
 
+	//
 	double linAllPointSinle(PointHessian* point, float outlierTHSlack, bool plot);
 
+	//非关键帧的跟踪
     	void traceNewCoarseNonKey(FrameHessian* fh, FrameHessian* fh_right);
 
 	// mainPipelineFunctions
+	//主跟踪函数
 	Vec4 trackNewCoarse(FrameHessian* fh,FrameHessian* fh_right,Eigen::Matrix3d R);
+	//关键帧的更新
 	void traceNewCoarseKey(FrameHessian* fh,FrameHessian* fh_right);
+	//更新一个点
 	void activatePoints();
 	void activatePointsMT();
 	void activatePointsOldFirst();
@@ -193,13 +202,10 @@ private:
 	void initializeFromInitializer(FrameHessian* newFrame, FrameHessian* newFrame_right);
 	void flagFramesForMarginalization(FrameHessian* newFH);
 
-
 	void removeOutliers();
-
 
 	// set precalc values.
 	void setPrecalcValues();
-
 
 	// solce. eventually migrate to ef.
 	void solveSystem(int iteration, double lambda);
@@ -254,33 +260,49 @@ private:
 
 
 	// =================== changed by tracker-thread. protected by trackMutex ============
+	//跟踪互斥锁
 	boost::mutex trackMutex;
+	//全部帧的信息
 	std::vector<FrameShell*> allFrameHistory;
+	//初始化类
 	CoarseInitializer* coarseInitializer;
+	//上一时刻的残差
 	Vec5 lastCoarseRMSE;
 
 
 	// ================== changed by mapper-thread. protected by mapMutex ===============
+	//后端优化互斥锁
 	boost::mutex mapMutex;
+	//全部的关键帧
 	std::vector<FrameShell*> allKeyFramesHistory;
 
+	//误差能量函数
 	EnergyFunctional* ef;
+	//安全线程
 	IndexThreadReduce<Vec10> treadReduce;
 
+	//点选择图
 	float* selectionMap;
+	//点选择类
 	PixelSelector* pixelSelector;
+	//距离图
 	CoarseDistanceMap* coarseDistanceMap;
 
+	//每一帧的Hessian信息
 	std::vector<FrameHessian*> frameHessians;	// ONLY changed in marginalizeFrame and addFrame.
+	//点和帧的残差
 	std::vector<PointFrameResidual*> activeResiduals;
 	float currentMinActDist;
 
+	//右图的
 	std::vector<FrameHessian*> frameHessiansRight;
 
+	//全部的残差
 	std::vector<float> allResVec;
 
 
 	// mutex etc. for tracker exchange.
+	//用于跟新跟踪器的
 	boost::mutex coarseTrackerSwapMutex;			// if tracker sees that there is a new reference, tracker locks [coarseTrackerSwapMutex] and swaps the two.
 	CoarseTracker* coarseTracker_forNewKF;			// set as as reference. protected by [coarseTrackerSwapMutex].
 	CoarseTracker* coarseTracker;					// always used to track new frames. protected by [trackMutex].
@@ -291,29 +313,43 @@ private:
 	// mutex for camToWorl's in shells (these are always in a good configuration).
 	boost::mutex shellPoseMutex;
 
-
-
 /*
  * tracking always uses the newest KF as reference.
  *
  */
-
+ 	//创建关键帧
 	void makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right);
+	//创建非关键帧
 	void makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right);
+
+	//跟踪和后端优化的连接传递函数
 	void deliverTrackedFrame(FrameHessian* fh, FrameHessian* fh_right, bool needKF);
+
+	//后端优化
 	void mappingLoop();
 
 	// tracking / mapping synchronization. All protected by [trackMapSyncMutex].
+	//非同步的跟踪和后端优化的一些变量
+	//互斥锁
 	boost::mutex trackMapSyncMutex;
+	//条件变量
 	boost::condition_variable trackedFrameSignal;
 	boost::condition_variable mappedFrameSignal;
+
+	//
 	std::deque<FrameHessian*> unmappedTrackedFrames;
 	std::deque<FrameHessian*> unmappedTrackedFrames_right;
+
+	//是否是关键帧
 	int needNewKFAfter;	// Otherwise, a new KF is *needed that has ID bigger than [needNewKFAfter]*.
+
+	//后端优化线程
 	boost::thread mappingThread;
+	//是否运行后端优化
 	bool runMapping;
 	bool needToKetchupMapping;
 
+	//上一帧的关键帧的ID
 	int lastRefStopID;
 
 	/*---ORB---*/

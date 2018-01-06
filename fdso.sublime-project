@@ -3,6 +3,9 @@
 	[
 		{
 			"path": "."
+		},
+		{
+			"path": "/home/ren/slam/dso1215"
 		}
 	]
 }

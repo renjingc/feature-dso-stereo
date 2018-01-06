@@ -65,12 +65,18 @@ PointFrameResidual::PointFrameResidual(PointHessian* point_, FrameHessian* host_
 	host(host_),
 	target(target_)
 {
+	//残差值
 	efResidual=0;
+
+	//个数
 	instanceCounter++;
+	//重置残差状态，重置能量
 	resetOOB();
+
+	//原始的
 	J = new RawResidualJacobian();
 	assert(((long)J)%16==0);
-
+	//是新的
 	isNew=true;
 }
 
@@ -78,26 +84,38 @@ PointFrameResidual::PointFrameResidual(PointHessian* point_, FrameHessian* host_
  * [PointFrameResidual::linearize description]
  * @param  HCalib [description]
  * @return        [description]
+ * 线性化
  */
 double PointFrameResidual::linearize(CalibHessian* HCalib)
 {
 	state_NewEnergyWithOutlier=-1;
-
+	//当前状态是否是OOB，则状态都是OOB,直接返回能量
 	if(state_state == ResState::OOB)
 		{ state_NewState = ResState::OOB; return state_energy; }
 
+	//主导帧预计算的
 	FrameFramePrecalc* precalc = &(host->targetPrecalc[target->idx]);
 	float energyLeft=0;
+
+	//主导帧的梯度
 	const Eigen::Vector3f* dIl = target->dI;
 	//const float* const Il = target->I;
+
+	//预计算的
 	const Mat33f &PRE_KRKiTll = precalc->PRE_KRKiTll;
 	const Vec3f &PRE_KtTll = precalc->PRE_KtTll;
 	const Mat33f &PRE_RTll_0 = precalc->PRE_RTll_0;
 	const Vec3f &PRE_tTll_0 = precalc->PRE_tTll_0;
+
+	//点的灰度值，ｘ和ｙ方向梯度值
 	const float * const color = point->color;
+	//点的权重
 	const float * const weights = point->weights;
 
+	//预先的ａ和b
 	Vec2f affLL = precalc->PRE_aff_mode;
+
+	//主导帧的b
 	float b0 = precalc->PRE_b0_mode;
 
 
@@ -298,6 +316,7 @@ void PointFrameResidual::debugPlot()
  */
 void PointFrameResidual::applyRes(bool copyJacobians)
 {
+	//是否复制雅克比矩阵
 	if(copyJacobians)
 	{
 		if(state_state == ResState::OOB)
@@ -315,8 +334,9 @@ void PointFrameResidual::applyRes(bool copyJacobians)
 			efResidual->isActiveAndIsGoodNEW=false;
 		}
 	}
-
+	//设置新的残差状态
 	setState(state_NewState);
+	//更新能量
 	state_energy = state_NewEnergy;
 }
 }

@@ -119,15 +119,18 @@
 			"file": "src/FullSystem/FullSystem.cpp",
 			"settings":
 			{
-				"buffer_size": 75220,
+				"buffer_size": 75352,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "src/FullSystem/FullSystem.h",
+			"contents": "/**\n* This file is part of DSO.\n*\n* Copyright 2016 Technical University of Munich and Intel.\n* Developed by Jakob Engel <engelj at in dot tum dot de>,\n* for more information see <http://vision.in.tum.de/dso>.\n* If you use this code, please cite the respective publications as\n* listed on the above website.\n*\n* DSO is free software: you can redistribute it and/or modify\n* it under the terms of the GNU General Public License as published by\n* the Free Software Foundation, either version 3 of the License, or\n* (at your option) any later version.\n*\n* DSO is distributed in the hope that it will be useful,\n* but WITHOUT ANY WARRANTY; without even the implied warranty of\n* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n* GNU General Public License for more details.\n*\n* You should have received a copy of the GNU General Public License\n* along with DSO. If not, see <http://www.gnu.org/licenses/>.\n*/\n\n\n/*\n * KFBuffer.cpp\n *\n *  Created on: Jan 7, 2014\n *      Author: engelj\n */\n\n#include \"FullSystem/CoarseTracker.h\"\n#include \"FullSystem/FullSystem.h\"\n#include \"FullSystem/HessianBlocks.h\"\n#include \"FullSystem/Residuals.h\"\n#include \"FullSystem/ImmaturePoint.h\"\n#include \"OptimizationBackend/EnergyFunctionalStructs.h\"\n#include \"IOWrapper/ImageRW.h\"\n#include <algorithm>\n\nnamespace fdso\n{\n\n/**\n *\n */\nCoarseTracker::CoarseTracker(int ww, int hh) : lastRef_aff_g2l(0, 0)\n{\n    // make coarse tracking templates.\n    for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)\n    {\n        //设置每层的图像大小\n        int wl = ww >> lvl;\n        int hl = hh >> lvl;\n        //设置每层的逆深度大小\n        idepth[lvl] = new float[wl * hl];\n        //设置每层的权重\n        weightSums[lvl] = new float[wl * hl];\n        weightSums_bak[lvl] = new float[wl * hl];\n\n        pc_u[lvl] = new float[wl * hl];\n        pc_v[lvl] = new float[wl * hl];\n        pc_idepth[lvl] = new float[wl * hl];\n        pc_color[lvl] = new float[wl * hl];\n    }\n\n    // warped buffers\n    buf_warped_idepth = new float[ww * hh];\n    buf_warped_u = new float[ww * hh];\n    buf_warped_v = new float[ww * hh];\n    buf_warped_dx = new float[ww * hh];\n    buf_warped_dy = new float[ww * hh];\n    buf_warped_residual = new float[ww * hh];\n    buf_warped_weight = new float[ww * hh];\n    buf_warped_refColor = new float[ww * hh];\n\n\n    //新的一帧\n    newFrame = 0;\n    //参考帧\n    lastRef = 0;\n    //是否输出中间结果\n    debugPlot = debugPrint = true;\n    //\n    w[0] = h[0] = 0;\n    //参考帧ID\n    refFrameID = -1;\n}\n\n/**\n *\n */\nCoarseTracker::~CoarseTracker()\n{\n    for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)\n    {\n        delete[] idepth[lvl];\n        delete[] weightSums[lvl];\n        delete[] weightSums_bak[lvl];\n\n        delete[] pc_u[lvl];\n        delete[] pc_v[lvl] ;\n        delete[] pc_idepth[lvl];\n        delete[] pc_color[lvl];\n    }\n\n    delete[]  buf_warped_idepth;\n    delete[]  buf_warped_u;\n    delete[]  buf_warped_v;\n    delete[]  buf_warped_dx;\n    delete[]  buf_warped_dy;\n    delete[]  buf_warped_residual;\n    delete[]  buf_warped_weight;\n    delete[]  buf_warped_refColor;\n}\n\n/**\n * [CoarseTracker::makeK description]\n * @param HCalib [description]\n * 设置内参\n */\nvoid CoarseTracker::makeK(CalibHessian* HCalib)\n{\n    w[0] = wG[0];\n    h[0] = hG[0];\n\n    fx[0] = HCalib->fxl();\n    fy[0] = HCalib->fyl();\n    cx[0] = HCalib->cxl();\n    cy[0] = HCalib->cyl();\n\n    for (int level = 1; level < pyrLevelsUsed; ++ level)\n    {\n        w[level] = w[0] >> level;\n        h[level] = h[0] >> level;\n        fx[level] = fx[level - 1] * 0.5;\n        fy[level] = fy[level - 1] * 0.5;\n        cx[level] = (cx[0] + 0.5) / ((int)1 << level) - 0.5;\n        cy[level] = (cy[0] + 0.5) / ((int)1 << level) - 0.5;\n    }\n\n    for (int level = 0; level < pyrLevelsUsed; ++ level)\n    {\n        K[level]  << fx[level], 0.0, cx[level], 0.0, fy[level], cy[level], 0.0, 0.0, 1.0;\n        Ki[level] = K[level].inverse();\n        fxi[level] = Ki[level](0, 0);\n        fyi[level] = Ki[level](1, 1);\n        cxi[level] = Ki[level](0, 2);\n        cyi[level] = Ki[level](1, 2);\n    }\n}\n\n/**\n * [CoarseTracker::makeCoarseDepthForFirstFrame description]\n * @param fh [description]\n */\nvoid CoarseTracker::makeCoarseDepthForFirstFrame(FrameHessian* fh)\n{\n    // make coarse tracking templates for latstRef.\n    // 分配逆深度图和权重\n    memset(idepth[0], 0, sizeof(float)*w[0]*h[0]);\n    memset(weightSums[0], 0, sizeof(float)*w[0]*h[0]);\n\n    //遍历每一个点\n    for (PointHessian* ph : fh->pointHessians)\n    {\n        //获取每一个点的坐标\n        int u = ph->u + 0.5f;\n        int v = ph->v + 0.5f;\n        //点的新的逆深度\n        float new_idepth = ph->idepth;\n        //点的权重\n        float weight = sqrtf(1e-3 / (ph->efPoint->HdiF + 1e-12));\n\n        //新的逆深度\n        idepth[0][u + w[0]*v] += new_idepth * weight;\n\n        //权重总和\n        weightSums[0][u + w[0]*v] += weight;\n    }\n\n    //遍历每一层金字塔，从最下层更新最上层的逆深度和权重\n    for (int lvl = 1; lvl < pyrLevelsUsed; lvl++)\n    {\n        // 下一层\n        int lvlm1 = lvl - 1;\n        int wl = w[lvl], hl = h[lvl], wlm1 = w[lvlm1];\n\n        float* idepth_l = idepth[lvl];\n        float* weightSums_l = weightSums[lvl];\n\n        float* idepth_lm = idepth[lvlm1];\n        float* weightSums_lm = weightSums[lvlm1];\n\n        for (int y = 0; y < hl; y++)\n            for (int x = 0; x < wl; x++)\n            {\n                int bidx = 2 * x   + 2 * y * wlm1;\n                idepth_l[x + y * wl] =        idepth_lm[bidx] +\n                                              idepth_lm[bidx + 1] +\n                                              idepth_lm[bidx + wlm1] +\n                                              idepth_lm[bidx + wlm1 + 1];\n\n                weightSums_l[x + y * wl] =    weightSums_lm[bidx] +\n                                              weightSums_lm[bidx + 1] +\n                                              weightSums_lm[bidx + wlm1] +\n                                              weightSums_lm[bidx + wlm1 + 1];\n            }\n    }\n\n    // dilate idepth by 1.\n    // 最下面两层的\n    for (int lvl = 0; lvl < 2; lvl++)\n    {\n        //\n        int numIts = 1;\n\n        //\n        for (int it = 0; it < numIts; it++)\n        {\n            int wh = w[lvl] * h[lvl] - w[lvl];\n            int wl = w[lvl];\n            //当前层的每个点权重\n            float* weightSumsl = weightSums[lvl];\n            //之前的每个点权重\n            float* weightSumsl_bak = weightSums_bak[lvl];\n            //weightSumsl替换weightSumsl_bak\n            memcpy(weightSumsl_bak, weightSumsl, w[lvl]*h[lvl]*sizeof(float));\n            //当前层的逆深度\n            float* idepthl = idepth[lvl];   // dont need to make a temp copy of depth, since I only\n            // read values with weightSumsl>0, and write ones with weightSumsl<=0.\n            for (int i = w[lvl]; i < wh; i++)\n            {\n                //若权重小与0或者无权重\n                if (weightSumsl_bak[i] <= 0)\n                {\n                    float sum = 0, num = 0, numn = 0;\n                    //寻找四周，四周点的距离更大的权重，根据周围的算当前点的逆深度和权重\n                    if (weightSumsl_bak[i + 1 + wl] > 0) { sum += idepthl[i + 1 + wl]; num += weightSumsl_bak[i + 1 + wl]; numn++;}\n                    if (weightSumsl_bak[i - 1 - wl] > 0) { sum += idepthl[i - 1 - wl]; num += weightSumsl_bak[i - 1 - wl]; numn++;}\n                    if (weightSumsl_bak[i + wl - 1] > 0) { sum += idepthl[i + wl - 1]; num += weightSumsl_bak[i + wl - 1]; numn++;}\n                    if (weightSumsl_bak[i - wl + 1] > 0) { sum += idepthl[i - wl + 1]; num += weightSumsl_bak[i - wl + 1]; numn++;}\n                    if (numn > 0)\n                    {\n                        idepthl[i] = sum / numn;\n                        weightSumsl[i] = num / numn;\n                    }\n                }\n            }\n        }\n    }\n\n    // dilate idepth by 1 (2 on lower levels).\n    // 第三层到最上层的\n    for (int lvl = 2; lvl < pyrLevelsUsed; lvl++)\n    {\n        int wh = w[lvl] * h[lvl] - w[lvl];\n        int wl = w[lvl];\n        float* weightSumsl = weightSums[lvl];\n        float* weightSumsl_bak = weightSums_bak[lvl];\n        memcpy(weightSumsl_bak, weightSumsl, w[lvl]*h[lvl]*sizeof(float));\n        float* idepthl = idepth[lvl];   // dotnt need to make a temp copy of depth, since I only\n        // read values with weightSumsl>0, and write ones with weightSumsl<=0.\n        for (int i = w[lvl]; i < wh; i++)\n        {\n            if (weightSumsl_bak[i] <= 0)\n            {\n                float sum = 0, num = 0, numn = 0;\n                if (weightSumsl_bak[i + 1] > 0) { sum += idepthl[i + 1]; num += weightSumsl_bak[i + 1]; numn++;}\n                if (weightSumsl_bak[i - 1] > 0) { sum += idepthl[i - 1]; num += weightSumsl_bak[i - 1]; numn++;}\n                if (weightSumsl_bak[i + wl] > 0) { sum += idepthl[i + wl]; num += weightSumsl_bak[i + wl]; numn++;}\n                if (weightSumsl_bak[i - wl] > 0) { sum += idepthl[i - wl]; num += weightSumsl_bak[i - wl]; numn++;}\n                if (numn > 0) {idepthl[i] = sum / numn; weightSumsl[i] = num / numn;}\n            }\n        }\n    }\n\n    // normalize idepths and weights.\n    // 归一化每一层的逆深度和权重\n    for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)\n    {\n        float* weightSumsl = weightSums[lvl];\n        float* idepthl = idepth[lvl];\n\n        //获取主导帧的灰度图和xy梯度\n        Eigen::Vector3f* dIRefl = lastRef->dIp[lvl];\n\n        int wl = w[lvl], hl = h[lvl];\n\n        int lpc_n = 0;\n        float* lpc_u = pc_u[lvl];\n        float* lpc_v = pc_v[lvl];\n        float* lpc_idepth = pc_idepth[lvl];\n        float* lpc_color = pc_color[lvl];\n\n        for (int y = 2; y < hl - 2; y++)\n            for (int x = 2; x < wl - 2; x++)\n            {\n                int i = x + y * wl;\n\n                //这个点权重大于0\n                if (weightSumsl[i] > 0)\n                {\n                    //归一化后的逆深度\n                    idepthl[i] /= weightSumsl[i];\n                    //当前点图像坐标\n                    lpc_u[lpc_n] = x;\n                    lpc_v[lpc_n] = y;\n                    //当前点逆深度\n                    lpc_idepth[lpc_n] = idepthl[i];\n                    //当前点灰度值\n                    lpc_color[lpc_n] = dIRefl[i][0];\n\n                    if (!std::isfinite(lpc_color[lpc_n]) || !(idepthl[i] > 0))\n                    {\n                        idepthl[i] = -1;\n                        continue;   // just skip if something is wrong.\n                    }\n                    lpc_n++;\n                }\n                else\n                    idepthl[i] = -1;\n\n                weightSumsl[i] = 1;\n            }\n\n        //当前层有效的点\n        pc_n[lvl] = lpc_n;\n//      printf(\"pc_n[lvl] is %d \\n\", lpc_n);\n    }\n}\n\n// make depth mainly from static stereo matching and fill the holes from propogation idpeth map.\n/**\n * [CoarseTracker::makeCoarseDepthL0 description]\n * @param frameHessians [description]\n * @param fh_right      [description]\n * @param Hcalib        [description]\n */\nvoid CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, FrameHessian* fh_right, CalibHessian Hcalib)\n{\n    // make coarse tracking templates for latstRef.\n    memset(idepth[0], 0, sizeof(float)*w[0]*h[0]);\n    memset(weightSums[0], 0, sizeof(float)*w[0]*h[0]);\n\n    //目标帧\n    FrameHessian* fh_target = frameHessians.back();\n    //内参\n    Mat33f K1 = Mat33f::Identity();\n    K1(0, 0) = Hcalib.fxl();\n    K1(1, 1) = Hcalib.fyl();\n    K1(0, 2) = Hcalib.cxl();\n    K1(1, 2) = Hcalib.cyl();\n\n    //遍历每一个关键帧\n    for (FrameHessian* fh : frameHessians)\n    {\n        //遍历这个关键帧中的每一个点\n        for (PointHessian* ph : fh->pointHessians)\n        {\n            if (ph->lastResiduals[0].first != 0 && ph->lastResiduals[0].second == ResState::IN) //contains information about residuals to the last two (!) frames. ([0] = latest, [1] = the one before).\n            {\n                PointFrameResidual* r = ph->lastResiduals[0].first;\n                assert(r->efResidual->isActive() && r->target == lastRef);\n                int u = r->centerProjectedTo[0] + 0.5f;\n                int v = r->centerProjectedTo[1] + 0.5f;\n\n                ImmaturePoint* pt_track = new ImmaturePoint((float)u, (float)v, fh_target, &Hcalib);\n\n                pt_track->u_stereo = pt_track->u;\n                pt_track->v_stereo = pt_track->v;\n\n                // free to debug\n                pt_track->idepth_min_stereo = r->centerProjectedTo[2] * 0.1f;\n                pt_track->idepth_max_stereo = r->centerProjectedTo[2] * 1.9f;\n\n                ImmaturePointStatus pt_track_right = pt_track->traceStereo(fh_right, K1, 1);\n\n                float new_idepth = 0;\n\n                if (pt_track_right == ImmaturePointStatus::IPS_GOOD)\n                {\n                    ImmaturePoint* pt_track_back = new ImmaturePoint(pt_track->lastTraceUV(0), pt_track->lastTraceUV(1), fh_right, &Hcalib);\n                    pt_track_back->u_stereo = pt_track_back->u;\n                    pt_track_back->v_stereo = pt_track_back->v;\n\n\n                    pt_track_back->idepth_min_stereo = r->centerProjectedTo[2] * 0.1f;\n                    pt_track_back->idepth_max_stereo = r->centerProjectedTo[2] * 1.9f;\n\n                    ImmaturePointStatus pt_track_left = pt_track_back->traceStereo(fh_target, K1, 0);\n\n                    float depth = 1.0f / pt_track->idepth_stereo;\n                    float u_delta = abs(pt_track->u - pt_track_back->lastTraceUV(0));\n                    if (u_delta < 1 && depth > 0 && depth < 50)\n                    {\n                        new_idepth = pt_track->idepth_stereo;\n                        delete pt_track;\n                        delete pt_track_back;\n\n                    }\n                    else\n                    {\n                        new_idepth = r->centerProjectedTo[2];\n                        delete pt_track;\n                        delete pt_track_back;\n                    }\n\n                }\n                else {\n                    new_idepth = r->centerProjectedTo[2];\n                    delete pt_track;\n                }\n                float weight = sqrtf(1e-3 / (ph->efPoint->HdiF + 1e-12));\n\n                idepth[0][u + w[0]*v] += new_idepth * weight;\n                weightSums[0][u + w[0]*v] += weight;\n\n            }\n        }\n    }\n\n    //从最下层递归最上层的逆深度和权重\n    for (int lvl = 1; lvl < pyrLevelsUsed; lvl++)\n    {\n        int lvlm1 = lvl - 1;\n        int wl = w[lvl], hl = h[lvl], wlm1 = w[lvlm1];\n\n        float* idepth_l = idepth[lvl];\n        float* weightSums_l = weightSums[lvl];\n\n        float* idepth_lm = idepth[lvlm1];\n        float* weightSums_lm = weightSums[lvlm1];\n\n        for (int y = 0; y < hl; y++)\n            for (int x = 0; x < wl; x++)\n            {\n                int bidx = 2 * x   + 2 * y * wlm1;\n                idepth_l[x + y * wl] =        idepth_lm[bidx] +\n                                              idepth_lm[bidx + 1] +\n                                              idepth_lm[bidx + wlm1] +\n                                              idepth_lm[bidx + wlm1 + 1];\n\n                weightSums_l[x + y * wl] =    weightSums_lm[bidx] +\n                                              weightSums_lm[bidx + 1] +\n                                              weightSums_lm[bidx + wlm1] +\n                                              weightSums_lm[bidx + wlm1 + 1];\n            }\n    }\n\n    // dilate idepth by 1.\n    // 膨胀\n    for (int lvl = 0; lvl < 2; lvl++)\n    {\n        int numIts = 1;\n\n        for (int it = 0; it < numIts; it++)\n        {\n            int wh = w[lvl] * h[lvl] - w[lvl];\n            int wl = w[lvl];\n            float* weightSumsl = weightSums[lvl];\n            float* weightSumsl_bak = weightSums_bak[lvl];\n            memcpy(weightSumsl_bak, weightSumsl, w[lvl]*h[lvl]*sizeof(float));\n            float* idepthl = idepth[lvl];   // dont need to make a temp copy of depth, since I only\n            // read values with weightSumsl>0, and write ones with weightSumsl<=0.\n            for (int i = w[lvl]; i < wh; i++)\n            {\n                if (weightSumsl_bak[i] <= 0)\n                {\n                    float sum = 0, num = 0, numn = 0;\n                    if (weightSumsl_bak[i + 1 + wl] > 0) { sum += idepthl[i + 1 + wl]; num += weightSumsl_bak[i + 1 + wl]; numn++;}\n                    if (weightSumsl_bak[i - 1 - wl] > 0) { sum += idepthl[i - 1 - wl]; num += weightSumsl_bak[i - 1 - wl]; numn++;}\n                    if (weightSumsl_bak[i + wl - 1] > 0) { sum += idepthl[i + wl - 1]; num += weightSumsl_bak[i + wl - 1]; numn++;}\n                    if (weightSumsl_bak[i - wl + 1] > 0) { sum += idepthl[i - wl + 1]; num += weightSumsl_bak[i - wl + 1]; numn++;}\n                    if (numn > 0) {idepthl[i] = sum / numn; weightSumsl[i] = num / numn;}\n                }\n            }\n        }\n    }\n\n    // dilate idepth by 1 (2 on lower levels).\n    //膨胀\n    for (int lvl = 2; lvl < pyrLevelsUsed; lvl++)\n    {\n        int wh = w[lvl] * h[lvl] - w[lvl];\n        int wl = w[lvl];\n        float* weightSumsl = weightSums[lvl];\n        float* weightSumsl_bak = weightSums_bak[lvl];\n        memcpy(weightSumsl_bak, weightSumsl, w[lvl]*h[lvl]*sizeof(float));\n        float* idepthl = idepth[lvl];   // dotnt need to make a temp copy of depth, since I only\n        // read values with weightSumsl>0, and write ones with weightSumsl<=0.\n        for (int i = w[lvl]; i < wh; i++)\n        {\n            if (weightSumsl_bak[i] <= 0)\n            {\n                float sum = 0, num = 0, numn = 0;\n                if (weightSumsl_bak[i + 1] > 0) { sum += idepthl[i + 1]; num += weightSumsl_bak[i + 1]; numn++;}\n                if (weightSumsl_bak[i - 1] > 0) { sum += idepthl[i - 1]; num += weightSumsl_bak[i - 1]; numn++;}\n                if (weightSumsl_bak[i + wl] > 0) { sum += idepthl[i + wl]; num += weightSumsl_bak[i + wl]; numn++;}\n                if (weightSumsl_bak[i - wl] > 0) { sum += idepthl[i - wl]; num += weightSumsl_bak[i - wl]; numn++;}\n                if (numn > 0) {idepthl[i] = sum / numn; weightSumsl[i] = num / numn;}\n            }\n        }\n    }\n\n    // normalize idepths and weights.\n    //归一化逆深度和权重\n    for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)\n    {\n        float* weightSumsl = weightSums[lvl];\n        float* idepthl = idepth[lvl];\n        Eigen::Vector3f* dIRefl = lastRef->dIp[lvl];\n\n        int wl = w[lvl], hl = h[lvl];\n\n        int lpc_n = 0;\n        float* lpc_u = pc_u[lvl];\n        float* lpc_v = pc_v[lvl];\n        float* lpc_idepth = pc_idepth[lvl];\n        float* lpc_color = pc_color[lvl];\n\n        for (int y = 2; y < hl - 2; y++)\n            for (int x = 2; x < wl - 2; x++)\n            {\n                int i = x + y * wl;\n\n                if (weightSumsl[i] > 0)\n                {\n                    idepthl[i] /= weightSumsl[i];\n                    lpc_u[lpc_n] = x;\n                    lpc_v[lpc_n] = y;\n                    lpc_idepth[lpc_n] = idepthl[i];\n                    lpc_color[lpc_n] = dIRefl[i][0];\n\n                    if (!std::isfinite(lpc_color[lpc_n]) || !(idepthl[i] > 0))\n                    {\n                        idepthl[i] = -1;\n                        continue;   // just skip if something is wrong.\n                    }\n                    lpc_n++;\n                }\n                else\n                    idepthl[i] = -1;\n\n                weightSumsl[i] = 1;\n            }\n\n        pc_n[lvl] = lpc_n;\n    }\n}\n\n/**\n * [CoarseTracker::calcGSSSE description]\n * @param lvl      [description]\n * @param H_out    [description]\n * @param b_out    [description]\n * @param refToNew [description]\n * @param aff_g2l  [description]\n */\nvoid CoarseTracker::calcGSSSE(int lvl, Mat88 &H_out, Vec8 &b_out, SE3 refToNew, AffLight aff_g2l)\n{\n    //初始化\n    acc.initialize();\n\n    //内参\n    __m128 fxl = _mm_set1_ps(fx[lvl]);\n    __m128 fyl = _mm_set1_ps(fy[lvl]);\n    //参考帧b\n    __m128 b0 = _mm_set1_ps(lastRef_aff_g2l.b);\n    //两帧变换的a\n    __m128 a = _mm_set1_ps((float)(AffLight::fromToVecExposure(lastRef->ab_exposure, newFrame->ab_exposure, lastRef_aff_g2l, aff_g2l)[0]));\n\n    //1\n    __m128 one = _mm_set1_ps(1);\n    //-1\n    __m128 minusOne = _mm_set1_ps(-1);\n    //0\n    __m128 zero = _mm_set1_ps(0);\n\n    //残差符合阈值的点个数\n    int n = buf_warped_n;\n    assert(n % 4 == 0);\n    for (int i = 0; i < n; i += 4)\n    {\n        //该点x梯度值\n        __m128 dx = _mm_mul_ps(_mm_load_ps(buf_warped_dx + i), fxl);\n        //该点y梯度值\n        __m128 dy = _mm_mul_ps(_mm_load_ps(buf_warped_dy + i), fyl);\n        //该点坐标\n        __m128 u = _mm_load_ps(buf_warped_u + i);\n        __m128 v = _mm_load_ps(buf_warped_v + i);\n        //该点逆深度\n        __m128 id = _mm_load_ps(buf_warped_idepth + i);\n\n        //\n        acc.updateSSE_eighted(\n            _mm_mul_ps(id, dx),\n            _mm_mul_ps(id, dy),\n            _mm_sub_ps(zero, _mm_mul_ps(id, _mm_add_ps(_mm_mul_ps(u, dx), _mm_mul_ps(v, dy)))),\n            _mm_sub_ps(zero, _mm_add_ps(\n                           _mm_mul_ps(_mm_mul_ps(u, v), dx),\n                           _mm_mul_ps(dy, _mm_add_ps(one, _mm_mul_ps(v, v))))),\n            _mm_add_ps(\n                _mm_mul_ps(_mm_mul_ps(u, v), dy),\n                _mm_mul_ps(dx, _mm_add_ps(one, _mm_mul_ps(u, u)))),\n            _mm_sub_ps(_mm_mul_ps(u, dy), _mm_mul_ps(v, dx)),\n            _mm_mul_ps(a, _mm_sub_ps(b0, _mm_load_ps(buf_warped_refColor + i))),\n            minusOne,\n            _mm_load_ps(buf_warped_residual + i),\n            _mm_load_ps(buf_warped_weight + i));\n    }\n\n    //\n    acc.finish();\n\n    //左上角8*8矩阵/点个数为H\n    H_out = acc.H.topLeftCorner<8, 8>().cast<double>() * (1.0f / n);\n    //右上角8*1矩阵/点个数\n    b_out = acc.H.topRightCorner<8, 1>().cast<double>() * (1.0f / n);\n\n    //乘以一个比例\n    H_out.block<8, 3>(0, 0) *= SCALE_XI_ROT;\n    H_out.block<8, 3>(0, 3) *= SCALE_XI_TRANS;\n    H_out.block<8, 1>(0, 6) *= SCALE_A;\n    H_out.block<8, 1>(0, 7) *= SCALE_B;\n    H_out.block<3, 8>(0, 0) *= SCALE_XI_ROT;\n    H_out.block<3, 8>(3, 0) *= SCALE_XI_TRANS;\n    H_out.block<1, 8>(6, 0) *= SCALE_A;\n    H_out.block<1, 8>(7, 0) *= SCALE_B;\n\n    b_out.segment<3>(0) *= SCALE_XI_ROT;\n    b_out.segment<3>(3) *= SCALE_XI_TRANS;\n    b_out.segment<1>(6) *= SCALE_A;\n    b_out.segment<1>(7) *= SCALE_B;\n}\n\n/**\n * [CoarseTracker::calcRes description]\n * @param  lvl      [description]\n * @param  refToNew [description]\n * @param  aff_g2l  [description]\n * @param  cutoffTH [description]\n * @return          [description]\n */\nVec6 CoarseTracker::calcRes(int lvl, SE3 refToNew, AffLight aff_g2l, float cutoffTH)\n{\n    //当前能量值\n    float E = 0;\n    //总共点个数\n    int numTermsInE = 0;\n    //变换后的点个数\n    int numTermsInWarped = 0;\n\n    //误差过大的点个数\n    int numSaturated = 0;\n\n    //当前层图像大小\n    int wl = w[lvl];\n    int hl = h[lvl];\n    //新一帧的灰度和梯度值\n    Eigen::Vector3f* dINewl = newFrame->dIp[lvl]; //先粗糙估计\n    float fxl = fx[lvl];\n    float fyl = fy[lvl];\n    float cxl = cx[lvl];\n    float cyl = cy[lvl];\n\n    //R*K'\n    Mat33f RKi = (refToNew.rotationMatrix().cast<float>() * Ki[lvl]);\n    // printf(\"the Ki is:\\n %f,%f,%f\\n %f,%f,%f\\n %f,%f,%f\\n -----\\n\",Ki[lvl](0,0), Ki[lvl](0,1), Ki[lvl](0,2), Ki[lvl](1,0), Ki[lvl](1,1), Ki[lvl](1,2), Ki[lvl](2,0), Ki[lvl](2,1), Ki[lvl](2,2) );\n    //t\n    Vec3f t = (refToNew.translation()).cast<float>();\n    // printf(\"the t is:\\n %f, %f, %f\\n\", t(0),t(1),t(2));\n    //a和b的变换\n    Vec2f affLL = AffLight::fromToVecExposure(lastRef->ab_exposure, newFrame->ab_exposure, lastRef_aff_g2l, aff_g2l).cast<float>();\n\n    //总共T,RT,num\n    float sumSquaredShiftT = 0;\n    float sumSquaredShiftRT = 0;\n    float sumSquaredShiftNum = 0;\n\n    //最大能量值\n    float maxEnergy = 2 * setting_huberTH * cutoffTH - setting_huberTH * setting_huberTH; // energy for r=setting_coarseCutoffTH.\n\n    //残差图\n    MinimalImageB3* resImage = 0;\n    if (debugPlot)\n    {\n        resImage = new MinimalImageB3(wl, hl);\n        resImage->setConst(Vec3b(255, 255, 255));\n    }\n\n    //当前层有效点个数\n    int nl = pc_n[lvl];\n    //当前层点图像坐标\n    float* lpc_u = pc_u[lvl];\n    float* lpc_v = pc_v[lvl];\n    //当前层逆深度\n    float* lpc_idepth = pc_idepth[lvl];\n    //当前层灰度值\n    float* lpc_color = pc_color[lvl];\n\n//  printf(\"the num of the points is: %d \\n\", nl);\n    for (int i = 0; i < nl; i++)\n    {\n        float id = lpc_idepth[i];\n        float x = lpc_u[i];\n        float y = lpc_v[i];\n\n        //重投影后\n        Vec3f pt = RKi * Vec3f(x, y, 1) + t * id;\n        float u = pt[0] / pt[2];\n        float v = pt[1] / pt[2];\n        float Ku = fxl * u + cxl;\n        float Kv = fyl * v + cyl;\n        float new_idepth = id / pt[2];\n        // printf(\"Ku & Kv are: %f, %f; x and y are: %f, %f\\n\", Ku, Kv, x, y);\n\n        //第一层并且i是32的倍数\n        if (lvl == 0 && i % 32 == 0)\n        {\n            // translation only (positive)\n            //只进行正平移\n            Vec3f ptT = Ki[lvl] * Vec3f(x, y, 1) + t * id;\n            float uT = ptT[0] / ptT[2];\n            float vT = ptT[1] / ptT[2];\n            float KuT = fxl * uT + cxl;\n            float KvT = fyl * vT + cyl;\n\n            // translation only (negative)\n            // 只进行负平移\n            Vec3f ptT2 = Ki[lvl] * Vec3f(x, y, 1) - t * id;\n            float uT2 = ptT2[0] / ptT2[2];\n            float vT2 = ptT2[1] / ptT2[2];\n            float KuT2 = fxl * uT2 + cxl;\n            float KvT2 = fyl * vT2 + cyl;\n\n            //translation and rotation (negative)\n            //旋转+只进行正平移\n            Vec3f pt3 = RKi * Vec3f(x, y, 1) - t * id;\n            float u3 = pt3[0] / pt3[2];\n            float v3 = pt3[1] / pt3[2];\n            float Ku3 = fxl * u3 + cxl;\n            float Kv3 = fyl * v3 + cyl;\n\n            //translation and rotation (positive)\n            //already have it.\n\n            //几种变换后的像素坐标偏差和\n            sumSquaredShiftT += (KuT - x) * (KuT - x) + (KvT - y) * (KvT - y);\n            sumSquaredShiftT += (KuT2 - x) * (KuT2 - x) + (KvT2 - y) * (KvT2 - y);\n            sumSquaredShiftRT += (Ku - x) * (Ku - x) + (Kv - y) * (Kv - y);\n            sumSquaredShiftRT += (Ku3 - x) * (Ku3 - x) + (Kv3 - y) * (Kv3 - y);\n            sumSquaredShiftNum += 2;\n        }\n\n        if (!(Ku > 2 && Kv > 2 && Ku < wl - 3 && Kv < hl - 3 && new_idepth > 0))\n            continue;\n\n        //参考帧这个点的灰度值\n        float refColor = lpc_color[i];\n        //当前帧改点重投影后线性差值的\n        Vec3f hitColor = getInterpolatedElement33(dINewl, Ku, Kv, wl);\n        if (!std::isfinite((float)hitColor[0]))\n            continue;\n\n        //残差\n        float residual = hitColor[0] - (float)(affLL[0] * refColor + affLL[1]);\n        //Huber weight\n        //huber权重\n        float hw = fabs(residual) < setting_huberTH ? 1 : setting_huberTH / fabs(residual);\n\n        //残差大于阈值，残差过大\n        if (fabs(residual) > cutoffTH)\n        {\n            //设置该点\n            if (debugPlot)\n                resImage->setPixel4(lpc_u[i], lpc_v[i], Vec3b(0, 0, 255));\n\n            //直接加最大能量\n            E += maxEnergy;\n            //个数numTermsInE++\n            numTermsInE++;\n            numSaturated++;\n        }\n        else\n        {\n            if (debugPlot)\n                resImage->setPixel4(lpc_u[i], lpc_v[i], Vec3b(residual + 128, residual + 128, residual + 128));\n\n            //huber残差\n            E += hw * residual * residual * (2 - hw);\n            //个数numTermsInE++\n            numTermsInE++;\n\n            //变换后的点的\n            buf_warped_idepth[numTermsInWarped] = new_idepth;\n            buf_warped_u[numTermsInWarped] = u;\n            buf_warped_v[numTermsInWarped] = v;\n            buf_warped_dx[numTermsInWarped] = hitColor[1];\n            buf_warped_dy[numTermsInWarped] = hitColor[2];\n            buf_warped_residual[numTermsInWarped] = residual;\n            buf_warped_weight[numTermsInWarped] = hw;\n            buf_warped_refColor[numTermsInWarped] = lpc_color[i];\n\n            //变换后的点数++\n            numTermsInWarped++;\n        }\n    }\n\n    //如过变换成功的点个数是不是4的倍数，则跳过\n    while (numTermsInWarped % 4 != 0)\n    {\n        buf_warped_idepth[numTermsInWarped] = 0;\n        buf_warped_u[numTermsInWarped] = 0;\n        buf_warped_v[numTermsInWarped] = 0;\n        buf_warped_dx[numTermsInWarped] = 0;\n        buf_warped_dy[numTermsInWarped] = 0;\n        buf_warped_residual[numTermsInWarped] = 0;\n        buf_warped_weight[numTermsInWarped] = 0;\n        buf_warped_refColor[numTermsInWarped] = 0;\n        numTermsInWarped++;\n    }\n    //总共残差符合期望的变换的个数\n    buf_warped_n = numTermsInWarped;\n\n    //显示残差图\n    if (debugPlot)\n    {\n        IOWrap::displayImage(\"RES\", resImage, false);\n        IOWrap::waitKey(0);\n        delete resImage;\n    }\n\n    Vec6 rs;\n    //总误差能量值\n    rs[0] = E;\n    //总共点的个数\n    rs[1] = numTermsInE;\n    //平移后的像素重投影误差误差/个数/2\n    rs[2] = sumSquaredShiftT / (sumSquaredShiftNum + 0.1);\n    //\n    rs[3] = 0;\n    //平移旋转后像素重投影误差误差/个数/2\n    rs[4] = sumSquaredShiftRT / (sumSquaredShiftNum + 0.1);\n    //误差过大的点比例\n    rs[5] = numSaturated / (float)numTermsInE;\n\n    return rs;\n}\n\n/**\n * [CoarseTracker::setCTRefForFirstFrame description]\n * @param frameHessians [description]\n */\nvoid CoarseTracker::setCTRefForFirstFrame(std::vector<FrameHessian *> frameHessians)\n{\n    assert(frameHessians.size() > 0);\n    //获取参考帧\n    lastRef = frameHessians.back();\n\n    //计算当前参考帧的深度图\n    makeCoarseDepthForFirstFrame(lastRef);\n\n    //获取参考帧的id\n    refFrameID = lastRef->shell->id;\n    //获取参考帧的a和b\n    lastRef_aff_g2l = lastRef->aff_g2l();\n\n    //初始RMSE\n    firstCoarseRMSE = -1;\n}\n\n/**\n * [CoarseTracker::setCoarseTrackingRef description]\n * @param frameHessians [description]\n * @param fh_right      [description]\n * @param Hcalib        [description]\n */\nvoid CoarseTracker::setCoarseTrackingRef(\n    std::vector<FrameHessian*> frameHessians, FrameHessian* fh_right, CalibHessian Hcalib)\n{\n    assert(frameHessians.size() > 0);\n    //参考帧\n    lastRef = frameHessians.back();\n\n    //计算当前参考帧的深度图\n    makeCoarseDepthL0(frameHessians, fh_right, Hcalib);\n\n    //参考帧id\n    refFrameID = lastRef->shell->id;\n    lastRef_aff_g2l = lastRef->aff_g2l();\n\n    //初始的RMSE\n    firstCoarseRMSE = -1;\n}\n\n/**\n * [CoarseTracker::trackNewestCoarse description]\n * @param  newFrameHessian [description]\n * @param  lastToNew_out   [description]\n * @param  aff_g2l_out     [description]\n * @param  coarsestLvl     [description]\n * @param  minResForAbort  [description]\n * @param  wrap            [description]\n * @return                 [description]\n */\nbool CoarseTracker::trackNewestCoarse(\n    FrameHessian* newFrameHessian,\n    SE3 &lastToNew_out, AffLight &aff_g2l_out,\n    int coarsestLvl,\n    Vec5 minResForAbort,\n    IOWrap::Output3DWrapper* wrap)\n{\n    debugPlot = setting_render_displayCoarseTrackingFull;\n    debugPrint = false;\n\n    assert(coarsestLvl < 5 && coarsestLvl < pyrLevelsUsed);\n\n    //设置最新的残差\n    lastResiduals.setConstant(NAN);\n    //设置最新的\n    lastFlowIndicators.setConstant(1000);\n\n    //新一帧\n    newFrame = newFrameHessian;\n    //每一层最大迭代次数\n    int maxIterations[] = {10, 20, 50, 50, 50};\n    //lambda\n    float lambdaExtrapolationLimit = 0.001;\n\n    //当前的位姿和a,b\n    SE3 refToNew_current = lastToNew_out;\n    AffLight aff_g2l_current = aff_g2l_out;\n\n    bool haveRepeated = false;\n\n    //从最上层开始\n    for (int lvl = coarsestLvl; lvl >= 0; lvl--)\n    {\n        //Hessian矩阵，b矩阵\n        Mat88 H; Vec8 b;\n        float levelCutoffRepeat = 1;\n        //计算残差，层号，当前位姿，当前a和b,阈值20*levelCutoffRepeat\n        //0：总误差能量值\n        //1：总共点的个数\n        //2：平移后的像素重投影误差误差/个数/2\n        //3： 0\n        //4：平移旋转后像素重投影误差误差/个数/2\n        //5：误差过大的点比例\n        Vec6 resOld = calcRes(lvl, refToNew_current, aff_g2l_current, setting_coarseCutoffTH * levelCutoffRepeat);\n\n        //若误差多大的比例>0.6且levelCutoffRepeat<50\n        while (resOld[5] > 0.6 && levelCutoffRepeat < 50)\n        {\n            //一直计算,增大阈值\n            levelCutoffRepeat *= 2;\n            //再计算残差\n            resOld = calcRes(lvl, refToNew_current, aff_g2l_current, setting_coarseCutoffTH * levelCutoffRepeat);\n\n            if (!setting_debugout_runquiet)\n                printf(\"INCREASING cutoff to %f (ratio is %f)!\\n\", setting_coarseCutoffTH * levelCutoffRepeat, resOld[5]);\n        }\n\n        //更新当前H和b矩阵\n        calcGSSSE(lvl, H, b, refToNew_current, aff_g2l_current);\n\n        //lambda\n        float lambda = 0.01;\n\n        if (debugPrint)\n        {\n            Vec2f relAff = AffLight::fromToVecExposure(lastRef->ab_exposure, newFrame->ab_exposure, lastRef_aff_g2l, aff_g2l_current).cast<float>();\n            printf(\"lvl%d, it %d (l=%f / %f) %s: %.3f->%.3f (%d -> %d) (|inc| = %f)! \\t\",\n                   lvl, -1, lambda, 1.0f,\n                   \"INITIA\",\n                   0.0f,\n                   resOld[0] / resOld[1],\n                   0, (int)resOld[1],\n                   0.0f);\n            std::cout << refToNew_current.log().transpose() << \" AFF \" << aff_g2l_current.vec().transpose() << \" (rel \" << relAff.transpose() << \")\\n\";\n        }\n\n        //迭代\n        for (int iteration = 0; iteration < maxIterations[lvl]; iteration++)\n        {\n            //Hessian矩阵\n            Mat88 Hl = H;\n            for (int i = 0; i < 8; i++)\n                Hl(i, i) *= (1 + lambda);\n\n            //x=H×-b,使用LDLT分解\n            Vec8 inc = Hl.ldlt().solve(-b);\n\n            //只更新位姿\n            if (setting_affineOptModeA < 0 && setting_affineOptModeB < 0)   // fix a, b\n            {\n                inc.head<6>() = Hl.topLeftCorner<6, 6>().ldlt().solve(-b.head<6>());\n                inc.tail<2>().setZero();\n            }\n            //只更新位姿和A\n            if (!(setting_affineOptModeA < 0) && setting_affineOptModeB < 0) // fix b\n            {\n                inc.head<7>() = Hl.topLeftCorner<7, 7>().ldlt().solve(-b.head<7>());\n                inc.tail<1>().setZero();\n            }\n            //只更新位姿和B\n            if (setting_affineOptModeA < 0 && !(setting_affineOptModeB < 0)) // fix a\n            {\n                Mat88 HlStitch = Hl;\n                Vec8 bStitch = b;\n                //第6位为第7\n                HlStitch.col(6) = HlStitch.col(7);\n                HlStitch.row(6) = HlStitch.row(7);\n                bStitch[6] = bStitch[7];\n                Vec7 incStitch = HlStitch.topLeftCorner<7, 7>().ldlt().solve(-bStitch.head<7>());\n                inc.setZero();\n                inc.head<6>() = incStitch.head<6>();\n                inc[6] = 0;\n                inc[7] = incStitch[6];\n            }\n\n            //lambda<lambdaExtrapolationLimit,则0.001/lambda\n            float extrapFac = 1;\n            if (lambda < lambdaExtrapolationLimit)\n                extrapFac = sqrt(sqrt(lambdaExtrapolationLimit / lambda));\n\n            //乘以lambda\n            inc *= extrapFac;\n\n            Vec8 incScaled = inc;\n\n            //乘以尺度比例\n            incScaled.segment<3>(0) *= SCALE_XI_ROT;\n            incScaled.segment<3>(3) *= SCALE_XI_TRANS;\n            incScaled.segment<1>(6) *= SCALE_A;\n            incScaled.segment<1>(7) *= SCALE_B;\n\n            if (!std::isfinite(incScaled.sum()))\n                incScaled.setZero();\n\n            //最新的位姿和光度参数\n            SE3 refToNew_new = SE3::exp((Vec6)(incScaled.head<6>())) * refToNew_current;\n            AffLight aff_g2l_new = aff_g2l_current;\n            aff_g2l_new.a += incScaled[6];\n            aff_g2l_new.b += incScaled[7];\n\n            //再计算残差，计算变换后的点\n            Vec6 resNew = calcRes(lvl, refToNew_new, aff_g2l_new, setting_coarseCutoffTH * levelCutoffRepeat);\n\n            //残差是否减小\n            bool accept = (resNew[0] / resNew[1]) < (resOld[0] / resOld[1]);\n\n            if (debugPrint)\n            {\n                Vec2f relAff = AffLight::fromToVecExposure(lastRef->ab_exposure, newFrame->ab_exposure, lastRef_aff_g2l, aff_g2l_new).cast<float>();\n                printf(\"lvl %d, it %d (l=%f / %f) %s: %.3f->%.3f (%d -> %d) (|inc| = %f)! \\t\",\n                       lvl, iteration, lambda,\n                       extrapFac,\n                       (accept ? \"ACCEPT\" : \"REJECT\"),\n                       resOld[0] / resOld[1],\n                       resNew[0] / resNew[1],\n                       (int)resOld[1], (int)resNew[1],\n                       inc.norm());\n                std::cout << refToNew_new.log().transpose() << \" AFF \" << aff_g2l_new.vec().transpose() << \" (rel \" << relAff.transpose() << \")\\n\";\n            }\n            if (accept)\n            {\n                //更新当前H和b矩阵\n                calcGSSSE(lvl, H, b, refToNew_new, aff_g2l_new);\n                //更新残差和a和b和位姿\n                resOld = resNew;\n                // printf(\"accepted with res: %f\\n\", resOld[0]/resOld[1]);\n                aff_g2l_current = aff_g2l_new;\n                refToNew_current = refToNew_new;\n                //lambda减小一倍\n                lambda *= 0.5;\n            }\n            else\n            {\n                //失败，则lambda*4\n                lambda *= 4;\n                //lambda小于lambdaExtrapolationLimit，\n                //lambda等于lambdaExtrapolationLimit\n                if (lambda < lambdaExtrapolationLimit)\n                    lambda = lambdaExtrapolationLimit;\n            }\n\n            //矩阵行列式<1e-3，则说明迭代够小了\n            if (!(inc.norm() > 1e-3))\n            {\n                if (debugPrint)\n                    printf(\"inc too small, break!\\n\");\n                break;\n            }\n        }\n\n        // set last residual for that level, as well as flow indicators.\n        //残差\n        lastResiduals[lvl] = sqrtf((float)(resOld[0] / resOld[1]));\n        //从第三位开始后面的三位\n        lastFlowIndicators = resOld.segment<3>(2);\n\n        //lastResiduals大于1.5*每一层的阈值，则说明失败了\n        if (lastResiduals[lvl] > 1.5 * minResForAbort[lvl])\n            return false;\n\n        if (levelCutoffRepeat > 1 && !haveRepeated)\n        {\n            lvl++;\n            haveRepeated = true;\n            printf(\"REPEAT LEVEL!\\n\");\n        }\n    }\n\n    // set!\n    //设置最新的位姿和a和b\n    lastToNew_out = refToNew_current;\n    aff_g2l_out = aff_g2l_current;\n\n    //若a和b计算的值超出阈值，则失败\n    if ((setting_affineOptModeA != 0 && (fabsf(aff_g2l_out.a) > 1.2))\n            || (setting_affineOptModeB != 0 && (fabsf(aff_g2l_out.b) > 200)))\n        return false;\n\n    //相对变换\n    Vec2f relAff = AffLight::fromToVecExposure(lastRef->ab_exposure, newFrame->ab_exposure, lastRef_aff_g2l, aff_g2l_out).cast<float>();\n\n    if ((setting_affineOptModeA == 0 && (fabsf(logf((float)relAff[0])) > 1.5))\n            || (setting_affineOptModeB == 0 && (fabsf((float)relAff[1]) > 200)))\n        return false;\n\n    //不优化a和b，则这两个值=0\n    if (setting_affineOptModeA < 0) aff_g2l_out.a = 0;\n    if (setting_affineOptModeB < 0) aff_g2l_out.b = 0;\n\n    return true;\n}\n\n/**\n * [CoarseTracker::debugPlotIDepthMap description]\n * @param minID_pt [description]\n * @param maxID_pt [description]\n * @param wraps    [description]\n */\nvoid CoarseTracker::debugPlotIDepthMap(float* minID_pt, float* maxID_pt, std::vector<IOWrap::Output3DWrapper*> &wraps)\n{\n    if (w[1] == 0) return;\n    int lvl = 0;\n    {\n        std::vector<float> allID;\n        for (int i = 0; i < h[lvl]*w[lvl]; i++)\n        {\n            if (idepth[lvl][i] > 0)\n                allID.push_back(idepth[lvl][i]);\n        }\n        std::sort(allID.begin(), allID.end());\n        int n = allID.size() - 1;\n\n        float minID_new = allID[(int)(n * 0.05)];\n        float maxID_new = allID[(int)(n * 0.95)];\n\n        float minID, maxID;\n        minID = minID_new;\n        maxID = maxID_new;\n        if (minID_pt != 0 && maxID_pt != 0)\n        {\n            if (*minID_pt < 0 || *maxID_pt < 0)\n            {\n                *maxID_pt = maxID;\n                *minID_pt = minID;\n            }\n            else\n            {\n\n                // slowly adapt: change by maximum 10% of old span.\n                float maxChange = 0.3 * (*maxID_pt - *minID_pt);\n\n                if (minID < *minID_pt - maxChange)\n                    minID = *minID_pt - maxChange;\n                if (minID > *minID_pt + maxChange)\n                    minID = *minID_pt + maxChange;\n\n\n                if (maxID < *maxID_pt - maxChange)\n                    maxID = *maxID_pt - maxChange;\n                if (maxID > *maxID_pt + maxChange)\n                    maxID = *maxID_pt + maxChange;\n\n                *maxID_pt = maxID;\n                *minID_pt = minID;\n            }\n        }\n\n        MinimalImageB3 mf(w[lvl], h[lvl]);\n        mf.setBlack();\n        for (int i = 0; i < h[lvl]*w[lvl]; i++)\n        {\n            int c = lastRef->dIp[lvl][i][0] * 0.9f;\n            if (c > 255) c = 255;\n            mf.at(i) = Vec3b(c, c, c);\n        }\n        int wl = w[lvl];\n        for (int y = 3; y < h[lvl] - 3; y++)\n            for (int x = 3; x < wl - 3; x++)\n            {\n                int idx = x + y * wl;\n                float sid = 0, nid = 0;\n                float* bp = idepth[lvl] + idx;\n\n                if (bp[0] > 0) {sid += bp[0]; nid++;}\n                if (bp[1] > 0) {sid += bp[1]; nid++;}\n                if (bp[-1] > 0) {sid += bp[-1]; nid++;}\n                if (bp[wl] > 0) {sid += bp[wl]; nid++;}\n                if (bp[-wl] > 0) {sid += bp[-wl]; nid++;}\n\n                if (bp[0] > 0 || nid >= 3)\n                {\n                    float id = ((sid / nid) - minID) / ((maxID - minID));\n                    mf.setPixelCirc(x, y, makeJet3B(id));\n                    //mf.at(idx) = makeJet3B(id);\n                }\n            }\n        //IOWrap::displayImage(\"coarseDepth LVL0\", &mf, false);\n\n\n        for (IOWrap::Output3DWrapper* ow : wraps)\n            ow->pushDepthImage(&mf);\n\n        if (debugSaveImages)\n        {\n            char buf[1000];\n            snprintf(buf, 1000, \"images_out/predicted_%05d_%05d.png\", lastRef->shell->id, refFrameID);\n            IOWrap::writeImage(buf, &mf);\n        }\n    }\n}\n\n/**\n * [CoarseTracker::debugPlotIDepthMapFloat description]\n * @param wraps [description]\n */\nvoid CoarseTracker::debugPlotIDepthMapFloat(std::vector<IOWrap::Output3DWrapper*> &wraps)\n{\n    if (w[1] == 0) return;\n    int lvl = 0;\n    MinimalImageF mim(w[lvl], h[lvl], idepth[lvl]);\n    for (IOWrap::Output3DWrapper* ow : wraps)\n        ow->pushDepthImageFloat(&mim, lastRef);\n}\n\n\nCoarseDistanceMap::CoarseDistanceMap(int ww, int hh)\n{\n    fwdWarpedIDDistFinal = new float[ww * hh / 4];\n\n    bfsList1 = new Eigen::Vector2i[ww * hh / 4];\n    bfsList2 = new Eigen::Vector2i[ww * hh / 4];\n\n    int fac = 1 << (pyrLevelsUsed - 1);\n\n    coarseProjectionGrid = new PointFrameResidual*[2048 * (ww * hh / (fac * fac))];\n    coarseProjectionGridNum = new int[ww * hh / (fac * fac)];\n\n    w[0] = h[0] = 0;\n}\n\n/**\n *\n */\nCoarseDistanceMap::~CoarseDistanceMap()\n{\n    delete[] fwdWarpedIDDistFinal;\n    delete[] bfsList1;\n    delete[] bfsList2;\n    delete[] coarseProjectionGrid;\n    delete[] coarseProjectionGridNum;\n}\n\n/**\n * [CoarseDistanceMap::makeDistanceMap description]\n * @param frameHessians [description]\n * @param frame         [description]\n */\nvoid CoarseDistanceMap::makeDistanceMap(\n    std::vector<FrameHessian*> frameHessians,\n    FrameHessian* frame)\n{\n    int w1 = w[1];\n    int h1 = h[1];\n    int wh1 = w1 * h1;\n    for (int i = 0; i < wh1; i++)\n        fwdWarpedIDDistFinal[i] = 1000;\n\n    // make coarse tracking templates for latstRef.\n    int numItems = 0;\n\n    for (FrameHessian* fh : frameHessians)\n    {\n        if (frame == fh) continue;\n\n        SE3 fhToNew = frame->PRE_worldToCam * fh->PRE_camToWorld;\n        Mat33f KRKi = (K[1] * fhToNew.rotationMatrix().cast<float>() * Ki[0]);\n        Vec3f Kt = (K[1] * fhToNew.translation().cast<float>());\n\n        for (PointHessian* ph : fh->pointHessians)\n        {\n            assert(ph->status == PointHessian::ACTIVE);\n            Vec3f ptp = KRKi * Vec3f(ph->u, ph->v, 1) + Kt * ph->idepth_scaled;\n            int u = ptp[0] / ptp[2] + 0.5f;\n            int v = ptp[1] / ptp[2] + 0.5f;\n            if (!(u > 0 && v > 0 && u < w[1] && v < h[1])) continue;\n            fwdWarpedIDDistFinal[u + w1 * v] = 0;\n            bfsList1[numItems] = Eigen::Vector2i(u, v);\n            numItems++;\n        }\n    }\n\n    growDistBFS(numItems);\n}\n\n/**\n * [CoarseDistanceMap::makeInlierVotes description]\n * @param frameHessians [description]\n */\nvoid CoarseDistanceMap::makeInlierVotes(std::vector<FrameHessian*> frameHessians)\n{\n\n}\n\n/**\n * [CoarseDistanceMap::growDistBFS description]\n * @param bfsNum [description]\n */\nvoid CoarseDistanceMap::growDistBFS(int bfsNum)\n{\n    assert(w[0] != 0);\n    int w1 = w[1], h1 = h[1];\n    for (int k = 1; k < 40; k++) // original K is 40\n    {\n        int bfsNum2 = bfsNum;\n        std::swap<Eigen::Vector2i*>(bfsList1, bfsList2);\n        bfsNum = 0;\n\n        if (k % 2 == 0)\n        {\n            for (int i = 0; i < bfsNum2; i++)\n            {\n                int x = bfsList2[i][0];\n                int y = bfsList2[i][1];\n                if (x == 0 || y == 0 || x == w1 - 1 || y == h1 - 1) continue;\n                int idx = x + y * w1;\n\n                if (fwdWarpedIDDistFinal[idx + 1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx + 1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x + 1, y); bfsNum++;\n                }\n                if (fwdWarpedIDDistFinal[idx - 1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx - 1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x - 1, y); bfsNum++;\n                }\n                if (fwdWarpedIDDistFinal[idx + w1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx + w1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x, y + 1); bfsNum++;\n                }\n                if (fwdWarpedIDDistFinal[idx - w1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx - w1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x, y - 1); bfsNum++;\n                }\n            }\n        }\n        else\n        {\n            for (int i = 0; i < bfsNum2; i++)\n            {\n                int x = bfsList2[i][0];\n                int y = bfsList2[i][1];\n                if (x == 0 || y == 0 || x == w1 - 1 || y == h1 - 1) continue;\n                int idx = x + y * w1;\n\n                if (fwdWarpedIDDistFinal[idx + 1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx + 1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x + 1, y); bfsNum++;\n                }\n                if (fwdWarpedIDDistFinal[idx - 1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx - 1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x - 1, y); bfsNum++;\n                }\n                if (fwdWarpedIDDistFinal[idx + w1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx + w1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x, y + 1); bfsNum++;\n                }\n                if (fwdWarpedIDDistFinal[idx - w1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx - w1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x, y - 1); bfsNum++;\n                }\n\n                if (fwdWarpedIDDistFinal[idx + 1 + w1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx + 1 + w1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x + 1, y + 1); bfsNum++;\n                }\n                if (fwdWarpedIDDistFinal[idx - 1 + w1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx - 1 + w1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x - 1, y + 1); bfsNum++;\n                }\n                if (fwdWarpedIDDistFinal[idx - 1 - w1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx - 1 - w1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x - 1, y - 1); bfsNum++;\n                }\n                if (fwdWarpedIDDistFinal[idx + 1 - w1] > k)\n                {\n                    fwdWarpedIDDistFinal[idx + 1 - w1] = k;\n                    bfsList1[bfsNum] = Eigen::Vector2i(x + 1, y - 1); bfsNum++;\n                }\n            }\n        }\n    }\n}\n\n/**\n * [CoarseDistanceMap::addIntoDistFinal description]\n * @param u [description]\n * @param v [description]\n */\nvoid CoarseDistanceMap::addIntoDistFinal(int u, int v)\n{\n    if (w[0] == 0) return;\n    bfsList1[0] = Eigen::Vector2i(u, v);\n    fwdWarpedIDDistFinal[u + w[1]*v] = 0;\n    growDistBFS(1);\n}\n\n/**\n * [CoarseDistanceMap::makeK description]\n * @param HCalib [description]\n */\nvoid CoarseDistanceMap::makeK(CalibHessian* HCalib)\n{\n    w[0] = wG[0];\n    h[0] = hG[0];\n\n    fx[0] = HCalib->fxl();\n    fy[0] = HCalib->fyl();\n    cx[0] = HCalib->cxl();\n    cy[0] = HCalib->cyl();\n\n    for (int level = 1; level < pyrLevelsUsed; ++ level)\n    {\n        w[level] = w[0] >> level;\n        h[level] = h[0] >> level;\n        fx[level] = fx[level - 1] * 0.5;\n        fy[level] = fy[level - 1] * 0.5;\n        cx[level] = (cx[0] + 0.5) / ((int)1 << level) - 0.5;\n        cy[level] = (cy[0] + 0.5) / ((int)1 << level) - 0.5;\n    }\n\n    for (int level = 0; level < pyrLevelsUsed; ++ level)\n    {\n        K[level]  << fx[level], 0.0, cx[level], 0.0, fy[level], cy[level], 0.0, 0.0, 1.0;\n        Ki[level] = K[level].inverse();\n        fxi[level] = Ki[level](0, 0);\n        fyi[level] = Ki[level](1, 1);\n        cxi[level] = Ki[level](0, 2);\n        cyi[level] = Ki[level](1, 2);\n    }\n}\n\n}\n",
+			"file": "src/FullSystem/CoarseTracker.cpp",
+			"file_size": 45079,
+			"file_write_time": 131588331902321027,
 			"settings":
 			{
-				"buffer_size": 9219,
+				"buffer_size": 48630,
 				"line_ending": "Unix"
 			}
 		},
@@ -199,10 +202,12 @@
 	[
 		"/home/ren/work/fdso",
 		"/home/ren/work/fdso/src",
-		"/home/ren/work/fdso/src/FullSystem"
+		"/home/ren/work/fdso/src/FullSystem",
+		"/home/ren/work/fdso/src/OptimizationBackend"
 	],
 	"file_history":
 	[
+		"/home/ren/work/fdso/src/FullSystem/FullSystem.h",
 		"/home/ren/work/fdso/src/util/NumType.h",
 		"/home/ren/work/fdso/README.md",
 		"/home/ren/catkin_ws/src/direct_edge_imu-master/src/types.h",
@@ -222,7 +227,6 @@
 		"/home/ren/work/fdso/src/FullSystem/HessianBlocks.h",
 		"/home/ren/work/fdso/src/IOWrapper/OpenCV/ImageDisplay_OpenCV.cpp",
 		"/home/ren/work/fdso/src/util/FrameShell.h",
-		"/home/ren/work/fdso/src/FullSystem/FullSystem.h",
 		"/home/ren/work/fdso/src/util/ImageAndExposure.h",
 		"/home/ren/work/fdso/CMakeLists.txt",
 		"/home/ren/work/fdso/src/util/MinimalImage.h",
@@ -350,9 +354,11 @@
 	},
 	"find_state":
 	{
-		"case_sensitive": false,
+		"case_sensitive": true,
 		"find_history":
 		[
+			"ef",
+			"mpORBextractorLeft",
 			"trackNewCoarse",
 			"addA",
 			"frame",
@@ -478,27 +484,25 @@
 			"mappedFrameSignal",
 			"needToKetchupMapping",
 			"mappedFrameSignal",
-			"unmappedTrackedFrames",
-			"playbackSpeed",
 			"unmappedTrackedFrames"
 		],
 		"highlight": true,
 		"in_selection": false,
 		"preserve_case": false,
-		"regex": false,
+		"regex": true,
 		"replace_history":
 		[
 		],
 		"reverse": false,
 		"show_context": true,
 		"use_buffer2": true,
-		"whole_word": false,
+		"whole_word": true,
 		"wrap": true
 	},
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -507,15 +511,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 75220,
+						"buffer_size": 75352,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								16110,
-								16110
+								7367,
+								7367
 							]
 						],
 						"settings":
@@ -528,208 +532,25 @@
 								{
 									"1":
 									[
-										16569,
-										16570
+										7822,
+										7823
 									]
 								},
 								"icon":
 								{
 									"1":
 									[
-										"Packages/BracketHighlighter/icons/curly_bracket.png",
-										"region.purplish"
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"region.yellowish"
 									]
 								},
 								"open":
 								{
 									"1":
 									[
-										16286,
-										16287
+										7807,
+										7808
 									]
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.clone_regions":
-							[
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content"
-							],
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-									"1":
-									[
-										16104,
-										16105
-									]
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content"
-							],
-							"side_bar_folders_auto_load_folder": 1,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 11133.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "src/FullSystem/FullSystem.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9219,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4067,
-								4067
-							]
-						],
-						"settings":
-						{
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.clone": -1,
-							"bracket_highlighter.clone_locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
 								},
 								"unmatched":
 								{
@@ -767,11 +588,6 @@
 								"bh_unmatched_open",
 								"bh_unmatched_close",
 								"bh_unmatched_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
 								"bh_tag",
 								"bh_tag_center",
 								"bh_tag_open",
@@ -787,6 +603,11 @@
 								"bh_default_open",
 								"bh_default_close",
 								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
 								"bh_single_quote",
 								"bh_single_quote_center",
 								"bh_single_quote_open",
@@ -799,24 +620,24 @@
 								{
 									"1":
 									[
-										4070,
-										4071
+										7825,
+										7826
 									]
 								},
 								"icon":
 								{
 									"1":
 									[
-										"Packages/BracketHighlighter/icons/round_bracket.png",
-										"region.yellowish"
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"region.purplish"
 									]
 								},
 								"open":
 								{
 									"1":
 									[
-										4017,
-										4018
+										5039,
+										5040
 									]
 								},
 								"unmatched":
@@ -825,6 +646,41 @@
 							},
 							"bracket_highlighter.regions":
 							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
@@ -835,62 +691,207 @@
 								"bh_default_open",
 								"bh_default_close",
 								"bh_default_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
 								"bh_regex",
 								"bh_regex_center",
 								"bh_regex_open",
 								"bh_regex_close",
 								"bh_regex_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
 								"bh_single_quote",
 								"bh_single_quote_center",
 								"bh_single_quote_open",
 								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content"
+								"bh_single_quote_content"
 							],
-							"origin_encoding": "ASCII",
+							"is_init_dirty_state": false,
+							"origin_encoding": "UTF-8",
 							"side_bar_folders_auto_load_folder": 1,
 							"syntax": "Packages/C++/C++.sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 3753.0,
+						"translation.y": 5277.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/FullSystem/CoarseTracker.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 48630,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								29965,
+								29965
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content"
+							],
+							"side_bar_folders_auto_load_folder": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 26665.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -1075,6 +1076,7 @@
 								"bh_single_quote_close",
 								"bh_single_quote_content"
 							],
+							"is_init_dirty_state": false,
 							"origin_encoding": "ASCII",
 							"side_bar_folders_auto_load_folder": 1,
 							"syntax": "Packages/C++/C++.sublime-syntax",
@@ -1213,11 +1215,36 @@
 							},
 							"bracket_highlighter.regions":
 							[
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
@@ -1228,47 +1255,23 @@
 								"bh_angle_open",
 								"bh_angle_close",
 								"bh_angle_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
 								"bh_unmatched_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
 								"bh_tag",
 								"bh_tag_center",
 								"bh_tag_open",
 								"bh_tag_close",
 								"bh_tag_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content"
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content"
 							],
+							"is_init_dirty_state": false,
 							"origin_encoding": "ASCII",
 							"side_bar_folders_auto_load_folder": 1,
 							"syntax": "Packages/Sublime-CMakeLists/CMake.sublime-syntax"
@@ -1314,6 +1317,10 @@
 		]
 	},
 	"menu_visible": true,
+	"output.astyle_error_message":
+	{
+		"height": 0.0
+	},
 	"output.clang":
 	{
 		"height": 208.0

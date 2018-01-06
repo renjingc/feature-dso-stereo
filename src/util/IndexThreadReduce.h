@@ -84,8 +84,6 @@ public:
 //			return;
 //		}
 
-
-
 		if(stepSize == 0)
 			stepSize = ((end-first)+NUM_THREADS-1)/NUM_THREADS;
 
