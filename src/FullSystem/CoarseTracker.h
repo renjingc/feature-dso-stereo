@@ -110,7 +110,8 @@ private:
 
 	void makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, FrameHessian* fh_right, CalibHessian Hcalib);
 
-	//逆深度图
+	//按图的坐标来
+	//逆深度图,
 	float* idepth[PYR_LEVELS];
 	//权重图
 	float* weightSums[PYR_LEVELS];
@@ -127,10 +128,11 @@ private:
 	void calcGS(int lvl, Mat88 &H_out, Vec8 &b_out, SE3 refToNew, AffLight aff_g2l);
 
 	// pc buffers
+	// 按有效的一个个顺序递增
 	// 参考帧的点像素坐标
 	float* pc_u[PYR_LEVELS];
 	float* pc_v[PYR_LEVELS];
-	//参考帧的点逆深度
+	//参考帧的点逆深度，
 	float* pc_idepth[PYR_LEVELS];
 	//参考帧的点灰度值
 	float* pc_color[PYR_LEVELS];
@@ -160,7 +162,7 @@ private:
 };
 
 /**
- * 
+ * 距离图
  */
 class CoarseDistanceMap {
 public:
@@ -169,18 +171,21 @@ public:
 	CoarseDistanceMap(int w, int h);
 	~CoarseDistanceMap();
 
+	//创建距离图，一堆关键帧，和当前关键帧
 	void makeDistanceMap(
 			std::vector<FrameHessian*> frameHessians,
 			FrameHessian* frame);
 
+	//内点投票
 	void makeInlierVotes(
 			std::vector<FrameHessian*> frameHessians);
 
 	void makeK( CalibHessian* HCalib);
 
-
+	//最后距离值
 	float* fwdWarpedIDDistFinal;
 
+	//内参
 	Mat33f K[PYR_LEVELS];
 	Mat33f Ki[PYR_LEVELS];
 	float fx[PYR_LEVELS];

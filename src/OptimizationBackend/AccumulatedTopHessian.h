@@ -39,7 +39,6 @@ class EFPoint;
 class EnergyFunctional;
 
 
-
 class AccumulatedTopHessianSSE
 {
 public:
@@ -138,16 +137,11 @@ public:
 		}
 	}
 
-
-
-
 	int nframes[NUM_THREADS];
 
 	EIGEN_ALIGN16 AccumulatorApprox* acc[NUM_THREADS];
 
-
 	int nres[NUM_THREADS];
-
 
 	template<int mode> void addPointsInternal(
 			std::vector<EFPoint*>* points, EnergyFunctional const * const ef,
@@ -155,8 +149,6 @@ public:
 	{
 		for(int i=min;i<max;i++) addPoint<mode>((*points)[i],ef,tid);
 	}
-
-
 
 private:
 

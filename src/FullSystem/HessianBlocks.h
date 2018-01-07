@@ -130,10 +130,10 @@ struct FrameHessian
     	//用于像素的选择，用直方图，金字塔
 	float* absSquaredGrad[PYR_LEVELS];  // only used for pixel select (histograms etc.). no NAN.
 
-    	//图像关键帧ID
+    	//关键帧id
 	int frameID;						// incremental ID for keyframes only!
 	static int instanceCounter;
-	//连续的图像id
+	//当前窗口中的帧id
 	int idx;
 
 	// Photometric Calibration Stuff
@@ -331,12 +331,17 @@ struct FrameHessian
 	inline Vec10 getPrior()
 	{
 		Vec10 p =  Vec10::Zero();
+		//第一个关键帧
 		if (frameID == 0)
 		{
+			//前三位位置，1e10
 			p.head<3>() = Vec3::Constant(setting_initialTransPrior);
+			//后三位旋转，1e11
 			p.segment<3>(3) = Vec3::Constant(setting_initialRotPrior);
-			if (setting_solverMode & SOLVER_REMOVE_POSEPRIOR) p.head<6>().setZero();
+			if (setting_solverMode & SOLVER_REMOVE_POSEPRIOR)
+				p.head<6>().setZero();
 
+			//初始的a和b为1e14
 			p[6] = setting_initialAffAPrior;
 			p[7] = setting_initialAffBPrior;
 		}
@@ -416,8 +421,6 @@ struct CalibHessian
 	inline float& fyli() {return value_scaledi[1];}
 	inline float& cxli() {return value_scaledi[2];}
 	inline float& cyli() {return value_scaledi[3];}
-
-
 
 	inline void setValue(VecC value)
 	{
@@ -577,14 +580,17 @@ struct PointHessian
 	 */
 	inline bool isOOB(const std::vector<FrameHessian*>& toKeep, const std::vector<FrameHessian*>& toMarg) const
 	{
-
 		int visInToMarg = 0;
+		//该点有目标帧被边缘化，visInToMarg个数++
 		for (PointFrameResidual* r : residuals)
 		{
 			if (r->state_state != ResState::IN) continue;
 			for (FrameHessian* k : toMarg)
-				if (r->target == k) visInToMarg++;
+				if (r->target == k)
+					visInToMarg++;
 		}
+
+		//残差数量够大３，１４，３，且无边缘化的残差数够小
 		if ((int)residuals.size() >= setting_minGoodActiveResForMarg &&
 		        numGoodResiduals > setting_minGoodResForMarg + 10 &&
 		        (int)residuals.size() - visInToMarg < setting_minGoodActiveResForMarg)

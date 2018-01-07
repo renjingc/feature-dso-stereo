@@ -65,8 +65,5 @@ private:
 	const FrameHessian* gradHistFrame;
 };
 
-
-
-
 }
 

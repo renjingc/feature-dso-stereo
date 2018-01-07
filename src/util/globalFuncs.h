@@ -41,6 +41,15 @@ namespace fdso
 
 // reads interpolated element from a uchar* array
 // SSE2 optimization possible
+/**
+ * [getInterpolatedElement description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * 双线性二次差值，一维
+ */
 EIGEN_ALWAYS_INLINE float getInterpolatedElement(const float* const mat, const float x, const float y, const int width)
 {
 	//stats.num_pixelInterpolations++;
@@ -60,7 +69,15 @@ EIGEN_ALWAYS_INLINE float getInterpolatedElement(const float* const mat, const f
 
 	return res;
 }
-
+/**
+ * [getInterpolatedElement43 description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * 双线性二次差值，输入4维，输出3维
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement43(const Eigen::Vector4f* const mat, const float x, const float y, const int width)
 {
 	int ix = (int)x;
@@ -77,6 +94,15 @@ EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement43(const Eigen::Vector
 			+ (1-dx-dy+dxdy) * *(const Eigen::Vector3f*)(bp);
 }
 
+/**
+ * [getInterpolatedElement33 description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * 双线性二次差值，输入3维，输出3维
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33(const Eigen::Vector3f* const mat, const float x, const float y, const int width)
 {
 	int ix = (int)x;
@@ -93,6 +119,17 @@ EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33(const Eigen::Vector
 			+ (1-dx-dy+dxdy) * *(const Eigen::Vector3f*)(bp);
 }
 
+/**
+ * [getInterpolatedElement33OverAnd description]
+ * @param  mat      [description]
+ * @param  overMat  [description]
+ * @param  x        [description]
+ * @param  y        [description]
+ * @param  width    [description]
+ * @param  over_out [description]
+ * @return          [description]
+ * 双线性二次差值，加入掩码模式，掩码进行与操作，输入3维，输出3维
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33OverAnd(const Eigen::Vector3f* const mat, const bool* overMat, const float x, const float y, const int width, bool& over_out)
 {
 	int ix = (int)x;
@@ -110,6 +147,18 @@ EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33OverAnd(const Eigen:
 	        + (dx-dxdy) * *(const Eigen::Vector3f*)(bp+1)
 			+ (1-dx-dy+dxdy) * *(const Eigen::Vector3f*)(bp);
 }
+
+/**
+ * [getInterpolatedElement33OverOr description]
+ * @param  mat      [description]
+ * @param  overMat  [description]
+ * @param  x        [description]
+ * @param  y        [description]
+ * @param  width    [description]
+ * @param  over_out [description]
+ * @return          [description]
+ * 双线性二次差值，加入掩码模式，掩码进行或操作，输入3维，输出3维
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33OverOr(const Eigen::Vector3f* const mat, const bool* overMat, const float x, const float y, const int width, bool& over_out)
 {
 	int ix = (int)x;
@@ -128,6 +177,16 @@ EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33OverOr(const Eigen::
 			+ (1-dx-dy+dxdy) * *(const Eigen::Vector3f*)(bp);
 }
 
+
+/**
+ * [getInterpolatedElement31 description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * 双线性二次差值，输入3维，输出1维
+ */
 EIGEN_ALWAYS_INLINE float getInterpolatedElement31(const Eigen::Vector3f* const mat, const float x, const float y, const int width)
 {
 	int ix = (int)x;
@@ -144,6 +203,15 @@ EIGEN_ALWAYS_INLINE float getInterpolatedElement31(const Eigen::Vector3f* const 
 			+ (1-dx-dy+dxdy) * (*(const Eigen::Vector3f*)(bp))[0];
 }
 
+/**
+ * [getInterpolatedElement13BiLin description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * 双线性二次差值，输入1维，输出3维,第一位为插值值，后两位为左右和上下的
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement13BiLin(const float* const mat, const float x, const float y, const int width)
 {
 	int ix = (int)x;
@@ -168,6 +236,15 @@ EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement13BiLin(const float* c
 			botInt-topInt);
 }
 
+/**
+ * [getInterpolatedElement33BiLin description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * 双线性二次差值，输入3维，输出3维,第一位为插值值，后两位为左右和上下的
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33BiLin(const Eigen::Vector3f* const mat, const float x, const float y, const int width)
 {
 	int ix = (int)x;
@@ -191,6 +268,7 @@ EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33BiLin(const Eigen::V
 			rightInt-leftInt,
 			botInt-topInt);
 }
+
 
 EIGEN_ALWAYS_INLINE float getMatInterpolatedElement11BiLin(const cv::Mat mat, const float x, const float y)
 {
@@ -216,11 +294,25 @@ EIGEN_ALWAYS_INLINE float getMatInterpolatedElement11BiLin(const cv::Mat mat, co
 
 }
 
+/**
+ * [getInterpolatedElement11Cub description]
+ * @param  p [description]
+ * @param  x [description]
+ * @return   [description]
+ * cube插值差值，输入1维，输出1维
+ */
 EIGEN_ALWAYS_INLINE float getInterpolatedElement11Cub(const float* const p, const float x)	// for x=0, this returns p[1].
 {
 	return p[1] + 0.5f * x*(p[2] - p[0] + x*(2.0f*p[0] - 5.0f*p[1] + 4.0f*p[2] - p[3] + x*(3.0f*(p[1] - p[2]) + p[3] - p[0])));
 }
 
+/**
+ * [getInterpolatedElement12Cub description]
+ * @param  p [description]
+ * @param  x [description]
+ * @return   [description]
+ * cube插值差值，输入1维，输出2维
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector2f getInterpolatedElement12Cub(const float* const p, const float x)	// for x=0, this returns p[1].
 {
 	float c1 = 0.5f * (p[2] - p[0]);
@@ -230,6 +322,14 @@ EIGEN_ALWAYS_INLINE Eigen::Vector2f getInterpolatedElement12Cub(const float* con
 	float xxx = xx*x;
 	return Eigen::Vector2f(p[1] + x*c1 + xx*c2 + xxx*c3, c1 + x*2.0f*c2 + xx*3.0f*c3);
 }
+
+/**
+ * [getInterpolatedElement32Cub description]
+ * @param  p [description]
+ * @param  x [description]
+ * @return   [description]
+ * cube插值差值，输入3维，输出2维
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector2f getInterpolatedElement32Cub(const Eigen::Vector3f* const p, const float x)	// for x=0, this returns p[1].
 {
 	float c1 = 0.5f * (p[2][0] - p[0][0]);
@@ -240,6 +340,15 @@ EIGEN_ALWAYS_INLINE Eigen::Vector2f getInterpolatedElement32Cub(const Eigen::Vec
 	return Eigen::Vector2f(p[1][0] + x*c1 + xx*c2 + xxx*c3, c1 + x*2.0f*c2 + xx*3.0f*c3);
 }
 
+/**
+ * [getInterpolatedElement11BiCub description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * bicube插值差值，输入1维，输出1维
+ */
 EIGEN_ALWAYS_INLINE float getInterpolatedElement11BiCub(const float* const mat, const float x, const float y, const int width)
 {
 	int ix = (int)x;
@@ -256,6 +365,16 @@ EIGEN_ALWAYS_INLINE float getInterpolatedElement11BiCub(const float* const mat, 
 	float dy = y - iy;
 	return getInterpolatedElement11Cub(val, dy);
 }
+
+/**
+ * [getInterpolatedElement13BiCub description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * bicube插值差值，输入1维，输出3维
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement13BiCub(const float* const mat, const float x, const float y, const int width)
 {
 	int ix = (int)x;
@@ -283,6 +402,15 @@ EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement13BiCub(const float* c
 	return Eigen::Vector3f(v[0], getInterpolatedElement11Cub(grad, dy), v[1]);
 }
 
+/**
+ * [getInterpolatedElement33BiCub description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * bicube插值差值，输入3维，输出3维
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33BiCub(const Eigen::Vector3f* const mat, const float x, const float y, const int width)
 {
 	int ix = (int)x;
@@ -310,6 +438,15 @@ EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33BiCub(const Eigen::V
 	return Eigen::Vector3f(v[0], getInterpolatedElement11Cub(grad, dy), v[1]);
 }
 
+/**
+ * [getInterpolatedElement44 description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * 双线性插值法，输入输出4维
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector4f getInterpolatedElement44(const Eigen::Vector4f* const mat, const float x, const float y, const int width)
 {
 	int ix = (int)x;
@@ -326,6 +463,15 @@ EIGEN_ALWAYS_INLINE Eigen::Vector4f getInterpolatedElement44(const Eigen::Vector
 			+ (1-dx-dy+dxdy) * *(bp);
 }
 
+/**
+ * [getInterpolatedElement42 description]
+ * @param  mat   [description]
+ * @param  x     [description]
+ * @param  y     [description]
+ * @param  width [description]
+ * @return       [description]
+ * 双线性插值法，输入4维，输出4维
+ */
 EIGEN_ALWAYS_INLINE Eigen::Vector2f getInterpolatedElement42(const Eigen::Vector4f* const mat, const float x, const float y, const int width)
 {
 	int ix = (int)x;
@@ -342,8 +488,12 @@ EIGEN_ALWAYS_INLINE Eigen::Vector2f getInterpolatedElement42(const Eigen::Vector
 			+ (1-dx-dy+dxdy) * *(const Eigen::Vector2f*)(bp);
 }
 
-
-
+/**
+ * [makeRainbowf3F description]
+ * @param  id [description]
+ * @return    [description]
+ * 产生颜色渐变图
+ */
 inline Vec3f makeRainbowf3F(float id)
 {
 	id *= freeDebugParam3;
@@ -361,6 +511,12 @@ inline Vec3f makeRainbowf3F(float id)
 	return Vec3f(1,1,1);
 }
 
+/**
+ * [makeRainbow3B description]
+ * @param  id [description]
+ * @return    [description]
+ * 产生颜色渐变图
+ */
 inline Vec3b makeRainbow3B(float id)
 {
 	id *= freeDebugParam3;
@@ -377,6 +533,12 @@ inline Vec3b makeRainbow3B(float id)
 	return Vec3b(255,255,255);
 }
 
+/**
+ * [makeJet3B description]
+ * @param  id [description]
+ * @return    [description]
+ * 产生颜色
+ */
 inline Vec3b makeJet3B(float id)
 {
 	if(id <= 0) return Vec3b(128,0,0);
@@ -396,6 +558,12 @@ inline Vec3b makeJet3B(float id)
 	return Vec3b(255,255,255);
 }
 
+/**
+ * [makeRedGreen3B description]
+ * @param  val [description]
+ * @return     [description]
+ * 根据值计算颜色，0为红色，1为绿色，0.5位黄色
+ */
 inline Vec3b makeRedGreen3B(float val)	// 0 = red, 1=green, 0.5=yellow.
 {
 	if(val < 0) return Vec3b(0,0,255);
@@ -404,9 +572,5 @@ inline Vec3b makeRedGreen3B(float val)	// 0 = red, 1=green, 0.5=yellow.
 	else return Vec3b(0,255,0);
 
 }
-
-
-
-
 
 }

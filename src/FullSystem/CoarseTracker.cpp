@@ -301,7 +301,7 @@ void CoarseTracker::makeCoarseDepthForFirstFrame(FrameHessian* fh)
                 //这个点权重大于0
                 if (weightSumsl[i] > 0)
                 {
-                    //归一化后的逆深度
+                    //归一化后的逆深度，逆深度/权重
                     idepthl[i] /= weightSumsl[i];
                     //当前点图像坐标
                     lpc_u[lpc_n] = x;
@@ -321,6 +321,7 @@ void CoarseTracker::makeCoarseDepthForFirstFrame(FrameHessian* fh)
                 else
                     idepthl[i] = -1;
 
+                //重置该点的权重
                 weightSumsl[i] = 1;
             }
 
@@ -358,22 +359,29 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, 
         //遍历这个关键帧中的每一个点
         for (PointHessian* ph : fh->pointHessians)
         {
+            //判断点的残差状态
             if (ph->lastResiduals[0].first != 0 && ph->lastResiduals[0].second == ResState::IN) //contains information about residuals to the last two (!) frames. ([0] = latest, [1] = the one before).
             {
                 PointFrameResidual* r = ph->lastResiduals[0].first;
                 assert(r->efResidual->isActive() && r->target == lastRef);
+
+                //获取点的投影坐标
                 int u = r->centerProjectedTo[0] + 0.5f;
                 int v = r->centerProjectedTo[1] + 0.5f;
 
+                //初始化
                 ImmaturePoint* pt_track = new ImmaturePoint((float)u, (float)v, fh_target, &Hcalib);
 
+                //坐标
                 pt_track->u_stereo = pt_track->u;
                 pt_track->v_stereo = pt_track->v;
 
                 // free to debug
+                //设置初始的最小和最大逆深度
                 pt_track->idepth_min_stereo = r->centerProjectedTo[2] * 0.1f;
                 pt_track->idepth_max_stereo = r->centerProjectedTo[2] * 1.9f;
 
+                //
                 ImmaturePointStatus pt_track_right = pt_track->traceStereo(fh_right, K1, 1);
 
                 float new_idepth = 0;
@@ -1248,17 +1256,29 @@ void CoarseTracker::debugPlotIDepthMapFloat(std::vector<IOWrap::Output3DWrapper*
         ow->pushDepthImageFloat(&mim, lastRef);
 }
 
-
+/**
+ * @brief      Constructs the object.
+ *
+ * @param[in]  ww    { parameter_description }
+ * @param[in]  hh    { parameter_description }
+ * 初始化距离图
+ */
 CoarseDistanceMap::CoarseDistanceMap(int ww, int hh)
 {
+    //当前图像的１/4大小，即金字塔第二层的大小
     fwdWarpedIDDistFinal = new float[ww * hh / 4];
 
+    //宽度优先搜索列表
     bfsList1 = new Eigen::Vector2i[ww * hh / 4];
     bfsList2 = new Eigen::Vector2i[ww * hh / 4];
 
+    //
     int fac = 1 << (pyrLevelsUsed - 1);
 
+    //点与帧的残差
     coarseProjectionGrid = new PointFrameResidual*[2048 * (ww * hh / (fac * fac))];
+
+    //个数
     coarseProjectionGridNum = new int[ww * hh / (fac * fac)];
 
     w[0] = h[0] = 0;
@@ -1280,37 +1300,52 @@ CoarseDistanceMap::~CoarseDistanceMap()
  * [CoarseDistanceMap::makeDistanceMap description]
  * @param frameHessians [description]
  * @param frame         [description]
+ * 创建距离图
  */
 void CoarseDistanceMap::makeDistanceMap(
     std::vector<FrameHessian*> frameHessians,
     FrameHessian* frame)
 {
+    //第二层的图像大小
     int w1 = w[1];
     int h1 = h[1];
     int wh1 = w1 * h1;
+
+    //第二层每个点个距离值初始＝1000
     for (int i = 0; i < wh1; i++)
         fwdWarpedIDDistFinal[i] = 1000;
 
     // make coarse tracking templates for latstRef.
     int numItems = 0;
 
+    //遍历窗口中每一个关键帧
     for (FrameHessian* fh : frameHessians)
     {
         if (frame == fh) continue;
 
+        //位姿
         SE3 fhToNew = frame->PRE_worldToCam * fh->PRE_camToWorld;
         Mat33f KRKi = (K[1] * fhToNew.rotationMatrix().cast<float>() * Ki[0]);
         Vec3f Kt = (K[1] * fhToNew.translation().cast<float>());
 
+        //遍历每一个激活的点
         for (PointHessian* ph : fh->pointHessians)
         {
             assert(ph->status == PointHessian::ACTIVE);
+
+            //重投影该点
             Vec3f ptp = KRKi * Vec3f(ph->u, ph->v, 1) + Kt * ph->idepth_scaled;
             int u = ptp[0] / ptp[2] + 0.5f;
             int v = ptp[1] / ptp[2] + 0.5f;
             if (!(u > 0 && v > 0 && u < w[1] && v < h[1])) continue;
+
+            //该点的距离值＝０
             fwdWarpedIDDistFinal[u + w1 * v] = 0;
+
+            //该点的坐标
             bfsList1[numItems] = Eigen::Vector2i(u, v);
+
+            //点个数++
             numItems++;
         }
     }
@@ -1321,6 +1356,7 @@ void CoarseDistanceMap::makeDistanceMap(
 /**
  * [CoarseDistanceMap::makeInlierVotes description]
  * @param frameHessians [description]
+ * ？？？无实现
  */
 void CoarseDistanceMap::makeInlierVotes(std::vector<FrameHessian*> frameHessians)
 {

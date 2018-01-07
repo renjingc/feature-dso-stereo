@@ -748,11 +748,15 @@ void EnergyFunctional::marginalizePointsF()
  */
 void EnergyFunctional::dropPointsF()
 {
+	//遍历每一帧
 	for (EFFrame* f : frames)
 	{
+		//遍历每一个点
 		for (int i = 0; i < (int)f->points.size(); i++)
 		{
 			EFPoint* p = f->points[i];
+
+			//移除这个点
 			if (p->stateFlag == EFPointStatus::PS_DROP)
 			{
 				removePoint(p);
@@ -773,9 +777,11 @@ void EnergyFunctional::dropPointsF()
  */
 void EnergyFunctional::removePoint(EFPoint* p)
 {
+	//移除该点的残差
 	for (EFResidual* r : p->residualsAll)
 		dropResidual(r);
 
+	//删除在主导帧中的该点
 	EFFrame* h = p->host;
 	h->points[p->idxInPoints] = h->points.back();
 	h->points[p->idxInPoints]->idxInPoints = p->idxInPoints;

@@ -58,7 +58,7 @@ PointFrameResidual::PointFrameResidual(){assert(false); instanceCounter++;}
 PointFrameResidual::~PointFrameResidual(){assert(efResidual==0); instanceCounter--; delete J;}
 
 /**
- * 
+ * 初始化点与帧的残差
  */
 PointFrameResidual::PointFrameResidual(PointHessian* point_, FrameHessian* host_, FrameHessian* target_) :
 	point(point_),
@@ -313,6 +313,8 @@ void PointFrameResidual::debugPlot()
 /**
  * [PointFrameResidual::applyRes description]
  * @param copyJacobians [description]
+ * 更新state_scaled，PRE_worldToCam，PRE_camToWorld
+ * 用state_NewEnergy更新state_energy
  */
 void PointFrameResidual::applyRes(bool copyJacobians)
 {
@@ -326,6 +328,7 @@ void PointFrameResidual::applyRes(bool copyJacobians)
 		}
 		if(state_NewState == ResState::IN)// && )
 		{
+			//设置帧的残差
 			efResidual->isActiveAndIsGoodNEW=true;
 			efResidual->takeDataF();
 		}

@@ -33,9 +33,12 @@
 namespace fdso
 {
 
-
+/**
+ * @brief      { function_description }
+ */
 void EFResidual::takeDataF()
 {
+	//从data中获取雅克比
 	std::swap<RawResidualJacobian*>(J, data->J);
 
 	Vec2f JI_JI_Jd = J->JIdx2 * J->Jpdd;
@@ -46,14 +49,16 @@ void EFResidual::takeDataF()
 	JpJdF.segment<2>(6) = J->JabJIdx*J->Jpdd;
 }
 
-
+/**
+ * @brief      { function_description }
+ * 获取帧的信息
+ */
 void EFFrame::takeData()
 {
+	//初始值
 	prior = data->getPrior().head<8>();
 	delta = data->get_state_minus_stateZero().head<8>();
 	delta_prior =  (data->get_state() - data->getPriorZero()).head<8>();
-
-
 
 //	Vec10 state_zero =  data->get_state_zero();
 //	state_zero.segment<3>(0) = SCALE_XI_TRANS * state_zero.segment<3>(0);
@@ -65,24 +70,31 @@ void EFFrame::takeData()
 //
 //	std::cout << "state_zero: " << state_zero.transpose() << "\n";
 
-
 	assert(data->frameID != -1);
 
+	//获取帧的关键帧id
 	frameID = data->frameID;
 }
 
-
-
-
+/**
+ * @brief      { function_description }
+ */
 void EFPoint::takeData()
 {
+	//点是否有先验的逆深度，
 	priorF = data->hasDepthPrior ? setting_idepthFixPrior*SCALE_IDEPTH*SCALE_IDEPTH : 0;
-	if(setting_solverMode & SOLVER_REMOVE_POSEPRIOR) priorF=0;
+	if(setting_solverMode & SOLVER_REMOVE_POSEPRIOR)
+		priorF=0;
 
+	//
 	deltaF = data->idepth-data->idepth_zero;
 }
 
-
+/**
+ * @brief      { function_description }
+ *
+ * @param      ef    { parameter_description }
+ */
 void EFResidual::fixLinearizationF(EnergyFunctional* ef)
 {
 	Vec8f dp = ef->adHTdeltaF[hostIDX+ef->nFrames*targetIDX];

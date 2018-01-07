@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -28,7 +28,7 @@
 #include "util/NumType.h"
 #include "util/globalCalib.h"
 #include "vector"
- 
+
 #include <iostream>
 #include <fstream>
 #include "util/NumType.h"
@@ -72,8 +72,8 @@ template<typename T> inline void deleteOutPt(std::vector<T*> &v, const T* i)
 {
 	delete i;
 
-	for(unsigned int k=0;k<v.size();k++)
-		if(v[k] == i)
+	for (unsigned int k = 0; k < v.size(); k++)
+		if (v[k] == i)
 		{
 			v[k] = v.back();
 			v.pop_back();
@@ -82,25 +82,25 @@ template<typename T> inline void deleteOutPt(std::vector<T*> &v, const T* i)
 template<typename T> inline void deleteOutOrder(std::vector<T*> &v, const int i)
 {
 	delete v[i];
-	for(unsigned int k=i+1; k<v.size();k++)
-		v[k-1] = v[k];
+	for (unsigned int k = i + 1; k < v.size(); k++)
+		v[k - 1] = v[k];
 	v.pop_back();
 }
 template<typename T> inline void deleteOutOrder(std::vector<T*> &v, const T* element)
 {
-	int i=-1;
-	for(unsigned int k=0; k<v.size();k++)
+	int i = -1;
+	for (unsigned int k = 0; k < v.size(); k++)
 	{
-		if(v[k] == element)
+		if (v[k] == element)
 		{
-			i=k;
+			i = k;
 			break;
 		}
 	}
-	assert(i!=-1);
+	assert(i != -1);
 
-	for(unsigned int k=i+1; k<v.size();k++)
-		v[k-1] = v[k];
+	for (unsigned int k = i + 1; k < v.size(); k++)
+		v[k - 1] = v[k];
 	v.pop_back();
 
 	delete element;
@@ -110,15 +110,15 @@ template<typename T> inline void deleteOutOrder(std::vector<T*> &v, const T* ele
 inline bool eigenTestNan(MatXX m, std::string msg)
 {
 	bool foundNan = false;
-	for(int y=0;y<m.rows();y++)
-		for(int x=0;x<m.cols();x++)
+	for (int y = 0; y < m.rows(); y++)
+		for (int x = 0; x < m.cols(); x++)
 		{
-			if(!std::isfinite((double)m(y,x))) foundNan = true;
+			if (!std::isfinite((double)m(y, x))) foundNan = true;
 		}
 
-	if(foundNan)
+	if (foundNan)
 	{
-		printf("NAN in %s:\n",msg.c_str());
+		printf("NAN in %s:\n", msg.c_str());
 		std::cout << m << "\n\n";
 	}
 
@@ -157,7 +157,7 @@ public:
 	void printFrameLifetimes();
 	// contains pointers to active frames
 
-    std::vector<IOWrap::Output3DWrapper*> outputWrapper;
+	std::vector<IOWrap::Output3DWrapper*> outputWrapper;
 
 	bool isLost;
 	bool initFailed;
@@ -169,7 +169,6 @@ public:
 	void setOriginalCalib(VecXf originalCalib, int originalW, int originalH);
 
 private:
-
 	//矫正类
 	CalibHessian Hcalib;
 
@@ -185,13 +184,13 @@ private:
 	double linAllPointSinle(PointHessian* point, float outlierTHSlack, bool plot);
 
 	//非关键帧的跟踪
-    	void traceNewCoarseNonKey(FrameHessian* fh, FrameHessian* fh_right);
+	void traceNewCoarseNonKey(FrameHessian* fh, FrameHessian* fh_right);
 
 	// mainPipelineFunctions
 	//主跟踪函数
-	Vec4 trackNewCoarse(FrameHessian* fh,FrameHessian* fh_right,Eigen::Matrix3d R);
+	Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen::Matrix3d R);
 	//关键帧的更新
-	void traceNewCoarseKey(FrameHessian* fh,FrameHessian* fh_right);
+	void traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right);
 	//更新一个点
 	void activatePoints();
 	void activatePointsMT();
@@ -210,13 +209,13 @@ private:
 	// solce. eventually migrate to ef.
 	void solveSystem(int iteration, double lambda);
 	Vec3 linearizeAll(bool fixLinearization);
-	bool doStepFromBackup(float stepfacC,float stepfacT,float stepfacR,float stepfacA,float stepfacD);
+	bool doStepFromBackup(float stepfacC, float stepfacT, float stepfacR, float stepfacA, float stepfacD);
 	void backupState(bool backupLastStep);
 	void loadSateBackup();
 	double calcLEnergy();
 	double calcMEnergy();
 	void linearizeAll_Reductor(bool fixLinearization, std::vector<PointFrameResidual*>* toRemove, int min, int max, Vec10* stats, int tid);
-	void activatePointsMT_Reductor(std::vector<PointHessian*>* optimized,std::vector<ImmaturePoint*>* toOptimize,int min, int max, Vec10* stats, int tid);
+	void activatePointsMT_Reductor(std::vector<PointHessian*>* optimized, std::vector<ImmaturePoint*>* toOptimize, int min, int max, Vec10* stats, int tid);
 	void applyRes_Reductor(bool copyJacobians, int min, int max, Vec10* stats, int tid);
 
 	void printOptRes(Vec3 res, double resL, double resM, double resPrior, double LExact, float a, float b);
@@ -224,10 +223,10 @@ private:
 	void debugPlotTracking();
 
 	std::vector<VecX> getNullspaces(
-			std::vector<VecX> &nullspaces_pose,
-			std::vector<VecX> &nullspaces_scale,
-			std::vector<VecX> &nullspaces_affA,
-			std::vector<VecX> &nullspaces_affB);
+	  std::vector<VecX> &nullspaces_pose,
+	  std::vector<VecX> &nullspaces_scale,
+	  std::vector<VecX> &nullspaces_affA,
+	  std::vector<VecX> &nullspaces_affB);
 
 	void setNewFrameEnergyTH();
 
@@ -313,11 +312,11 @@ private:
 	// mutex for camToWorl's in shells (these are always in a good configuration).
 	boost::mutex shellPoseMutex;
 
-/*
- * tracking always uses the newest KF as reference.
- *
- */
- 	//创建关键帧
+	/*
+	 * tracking always uses the newest KF as reference.
+	 *
+	 */
+	//创建关键帧
 	void makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right);
 	//创建非关键帧
 	void makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right);
@@ -359,10 +358,10 @@ private:
 
 	cv::FlannBasedMatcher matcher_flann_;
 
-	boost::thread threadLeft,threadRight;
+	boost::thread threadLeft, threadRight;
 
 	void ExtractORB(int flag, const cv::Mat &im);
-	void find_feature_matches (const cv::Mat& descriptorsLast,const cv::Mat& descriptorsCur,std::vector<cv::DMatch>& feature_matches_);
+	void find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_);
 };
 }
 

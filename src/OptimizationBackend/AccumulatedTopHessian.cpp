@@ -30,12 +30,9 @@
 namespace fdso
 {
 
-
-
 template<int mode>
 void AccumulatedTopHessianSSE::addPoint(EFPoint* p, EnergyFunctional const * const ef, int tid)	// 0 = active, 1 = linearized, 2=marginalize
 {
-
 
 	assert(mode==0 || mode==1 || mode==2);
 
@@ -66,8 +63,6 @@ void AccumulatedTopHessianSSE::addPoint(EFPoint* p, EnergyFunctional const * con
 		RawResidualJacobian* rJ = r->J;
 		int htIDX = r->hostIDX + r->targetIDX*nframes[tid];
 		Mat18f dp = ef->adHTdeltaF[htIDX];
-
-
 
 		VecNRf resApprox;
 		if(mode==0)
@@ -158,8 +153,6 @@ template void AccumulatedTopHessianSSE::addPoint<1>(EFPoint* p, EnergyFunctional
 template void AccumulatedTopHessianSSE::addPoint<2>(EFPoint* p, EnergyFunctional const * const ef, int tid);
 
 
-
-
 void AccumulatedTopHessianSSE::stitchDouble(MatXX &H, VecX &b, EnergyFunctional const * const EF, bool usePrior, bool useDelta, int tid)
 {
 	H = MatXX::Zero(nframes[tid]*8+CPARS, nframes[tid]*8+CPARS);
@@ -172,8 +165,6 @@ void AccumulatedTopHessianSSE::stitchDouble(MatXX &H, VecX &b, EnergyFunctional 
 			int hIdx = CPARS+h*8;
 			int tIdx = CPARS+t*8;
 			int aidx = h+nframes[tid]*t;
-
-
 
 			acc[tid][aidx].finish();
 			if(acc[tid][aidx].num==0) continue;
@@ -279,7 +270,6 @@ void AccumulatedTopHessianSSE::stitchDoubleInternal(
 
 	}
 
-
 	// only do this on one thread.
 	if(min==0 && usePrior)
 	{
@@ -293,8 +283,6 @@ void AccumulatedTopHessianSSE::stitchDoubleInternal(
 		}
 	}
 }
-
-
 
 }
 

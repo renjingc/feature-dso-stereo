@@ -40,6 +40,7 @@ namespace fdso
 
 /**
  * @brief      Class for frame shell.
+ * 每一帧的信息
  */
 class FrameShell
 {
@@ -49,7 +50,7 @@ public:
 	//一直递增的id
 	int id; 			// INTERNAL ID, starting at zero.
 
-	//插入dso的ｉｄ
+	//插入dso的id
 	int incoming_id;	// ID passed into DSO
 	//时间戳
 	double timestamp;		// timestamp passed into DSO.

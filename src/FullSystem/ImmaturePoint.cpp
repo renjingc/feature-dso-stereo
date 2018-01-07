@@ -898,14 +898,17 @@ float ImmaturePoint::calcResidual(
   ImmaturePointTemporaryResidual* tmpRes,
   float idepth)
 {
+	//
 	FrameFramePrecalc* precalc = &(host->targetPrecalc[tmpRes->target->idx]);
 
 	float energyLeft = 0;
+	//
 	const Eigen::Vector3f* dIl = tmpRes->target->dI;
 	const Mat33f &PRE_KRKiTll = precalc->PRE_KRKiTll;
 	const Vec3f &PRE_KtTll = precalc->PRE_KtTll;
 	Vec2f affLL = precalc->PRE_aff_mode;
 
+	//残差
 	for (int idx = 0; idx < patternNum; idx++)
 	{
 		float Ku, Kv;
@@ -954,13 +957,17 @@ double ImmaturePoint::linearizeResidual(
 	// check OOB due to scale angle change.
 
 	float energyLeft = 0;
+	//目标帧的灰度值和梯度值
 	const Eigen::Vector3f* dIl = tmpRes->target->dI;
+	//主导帧和目标帧的位姿变换
 	const Mat33f &PRE_RTll = precalc->PRE_RTll;
 	const Vec3f &PRE_tTll = precalc->PRE_tTll;
 	//const float * const Il = tmpRes->target->I;
 
+	//光度变换
 	Vec2f affLL = precalc->PRE_aff_mode;
 
+	//模式
 	for (int idx = 0; idx < patternNum; idx++)
 	{
 		int dx = patternP[idx][0];
@@ -970,31 +977,37 @@ double ImmaturePoint::linearizeResidual(
 		float Ku, Kv;
 		Vec3f KliP;
 
+		//重投影点
 		if (!projectPoint(this->u, this->v, idepth, dx, dy, HCalib,
 		                  PRE_RTll, PRE_tTll, drescale, u, v, Ku, Kv, KliP, new_idepth))
 		{tmpRes->state_NewState = ResState::OOB; return tmpRes->state_energy;}
 
-
+		//获取灰度值
 		Vec3f hitColor = (getInterpolatedElement33(dIl, Ku, Kv, wG[0]));
 
 		if (!std::isfinite((float)hitColor[0])) {tmpRes->state_NewState = ResState::OOB; return tmpRes->state_energy;}
+		//残差
 		float residual = hitColor[0] - (affLL[0] * color[idx] + affLL[1]);
 
+		//huber
 		float hw = fabsf(residual) < setting_huberTH ? 1 : setting_huberTH / fabsf(residual);
+		//总误差
 		energyLeft += weights[idx] * weights[idx] * hw * residual * residual * (2 - hw);
 
 		// depth derivatives.
+		//逆深度的导数
 		float dxInterp = hitColor[1] * HCalib->fxl();
 		float dyInterp = hitColor[2] * HCalib->fyl();
 		float d_idepth = derive_idepth(PRE_tTll, u, v, dx, dy, dxInterp, dyInterp, drescale);
 
 		hw *= weights[idx] * weights[idx];
 
+		//H和b
 		Hdd += (hw * d_idepth) * d_idepth;
 		bd += (hw * residual) * d_idepth;
 	}
 
-
+	//误差是否大于阈值，则位outlier
 	if (energyLeft > energyTH * outlierTHSlack)
 	{
 		energyLeft = energyTH * outlierTHSlack;
@@ -1005,6 +1018,7 @@ double ImmaturePoint::linearizeResidual(
 		tmpRes->state_NewState = ResState::IN;
 	}
 
+	//设置误差
 	tmpRes->state_NewEnergy = energyLeft;
 	return energyLeft;
 }

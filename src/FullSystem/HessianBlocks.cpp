@@ -88,6 +88,7 @@ void PointHessian::release()
 /**
  * [FrameHessian::setStateZero description]
  * @param state_zero [description]
+ * 设置帧的初始状态
  */
 void FrameHessian::setStateZero(Vec10 state_zero)
 {
@@ -148,6 +149,7 @@ void FrameHessian::release()
  * [FrameHessian::makeImages description]
  * @param color  [description]
  * @param HCalib [description]
+ * 创建该帧的每个点的xy梯度值
  */
 void FrameHessian::makeImages(float* color, CalibHessian* HCalib)
 {
@@ -255,7 +257,6 @@ void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target, CalibHessi
 	PRE_RTll = (leftToLeft.rotationMatrix()).cast<float>();
 	PRE_tTll = (leftToLeft.translation()).cast<float>();
 	distanceLL = leftToLeft.translation().norm();
-
 
 	//设置内参
 	Mat33f K = Mat33f::Zero();

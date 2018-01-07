@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -30,7 +30,7 @@
  */
 
 #include "FullSystem/FullSystem.h"
- 
+
 #include "stdio.h"
 #include "util/globalFuncs.h"
 #include <Eigen/LU>
@@ -53,34 +53,46 @@
 namespace fdso
 {
 
+/**
+ * @brief      { function_description }
+ *
+ * @param      newFH  The new fh
+ * 判断窗口中的哪些帧该被边缘化
+ * １. 前帧的点个数过小，则该帧被边缘化或者该帧与最新的帧的光度变化较大，且剩下的帧数大于最小帧数
+ *  2. 帧数大于最大帧数，则移除与其它帧距离和最大的一帧
+ */
 void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 {
-	if(setting_minFrameAge > setting_maxFrames)
+	if (setting_minFrameAge > setting_maxFrames)
 	{
-		for(int i=setting_maxFrames;i<(int)frameHessians.size();i++)
+		for (int i = setting_maxFrames; i < (int)frameHessians.size(); i++)
 		{
-			FrameHessian* fh = frameHessians[i-setting_maxFrames];
+			FrameHessian* fh = frameHessians[i - setting_maxFrames];
 			fh->flaggedForMarginalization = true;
 		}
 		return;
 	}
 
-
+	//边缘化个数
 	int flagged = 0;
 	// marginalize all frames that have not enough points.
-	for(int i=0;i<(int)frameHessians.size();i++)
+	//遍历每一帧，当前帧的点个数过小，则该帧被边缘化
+	for (int i = 0; i < (int)frameHessians.size(); i++)
 	{
 		FrameHessian* fh = frameHessians[i];
+		//内点个数
 		int in = fh->pointHessians.size() + fh->immaturePoints.size();
+		//out点个数
 		int out = fh->pointHessiansMarginalized.size() + fh->pointHessiansOut.size();
 
+		//与最新的帧的光度变化
+		Vec2 refToFh = AffLight::fromToVecExposure(frameHessians.back()->ab_exposure, fh->ab_exposure,
+		               frameHessians.back()->aff_g2l(), fh->aff_g2l());
 
-		Vec2 refToFh=AffLight::fromToVecExposure(frameHessians.back()->ab_exposure, fh->ab_exposure,
-				frameHessians.back()->aff_g2l(), fh->aff_g2l());
-
-
-		if( (in < setting_minPointsRemaining *(in+out) || fabs(logf((float)refToFh[0])) > setting_maxLogAffFacInWindow)
-				&& ((int)frameHessians.size())-flagged > setting_minFrames)
+		//内点个数比例小于0.05或者a变化过大，logs(a)>0.7
+		//剩下的帧数大于最小帧数，５
+		if ( (in < setting_minPointsRemaining * (in + out) || fabs(logf((float)refToFh[0])) > setting_maxLogAffFacInWindow)
+		     && ((int)frameHessians.size()) - flagged > setting_minFrames)
 		{
 //			printf("MARGINALIZE frame %d, as only %'d/%'d points remaining (%'d %'d %'d %'d). VisInLast %'d / %'d. traces %d, activated %d!\n",
 //					fh->frameID, in, in+out,
@@ -88,6 +100,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 //					(int)fh->pointHessiansMarginalized.size(), (int)fh->pointHessiansOut.size(),
 //					visInLast, outInLast,
 //					fh->statistics_tracesCreatedForThisFrame, fh->statistics_pointsActivatedForThisFrame);
+			//这一帧设为被边缘化
 			fh->flaggedForMarginalization = true;
 			flagged++;
 		}
@@ -103,29 +116,34 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 	}
 
 	// marginalize one.
-	if((int)frameHessians.size()-flagged >= setting_maxFrames)
+	//剩下的帧大于最大帧数
+	if ((int)frameHessians.size() - flagged >= setting_maxFrames)
 	{
 		double smallestScore = 1;
-		FrameHessian* toMarginalize=0;
+		FrameHessian* toMarginalize = 0;
+		//最新的帧
 		FrameHessian* latest = frameHessians.back();
 
-
-		for(FrameHessian* fh : frameHessians)
+		//遍历每一帧
+		for (FrameHessian* fh : frameHessians)
 		{
-			if(fh->frameID > latest->frameID-setting_minFrameAge || fh->frameID == 0) continue;
+			//最新帧跳过
+			if (fh->frameID > latest->frameID - setting_minFrameAge || fh->frameID == 0) continue;
 			//if(fh==frameHessians.front() == 0) continue;
 
 			double distScore = 0;
-			for(FrameFramePrecalc &ffh : fh->targetPrecalc)
+			//当前帧与目标帧的
+			for (FrameFramePrecalc &ffh : fh->targetPrecalc)
 			{
-				if(ffh.target->frameID > latest->frameID-setting_minFrameAge+1 || ffh.target == ffh.host) continue;
-				distScore += 1/(1e-5+ffh.distanceLL);
-
+				if (ffh.target->frameID > latest->frameID - setting_minFrameAge + 1 || ffh.target == ffh.host) continue;
+				//距离和
+				distScore += 1 / (1e-5 + ffh.distanceLL);
 			}
+			//
 			distScore *= -sqrtf(fh->targetPrecalc.back().distanceLL);
 
-
-			if(distScore < smallestScore)
+			//距离值最小的，即该帧与其他帧的距离最大的，该帧设为移除
+			if (distScore < smallestScore)
 			{
 				smallestScore = distScore;
 				toMarginalize = fh;
@@ -134,6 +152,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 
 //		printf("MARGINALIZE frame %d, as it is the closest (score %.2f)!\n",
 //				toMarginalize->frameID, smallestScore);
+		//
 		toMarginalize->flaggedForMarginalization = true;
 		flagged++;
 	}
@@ -144,44 +163,49 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 //	printf("\n");
 }
 
-
-
-
+/**
+ * @brief      { function_description }
+ *
+ * @param      frame  The frame
+ * 进行边缘化
+ */
 void FullSystem::marginalizeFrame(FrameHessian* frame)
 {
 	// marginalize or remove all this frames points.
 
-	assert((int)frame->pointHessians.size()==0);
+	assert((int)frame->pointHessians.size() == 0);
 
-
+	//在ef误差函数中边缘化该帧
 	ef->marginalizeFrame(frame->efFrame);
 
 	// drop all observations of existing points in that frame.
 
-	for(FrameHessian* fh : frameHessians)
+	for (FrameHessian* fh : frameHessians)
 	{
-		if(fh==frame) continue;
+		if (fh == frame) continue;
 
-		for(PointHessian* ph : fh->pointHessians)
+		for (PointHessian* ph : fh->pointHessians)
 		{
-			for(unsigned int i=0;i<ph->residuals.size();i++)
+			for (unsigned int i = 0; i < ph->residuals.size(); i++)
 			{
 				PointFrameResidual* r = ph->residuals[i];
-				if(r->target == frame)
+				//移除目标帧为该点的残差
+				if (r->target == frame)
 				{
-					if(ph->lastResiduals[0].first == r)
-						ph->lastResiduals[0].first=0;
-					else if(ph->lastResiduals[1].first == r)
-						ph->lastResiduals[1].first=0;
+					if (ph->lastResiduals[0].first == r)
+						ph->lastResiduals[0].first = 0;
+					else if (ph->lastResiduals[1].first == r)
+						ph->lastResiduals[1].first = 0;
 
-
-					if(r->host->frameID < r->target->frameID)
+					//
+					if (r->host->frameID < r->target->frameID)
 						statistics_numForceDroppedResFwd++;
 					else
 						statistics_numForceDroppedResBwd++;
 
+					//在ef误差函数中移除被边缘化的点
 					ef->dropResidual(r->efResidual);
-					deleteOut<PointFrameResidual>(ph->residuals,i);
+					deleteOut<PointFrameResidual>(ph->residuals, i);
 					break;
 				}
 			}
@@ -189,30 +213,29 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 	}
 
 
+	{
+		std::vector<FrameHessian*> v;
+		v.push_back(frame);
+		for (IOWrap::Output3DWrapper* ow : outputWrapper)
+			ow->publishKeyframes(v, true, &Hcalib);
+	}
 
-    {
-        std::vector<FrameHessian*> v;
-        v.push_back(frame);
-        for(IOWrap::Output3DWrapper* ow : outputWrapper)
-            ow->publishKeyframes(v, true, &Hcalib);
-    }
-
-
+	//该帧在哪一时刻被边缘化
 	frame->shell->marginalizedAt = frameHessians.back()->shell->id;
 	frame->shell->movedByOpt = frame->w2c_leftEps().norm();
 
+	//删除该帧
 	deleteOutOrder<FrameHessian>(frameHessians, frame);
-	for(unsigned int i=0;i<frameHessians.size();i++)
+
+	//重置每一帧的idx
+	for (unsigned int i = 0; i < frameHessians.size(); i++)
 		frameHessians[i]->idx = i;
 
-
-
-
+	//重新设置每一帧之间的关系
 	setPrecalcValues();
+
+	//调整F
 	ef->setAdjointsF(&Hcalib);
 }
-
-
-
 
 }

@@ -23,10 +23,6 @@
 
 
 #include "FullSystem/PixelSelector2.h"
- 
-// 
-
-
 
 #include "util/NumType.h"
 #include "IOWrapper/ImageDisplay.h"
@@ -423,10 +419,7 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
 		}
 	}
 
-
 	return Eigen::Vector3i(n2,n3,n4);
 }
-
-
 }
 

@@ -49,11 +49,17 @@ enum ResLocation {ACTIVE = 0, LINEARIZED, MARGINALIZED, NONE};
 //残差状态
 enum ResState {IN = 0, OOB, OUTLIER};
 
+/**
+ * @brief      { struct_description }
+ */
 struct FullJacRowT
 {
 	Eigen::Vector2f projectedTo[MAX_RES_PER_POINT];
 };
 
+/**
+ * @brief      Class for point frame residual.
+ */
 class PointFrameResidual
 {
 public:

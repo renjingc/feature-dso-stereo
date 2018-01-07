@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -35,14 +35,17 @@ class ImageAndExposure
 {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+	//图像数据
 	float* image;			// irradiance. between 0 and 256
-	int w,h;				// width and height;
+	int w, h;				// width and height;
+	//时间
 	double timestamp;
 	float exposure_time;	// exposure time in ms.
-	inline ImageAndExposure(int w_, int h_, double timestamp_=0) : w(w_), h(h_), timestamp(timestamp_)
+	inline ImageAndExposure(int w_, int h_, double timestamp_ = 0) : w(w_), h(h_), timestamp(timestamp_)
 	{
-		image = new float[w*h];
-		exposure_time=1;
+		image = new float[w * h];
+		//初始曝光时间
+		exposure_time = 1;
 	}
 	inline ~ImageAndExposure()
 	{
@@ -53,12 +56,14 @@ public:
 	{
 		other.exposure_time = exposure_time;
 	}
-
+	/*
+	* 深拷贝
+	*/
 	inline ImageAndExposure* getDeepCopy()
 	{
-		ImageAndExposure* img = new ImageAndExposure(w,h,timestamp);
+		ImageAndExposure* img = new ImageAndExposure(w, h, timestamp);
 		img->exposure_time = exposure_time;
-		memcpy(img->image, image, w*h*sizeof(float));
+		memcpy(img->image, image, w * h * sizeof(float));
 		return img;
 	}
 };

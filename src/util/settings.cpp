@@ -107,10 +107,6 @@ int   setting_minGoodActiveResForMarg=3;
 int   setting_minGoodResForMarg=4;
 
 
-
-
-
-
 // 0 = nothing.
 // 1 = apply inv. response.
 // 2 = apply inv. response & remove V.
@@ -125,9 +121,6 @@ int setting_gammaWeightsPixelSelect = 1; // 1 = use original intensity for pixel
 
 
 float setting_huberTH = 9; // Huber Threshold
-
-
-
 
 
 // parameters controlling adaptive energy threshold computation.

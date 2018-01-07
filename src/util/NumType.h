@@ -37,28 +37,20 @@ namespace fdso
 
 #define SSEE(val,idx) (*(((float*)&val)+idx))
 
-
 #define MAX_RES_PER_POINT 8
 #define NUM_THREADS 6
 
-
 #define todouble(x) (x).cast<double>()
-
 
 typedef Sophus::SE3d SE3;
 typedef Sophus::Sim3d Sim3;
 typedef Sophus::SO3d SO3;
 
-
-
 #define CPARS 4
-
 
 typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> MatXX;
 typedef Eigen::Matrix<double,CPARS,CPARS> MatCC;
 #define MatToDynamic(x) MatXX(x)
-
-
 
 typedef Eigen::Matrix<double,CPARS,10> MatC10;
 typedef Eigen::Matrix<double,10,10> Mat1010;
@@ -101,8 +93,6 @@ typedef Eigen::Matrix<float,3,1> Vec3f;
 typedef Eigen::Matrix<float,2,1> Vec2f;
 typedef Eigen::Matrix<float,6,1> Vec6f;
 
-
-
 typedef Eigen::Matrix<double,4,9> Mat49;
 typedef Eigen::Matrix<double,8,9> Mat89;
 
@@ -114,11 +104,9 @@ typedef Eigen::Matrix<double,1,8> Mat18;
 typedef Eigen::Matrix<double,9,1> Mat91;
 typedef Eigen::Matrix<double,1,9> Mat19;
 
-
 typedef Eigen::Matrix<double,8,4> Mat84;
 typedef Eigen::Matrix<double,4,8> Mat48;
 typedef Eigen::Matrix<double,4,4> Mat44;
-
 
 typedef Eigen::Matrix<float,MAX_RES_PER_POINT,1> VecNRf;
 typedef Eigen::Matrix<float,12,1> Vec12f;
@@ -158,11 +146,8 @@ typedef Eigen::Matrix<float,14,1> Vec14f;
 typedef Eigen::Matrix<double,14,14> Mat1414;
 typedef Eigen::Matrix<double,14,1> Vec14;
 
-
-
-
-
-
+// I_frame = exp(a)*I_global + b. // I_global = exp(-a)*(I_frame - b).
+//每个点像素的变换光度GAffine变换，即affine brightness transfer function 线性相应的逆函数
 // transforms points from one frame to another.
 struct AffLight
 {
@@ -172,6 +157,7 @@ struct AffLight
 	// Affine Parameters:
 	double a,b;	// I_frame = exp(a)*I_global + b. // I_global = exp(-a)*(I_frame - b).
 
+       //用来计算两帧间的曝光差
 	static Vec2 fromToVecExposure(float exposureF, float exposureT, AffLight g2F, AffLight g2T)
 	{
 		if(exposureF==0 || exposureT==0)
@@ -180,8 +166,9 @@ struct AffLight
 			//printf("got exposure value of 0! please choose the correct model.\n");
 			//assert(setting_brightnessTransferFunc < 2);
 		}
-
+             //refToFh[0]=a＝e^(aj-ai)*tj*ti^(-1),两帧间的光度曝光变化
 		double a = exp(g2T.a-g2F.a) * exposureT / exposureF;
+		//refToFh[1]=b = 当前帧的b - refToFh[0]*当前帧的b
 		double b = g2T.b - a*g2F.b;
 		return Vec2(a,b);
 	}
