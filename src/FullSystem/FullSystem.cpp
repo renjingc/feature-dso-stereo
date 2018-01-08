@@ -566,9 +566,16 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 	// I'll keep track of the so-far best achieved residual for each level in achievedRes.
 	// If on a coarse level, tracking is WORSE than achievedRes, we will not continue to save time.
 
+	//用于更新最好的残差
 	Vec5 achievedRes = Vec5::Constant(NAN);
+
+	//是否一次好的寻找
 	bool haveOneGood = false;
+
+	//寻找次数
 	int tryIterations = 0;
+
+	//一般都是第一个位姿就迭代成功了
 	for (unsigned int i = 0; i < lastF_2_fh_tries.size(); i++)
 	{
 		AffLight aff_g2l_this = aff_last_2_l;
@@ -601,7 +608,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 		}
 
 		// do we have a new winner?
-		// 跟踪成功,残差是否有值
+		// 跟踪成功,残差是否有值,lastResiduals每一层的残差，lastResiduals[0]就是第一层的残差
 		if (trackingIsGood && std::isfinite((float)coarseTracker->lastResiduals[0]) && !(coarseTracker->lastResiduals[0] >=  achievedRes[0]))
 		{
 			//printf("take over. minRes %f -> %f!\n", achievedRes[0], coarseTracker->lastResiduals[0]);
@@ -618,13 +625,13 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 		{
 			for (int i = 0; i < 5; i++)
 			{
-				//残差减小了
+				//残差减小了，更新每一层的残差
 				if (!std::isfinite((float)achievedRes[i]) || achievedRes[i] > coarseTracker->lastResiduals[i])	// take over if achievedRes is either bigger or NAN.
 					achievedRes[i] = coarseTracker->lastResiduals[i];
 			}
 		}
 
-		//成功了，且残差小于一定阈值
+		//成功了，且残差小于一定阈值,setting_reTrackThreshold=1.5
 		if (haveOneGood &&  achievedRes[0] < lastCoarseRMSE[0]*setting_reTrackThreshold)
 			break;
 	}
@@ -638,7 +645,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 		lastF_2_fh = lastF_2_fh_tries[0];
 	}
 
-	//残差
+	//每一层的残差，即记录上一次的残差
 	lastCoarseRMSE = achievedRes;
 
 	// no lock required, as fh is not used anywhere yet.
@@ -672,6 +679,10 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 	}
 
 	//返回残差第一个值，从第三位后的三位
+	//1：平移后的像素重投影误差误差/个数/2
+       //2： 0
+       //3：平移旋转后像素重投影误差误差/个数/2
+	//std::cout<<achievedRes[0]<<" "<<flowVecs[0]<<" "<<flowVecs[1]<<" "<<flowVecs[2]<<std::endl;
 	return Vec4(achievedRes[0], flowVecs[0], flowVecs[1], flowVecs[2]);
 }
 
@@ -1494,7 +1505,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 			cv::Mat essential_matrix = cv::findEssentialMat(points1, points2, K, CV_RANSAC);
 			cv::recoverPose(essential_matrix, points1, points2, K, R, t);
 			cv::cv2eigen(R, initR);
-			std::cout << initR << std::endl;
+			// std::cout << initR << std::endl;
 		}
 		//   	 cv::drawMatches(allFrameHistory[allFrameHistory.size()-2]->imageLeft,allFrameHistory[allFrameHistory.size()-2]->keypointsLeft,
 		//              	imageLeft8,mvKeys,
@@ -1555,7 +1566,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 			* setting_maxShiftWeightRT＝0.02*(640+480)
 			* setting_maxAffineWeight=2
 			* 即论文中的公示 wf*f + wft*ft + wa*a > Tkf,
-			* 所以tres[1]为两帧间的位移偏差，tres[2]为两帧间的旋转偏差，tres[3]为两帧间的旋转和位移偏差。
+			* 所以tres[1]为两帧间像素点重投影的位移偏差，tres[2]为两帧间的旋转偏差，tres[3]为两帧间的旋转和位移偏差。
 			* 这里偏差只变换这些位移，旋转，和变换矩阵后每个像素点的差值。
 			* refToFh[a]＝e^(aj-ai)*tj*ti^(-1),两帧间的光度曝光变化
 			*/

@@ -130,8 +130,6 @@ void PixelSelector::makeHists(const FrameHessian* const fh)
 			thsSmoothed[x+y*w32] = (sum/num) * (sum/num);
 
 		}
-
-
 }
 
 int PixelSelector::makeMaps(

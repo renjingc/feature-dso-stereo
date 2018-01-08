@@ -32,6 +32,10 @@
 #include "OptimizationBackend/MatrixAccumulators.h"
 #include "IOWrapper/Output3DWrapper.h"
 
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <sys/stat.h> 
 
 namespace fdso
 {
@@ -48,6 +52,12 @@ public:
 
 	CoarseTracker(int w, int h);
 	~CoarseTracker();
+
+	void saveResult(
+    		SE3 lastToNew_In, AffLight aff_g2l_In,
+    		SE3 lastToNew_out, AffLight aff_g2l_out,
+    		int coarsestLvl,
+    		Vec5 minResForAbort);
 
 	//跟踪新一帧
 	bool trackNewestCoarse(

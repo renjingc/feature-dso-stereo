@@ -86,7 +86,7 @@ void EFPoint::takeData()
 	if(setting_solverMode & SOLVER_REMOVE_POSEPRIOR)
 		priorF=0;
 
-	//
+	//逆深度的偏差
 	deltaF = data->idepth-data->idepth_zero;
 }
 

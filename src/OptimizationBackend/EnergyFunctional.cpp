@@ -164,12 +164,9 @@ EnergyFunctional::~EnergyFunctional()
 	if (adHost != 0) delete[] adHost;
 	if (adTarget != 0) delete[] adTarget;
 
-
 	if (adHostF != 0) delete[] adHostF;
 	if (adTargetF != 0) delete[] adTargetF;
 	if (adHTdeltaF != 0) delete[] adHTdeltaF;
-
-
 
 	delete accSSE_top_L;
 	delete accSSE_top_A;
@@ -322,7 +319,7 @@ void EnergyFunctional::resubstituteF_MT(VecX x, CalibHessian* HCalib, bool MT)
  * @param[in]  tid    The tid
  */
 void EnergyFunctional::resubstituteFPt(
-    const VecCf &xc, Mat18f* xAd, int min, int max, Vec10* stats, int tid)
+  const VecCf &xc, Mat18f* xAd, int min, int max, Vec10* stats, int tid)
 {
 	for (int k = min; k < max; k++)
 	{
@@ -972,6 +969,8 @@ void EnergyFunctional::solveSystemF(int iteration, double lambda, CalibHessian* 
 
 /**
  * @brief      Makes an idx.
+ * 重置每帧的id和每个点和每个点的目标帧和主导帧的id
+ * EFIndicesValid表明此时的id是对的
  */
 void EnergyFunctional::makeIDX()
 {
@@ -1006,7 +1005,4 @@ VecX EnergyFunctional::getStitchedDeltaF() const
 	for (int h = 0; h < nFrames; h++) d.segment<8>(CPARS + 8 * h) = frames[h]->delta;
 	return d;
 }
-
-
-
 }

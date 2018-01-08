@@ -129,3 +129,5 @@ else()
 	message("--- not building dso_dataset, since either don't have openCV or Pangolin.")
 endif()
 
+  add_executable(myTracking ${PROJECT_SOURCE_DIR}/src/test/myTracking.cpp )
+  target_link_libraries(myTracking boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} pthread)
