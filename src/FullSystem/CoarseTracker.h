@@ -59,6 +59,8 @@ public:
     		int coarsestLvl,
     		Vec5 minResForAbort);
 
+    void saveK();
+
 	//跟踪新一帧
 	bool trackNewestCoarse(
 			FrameHessian* newFrameHessian,

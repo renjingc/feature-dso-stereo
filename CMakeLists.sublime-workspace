@@ -1,0 +1,598 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"use_",
+				"use_odom"
+			],
+			[
+				"curr",
+				"current_r_"
+			],
+			[
+				"inse",
+				"insertCloud"
+			],
+			[
+				"no",
+				"now"
+			],
+			[
+				"Octom",
+				"OctomapServer"
+			],
+			[
+				"min",
+				"min_fitness_score"
+			],
+			[
+				"rot",
+				"rotDelta"
+			],
+			[
+				"use",
+				"use_predict_pose"
+			],
+			[
+				"ite",
+				"iteration"
+			],
+			[
+				"it",
+				"iteration_tmp"
+			],
+			[
+				"fit",
+				"fitness_score_tmp"
+			],
+			[
+				"ali",
+				"align_time_tmp"
+			],
+			[
+				"pu",
+				"push_back"
+			],
+			[
+				"ini",
+				"init_poses"
+			],
+			[
+				"ed",
+				"endl	(ndt_matching.cpp)"
+			],
+			[
+				"s",
+				"stamp"
+			],
+			[
+				"h",
+				"header"
+			],
+			[
+				"CameraLin",
+				"CameraLink"
+			],
+			[
+				"setti",
+				"settingW	(settings.hpp)"
+			],
+			[
+				"vi",
+				"vignetteMap"
+			],
+			[
+				"ima",
+				"imageSmallPhoto	cv::Mat"
+			],
+			[
+				"imageSmall",
+				"imageSmall"
+			],
+			[
+				"co",
+				"convertTo(OutputArray m, int rtype) const	void"
+			],
+			[
+				"aff",
+				"aff_g2l"
+			],
+			[
+				"exposure",
+				"exposureT"
+			],
+			[
+				"ei",
+				"eigen.hpp"
+			],
+			[
+				"hi",
+				"highgui.hpp	(main_live_slam.cpp)"
+			],
+			[
+				"im",
+				"imgproc	(main_live_slam.cpp)"
+			],
+			[
+				"core",
+				"core.hpp	(main_live_slam.cpp)"
+			],
+			[
+				"c",
+				"c_str() const	const _CharT *"
+			],
+			[
+				"CV_32",
+				"CV_32FC1	macro"
+			],
+			[
+				"ou",
+				"outImage	(types.hpp)"
+			],
+			[
+				"aff_g",
+				"aff_g2l	AffLight"
+			],
+			[
+				"ex",
+				"exposureT"
+			],
+			[
+				"ORB",
+				"ORBextractor	(FullSystem.cpp)"
+			],
+			[
+				"data",
+				"dataset.h"
+			],
+			[
+				"g2",
+				"g2o_types_sba"
+			],
+			[
+				"mat",
+				"mat_l"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"last_filter": "rem",
+		"selected_items":
+		[
+			[
+				"rem",
+				"Package Control: Remove Package"
+			],
+			[
+				"SUBLIE",
+				"Preferences: SublimeClang Settings – User"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"sublimeclang",
+				"Preferences: SublimeClang Settings – User"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			]
+		],
+		"width": 560.0
+	},
+	"console":
+	{
+		"height": 272.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/ren/catkin_ws/src/fdso/main_live_slam.cpp",
+		"/home/ren/catkin_ws/src/fdso/src/types.cpp",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/CMakeLists.txt",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_laser/src/pub_offline_cloud.cpp",
+		"/home/ren/catkin_ws/src/ndt_localizer/nodes/ndt_matching/ndt_matching.cpp",
+		"/home/ren/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
+		"/home/ren/catkin_ws/src/ndt_localizer/launch/indoor_ndt_mathcing_offline.launch",
+		"/home/ren/catkin_ws/src/ndt_localizer/launch/outdoor_ndt_mathcing_offline.launch",
+		"/home/ren/catkin_ws/src/ndt_localizer/launch/outdoor_ndt_mathcing.launch",
+		"/home/ren/catkin_ws/src/ndt_localizer/launch/indoor_ndt_mathcing.launch",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/include/octomap_tensor_field/OctomapServerOffine.h",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/src/OctomapServerOffine.cpp",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/launch/map_saver.launch",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/launch/octomap_mapping_offline.launch",
+		"/home/ren/catkin_ws/src/filters/packages/points_preprocessor/nodes/ground_filter/ground_filter.cpp",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/src/octomap_server_offine_node.cpp",
+		"/home/ren/catkin_ws/src/filters/packages/points_preprocessor/launch/ground_filter.launch",
+		"/home/ren/catkin_ws/src/filters/packages/points_preprocessor/nodes/ground_filter/ground_filter1.cpp",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_laser/launch/my_loop_closure.launch",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_laser/launch/my_loop_closure.yaml",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/src/octomap_server_node.cpp",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_laser/src/graph_laser_node.cpp",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/include/octomap_tensor_field/OctomapServer.h",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/src/OctomapServer.cpp",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/CHANGELOG.rst",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/include/octomap_tensor_field/ground_filter.h",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/include/octomap_tensor_field/MyOcTree.h",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/scripts/octomap_eraser_cli.py",
+		"/home/ren/catkin_ws/src/ndt_localizer/CMakeLists.txt",
+		"/home/ren/catkin_ws/src/ndt_localizer/nodes/ndt_matching/laser_location.cpp",
+		"/home/ren/catkin_ws/src/ndt_localizer/package.xml",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_laser/src/save_map_client.cpp",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/src/ground_filter.cpp",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/src/MyOcTree.cpp",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/package.xml",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/params/default.yaml",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_laser/CMakeLists.txt",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_laser/launch/my_loop_closure1.launch",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_laser/src/graph_laser.cpp",
+		"/home/ren/catkin_ws/src/ndt_localizer/scripts/bagplay.py",
+		"/home/ren/catkin_ws/src/ndt_localizer/launch/ndt_mapping_imu_odom.launch",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_image_laser/src/save_map_client.cpp",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_image_laser/src/graph_laser.cpp",
+		"/home/ren/catkin_ws/src/graph_image_laser/graph_laser/scripts/saveMap.py",
+		"/home/ren/catkin_ws/src/tensor_field_nav/octomap_tensor_field/launch/octomap_mapping.launch",
+		"/home/ren/catkin_ws/src/ndt_localizer/launch/dual_ekf.launch",
+		"/home/ren/catkin_ws/src/ndt_localizer/launch/dual_ekf.yaml",
+		"/home/ren/catkin_ws/src/robot_localization/launch/dual_ekf_navsat_example.launch",
+		"/home/ren/catkin_ws/src/icp_localizer/nodes/icp_matching/icp_matching.cpp",
+		"/home/ren/catkin_ws/src/fast_pcl/registration/include/fast_pcl/registration/registration.h",
+		"/home/ren/catkin_ws/src/amcl/src/amcl/sensors/amcl_laser.cpp",
+		"/home/ren/catkin_ws/src/amcl/include/amcl/sensors/amcl_odom.h",
+		"/home/ren/catkin_ws/src/amcl/src/amcl/sensors/amcl_odom.cpp",
+		"/home/ren/catkin_ws/src/amcl/src/amcl_node.cpp",
+		"/home/ren/catkin_ws/src/amcl/include/amcl/pf/pf_kdtree.h",
+		"/home/ren/catkin_ws/src/amcl/src/amcl/pf/pf.c",
+		"/home/ren/catkin_ws/src/amcl/cfg/AMCL.cfg",
+		"/home/ren/catkin_ws/src/amcl/include/amcl/map/map.h",
+		"/home/ren/catkin_ws/src/amcl/include/amcl/sensors/amcl_laser.h",
+		"/home/ren/catkin_ws/src/amcl/include/amcl/sensors/amcl_sensor.h",
+		"/home/ren/catkin_ws/src/amcl/src/amcl/sensors/amcl_sensor.cpp",
+		"/home/ren/catkin_ws/src/amcl/examples/amcl_omni.launch",
+		"/home/ren/catkin_ws/src/amcl/examples/amcl_diff.launch",
+		"/home/ren/catkin_ws/src/graph_image_laser/laser_slam/include/laser_slam/common.hpp",
+		"/home/ren/catkin_ws/src/amcl/src/amcl/map/map_cspace.cpp",
+		"/home/ren/catkin_ws/src/amcl/include/amcl/pf/pf_pdf.h",
+		"/home/ren/catkin_ws/src/amcl/include/amcl/pf/pf_vector.h",
+		"/home/ren/catkin_ws/src/amcl/include/amcl/pf/pf.h",
+		"/home/ren/catkin_ws/src/amcl/src/amcl/pf/eig3.c",
+		"/home/ren/.config/sublime-text-3/Packages/User/SublimeClang.sublime-settings",
+		"/home/ren/catkin_ws/src/ndt_localizer/nodes/ndt_matching/ndt_matching (复件).cpp",
+		"/home/ren/catkin_ws/src/VINS-Mono/camera_model/src/intrinsic_calib.cc",
+		"/home/ren/catkin_ws/src/segmatch/laser_mapper/CMakeLists.txt",
+		"/home/ren/catkin_ws/src/segmatch/laser_mapper/src/laser_mapper.cpp",
+		"/home/ren/catkin_ws/src/graph_image_laser/laser_slam/CMakeLists.txt",
+		"/home/ren/catkin_ws/src/graph_image_laser/laser_slam/src/benchmarker.cpp",
+		"/home/ren/catkin_ws/src/fdso/CMakeLists.txt",
+		"/home/ren/catkin_ws/src/graph_image_laser/laser_slam/include/laser_slam/benchmarker.hpp",
+		"/home/ren/catkin_ws/src/segmatch/laser_mapper/src/laser_mapper_node.cpp",
+		"/home/ren/catkin_ws/src/graph_image_laser/laser_slam/package.xml",
+		"/home/ren/catkin_ws/src/ndt_localizer/launch/my_ekf_localization_node.launch",
+		"/home/ren/catkin_ws/src/robot_localization/src/ros_filter_utilities.cpp",
+		"/home/ren/catkin_ws/src/robot_localization/src/ros_filter.cpp",
+		"/home/ren/catkin_ws/src/robot_localization/src/filter_base.cpp",
+		"/home/ren/catkin_ws/src/robot_localization/params/dual_ekf_navsat_example.yaml",
+		"/home/ren/catkin_ws/src/robot_localization/src/filter_utilities.cpp",
+		"/home/ren/catkin_ws/src/robot_localization/src/navsat_transform.cpp",
+		"/home/ren/catkin_ws/src/ndt_localizer/nodes/ndt_mapping/mydynamic_ndt_mapping_imu_odom.cpp",
+		"/home/ren/catkin_ws/src/tk1_project/robot_localization/src/ros_filter.cpp",
+		"/home/ren/catkin_ws/src/robot_localization/src/navsat_transform_node.cpp",
+		"/home/ren/catkin_ws/src/tk1_project/robot_localization/include/robot_localization/ros_filter.h",
+		"/home/ren/catkin_ws/src/ndt_localizer/launch/robot_ekf_test.launch",
+		"/home/ren/catkin_ws/src/tk1_project/robot_localization/src/ekf_localization_node.cpp",
+		"/home/ren/catkin_ws/src/direct_edge_imu-master/src/types.h",
+		"/home/ren/catkin_ws/src/fdso/src/types.hpp",
+		"/home/ren/catkin_ws/src/fdso/src/settings.cpp",
+		"/home/ren/catkin_ws/src/fdso/src/settings.hpp",
+		"/home/ren/catkin_ws/src/fdso/src/myMath.hpp",
+		"/home/ren/catkin_ws/src/direct_edge_imu-master/src/rosPub.h",
+		"/home/ren/catkin_ws/catkin_ws.sublime-project",
+		"/home/ren/catkin_ws/src/direct_edge_imu-master/main_live_odometry.cpp",
+		"/home/ren/.config/sublime-text-3/Packages/SublimeClang/SublimeClang.sublime-settings",
+		"/home/ren/work/fdso/src/util/Undistort.cpp",
+		"/home/ren/work/fdso/src/FullSystem/HessianBlocks.h",
+		"/home/ren/work/fdso/src/IOWrapper/OpenCV/ImageDisplay_OpenCV.cpp",
+		"/home/ren/work/fdso/src/util/FrameShell.h",
+		"/home/ren/work/fdso/src/FullSystem/FullSystem.h",
+		"/home/ren/work/fdso/src/util/ImageAndExposure.h",
+		"/home/ren/work/fdso/CMakeLists.txt",
+		"/home/ren/work/fdso/src/util/MinimalImage.h",
+		"/home/ren/work/fdso/src/IOWrapper/ImageDisplay.h",
+		"/home/ren/slam/fdso/src/FullSystem/FullSystem.cpp",
+		"/home/ren/work/fdso/src/FullSystem/FullSystem.cpp",
+		"/home/ren/work/fdso/src/IOWrapper/OutputWrapper/SampleOutputWrapper.h",
+		"/home/ren/work/fdso/src/IOWrapper/ImageDisplay_dummy.cpp",
+		"/home/ren/work/fdso/src/FullSystem/CoarseTracker.cpp",
+		"/home/ren/work/dso_test/dso_test/src/util/program_options.h",
+		"/home/ren/work/dso_test/dso_test/src/util/dataset.cpp",
+		"/home/ren/work/dso_test/dso_test/src/util/dataset.h",
+		"/home/ren/work/dso_test/dso_test/dso_test1.cpp",
+		"/home/ren/work/dso_test/dso_test/src/util/DatasetReader.h",
+		"/home/ren/work/dso_test/dso_test/src/util/utils.h",
+		"/home/ren/work/dso_test/dso_test/src/util/utils.cc",
+		"/home/ren/work/dso_test/dso_test/src/util/NumType.h",
+		"/home/ren/work/dso_test/dso_test/src/util/FrameShell.h",
+		"/home/ren/work/dso_test/dso_test/src/util/program_options.cc",
+		"/home/ren/work/dso_test/dso_test/CMakeLists.txt",
+		"/home/ren/work/dso_test/dso_test/src/util/config_file.h"
+	],
+	"find":
+	{
+		"height": 32.0
+	},
+	"find_in_files":
+	{
+		"height": 138.0,
+		"where_history":
+		[
+			"/home/ren/work/fdso/src/",
+			"/home/ren/slam/fdso/src/FullSystem,/home/ren/work/fdso/src/IOWrapper",
+			"/home/ren/slam/fdso/src/FullSystem",
+			"/home/ren/slam/dso1215/src",
+			"/home/ren/slam/dso1215/src/FullSystem"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"NormalDistributionsTransform",
+			"points_map_num",
+			"m_gridmap",
+			"m_mapPub",
+			"map_metadata",
+			"insertCloud",
+			"Transform error for ground plane filter",
+			"FilterGround",
+			"insertCloud",
+			"sensorFrame_id",
+			"currentTime",
+			"processThread",
+			"insertCloud",
+			"cloud",
+			"insertCloud",
+			"load_kitti_poses",
+			"cloud",
+			"stamp",
+			"total_elapsed",
+			"startTime",
+			"sensorToWorldTf",
+			"insertCloudCallback",
+			"m_tfListener",
+			"load_kitti_poses",
+			"Subscriber",
+			"insertCloudCallback",
+			"insertScan",
+			"openFile",
+			"publishAll",
+			"handlePostNodeTraversal",
+			"m_mapPub",
+			"end",
+			"cout",
+			"m_incrementalUpdate",
+			"m_octree",
+			"latch",
+			"m_maxRange",
+			"saveMapServiceCall",
+			"loop_succed",
+			"count",
+			"init_poses",
+			"map_callback",
+			"map_callback_queue",
+			"map_callback",
+			"count",
+			"use_predict_pose",
+			"init_pose",
+			"diffTh",
+			"mutex",
+			"init_poses",
+			">\n",
+			"init_pose",
+			"ini",
+			"init_poses",
+			"previous_pose",
+			"current_pose_imu_odom",
+			"init",
+			"init_poses",
+			"predict_pose_for_ndt",
+			"delta",
+			"sum_align_time",
+			"getFitnessScore_time",
+			"trans_probability",
+			"t",
+			"align_time",
+			"fitness_score",
+			"USE_FAST_PCL",
+			"getFitnessScore_time",
+			"diffTh",
+			"predict_pose_for_ndt",
+			"predict_pose",
+			"predict_pose_for_ndt",
+			"predict_pose",
+			"ofs",
+			"cout",
+			"pubLaserOdometry",
+			"diffTh",
+			"previous_pose",
+			"predict_pose_imu_odom",
+			"predict_pose_for_ndt",
+			"offset_imu_odom_x",
+			"imu_odom_calc",
+			"previous_pose",
+			"reliabilityTh",
+			"ndt_gpu",
+			"pcl",
+			"getFitnessScore",
+			"getBenchmarkerParams",
+			"align",
+			"dynamicFilter",
+			"covariance",
+			"tf2",
+			"lookupTransform",
+			"canTransform",
+			"utm_world_trans_inverse_",
+			"publish_gps_",
+			"prepareGpsOdometry",
+			"gps_odom_pub",
+			"odomCallback",
+			"filtered_gps_pub",
+			"filtered",
+			"filtered_map",
+			"br",
+			"cout",
+			"Could not obtain transform from",
+			"Could not obtain trans",
+			"getFilteredOdometryMessage",
+			"StateMemberX",
+			"worldFrameId_",
+			"mapFrameId_",
+			"sendTransform",
+			"odomFrameId_",
+			"sendTransform",
+			"worldFrameId_",
+			"odom_frame",
+			"covariance",
+			"worldFrameId_",
+			"cout",
+			"setPoseCallback",
+			"pose",
+			"poseCallback",
+			"odom1",
+			"poseCallback",
+			"transformPoseFailureCallback",
+			"current_pose_msg",
+			"current_pose_pub",
+			"current_pose",
+			"angle"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 32.0
+	},
+	"input":
+	{
+		"height": 52.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "CMakeLists.sublime-project",
+	"replace":
+	{
+		"height": 60.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 365.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

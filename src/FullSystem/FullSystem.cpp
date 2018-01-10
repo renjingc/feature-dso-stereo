@@ -583,9 +583,9 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 
 		//是否跟踪成功
 		bool trackingIsGood = coarseTracker->trackNewestCoarse(
-		                          fh, lastF_2_fh_this, aff_g2l_this,
-		                          pyrLevelsUsed - 1,
-		                          achievedRes);	// in each level has to be at least as good as the last try.
+		                        fh, lastF_2_fh_this, aff_g2l_this,
+		                        pyrLevelsUsed - 1,
+		                        achievedRes);	// in each level has to be at least as good as the last try.
 		//尝试次数++
 		tryIterations++;
 
@@ -680,8 +680,8 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 
 	//返回残差第一个值，从第三位后的三位
 	//1：平移后的像素重投影误差误差/个数/2
-       //2： 0
-       //3：平移旋转后像素重投影误差误差/个数/2
+	//2： 0
+	//3：平移旋转后像素重投影误差误差/个数/2
 	//std::cout<<achievedRes[0]<<" "<<flowVecs[0]<<" "<<flowVecs[1]<<" "<<flowVecs[2]<<std::endl;
 	return Vec4(achievedRes[0], flowVecs[0], flowVecs[1], flowVecs[2]);
 }
@@ -1009,9 +1009,9 @@ void FullSystem::traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right)
  * @param tid        [description]
  */
 void FullSystem::activatePointsMT_Reductor(
-    std::vector<PointHessian*>* optimized,
-    std::vector<ImmaturePoint*>* toOptimize,
-    int min, int max, Vec10* stats, int tid)
+  std::vector<PointHessian*>* optimized,
+  std::vector<ImmaturePoint*>* toOptimize,
+  int min, int max, Vec10* stats, int tid)
 {
 	ImmaturePointTemporaryResidual* tr = new ImmaturePointTemporaryResidual[frameHessians.size()];
 
@@ -1366,8 +1366,8 @@ void FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv:
 	matcher_flann_.match( descriptorsLast, descriptorsCur, matches );
 	// select the best matches
 	float min_dis = std::min_element (
-	                    matches.begin(), matches.end(),
-	                    [] ( const cv::DMatch & m1, const cv::DMatch & m2 )
+	                  matches.begin(), matches.end(),
+	                  [] ( const cv::DMatch & m1, const cv::DMatch & m2 )
 	{
 		return m1.distance < m2.distance;
 	} )->distance;
@@ -1399,7 +1399,18 @@ void FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv:
 //           }
 //           return true;
 // }
-
+void FullSystem::ComputeBoW()
+{
+    if ( _vocab!=nullptr && _bow_vec.empty() ) 
+    {
+        vector<Mat> alldesp;
+        for ( Feature* fea: _features ) 
+        {
+            alldesp.push_back(fea->_desc);
+        }
+        _vocab->transform( alldesp, _bow_vec, _feature_vec, 4);
+    }
+}
 /**
  * [FullSystem::addActiveFrame description]
  * @param image       [description]
@@ -1438,6 +1449,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	//曝光时间
 	fh_right->ab_exposure = image_right->exposure_time;
 	//得到当前帧的每一层的灰度图像和xy方向梯度值和xy梯度平方和，用于跟踪和初始化
+
 	fh_right->makeImages(image_right->image, &Hcalib);
 
 
@@ -1449,6 +1461,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	//提取特征点
 	// ORB extraction
 	// 同时对左右目提特征
+
 	(*mpORBextractorLeft)(imageLeft8, cv::Mat(), mvKeys, mDescriptors);
 	(*mpORBextractorRight)(imageRight8, cv::Mat(), mvKeysRight, mDescriptorsRight);
 
@@ -1487,7 +1500,9 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 		Eigen::Matrix3d initR;
 		std::vector<cv::DMatch> matches;
 		cv::Mat image;
+		boost::timer timer;
 		find_feature_matches(allFrameHistory[allFrameHistory.size() - 2]->descriptorsLeft, mDescriptors, matches);
+		std::cout << "match: " << timer.elapsed() << std::endl;
 		if (matches.size() > 5)
 		{
 			cv::Mat K = (cv::Mat_<float>(3, 3) << Hcalib.fxl(), 0, Hcalib.cxl(), 0, Hcalib.fyl(), Hcalib.cyl(), 0, 0, 1);
@@ -1823,7 +1838,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	// =========================== Flag Frames to be Marginalized. =========================
 	//是否边缘化该帧
 	//1. 前帧的点个数过小，则该帧被边缘化或者该帧与最新的帧的光度变化较大，且剩下的帧数大于最小帧数
- 	//2. 帧数大于最大帧数，则移除与其它帧距离和最大的一帧
+	//2. 帧数大于最大帧数，则移除与其它帧距离和最大的一帧
 	flagFramesForMarginalization(fh);
 
 	// =========================== add New Frame to Hessian Struct. =========================
@@ -1875,8 +1890,8 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	}
 
 	// =========================== Activate Points (& flag for marginalization). =========================
- 	// 遍历窗口中的每一个关键帧的每一个点，判断这个点的状态并且将这个点与每一个关键帧进行逆深度残差更新，更新该点的逆深度
- 	// 并在ef中插入该点，加入该点与每一个关键帧的残差
+	// 遍历窗口中的每一个关键帧的每一个点，判断这个点的状态并且将这个点与每一个关键帧进行逆深度残差更新，更新该点的逆深度
+	// 并在ef中插入该点，加入该点与每一个关键帧的残差
 	activatePointsMT();
 	ef->makeIDX();
 
@@ -1939,10 +1954,10 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 
 	//获取零空间
 	getNullspaces(
-	    ef->lastNullspaces_pose,
-	    ef->lastNullspaces_scale,
-	    ef->lastNullspaces_affA,
-	    ef->lastNullspaces_affB);
+	  ef->lastNullspaces_pose,
+	  ef->lastNullspaces_scale,
+	  ef->lastNullspaces_affA,
+	  ef->lastNullspaces_affB);
 
 	//边缘化点后，更新ef误差函数中的Ｈessian和ｂ矩阵
 	ef->marginalizePointsF();
@@ -2066,7 +2081,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 
 		//判断该点的最小和最大的逆深度
 		if (!std::isfinite(pt->energyTH) || !std::isfinite(pt->idepth_min) || !std::isfinite(pt->idepth_max)
-		        || pt->idepth_min < 0 || pt->idepth_max < 0)
+		    || pt->idepth_min < 0 || pt->idepth_max < 0)
 		{
 			delete pt;
 			continue;

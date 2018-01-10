@@ -24,6 +24,9 @@ find_package(Pangolin 0.2 QUIET)
 set(CMAKE_PREFIX_PATH "/home/ren/opencv3/opencv3_build/share/OpenCV")
 find_package(OpenCV 3 REQUIRED)
 
+find_package( fast REQUIRED )
+include_directories( ${fast_INCLUDE_DIRS} )
+
 # ceres
 find_package(Ceres REQUIRED)
 
@@ -117,6 +120,8 @@ endif()
 include_directories( ${CSPARSE_INCLUDE_DIR} ${CHOLMOD_INCLUDE_DIR}) 
 add_library(dso ${dso_SOURCE_FILES} ${dso_opencv_SOURCE_FILES} ${dso_pangolin_SOURCE_FILES})
 
+include_directories( ${PROJECT_SOURCE_DIR}/thirdparty/DBoW3/src)
+
 #set_property( TARGET dso APPEND_STRING PROPERTY COMPILE_FLAGS -Wall )
 
 
@@ -124,10 +129,12 @@ add_library(dso ${dso_SOURCE_FILES} ${dso_opencv_SOURCE_FILES} ${dso_pangolin_SO
 if (OpenCV_FOUND AND Pangolin_FOUND)
 	message("--- compiling dso_dataset.")
 	add_executable(dso_dataset ${PROJECT_SOURCE_DIR}/src/main_dso_pangolin.cpp )
-       target_link_libraries(dso_dataset dso boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} pthread)
+       target_link_libraries(dso_dataset dso boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} pthread
+            ${fast_LIBRARIES} ${PROJECT_SOURCE_DIR}/thirdparty/DBoW3/build/src/libDBoW3.so)
 else()
 	message("--- not building dso_dataset, since either don't have openCV or Pangolin.")
 endif()
 
-  add_executable(myTracking ${PROJECT_SOURCE_DIR}/src/test/myTracking.cpp )
-  target_link_libraries(myTracking boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} pthread)
+add_executable(myTracking ${PROJECT_SOURCE_DIR}/src/test/myTracking.cpp
+    ${PROJECT_SOURCE_DIR}/src/test/pose_local_parameterization.cpp)
+target_link_libraries(myTracking boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} pthread)

@@ -601,7 +601,7 @@ void CoarseTracker::calcGSSSE(int lvl, Mat88 &H_out, Vec8 &b_out, SE3 refToNew, 
         //该点逆深度
         __m128 id = _mm_load_ps(buf_warped_idepth + i);
 
-        //
+        //下面是雅克比矩阵，8*1的，acc是对雅克比矩阵进行求导得到Hessian矩阵
         acc.updateSSE_eighted(
             _mm_mul_ps(id, dx),
             _mm_mul_ps(id, dy),
@@ -823,6 +823,9 @@ Vec6 CoarseTracker::calcRes(int lvl, SE3 refToNew, AffLight aff_g2l, float cutof
             buf_warped_idepth[numTermsInWarped] = new_idepth;
             buf_warped_u[numTermsInWarped] = u;
             buf_warped_v[numTermsInWarped] = v;
+
+//            if(newFrame->shell->incoming_id==8)
+//                std::cout<<"hitcolor: "<<hitColor[0]<<" "<<hitColor[1]<<" "<<hitColor[2]<<std::endl;
             buf_warped_dx[numTermsInWarped] = hitColor[1];
             buf_warped_dy[numTermsInWarped] = hitColor[2];
             buf_warped_residual[numTermsInWarped] = residual;
@@ -1054,7 +1057,8 @@ bool CoarseTracker::trackNewestCoarse(
             if (lambda < lambdaExtrapolationLimit)
                 extrapFac = sqrt(sqrt(lambdaExtrapolationLimit / lambda));
 
-            //乘以lambda
+            //乘以lambdam,extrapFac基本上都是1
+            //std::cout<<"extrapFac: "<<extrapFac<<std::endl;
             inc *= extrapFac;
 
             Vec8 incScaled = inc;
@@ -1142,7 +1146,7 @@ bool CoarseTracker::trackNewestCoarse(
             printf("REPEAT LEVEL!\n");
         }
     }
-
+    //saveK();
     //saveResult(lastToNew_out, aff_g2l_out, refToNew_current, aff_g2l_current, coarsestLvl, minResForAbort);
 
     // set!
@@ -1169,6 +1173,27 @@ bool CoarseTracker::trackNewestCoarse(
 
 
     return true;
+}
+
+
+void CoarseTracker::saveK()
+{
+    static bool first=true;
+
+    if(first)
+    {
+    std::string path = "/media/ren/99146341-07be-4601-9682-0539688db03f/fdso_tmp/";
+    std::ofstream ofsK(path+"/K.txt");
+    std::ofstream ofsKi(path+"/Ki.txt");
+    for(int i=0;i<PYR_LEVELS;i++)
+    {
+        ofsK<<fx[i]<<" "<<fy[i]<<" "<<cx[i]<<" "<<cy[i]<<std::endl;
+        ofsKi<<fxi[i]<<" "<<fyi[i]<<" "<<cxi[i]<<" "<<cyi[i]<<std::endl;
+    }
+    ofsK.close();
+    ofsKi.close();
+    first=false;
+    }
 }
 
 void CoarseTracker::saveResult(
@@ -1250,6 +1275,7 @@ void CoarseTracker::saveResult(
                 ofsResult<<lastToNew_out.matrix()(i,j)<<" ";
         ofsResult<<std::endl;
 
+        ofsResult<<lastRef_aff_g2l.a<<" "<<lastRef_aff_g2l.b<<std::endl;
         ofsResult<<aff_g2l_In.a<<" "<<aff_g2l_In.b<<std::endl;
         ofsResult<<aff_g2l_out.a<<" "<<aff_g2l_out.b<<std::endl;
 

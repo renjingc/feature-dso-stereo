@@ -41,7 +41,14 @@
 
 #include "ORB/ORBextractor.h"
 
+// for DBoW3
+#include <BowVector.h>
+#include <FeatureVector.h>
+#include "Vocabulary.h"
+typedef DBoW3::Vocabulary ORBVocabulary;
+
 #include <math.h>
+#include <boost/timer.hpp>
 
 namespace fdso
 {
@@ -355,6 +362,9 @@ private:
 	ORBextractor* mpORBextractorLeft, *mpORBextractorRight;
 	std::vector<cv::KeyPoint> mvKeys, mvKeysRight;
 	cv::Mat mDescriptors, mDescriptorsRight;
+
+	DBoW3::BowVector _bow_vec;
+    	DBoW3::FeatureVector _feature_vec;
 
 	cv::FlannBasedMatcher matcher_flann_;
 
