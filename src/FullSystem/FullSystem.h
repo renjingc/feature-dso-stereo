@@ -149,8 +149,6 @@ public:
 	//compute stereo idepth
 	void stereoMatch(ImageAndExposure* image, ImageAndExposure* image_right, int id, cv::Mat &idepthMap);
 
-
-
 	void printResult(std::string file);
 
 	void debugPlot(std::string name);
@@ -264,6 +262,8 @@ private:
 	boost::mutex trackMutex;
 	//全部帧的信息
 	std::vector<FrameShell*> allFrameHistory;
+	std::vector<FrameHessian*> allFrameHessianHistory;
+	std::vector<FrameHessian*> allFrameHessianRightHistory;
 	//初始化类
 	CoarseInitializer* coarseInitializer;
 	//上一时刻的残差
@@ -288,13 +288,13 @@ private:
 	//距离图
 	CoarseDistanceMap* coarseDistanceMap;
 
-	//每一帧的Hessian信息
+	//窗口中的每一帧的Hessian信息
 	std::vector<FrameHessian*> frameHessians;	// ONLY changed in marginalizeFrame and addFrame.
 	//点和帧的残差
 	std::vector<PointFrameResidual*> activeResiduals;
 	float currentMinActDist;
 
-	//右图的
+	// //右图的
 	std::vector<FrameHessian*> frameHessiansRight;
 
 	//全部的残差
@@ -358,7 +358,7 @@ private:
 	cv::Mat mDescriptors, mDescriptorsRight;
 
 	DBoW3::BowVector _bow_vec;
-  DBoW3::FeatureVector _feature_vec;
+	DBoW3::FeatureVector _feature_vec;
 
 	cv::FlannBasedMatcher matcher_flann_;
 

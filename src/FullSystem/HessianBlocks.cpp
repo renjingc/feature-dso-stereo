@@ -32,7 +32,7 @@ namespace fdso
 {
 
 /**
- * 
+ * 点初始化状态为INACTIVE
  */
 PointHessian::PointHessian(const ImmaturePoint* const rawPoint, CalibHessian* Hcalib)
 {
@@ -62,8 +62,8 @@ PointHessian::PointHessian(const ImmaturePoint* const rawPoint, CalibHessian* Hc
 
 	//设置逆深度
 	setIdepthScaled((rawPoint->idepth_max + rawPoint->idepth_min)*0.5);
+	//初始化点的状态为INACTIVE
 	setPointStatus(PointHessian::INACTIVE);
-
 
 	//SSE模式的点数
 	int n = patternNum;

@@ -56,6 +56,7 @@ namespace fdso
  * @return     { description_of_the_return_value }
  * 
  * 优化每一个点，将这个点与窗口中的每一个非主导帧的关键帧进行误差迭代，获取该点最新的逆深度
+ * 从ImmaturePoint生成PointHessian
  */
 PointHessian* FullSystem::optimizeImmaturePoint(
 		ImmaturePoint* point, int minObs,

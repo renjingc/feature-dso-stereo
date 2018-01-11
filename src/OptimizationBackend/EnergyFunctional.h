@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -24,7 +24,7 @@
 
 #pragma once
 
- 
+
 #include "util/NumType.h"
 #include "util/IndexThreadReduce.h"
 #include "vector"
@@ -91,17 +91,20 @@ public:
 	//
 	void marginalizePointsF();
 	void dropPointsF();
+
+	//计算
 	void solveSystemF(int iteration, double lambda, CalibHessian* HCalib);
 	double calcMEnergyF();
 	double calcLEnergyF_MT();
 
-
+	//重新设置点和帧的id
 	void makeIDX();
 
 	void setDeltaF(CalibHessian* HCalib);
 
 	void setAdjointsF(CalibHessian* Hcalib);
 
+	//每一帧数据队列
 	std::vector<EFFrame*> frames;
 	int nPoints, nFrames, nResiduals;
 
@@ -126,14 +129,14 @@ public:
 	IndexThreadReduce<Vec10>* red;
 
 
-	std::map<long,Eigen::Vector2i> connectivityMap;
+	std::map<long, Eigen::Vector2i> connectivityMap;
 
 private:
 
 	VecX getStitchedDeltaF() const;
 
 	void resubstituteF_MT(VecX x, CalibHessian* HCalib, bool MT);
-    void resubstituteFPt(const VecCf &xc, Mat18f* xAd, int min, int max, Vec10* stats, int tid);
+	void resubstituteFPt(const VecCf &xc, Mat18f* xAd, int min, int max, Vec10* stats, int tid);
 
 	void accumulateAF_MT(MatXX &H, VecX &b, bool MT);
 	void accumulateLF_MT(MatXX &H, VecX &b, bool MT);
@@ -149,7 +152,6 @@ private:
 
 	Mat88f* adHostF;
 	Mat88f* adTargetF;
-
 
 	VecC cPrior;
 	VecCf cDeltaF;

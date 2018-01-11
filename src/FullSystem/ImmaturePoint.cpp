@@ -61,7 +61,7 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, Ca
 		//加上每个点的梯度值，２*2矩阵,最后gradH为模式的每个点的梯度矩阵和
 		gradH += ptc.tail<2>()  * ptc.tail<2>().transpose();
 
-		//这个点的权值sqrt(c/(c+梯度值))
+		//这个点的权值sqrt(c/(c+梯度值))   50*50/(50*50+梯度平方和)
 		weights[idx] = sqrtf(setting_outlierTHSumComponent / (setting_outlierTHSumComponent + ptc.tail<2>().squaredNorm()));
 	}
 	//设置outlier阈值，这里设为固定值，在迭代计算点逆深度和最佳重投影坐标时，用到这个阈值判断误差能量阈值

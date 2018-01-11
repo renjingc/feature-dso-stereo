@@ -35,6 +35,18 @@
 #include "FullSystem/Residuals.h"
 #include "util/ImageAndExposure.h"
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/core/eigen.hpp>
+
+// for DBoW3
+#include <BowVector.h>
+#include <FeatureVector.h>
+#include "Vocabulary.h"
+typedef DBoW3::Vocabulary ORBVocabulary;
+
 
 namespace fdso
 {
@@ -147,15 +159,25 @@ struct FrameHessian
 
 	//有效点
 	std::vector<PointHessian*> pointHessians;				// contains all ACTIVE points.
-	//已边缘化的点
+	//已边缘化的点,在flagPointsForRemoval中根据点的逆深度状态，插入
 	std::vector<PointHessian*> pointHessiansMarginalized;	// contains all MARGINALIZED points (= fully marginalized, usually because point went OOB.)
-	//出界点/外点
+	//出界点/外点,在flagPointsForRemoval中插入
 	std::vector<PointHessian*> pointHessiansOut;		// contains all OUTLIER points (= discarded.).
-	//未成熟的点
+	//未成熟的点，从未用到过
 	std::vector<PointHessian*> potentialPointHessians;
 
 	//当前帧生成的点
 	std::vector<ImmaturePoint*> immaturePoints;		// contains all OUTLIER points (= discarded.).
+
+	// std::vector<cv::KeyPoint> keypointsLeft,keypointsRight;
+	// cv::Mat descriptorsLeft,descriptorsRight;
+
+	// cv::Mat image;
+	// std::vector<cv::KeyPoint> keypoints;
+	// cv::Mat descriptors;
+
+	DBoW3::BowVector _bow_vec;
+  	DBoW3::FeatureVector _feature_vec;
 
 	//零空间位姿
 	Mat66 nullspaces_pose;
@@ -395,7 +417,6 @@ struct CalibHessian
 	inline ~CalibHessian() {instanceCounter--;}
 	inline CalibHessian()
 	{
-
 		VecC initial_value = VecC::Zero();
 		initial_value[0] = fxG[0];
 		initial_value[1] = fyG[0];

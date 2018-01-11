@@ -338,6 +338,7 @@ void CoarseTracker::makeCoarseDepthForFirstFrame(FrameHessian* fh)
  * @param frameHessians [description]
  * @param fh_right      [description]
  * @param Hcalib        [description]
+ * 从每个关键帧中拿出点
  */
 void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, FrameHessian* fh_right, CalibHessian Hcalib)
 {
@@ -363,6 +364,7 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, 
             //判断点的残差状态
             if (ph->lastResiduals[0].first != 0 && ph->lastResiduals[0].second == ResState::IN) //contains information about residuals to the last two (!) frames. ([0] = latest, [1] = the one before).
             {
+
                 PointFrameResidual* r = ph->lastResiduals[0].first;
                 assert(r->efResidual->isActive() && r->target == lastRef);
 
@@ -553,9 +555,9 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, 
 
                 weightSumsl[i] = 1;
             }
-
         pc_n[lvl] = lpc_n;
     }
+    // std::cout<<"pc_n: "<<pc_n[0]<<std::endl;
 }
 
 /**

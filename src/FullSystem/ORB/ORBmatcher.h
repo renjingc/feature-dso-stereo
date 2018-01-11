@@ -22,7 +22,7 @@
 
 #include "ORBextractor.h"
 
-#include "util/FrameShell.h"
+#include "util/FrameHessian.h"
 #include "util/NumType.h"
 
 // 匹配相关的算法，包括特征点的匹配法和直接法的匹配法
@@ -67,13 +67,13 @@ public:
   // 给定两帧之间的 Essential，计算 matched points
   // 结果中的 kf1 关键点状态必须没有三角化，kf2中则无所谓
   int SearchForTriangulation(
-    FrameShell* kf1, FrameShell* kf2, const Eigen::Matrix3d& E12,
+    FrameHessian* kf1, FrameHessian* kf2, const Eigen::Matrix3d& E12,
     std::vector< std::pair<int, int> >& matched_points,
     const bool& onlyStereo = false
   );
 
   // 在Keyframe之间搜索匹配情况，利用BoW加速
-  int SearchByBoW( FrameShell * kf1, FrameShell* kf2, std::map<int, int>& matches );
+  int SearchByBoW( FrameHessian * kf1, FrameHessian* kf2, std::map<int, int>& matches );
 
   // 在KeyFrame和地图之间搜索匹配情况
   // int SearchByProjection(Frame *F, const std::vector<MapPoint*> &vpMapPoints, const float th=3);
@@ -81,20 +81,20 @@ public:
   // 计算两个帧之间的特征描述是否一致
   // 这是在初始化里用的。初始化使用了光流跟踪了一些点，但我们没法保证跟踪成功，所以需要再检查一遍它们的描述量
   // 第三个参数内指定了光流追踪的match，如果描述不符合，就会从里面剔除
-  int CheckFrameDescriptors( FrameShell* frame1, FrameShell* frame2, std::list<std::pair<int, int>>& matches );
+  int CheckFrameDescriptors( FrameHessian* frame1, FrameHessian* frame2, std::list<std::pair<int, int>>& matches );
 
 
   // ****************************************************************************************************
   // 直接法的匹配
 
   // 用直接法判断能否从在当前图像上找到某地图点的投影
-  //bool FindDirectProjection( FrameShell* ref, FrameShell* curr, MapPoint* mp, Vector2d& px_curr, int& search_level );
+  //bool FindDirectProjection( FrameHessian* ref, FrameHessian* curr, MapPoint* mp, Vector2d& px_curr, int& search_level );
   // 重载: 已知feature的情况（尚未建立地图点时）
-  //bool FindDirectProjection( FrameShell* ref, FrameShell* curr, Feature* fea_ref, Vector2d& px_curr, int& search_level );
+  //bool FindDirectProjection( FrameHessian* ref, FrameHessian* curr, Feature* fea_ref, Vector2d& px_curr, int& search_level );
 
   // model based sparse image alignment
   // 通过参照帧中观测到的3D点，预测当前帧的pose，稀疏直接法
-  bool SparseImageAlignment( FrameShell* ref, FrameShell* current );
+  // bool SparseImageAlignment( FrameHessian* ref, FrameHessian* current );
 
   SE3 GetTCR() const
   {
@@ -108,30 +108,30 @@ private:
 
   bool CheckDistEpipolarLine( const Eigen::Vector3d& pt1, const Eigen::Vector3d& pt2, const Eigen::Matrix3d& E12 );
 
-  // 对每层金字塔计算的 image alignment
-  bool SparseImageAlignmentInPyramid( FrameShell* ref, FrameShell* current, int pyramid );
+  // // 对每层金字塔计算的 image alignment
+  // bool SparseImageAlignmentInPyramid( FrameHessian* ref, FrameHessian* current, int pyramid );
 
 
-  void GetWarpAffineMatrix (
-    const FrameShell* ref,
-    const FrameShell* curr,
-    const Eigen::Vector2d& px_ref,
-    const Eigen::Vector3d& pt_ref,
-    const int & level,
-    const SE3& TCR,
-    Eigen::Matrix2d& ACR
-  );
+  // void GetWarpAffineMatrix (
+  //   const FrameHessian* ref,
+  //   const FrameHessian* curr,
+  //   const Eigen::Vector2d& px_ref,
+  //   const Eigen::Vector3d& pt_ref,
+  //   const int & level,
+  //   const SE3& TCR,
+  //   Eigen::Matrix2d& ACR
+  // );
 
-  // perform affine warp
-  void WarpAffine (
-    const Eigen::Matrix2d& ACR,
-    const cv::Mat& img_ref,
-    const Eigen::Vector2d& px_ref,
-    const int& level_ref,
-    const int& search_level,
-    const int& half_patch_size,
-    uint8_t* patch
-  );
+  // // perform affine warp
+  // void WarpAffine (
+  //   const Eigen::Matrix2d& ACR,
+  //   const cv::Mat& img_ref,
+  //   const Eigen::Vector2d& px_ref,
+  //   const int& level_ref,
+  //   const int& search_level,
+  //   const int& half_patch_size,
+  //   uint8_t* patch
+  // );
 
   // 计算最好的金字塔层数
   // 选择一个分辨率，使得warp不要太大
@@ -148,20 +148,21 @@ private:
     return search_level;
   }
 
-  // 计算参照帧中的图像块
-  void PrecomputeReferencePatches( FrameShell* ref, int level );
+  // // 计算参照帧中的图像块
+  // void PrecomputeReferencePatches( FrameHessian* ref, int level );
 
 private:
   // Data
 
-  // 匹配局部地图用的 patch, 默认8x8
-  uchar _patch[WarpPatchSize * WarpPatchSize];
-  // 带边界的，左右各1个像素
-  uchar _patch_with_border[(WarpPatchSize + 2) * (WarpPatchSize + 2)];
+  // // 匹配局部地图用的 patch, 默认8x8
+  // uchar _patch[WarpPatchSize * WarpPatchSize];
+  // // 带边界的，左右各1个像素
+  // uchar _patch_with_border[(WarpPatchSize + 2) * (WarpPatchSize + 2)];
 
-  std::vector<uchar*> _patches_align;      // 等待推倒的patches
-  std::vector<Vector2d*> _duv_ref;         // Reference 像素梯度
-  SparseImgAlign* _align;
+  // std::vector<uchar*> _patches_align;      // 等待推倒的patches
+  // std::vector<Vector2d*> _duv_ref;         // Reference 像素梯度
+  //SparseImgAlign* _align;
+
   SE3 _TCR_esti;      // 待估计的TCR
 
 };

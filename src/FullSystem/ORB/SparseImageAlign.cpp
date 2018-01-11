@@ -1,7 +1,7 @@
 #include "SparseImageAlign.h"
 #include "CVUtils.h"
 
-namespace ygz
+namespace fdso
 {
 
 SparseImgAlign::SparseImgAlign (
@@ -18,7 +18,7 @@ SparseImgAlign::SparseImgAlign (
     eps_ = 0.000001;
 }
 
-size_t SparseImgAlign::run ( Frame* ref_frame, Frame* cur_frame )
+size_t SparseImgAlign::run ( FrameHessian* ref_frame, FrameHessian* cur_frame )
 {
     reset();
 
@@ -34,7 +34,7 @@ size_t SparseImgAlign::run ( Frame* ref_frame, Frame* cur_frame )
     jacobian_cache_.resize ( Eigen::NoChange, ref_patch_cache_.rows * patch_area_ );
     visible_fts_.resize ( ref_patch_cache_.rows, false ); // TODO: should it be reset at each level?
 
-    SE3 T_cur_from_ref ( cur_frame_->_TCW * ref_frame_->_TCW.inverse() );
+    SE3 T_cur_from_ref ( cur_frame_->shell->camToWorld * ref_frame_->shell->camToWorld.inverse() );
 
     for ( level_ = max_level_; level_ >= min_level_; --level_ )
     {
@@ -45,14 +45,14 @@ size_t SparseImgAlign::run ( Frame* ref_frame, Frame* cur_frame )
             printf ( "\nPYRAMID LEVEL %i\n---------------\n", level_ );
         optimize ( T_cur_from_ref );
     }
-    cur_frame_->_TCW = T_cur_from_ref * ref_frame_->_TCW;
+    cur_frame_->shell->camToWorld = T_cur_from_ref * ref_frame_->shell->camToWorld;
     return n_meas_ / patch_area_;
 }
 
-Matrix<double, 6, 6> SparseImgAlign::getFisherInformation()
+Eigen::Matrix<double, 6, 6> SparseImgAlign::getFisherInformation()
 {
     double sigma_i_sq = 5e-4 * 255 * 255; // image noise
-    Matrix<double, 6, 6> I = H_ / sigma_i_sq;
+    Eigen::Matrix<double, 6, 6> I = H_ / sigma_i_sq;
     return I;
 }
 
@@ -249,6 +249,4 @@ void SparseImgAlign::finishIteration()
         cv::waitKey ( 0 );
     }
 }
-
-
 }

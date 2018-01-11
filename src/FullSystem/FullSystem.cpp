@@ -429,8 +429,8 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 	{
 		initializeFromInitializer(fh);
 
-		lastF_2_fh_tries.push_back(init_Rt);
-		lastF_2_fh_tries.push_back(SE3(R, Eigen::Matrix<double, 3, 1>::Zero() ));
+//		lastF_2_fh_tries.push_back(init_Rt);
+		lastF_2_fh_tries.push_back(SE3(Eigen::Matrix<double, 3, 3>::Identity(), Eigen::Matrix<double, 3, 1>::Zero() ));
 
 		for (float rotDelta = 0.02; rotDelta < 0.05; rotDelta = rotDelta + 0.02)
 		{
@@ -581,13 +581,11 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 		AffLight aff_g2l_this = aff_last_2_l;
 		SE3 lastF_2_fh_this = lastF_2_fh_tries[i];
 
-		boost::timer timer;
 		//是否跟踪成功
 		bool trackingIsGood = coarseTracker->trackNewestCoarse(
 		                        fh, lastF_2_fh_this, aff_g2l_this,
 		                        pyrLevelsUsed - 1,
 		                        achievedRes);	// in each level has to be at least as good as the last try.
-		std::cout << "trackNewestCoarse: " << timer.elapsed() << std::endl;
 
 		//尝试次数++
 		tryIterations++;
@@ -1010,6 +1008,7 @@ void FullSystem::traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right)
  * @param max        [description]	最大的个数
  * @param stats      [description]	当前状态
  * @param tid        [description]
+ * 从选出的ImmaturePoint点中生成实际的PointHessian点，生成深度
  */
 void FullSystem::activatePointsMT_Reductor(
   std::vector<PointHessian*>* optimized,
@@ -1018,7 +1017,7 @@ void FullSystem::activatePointsMT_Reductor(
 {
 	ImmaturePointTemporaryResidual* tr = new ImmaturePointTemporaryResidual[frameHessians.size()];
 
-	//优化每一个点
+	//优化每一个点从toOptimize中生成optimized
 	for (int k = min; k < max; k++)
 	{
 		(*optimized)[k] = optimizeImmaturePoint((*toOptimize)[k], 1, tr);
@@ -1030,6 +1029,7 @@ void FullSystem::activatePointsMT_Reductor(
  * [FullSystem::activatePointsMT description]
  * 遍历窗口中的每一个关键帧的每一个点，判断这个点的状态并且将这个点与每一个关键帧进行逆深度残差更新，更新该点的逆深度
  * 并在ef中插入该点，加入该点与每一个关键帧的残差
+ * 为每个关键帧从其ImmaturePoint中生成PointHessian点
  */
 void FullSystem::activatePointsMT()
 {
@@ -1175,7 +1175,9 @@ void FullSystem::activatePointsMT()
 	std::vector<PointHessian*> optimized;
 	optimized.resize(toOptimize.size());
 
+	// std::cout<<"toOptimize: "<<toOptimize.size()<<std::endl;
 	//多线程优化每一个点的逆深度
+	//多线程生成PointHessian点,为每个关键帧帧生成PointHessian点
 	if (multiThreading)
 		treadReduce.reduce(boost::bind(&FullSystem::activatePointsMT_Reductor, this, &optimized, &toOptimize, _1, _2, _3, _4), 0, toOptimize.size(), 50);
 	else
@@ -1186,6 +1188,8 @@ void FullSystem::activatePointsMT()
 	{
 		//该点优化后的
 		PointHessian* newpoint = optimized[k];
+
+		//之前的
 		ImmaturePoint* ph = toOptimize[k];
 
 		//新的点好的
@@ -1248,7 +1252,7 @@ void FullSystem::activatePointsOldFirst()
  * [FullSystem::flagPointsForRemoval description]
  * 优化后，删除点
  * host->pointHessiansOut.push_back(ph);
- * efPoint->stateFlag = EFPointStatus::PS_DROP
+ * efPoint->stateFlag = EFPointStatus::PS_DROP或PS_MARGINALIZE
  * host->pointHessians[i] = 0;pointHessians删除
  */
 void FullSystem::flagPointsForRemoval()
@@ -1312,12 +1316,14 @@ void FullSystem::flagPointsForRemoval()
 							ngoodRes++;
 						}
 					}
+					//若该点的逆深度Hessian超出边缘阈值，则加入pointHessiansMarginalized，该点为边缘化点
 					if (ph->idepth_hessian > setting_minIdepthH_marg)
 					{
 						flag_inin++;
 						ph->efPoint->stateFlag = EFPointStatus::PS_MARGINALIZE;
 						host->pointHessiansMarginalized.push_back(ph);
 					}
+					//否则该点为out点
 					else
 					{
 						ph->efPoint->stateFlag = EFPointStatus::PS_DROP;
@@ -1325,7 +1331,7 @@ void FullSystem::flagPointsForRemoval()
 					}
 
 				}
-				else
+				else 	//该点为out点
 				{
 					//该点设置为out
 					host->pointHessiansOut.push_back(ph);
@@ -1404,68 +1410,68 @@ void FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv:
 // }
 //
 //
-int FullSystem::CheckFrameDescriptors (
-  FrameShell* frame1,
-  FrameShell* frame2,
-  std::list<std::pair<int, int>>& matches
-)
-{
-	std::vector<int> distance;
-	for ( auto& m : matches )
-	{
-		distance.push_back( DescriptorDistance(
-		                      frame1->descriptorsLeft,
-		                      frame2->_descriptorsLeft
-		                    ));
-	}
+//int FullSystem::CheckFrameDescriptors (
+//  FrameShell* frame1,
+//  FrameShell* frame2,
+//  std::list<std::pair<int, int>>& matches
+//)
+//{
+//	std::vector<int> distance;
+//	for ( auto& m : matches )
+//	{
+//		distance.push_back( DescriptorDistance(
+//		                      frame1->descriptorsLeft,
+//		                      frame2->_descriptorsLeft
+//		                    ));
+//	}
 
-	int cnt_good = 0;
-	int best_dist = *std::min_element( distance.begin(), distance.end() );
-	//LOG(INFO) << "best dist = " << best_dist << endl;
+//	int cnt_good = 0;
+//	int best_dist = *std::min_element( distance.begin(), distance.end() );
+//	//LOG(INFO) << "best dist = " << best_dist << endl;
 
-	// 取个上下限
-	best_dist = best_dist > _options.init_low ? best_dist : _options.init_low;
-	best_dist = best_dist < _options.init_high ? best_dist : _options.init_high;
+//	// 取个上下限
+//	best_dist = best_dist > _options.init_low ? best_dist : _options.init_low;
+//	best_dist = best_dist < _options.init_high ? best_dist : _options.init_high;
 
-	int i = 0;
-	//LOG(INFO) << "original matches: " << matches.size() << endl;
-	for ( auto iter = matches.begin(); iter != matches.end(); i++ )
-	{
-		if ( distance[i] < _options.initMatchRatio * best_dist )
-		{
-			cnt_good++;
-			iter++;
-		}
-		else
-		{
-			iter = matches.erase( iter );
-		}
-	}
-	//LOG(INFO) << "correct matches: " << matches.size() << endl;
-	return cnt_good;
-}
+//	int i = 0;
+//	//LOG(INFO) << "original matches: " << matches.size() << endl;
+//	for ( auto iter = matches.begin(); iter != matches.end(); i++ )
+//	{
+//		if ( distance[i] < _options.initMatchRatio * best_dist )
+//		{
+//			cnt_good++;
+//			iter++;
+//		}
+//		else
+//		{
+//			iter = matches.erase( iter );
+//		}
+//	}
+//	//LOG(INFO) << "correct matches: " << matches.size() << endl;
+//	return cnt_good;
+//}
 
-int FullSystem::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
-{
-	const int *pa = a.ptr<int32_t>();
-	const int *pb = b.ptr<int32_t>();
-	int dist = 0;
-	for (int i = 0; i < 8; i++, pa++, pb++)
-	{
-		unsigned  int v = *pa ^ *pb;
-		v = v - ((v >> 1) & 0x55555555);
-		v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
-		dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
-	}
-	return dist;
-}
-void FullSystem::ComputeBoW(FrameShell* f)
-{
-	if ( _vocab != nullptr && f->_bow_vec.empty() )
-	{
-		_vocab->transform( f->descriptorsLeft, f->_bow_vec, f->_feature_vec, 4);
-	}
-}
+//int FullSystem::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
+//{
+//	const int *pa = a.ptr<int32_t>();
+//	const int *pb = b.ptr<int32_t>();
+//	int dist = 0;
+//	for (int i = 0; i < 8; i++, pa++, pb++)
+//	{
+//		unsigned  int v = *pa ^ *pb;
+//		v = v - ((v >> 1) & 0x55555555);
+//		v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
+//		dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+//	}
+//	return dist;
+//}
+//void FullSystem::ComputeBoW(FrameShell* f)
+//{
+//	if ( _vocab != nullptr && f->_bow_vec.empty() )
+//	{
+//		_vocab->transform( f->descriptorsLeft, f->_bow_vec, f->_feature_vec, 4);
+//	}
+//}
 /**
  * [FullSystem::addActiveFrame description]
  * @param image       [description]
@@ -1504,28 +1510,23 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	//曝光时间
 	fh_right->ab_exposure = image_right->exposure_time;
 	//得到当前帧的每一层的灰度图像和xy方向梯度值和xy梯度平方和，用于跟踪和初始化
-
 	fh_right->makeImages(image_right->image, &Hcalib);
 
+//	fh->image = image->toMat();
+//	fh_right->image = image->toMat();
 
-	cv::Mat imageLeft = cv::Mat(image->h, image->w, CV_32FC1, image->image);
-	cv::Mat imageRight = cv::Mat(image->h, image->w, CV_32FC1, image_right->image);
-	cv::Mat imageLeft8, imageRight8;
-	imageLeft.convertTo(imageLeft8, CV_8U, 1, 0);
-	imageRight.convertTo(imageRight8, CV_8U, 1, 0);
 	//提取特征点
 	// ORB extraction
 	// 同时对左右目提特征
+	// (*mpORBextractorLeft)(fh->image, cv::Mat(), fh->keypoints, fh->descriptors);
+	// (*mpORBextractorRight)(fh_right->image, cv::Mat(), fh->keypoints, fh->descriptors);
 
-	(*mpORBextractorLeft)(imageLeft8, cv::Mat(), mvKeys, mDescriptors);
-	(*mpORBextractorRight)(imageRight8, cv::Mat(), mvKeysRight, mDescriptorsRight);
-
-	shell->keypointsLeft = mvKeys;
-	shell->keypointsRight = mvKeysRight;
-	mDescriptors.copyTo(shell->descriptorsLeft);
-	mDescriptorsRight.copyTo(shell->descriptorsRight);
-	imageLeft8.copyTo(shell->imageLeft);
-	imageRight8.copyTo(shell->imageRight);
+	// fh->keypointsLeft = mvKeys;
+	// shell->keypointsRight = mvKeysRight;
+	// mDescriptors.copyTo(shell->descriptorsLeft);
+	// mDescriptorsRight.copyTo(shell->descriptorsRight);
+	// imageLeft8.copyTo(shell->imageLeft);
+	// imageRight8.copyTo(shell->imageRight);
 
 	// for(int i=0;i<mvKeys.size();i++)
 	// 	cv::circle(imageLeft8, mvKeys[i].pt, 2, cv::Scalar(255,0,0),2);
@@ -1537,6 +1538,8 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 
 	//将当前帧增加到历史记录中
 	allFrameHistory.push_back(shell);
+	// allFrameHessianHistory.push_back(fh);
+	// allFrameHessianRightHistory.push_back(fh_right);
 
 	if (!initialized)
 	{
@@ -1552,41 +1555,42 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	}
 	else	// do front-end operation.
 	{
-		Eigen::Matrix3d initR;
-		std::vector<cv::DMatch> matches;
-		cv::Mat image;
+         Eigen::Matrix3d initR;
+		// std::vector<cv::DMatch> matches;
+		// cv::Mat image;
 
-		ComputeBoW(allFrameHistory[allFrameHistory.size() - 2]);
-		ComputeBoW(allFrameHistory[allFrameHistory.size() - 1]);
+//		ComputeBoW(allFrameHistory[allFrameHistory.size() - 2]);
+//		ComputeBoW(allFrameHistory[allFrameHistory.size() - 1]);
 
-		//find_feature_matches(allFrameHistory[allFrameHistory.size() - 2]->descriptorsLeft, mDescriptors, matches);
+//		find_feature_matches(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->descriptors,
+//		                     allFrameHessianHistory[allFrameHessianHistory.size() - 1]->descriptors, matches);
 
-		if (matches.size() > 5)
-		{
-			cv::Mat K = (cv::Mat_<float>(3, 3) << Hcalib.fxl(), 0, Hcalib.cxl(), 0, Hcalib.fyl(), Hcalib.cyl(), 0, 0, 1);
-			std::vector<cv::Point2f> points1;
-			std::vector<cv::Point2f> points2;
-			for (int i = 0; i < (int)matches.size(); i++)
-			{
-				points1.push_back(allFrameHistory[allFrameHistory.size() - 2]->keypointsLeft[matches[i].queryIdx].pt);
-				points2.push_back(mvKeys[matches[i].trainIdx].pt);
-			}
-			// std::cout<<Hcalib.fxl()<<" "<<Hcalib.fyl()<<" "<<Hcalib.cxl()<<" "<<Hcalib.cyl()<<std::endl;
-			cv::Point2d principal_point(Hcalib.cxl(), Hcalib.cyl());
-			float focal_length = Hcalib.fxl();
-			cv::Mat R, t;
-			cv::Mat essential_matrix = cv::findEssentialMat(points1, points2, K, CV_RANSAC);
-			cv::recoverPose(essential_matrix, points1, points2, K, R, t);
-			cv::cv2eigen(R, initR);
-			// std::cout << initR << std::endl;
-		}
-		// cv::drawMatches(allFrameHistory[allFrameHistory.size()-2]->imageLeft,allFrameHistory[allFrameHistory.size()-2]->keypointsLeft,
-		//              	imageLeft8,mvKeys,
-		//           	matches,
-		//           	image,
-		//           	cv::Scalar(255,0,0)
-		//           );
-		// cv::imshow("match",image);
+//		if (matches.size() > 5)
+//		{
+//			cv::Mat K = (cv::Mat_<float>(3, 3) << Hcalib.fxl(), 0, Hcalib.cxl(), 0, Hcalib.fyl(), Hcalib.cyl(), 0, 0, 1);
+//			std::vector<cv::Point2f> points1;
+//			std::vector<cv::Point2f> points2;
+//			for (int i = 0; i < (int)matches.size(); i++)
+//			{
+//				points1.push_back(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->keypoints[matches[i].queryIdx].pt);
+//				points2.push_back(allFrameHessianHistory[allFrameHessianHistory.size() - 1]->keypoints[matches[i].trainIdx].pt);
+//			}
+//			// std::cout<<Hcalib.fxl()<<" "<<Hcalib.fyl()<<" "<<Hcalib.cxl()<<" "<<Hcalib.cyl()<<std::endl;
+//			cv::Point2d principal_point(Hcalib.cxl(), Hcalib.cyl());
+//			float focal_length = Hcalib.fxl();
+//			cv::Mat R, t;
+//			cv::Mat essential_matrix = cv::findEssentialMat(points1, points2, K, CV_RANSAC);
+//			cv::recoverPose(essential_matrix, points1, points2, K, R, t);
+//			cv::cv2eigen(R, initR);
+//			// std::cout << initR << std::endl;
+//		}
+//		cv::drawMatches(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->image, allFrameHessianHistory[allFrameHessianHistory.size() - 2]->keypoints,
+//		                allFrameHessianHistory[allFrameHessianHistory.size() - 1]->image, allFrameHessianHistory[allFrameHessianHistory.size() - 1]->keypoints,
+//		                matches,
+//		                image,
+//		                cv::Scalar(255, 0, 0)
+//		               );
+//		cv::imshow("match", image);
 
 		// =========================== SWAP tracking reference?. =========================
 		//如果当前关键帧的参考帧ID大于当前跟踪的参考帧ID
@@ -1950,7 +1954,10 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	// =========================== Activate Points (& flag for marginalization). =========================
 	// 遍历窗口中的每一个关键帧的每一个点，判断这个点的状态并且将这个点与每一个关键帧进行逆深度残差更新，更新该点的逆深度
 	// 并在ef中插入该点，加入该点与每一个关键帧的残差
+	// 为最新帧的主导帧从其ImmaturePoint中生成PointHessian点
 	activatePointsMT();
+
+	//重新设置ef中帧和点的Idx,因为新加了点和帧
 	ef->makeIDX();
 
 	// =========================== OPTIMIZE ALL =========================
@@ -1988,7 +1995,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 		return;
 
 	// =========================== REMOVE OUTLIER =========================
-	//移除外点
+	//移除外点，删除点和窗口中的帧之间都无残差，则加入pointHessiansOut，并从pointHessians，在ef中删除PS_DROP
 	removeOutliers();
 	{
 		boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
@@ -2086,7 +2093,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 
 	//第一帧的右帧
 	FrameHessian* firstFrameRight = coarseInitializer->firstRightFrame;
-	//
+	// //
 	frameHessiansRight.push_back(firstFrameRight);
 
 	//设置第一帧的点Hessian矩阵
@@ -2198,7 +2205,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
  * @param newFrame      [description]
  * @param newFrameRight [description]
  * @param gtDepth       [description]
- * 选取新关键帧的点
+ * 选取新关键帧的点,创建ImmaturePoint
  */
 void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRight, float* gtDepth)
 {
@@ -2230,7 +2237,6 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 				newFrame->immaturePoints.push_back(impt);
 		}
 	printf("MADE %d IMMATURE POINTS!\n", (int)newFrame->immaturePoints.size());
-
 }
 
 /**

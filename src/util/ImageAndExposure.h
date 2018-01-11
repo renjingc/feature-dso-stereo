@@ -25,6 +25,7 @@
 #pragma once
 #include <cstring>
 #include <iostream>
+#include <opencv2/core/core.hpp>
 
 
 namespace fdso
@@ -65,6 +66,15 @@ public:
 		img->exposure_time = exposure_time;
 		memcpy(img->image, image, w * h * sizeof(float));
 		return img;
+	}
+
+	inline cv::Mat toMat()
+	{
+                cv::Mat imageMat =cv::Mat(h, w, CV_32FC1, image);
+		cv::Mat imageMat8;
+		imageMat.convertTo(imageMat8, CV_8U, 1, 0);
+
+                return imageMat8;
 	}
 };
 

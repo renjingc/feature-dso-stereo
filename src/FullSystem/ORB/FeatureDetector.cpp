@@ -29,7 +29,7 @@
 
 #include "FeatureDetector.h"
 
-namespace ygz
+namespace fdso
 {
 
 
@@ -442,6 +442,11 @@ void FeatureDetector::Detect(Frame* frame, bool overwrite_existing_features)
     LOG(INFO) << "add total " << cnt_new_features << " new features." << endl;
 }
 
+/**
+ * @brief      Sets the existing features.
+ *
+ * @param      frame  The frame
+ */
 void FeatureDetector::SetExistingFeatures ( Frame* frame )
 {
     for ( Feature*& fea : _old_features )
@@ -462,7 +467,15 @@ void FeatureDetector::SetExistingFeatures ( Frame* frame )
     }
 }
 
-
+/**
+ * @brief      { function_description }
+ *
+ * @param[in]  img   The image
+ * @param[in]  u     { parameter_description }
+ * @param[in]  v     { parameter_description }
+ *
+ * @return     { description_of_the_return_value }
+ */
 float FeatureDetector::ShiTomasiScore ( const cv::Mat& img, const int& u, const int& v ) const
 {
     assert ( img.type() == CV_8UC1 );
@@ -505,6 +518,15 @@ float FeatureDetector::ShiTomasiScore ( const cv::Mat& img, const int& u, const 
     return 0.5 * ( dXX + dYY - sqrt ( ( dXX + dYY ) * ( dXX + dYY ) - 4 * ( dXX * dYY - dXY * dXY ) ) );
 }
 
+/**
+ * @brief      { function_description }
+ *
+ * @param[in]  image  The image
+ * @param[in]  pt     The point
+ * @param[in]  u_max  The u maximum
+ *
+ * @return     { description_of_the_return_value }
+ */
 float FeatureDetector::IC_Angle(
     const Mat& image, const Vector2d& pt,
     const vector<int>& u_max)
@@ -535,6 +557,14 @@ float FeatureDetector::IC_Angle(
     return cv::fastAtan2((float)m_01, (float)m_10);
 }
 
+/**
+ * @brief      Calculates the orb descriptor.
+ *
+ * @param[in]  feature  The feature
+ * @param[in]  img      The image
+ * @param[in]  pattern  The pattern
+ * @param      desc     The description
+ */
 void FeatureDetector::ComputeOrbDescriptor(
     const Feature* feature, const Mat& img, const cv::Point* pattern, uchar* desc)
 {
@@ -587,6 +617,12 @@ void FeatureDetector::ComputeAngleAndDescriptor(Frame* frame)
 }
 
 
+/**
+ * @brief      Calculates the descriptor.
+ *
+ * @param      fea   The fea
+ * 
+ */
 void FeatureDetector::ComputeDescriptor( Feature* fea )
 {
     ComputeOrbDescriptor( fea, fea->_frame->_pyramid[fea->_level], &_pattern[0], fea->_desc.data );

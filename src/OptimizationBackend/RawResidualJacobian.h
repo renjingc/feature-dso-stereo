@@ -33,6 +33,7 @@ struct RawResidualJacobian
 {
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 	// ================== new structure: save independently =============.
+	//模式残差
 	EIGEN_ALIGN16 VecNRf resF;
 
 	// the two rows of d[x,y]/d[xi].
@@ -45,9 +46,11 @@ struct RawResidualJacobian
 	EIGEN_ALIGN16 Vec2f Jpdd;				// 2x1
 
 	// the two columns of d[r]/d[x,y].
+	//几何部分之光照梯度 JIdx,图像梯度图是用模式残差的
 	EIGEN_ALIGN16 VecNRf JIdx[2];			// 9x2
 
 	// = the two columns of d[r] / d[ab]
+	//光学部分之光度参数 Jab,使用模式残差的
 	EIGEN_ALIGN16 VecNRf JabF[2];			// 9x2
 
 

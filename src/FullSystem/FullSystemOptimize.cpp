@@ -54,16 +54,21 @@ namespace fdso
  * @param[in]  max               The maximum
  * @param      stats             The statistics
  * @param[in]  tid               The tid
+ * 
+ * 全部线性化
  */
 void FullSystem::linearizeAll_Reductor(bool fixLinearization, std::vector<PointFrameResidual*>* toRemove, int min, int max, Vec10* stats, int tid)
 {
+	//遍历每一个残差
 	for (int k = min; k < max; k++)
 	{
+		//遍历每一个点与帧产生的残差，进行线性化，即计算点与帧之间的残差和各个雅克比
 		PointFrameResidual* r = activeResiduals[k];
 		(*stats)[0] += r->linearize(&Hcalib);
 
 		if (fixLinearization)
 		{
+			//更新残差和状态state_energy = state_NewEnergy
 			r->applyRes(true);
 
 			if (r->efResidual->isActive())
@@ -74,7 +79,6 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization, std::vector<PointF
 					Vec3f ptp_inf = r->host->targetPrecalc[r->target->idx].PRE_KRKiTll * Vec3f(p->u, p->v, 1);	// projected point assuming infinite depth.
 					Vec3f ptp = ptp_inf + r->host->targetPrecalc[r->target->idx].PRE_KtTll * p->idepth_scaled;	// projected point with real depth.
 					float relBS = 0.01 * ((ptp_inf.head<2>() / ptp_inf[2]) - (ptp.head<2>() / ptp[2])).norm();	// 0.01 = one pixel.
-
 
 					if (relBS > p->maxRelBaseline)
 						p->maxRelBaseline = relBS;
@@ -98,6 +102,8 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization, std::vector<PointF
  * @param[in]  max            The maximum
  * @param      stats          The statistics
  * @param[in]  tid            The tid
+ * 
+ * 更新残差
  */
 void FullSystem::applyRes_Reductor(bool copyJacobians, int min, int max, Vec10* stats, int tid)
 {
@@ -107,20 +113,23 @@ void FullSystem::applyRes_Reductor(bool copyJacobians, int min, int max, Vec10* 
 
 /**
  * @brief      Sets the new frame energy th.
+ * 设置新的一帧的阈值frameEnergyTH
  */
 void FullSystem::setNewFrameEnergyTH()
 {
 
 	// collect all residuals and make decision on TH.
+	//残差数
 	allResVec.clear();
 	allResVec.reserve(activeResiduals.size() * 2);
+	//最新的一帧
 	FrameHessian* newFrame = frameHessians.back();
 
+	//遍历全部的点和帧的残差
 	for (PointFrameResidual* r : activeResiduals)
 		if (r->state_NewEnergyWithOutlier >= 0 && r->target == newFrame)
 		{
 			allResVec.push_back(r->state_NewEnergyWithOutlier);
-
 		}
 
 	if (allResVec.size() == 0)
@@ -161,13 +170,15 @@ void FullSystem::setNewFrameEnergyTH()
 Vec3 FullSystem::linearizeAll(bool fixLinearization)
 {
 	double lastEnergyP = 0;
+	//lastEnergyR没用
 	double lastEnergyR = 0;
 	double num = 0;
 
-
+	//线程数
 	std::vector<PointFrameResidual*> toRemove[NUM_THREADS];
 	for (int i = 0; i < NUM_THREADS; i++) toRemove[i].clear();
 
+	//多线程线性化，线性化全部的当前帧的点与帧之间的残差，即计算残差和雅克比
 	if (multiThreading)
 	{
 		treadReduce.reduce(boost::bind(&FullSystem::linearizeAll_Reductor, this, fixLinearization, toRemove, _1, _2, _3, _4), 0, activeResiduals.size(), 0);
@@ -180,11 +191,13 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
 		lastEnergyP = stats[0];
 	}
 
+	//设置最新的关键帧的帧阈值
 	setNewFrameEnergyTH();
 
+	//是否fix
 	if (fixLinearization)
 	{
-
+		//遍历每一个残差
 		for (PointFrameResidual* r : activeResiduals)
 		{
 			PointHessian* ph = r->point;
@@ -192,9 +205,6 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
 				ph->lastResiduals[0].second = r->state_state;
 			else if (ph->lastResiduals[1].first == r)
 				ph->lastResiduals[1].second = r->state_state;
-
-
-
 		}
 
 		int nResRemoved = 0;
@@ -220,7 +230,6 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
 			}
 		}
 		//printf("FINAL LINEARIZATION: removed %d / %d residuals!\n", nResRemoved, (int)activeResiduals.size());
-
 	}
 
 	return Vec3(lastEnergyP, lastEnergyR, num);
@@ -238,6 +247,7 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
  * @param[in]  stepfacD  The stepfac d
  *
  * @return     { description_of_the_return_value }
+ * 从备份的状态中进行下一步，判断是否可以跳出
  */
 bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR, float stepfacA, float stepfacD)
 {
@@ -248,7 +258,6 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 	pstepfac.segment<3>(0).setConstant(stepfacT);
 	pstepfac.segment<3>(3).setConstant(stepfacR);
 	pstepfac.segment<4>(6).setConstant(stepfacA);
-
 
 	float sumA = 0, sumB = 0, sumT = 0, sumR = 0, sumID = 0, numID = 0;
 
@@ -310,8 +319,6 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 	sumID /= numID;
 	sumNID /= numID;
 
-
-
 	if (!setting_debugout_runquiet)
 		printf("STEPS: A %.1f; B %.1f; R %.1f; T %.1f. \t",
 		       sqrtf(sumA) / (0.0005 * setting_thOptIterations),
@@ -322,8 +329,6 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 
 	EFDeltaValid = false;
 	setPrecalcValues();
-
-
 
 	return sqrtf(sumA) < 0.0005 * setting_thOptIterations &&
 	       sqrtf(sumB) < 0.00005 * setting_thOptIterations &&
@@ -339,9 +344,11 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
  * @brief      { function_description }
  *
  * @param[in]  backupLastStep  The backup last step
+ × 备份最新的状态
  */
 void FullSystem::backupState(bool backupLastStep)
 {
+	//备份矫正参数，备份帧状态，备份点的逆深度
 	if (setting_solverMode & SOLVER_MOMENTUM)
 	{
 		if (backupLastStep)
@@ -390,24 +397,30 @@ void FullSystem::backupState(bool backupLastStep)
 // sets linearization point.
 /**
  * @brief      Loads a sate backup.
+ * 加载之前的餐厨
  */
 void FullSystem::loadSateBackup()
 {
+	//设置之前矫正参数
 	Hcalib.setValue(Hcalib.value_backup);
+
+	//遍历每一帧设置每一帧的状态
 	for (FrameHessian* fh : frameHessians)
 	{
 		fh->setState(fh->state_backup);
+
+		//遍历每一个点，设置每一个的逆深度和零状态逆深度
 		for (PointHessian* ph : fh->pointHessians)
 		{
 			ph->setIdepth(ph->idepth_backup);
-
 			ph->setIdepthZero(ph->idepth_backup);
 		}
 
 	}
 
-
 	EFDeltaValid = false;
+
+	//重新设置帧间关系
 	setPrecalcValues();
 }
 
@@ -451,7 +464,7 @@ void FullSystem::printOptRes(Vec3 res, double resL, double resM, double resPrior
 /**
  * @brief
  *
- * @param[in]  mnumOptIts  The mnum option its
+ * @param[in]  mnumOptIts  The mnum option its  迭代次数
  *
  * @return     { description_of_the_return_value }
  */
@@ -464,9 +477,14 @@ float FullSystem::optimize(int mnumOptIts)
 
 	// get statistics and active residuals.
 
+	//全部的残差
 	activeResiduals.clear();
+	//点的个数
 	int numPoints = 0;
+	//有效的残差个数
 	int numLRes = 0;
+
+	//遍历，加入全部的残差
 	for (FrameHessian* fh : frameHessians)
 		for (PointHessian* ph : fh->pointHessians)
 		{
@@ -486,11 +504,13 @@ float FullSystem::optimize(int mnumOptIts)
 	if (!setting_debugout_runquiet)
 		printf("OPTIMIZE %d pts, %d active res, %d lin res!\n", ef->nPoints, (int)activeResiduals.size(), numLRes);
 
-
+	//线性化计算全部的点和帧的残差和雅克比
 	Vec3 lastEnergy = linearizeAll(false);
+
 	double lastEnergyL = calcLEnergy();
 	double lastEnergyM = calcMEnergy();
 
+	//多线程更新残差
 	if (multiThreading)
 		treadReduce.reduce(boost::bind(&FullSystem::applyRes_Reductor, this, true, _1, _2, _3, _4), 0, activeResiduals.size(), 50);
 	else
@@ -503,20 +523,30 @@ float FullSystem::optimize(int mnumOptIts)
 		printOptRes(lastEnergy, lastEnergyL, lastEnergyM, 0, 0, frameHessians.back()->aff_g2l().a, frameHessians.back()->aff_g2l().b);
 	}
 
+	//输出跟踪
 	debugPlotTracking();
 
+	//
 	double lambda = 1e-1;
 	float stepsize = 1;
 	VecX previousX = VecX::Constant(CPARS + 8 * frameHessians.size(), NAN);
+
+	//迭代
 	for (int iteration = 0; iteration < mnumOptIts; iteration++)
 	{
 		// solve!
+		//不是第一次迭代的时候，备份状态，即备份优化目标，设置带backup的优化目标
 		backupState(iteration != 0);
 		//solveSystemNew(0);
-		solveSystem(iteration, lambda);
-		double incDirChange = (1e-20 + previousX.dot(ef->lastX)) / (1e-20 + previousX.norm() * ef->lastX.norm());
-		previousX = ef->lastX;
 
+		//开始计算
+		solveSystem(iteration, lambda);
+
+		//改变的
+		double incDirChange = (1e-20 + previousX.dot(ef->lastX)) / (1e-20 + previousX.norm() * ef->lastX.norm());
+
+		//之前的x
+		previousX = ef->lastX;
 
 		if (std::isfinite(incDirChange) && (setting_solverMode & SOLVER_STEPMOMENTUM))
 		{
@@ -528,10 +558,14 @@ float FullSystem::optimize(int mnumOptIts)
 			if (stepsize < 0.25) stepsize = 0.25;
 		}
 
+		//是否可以跳出
 		bool canbreak = doStepFromBackup(stepsize, stepsize, stepsize, stepsize, stepsize);
 
 		// eval new energy!
+		//新的残差和雅克比
 		Vec3 newEnergy = linearizeAll(false);
+
+		//计算新的误差
 		double newEnergyL = calcLEnergy();
 		double newEnergyM = calcMEnergy();
 
@@ -547,10 +581,10 @@ float FullSystem::optimize(int mnumOptIts)
 			printOptRes(newEnergy, newEnergyL, newEnergyM , 0, 0, frameHessians.back()->aff_g2l().a, frameHessians.back()->aff_g2l().b);
 		}
 
+		//更新残差
 		if (setting_forceAceptStep || (newEnergy[0] +  newEnergy[1] +  newEnergyL + newEnergyM <
 		                               lastEnergy[0] + lastEnergy[1] + lastEnergyL + lastEnergyM))
 		{
-
 			if (multiThreading)
 				treadReduce.reduce(boost::bind(&FullSystem::applyRes_Reductor, this, true, _1, _2, _3, _4), 0, activeResiduals.size(), 50);
 			else
@@ -564,6 +598,7 @@ float FullSystem::optimize(int mnumOptIts)
 		}
 		else
 		{
+			//加载上一次备份的状态
 			loadSateBackup();
 			lastEnergy = linearizeAll(false);
 			lastEnergyL = calcLEnergy();
@@ -571,19 +606,27 @@ float FullSystem::optimize(int mnumOptIts)
 			lambda *= 1e2;
 		}
 
+		//超过迭代次数，跳出
 		if (canbreak && iteration >= setting_minOptIterations) break;
 	}
 
+	//新的帧状态
 	Vec10 newStateZero = Vec10::Zero();
 	newStateZero.segment<2>(6) = frameHessians.back()->get_state().segment<2>(6);
 
+	//设置帧新的状态，设置位姿和状态
 	frameHessians.back()->setEvalPT(frameHessians.back()->PRE_worldToCam,
 	                                newStateZero);
 	EFDeltaValid = false;
 	EFAdjointsValid = false;
+
+	//
 	ef->setAdjointsF(&Hcalib);
+
+	//设置帧之间的关系
 	setPrecalcValues();
 
+	//最新的残差和雅克比
 	lastEnergy = linearizeAll(true);
 
 	if (!std::isfinite((double)lastEnergy[0]) || !std::isfinite((double)lastEnergy[1]) || !std::isfinite((double)lastEnergy[2]))
@@ -592,6 +635,7 @@ float FullSystem::optimize(int mnumOptIts)
 		isLost = true;
 	}
 
+	//最新的RMSE误差
 	statistics_lastFineTrackRMSE = sqrtf((float)(lastEnergy[0] / (patternNum * ef->resInA)));
 
 	if (calibLog != 0)
@@ -614,6 +658,7 @@ float FullSystem::optimize(int mnumOptIts)
 
 	debugPlotTracking();
 
+	//emse误差
 	return sqrtf((float)(lastEnergy[0] / (patternNum * ef->resInA)));
 }
 
@@ -625,12 +670,14 @@ float FullSystem::optimize(int mnumOptIts)
  */
 void FullSystem::solveSystem(int iteration, double lambda)
 {
+	//获取零空间
 	ef->lastNullspaces_forLogging = getNullspaces(
 	                                    ef->lastNullspaces_pose,
 	                                    ef->lastNullspaces_scale,
 	                                    ef->lastNullspaces_affA,
 	                                    ef->lastNullspaces_affB);
 
+	//开始迭代计算
 	ef->solveSystemF(iteration, lambda, &Hcalib);
 }
 
@@ -649,6 +696,7 @@ double FullSystem::calcLEnergy()
 
 /**
  * @brief      Removes outliers.
+ * 根据点和帧是否有残差判断，加入pointHessiansOut，从pointHessians删除
  */
 void FullSystem::removeOutliers()
 {
@@ -674,7 +722,7 @@ void FullSystem::removeOutliers()
 			}
 		}
 	}
-	//在ef误差函数中移除被边缘化的点
+	//在ef误差函数中移除被边缘化的点，删除PS_DROP的点，即删除pointHessiansOut的点
 	ef->dropPointsF();
 }
 

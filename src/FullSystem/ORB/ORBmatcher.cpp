@@ -1,5 +1,5 @@
 #include <boost/timer.hpp>
-#include "Matcher.h"
+#include "ORBMatcher.h"
 
 namespace fdso {
 
@@ -11,7 +11,7 @@ Matcher::Matcher ()
     _options.init_low = Config::Get<int>("matcher.init_low");
     _options.init_high = Config::Get<int>("matcher.init_high");
     _options.knnRatio = Config::Get<int>("matcher.knnRatio");
-    _align = new SparseImgAlign(2, 0, 30, SparseImgAlign::GaussNewton, false, false );
+    //_align = new SparseImgAlign(2, 0, 30, SparseImgAlign::GaussNewton, false, false );
 }
 
 Matcher::~Matcher()
@@ -39,12 +39,12 @@ int Matcher::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
 }
 
 int Matcher::CheckFrameDescriptors (
-    Frame* frame1,
-    Frame* frame2,
-    list<pair<int, int>>& matches
+    FrameHessian* frame1,
+    FrameHessian* frame2,
+    std::list<pair<int, int>>& matches
 )
 {
-    vector<int> distance;
+    std::vector<int> distance;
     for ( auto& m : matches )
     {
         distance.push_back( DescriptorDistance(
@@ -80,10 +80,10 @@ int Matcher::CheckFrameDescriptors (
 }
 
 int Matcher::SearchForTriangulation (
-    Frame* kf1,
-    Frame* kf2,
+    FrameHessian* kf1,
+    FrameHessian* kf2,
     const Matrix3d& E12,
-    vector< pair< int, int > >& matched_points,
+    std::vector< std::pair< int, int > >& matched_points,
     const bool& onlyStereo )
 {
     DBoW3::FeatureVector& fv1 = kf1->_feature_vec;
@@ -93,9 +93,9 @@ int Matcher::SearchForTriangulation (
 
     // 计算匹配
     int matches = 0;
-    vector<bool> matched2( kf2->_features.size(), false );
-    vector<int> matches12( kf1->_features.size(), -1 );
-    vector<int> rotHist[ HISTO_LENGTH ];
+    std::vector<bool> matched2( kf2->_features.size(), false );
+    std::vector<int> matches12( kf1->_features.size(), -1 );
+    std::vector<int> rotHist[ HISTO_LENGTH ];
 
     for ( int i = 0; i < HISTO_LENGTH; i++ ) {
         rotHist[i].reserve(500);
@@ -115,8 +115,8 @@ int Matcher::SearchForTriangulation (
                 const size_t idx1 = f1it->second[i1];
 
                 // 取出 kf1 中对应的特征点
-                const Vector2d& kp1 = kf1->_features[idx1]->_pixel;
-                const Mat& desp1 = kf1->_features[idx1]->_desc;
+                const Eigen::Vector2d& kp1 = kf1->_features[idx1]->_pixel;
+                const cv::Mat& desp1 = kf1->_features[idx1]->_desc;
 
                 int bestDist = 256;
                 int bestIdx2 = -1;
@@ -124,17 +124,17 @@ int Matcher::SearchForTriangulation (
                 for ( size_t i2 = 0, iend2 = f2it->second.size(); i2 < iend2; i2++ ) {
                     size_t idx2 = f2it->second[i2];
 
-                    Mat& desp2 = kf2->_features[idx2]->_desc;
+                    cv::Mat& desp2 = kf2->_features[idx2]->_desc;
 
                     const int dist = DescriptorDistance( desp1, desp2 );
-                    const Vector2d& kp2 = kf2->_features[idx2]->_pixel;
+                    const Eigen::Vector2d& kp2 = kf2->_features[idx2]->_pixel;
 
                     if ( dist > (_options.th_low) || dist > bestDist )
                         continue;
 
                     // 计算两个 keypoint 是否满足极线约束
-                    Vector3d pt1 = kf1->_camera->Pixel2Camera( kp1 );
-                    Vector3d pt2 = kf2->_camera->Pixel2Camera( kp2 );
+                    Eigen::Vector3d pt1 = kf1->_camera->Pixel2Camera( kp1 );
+                    Eigen::Vector3d pt2 = kf2->_camera->Pixel2Camera( kp2 );
                     if ( CheckDistEpipolarLine(pt1, pt2, E12) ) {
                         // 极线约束成立
                         bestIdx2 = idx2;
@@ -190,16 +190,16 @@ int Matcher::SearchForTriangulation (
 
 // 利用 Bag of Words 加速匹配
 int Matcher::SearchByBoW(
-    Frame* kf1,
-    Frame* kf2,
-    map<int, int>& matches )
+    FrameHessian* kf1,
+    FrameHessian* kf2,
+    std::map<int, int>& matches )
 {
     DBoW3::FeatureVector& fv1 = kf1->_feature_vec;
     DBoW3::FeatureVector& fv2 = kf2->_feature_vec;
 
     int cnt_matches = 0;
 
-    vector<int> rotHist[HISTO_LENGTH]; // rotation 的统计直方图
+    std::vector<int> rotHist[HISTO_LENGTH]; // rotation 的统计直方图
     for ( int i = 0; i < HISTO_LENGTH; i++ )
         rotHist[i].reserve(500);
     float factor = 1.0f / HISTO_LENGTH;
@@ -211,20 +211,20 @@ int Matcher::SearchByBoW(
 
     while ( f1it != f1end && f2it != f2end ) {
         if ( f1it->first == f2it->first ) {
-            const vector<unsigned int> indices_f1 = f1it->second;
-            const vector<unsigned int> indices_f2 = f2it->second;
+            const std::vector<unsigned int> indices_f1 = f1it->second;
+            const std::vector<unsigned int> indices_f2 = f2it->second;
 
             // 遍历 f1 中该 node 的特征点
             for ( size_t if1 = 0; if1 < indices_f1.size(); if1++ ) {
                 const unsigned int real_idx_f1 = indices_f1[if1];
-                Mat desp_f1 = kf1->_features[real_idx_f1]->_desc;
+                cv::Mat desp_f1 = kf1->_features[real_idx_f1]->_desc;
                 int bestDist1 = 256;  // 最好的距离
                 int bestIdxF2 = -1;
                 int bestDist2 = 256;  // 第二好的距离
 
                 for ( size_t if2 = 0; if2 < indices_f2.size(); if2++) {
                     const unsigned int real_idx_f2 = indices_f2[if2];
-                    const Mat& desp_f2 = kf2->_features[real_idx_f2]->_desc;
+                    const cv::Mat& desp_f2 = kf2->_features[real_idx_f2]->_desc;
                     const int dist = DescriptorDistance( desp_f1, desp_f2 );
                     if ( dist < bestDist1 ) {
                         bestDist2 = bestDist1;
@@ -288,7 +288,7 @@ int Matcher::SearchByBoW(
 }
 
 void Matcher::ComputeThreeMaxima(
-    vector<int>* histo, const int L, int& ind1, int& ind2, int& ind3)
+    std::vector<int>* histo, const int L, int& ind1, int& ind2, int& ind3)
 {
     int max1 = 0;
     int max2 = 0;
@@ -332,7 +332,7 @@ void Matcher::ComputeThreeMaxima(
 }
 
 bool Matcher::CheckDistEpipolarLine(
-    const Vector3d& pt1, const Vector3d& pt2, const Matrix3d& E12)
+    const Eigen::Vector3d& pt1, const Eigen::Vector3d& pt2, const Eigen::Matrix3d& E12)
 {
     const float a = pt1[0] * E12(0, 0) + pt1[1] * E12(1, 0) + E12(2, 0);
     const float b = pt1[0] * E12(0, 1) + pt1[1] * E12(1, 1) + E12(2, 1);
@@ -349,230 +349,234 @@ bool Matcher::CheckDistEpipolarLine(
     return fabs(dsqr) < _options._epipolar_dsqr;
 }
 
-bool Matcher::FindDirectProjection(
-    Frame* ref, Frame* curr, MapPoint* mp, Vector2d& px_curr, int& search_level)
-{
-    Eigen::Matrix2d ACR;
-    Feature* fea = mp->_obs[ref->_keyframe_id];
-    Vector2d& px_ref = fea->_pixel;
-    double depth = ref->_camera->World2Camera( mp->_pos_world, ref->_TCW )[2];
-    Vector3d pt_ref = ref->_camera->Pixel2Camera( px_ref, depth );
-    SE3 TCR = curr->_TCW * ref->_TCW.inverse();
-    GetWarpAffineMatrix( ref, curr, px_ref, pt_ref, fea->_level, TCR, ACR );
-    search_level = GetBestSearchLevel( ACR, curr->_option._pyramid_level - 1 );
-    WarpAffine( ACR, ref->_pyramid[fea->_level], fea->_pixel, fea->_level, search_level, WarpHalfPatchSize + 1, _patch_with_border );
-    // 去掉边界
-    uint8_t* ref_patch_ptr = _patch;
-    for ( int y = 1; y < WarpPatchSize + 1; ++y, ref_patch_ptr += WarpPatchSize )
-    {
-        uint8_t* ref_patch_border_ptr = _patch_with_border + y * ( WarpPatchSize + 2 ) + 1;
-        for ( int x = 0; x < WarpPatchSize; ++x )
-            ref_patch_ptr[x] = ref_patch_border_ptr[x];
-    }
-    Vector2d px_scaled = px_curr / (1 << search_level);
-    // bool success = cvutils::Align2DCeres( curr->_pyramid[search_level], _patch, _patch_with_border, px_scaled);
-    bool success = cvutils::Align2D( curr->_pyramid[search_level], _patch_with_border, _patch, 10, px_scaled);
-    px_curr = px_scaled * (1 << search_level);
-    if ( !curr->InFrame(px_curr) )
-        return false;
-    return success;
-}
+// bool Matcher::FindDirectProjection(
+//     FrameHessian* ref, FrameHessian* curr, MapPoint* mp, Vector2d& px_curr, int& search_level)
+// {
+//     Eigen::Matrix2d ACR;
+//     Feature* fea = mp->_obs[ref->_keyframe_id];
+//     Eigen::Vector2d& px_ref = fea->_pixel;
+//     double depth = ref->_camera->World2Camera( mp->_pos_world, ref->_TCW )[2];
+//     Eigen::Vector3d pt_ref = ref->_camera->Pixel2Camera( px_ref, depth );
 
-bool Matcher::FindDirectProjection(
-    Frame* ref, Frame* curr, Feature* fea_ref, Vector2d& px_curr, int& search_level )
-{
-    if ( fea_ref->_depth < 0 )
-    {
-        LOG(WARNING) << "invalid depth: " << fea_ref->_depth << endl;
-        return false;
-    }
+//     SE3 TCR = curr->shell->camToWorld * ref->shell->camToWorld.inverse();
 
-    assert( fea_ref->_frame == ref );
+//     GetWarpAffineMatrix( ref, curr, px_ref, pt_ref, fea->_level, TCR, ACR );
 
-    Eigen::Matrix2d ACR;
-    Vector2d& px_ref = fea_ref->_pixel;
-    Vector3d pt_ref = ref->_camera->Pixel2Camera( px_ref, fea_ref->_depth );
-    SE3 TCR = curr->_TCW * ref->_TCW.inverse();
-    GetWarpAffineMatrix( ref, curr, px_ref, pt_ref, fea_ref->_level, TCR, ACR );
-    search_level = GetBestSearchLevel( ACR, curr->_option._pyramid_level - 1 );
-    WarpAffine( ACR, ref->_pyramid[fea_ref->_level], fea_ref->_pixel, fea_ref->_level, search_level, WarpHalfPatchSize + 1, _patch_with_border );
-    // 去掉边界
-    uint8_t* ref_patch_ptr = _patch;
-    for ( int y = 1; y < WarpPatchSize + 1; ++y, ref_patch_ptr += WarpPatchSize )
-    {
-        uint8_t* ref_patch_border_ptr = _patch_with_border + y * ( WarpPatchSize + 2 ) + 1;
-        for ( int x = 0; x < WarpPatchSize; ++x )
-            ref_patch_ptr[x] = ref_patch_border_ptr[x];
-    }
-    Vector2d px_scaled = px_curr / (1 << search_level);
-    bool success = cvutils::Align2D( curr->_pyramid[search_level], _patch_with_border, _patch, 10, px_scaled);
-    px_curr = px_scaled * (1 << search_level);
-    if ( !curr->InFrame(px_curr) )
-        return false;
-    return success;
-}
+//     search_level = GetBestSearchLevel( ACR, curr->_option._pyramid_level - 1 );
 
+//     WarpAffine( ACR, ref->_pyramid[fea->_level], fea->_pixel, fea->_level, search_level, WarpHalfPatchSize + 1, _patch_with_border );
+//     // 去掉边界
+//     uint8_t* ref_patch_ptr = _patch;
+//     for ( int y = 1; y < WarpPatchSize + 1; ++y, ref_patch_ptr += WarpPatchSize )
+//     {
+//         uint8_t* ref_patch_border_ptr = _patch_with_border + y * ( WarpPatchSize + 2 ) + 1;
+//         for ( int x = 0; x < WarpPatchSize; ++x )
+//             ref_patch_ptr[x] = ref_patch_border_ptr[x];
+//     }
+//     Eigen::Vector2d px_scaled = px_curr / (1 << search_level);
+//     // bool success = cvutils::Align2DCeres( curr->_pyramid[search_level], _patch, _patch_with_border, px_scaled);
+//     bool success = cvutils::Align2D( curr->_pyramid[search_level], _patch_with_border, _patch, 10, px_scaled);
+//     px_curr = px_scaled * (1 << search_level);
+//     if ( !curr->InFrame(px_curr) )
+//         return false;
+//     return success;
+// }
 
-void Matcher::GetWarpAffineMatrix(
-    const Frame* ref, const Frame* curr,
-    const Vector2d& px_ref, const Vector3d& pt_ref,
-    const int& level, const SE3& TCR, Matrix2d& ACR )
-{
-    Vector3d pt_ref_world = ref->_camera->Camera2World ( pt_ref, ref->_TCW );
-    // 偏移之后的3d点，深度取成和pt_ref一致
-    Vector3d pt_du_ref = ref->_camera->Pixel2Camera ( px_ref + Vector2d ( WarpHalfPatchSize, 0 ) * ( 1 << level ), pt_ref[2] );
-    Vector3d pt_dv_ref = ref->_camera->Pixel2Camera ( px_ref + Vector2d ( 0, WarpHalfPatchSize ) * ( 1 << level ), pt_ref[2] );
+// bool Matcher::FindDirectProjection(
+//     Frame* ref, Frame* curr, Feature* fea_ref, Vector2d& px_curr, int& search_level )
+// {
+//     if ( fea_ref->_depth < 0 )
+//     {
+//         LOG(WARNING) << "invalid depth: " << fea_ref->_depth << endl;
+//         return false;
+//     }
 
-    const Vector2d px_cur = curr->_camera->World2Pixel ( pt_ref_world, TCR );
-    const Vector2d px_du = curr->_camera->World2Pixel ( pt_du_ref, TCR );
-    const Vector2d px_dv = curr->_camera->World2Pixel ( pt_dv_ref, TCR );
+//     assert( fea_ref->_frame == ref );
 
-    ACR.col ( 0 ) = ( px_du - px_cur ) / WarpHalfPatchSize;
-    ACR.col ( 1 ) = ( px_dv - px_cur ) / WarpHalfPatchSize;
-}
-
-void Matcher::WarpAffine(
-    const Matrix2d& ACR, const Mat& img_ref, const Vector2d& px_ref,
-    const int& level_ref, const int& search_level,
-    const int& half_patch_size, uint8_t* patch)
-{
-    const int patch_size = half_patch_size * 2;
-    const Eigen::Matrix2d ARC = ACR.inverse();
-
-    // Affine warp
-    uint8_t* patch_ptr = patch;
-    const Vector2d px_ref_pyr = px_ref / ( 1 << level_ref );
-    for ( int y = 0; y < patch_size; y++ )
-    {
-        for ( int x = 0; x < patch_size; x++, ++patch_ptr )
-        {
-            Vector2d px_patch ( x - half_patch_size, y - half_patch_size );
-            px_patch *= ( 1 << search_level );
-            const Vector2d px ( ARC * px_patch + px_ref_pyr );
-            if ( px[0] < 0 || px[1] < 0 || px[0] >= img_ref.cols - 1 || px[1] >= img_ref.rows - 1 )
-            {
-                *patch_ptr = 0;
-            }
-            else
-            {
-                *patch_ptr = cvutils::GetBilateralInterpUchar ( px[0], px[1], img_ref );
-            }
-        }
-    }
-}
-
-bool Matcher::SparseImageAlignment(Frame* ref, Frame* current)
-{
-    // from top to bottom
-    current->_TCW = ref->_TCW;
-    _align->run( ref, current );
-    _TCR_esti = current->_TCW * ref->_TCW.inverse();
-
-    /*
-    for ( int level = ref->_option._pyramid_level-1; level>=0; level-- )
-    {
-        SparseImageAlignmentInPyramid( ref, current, level );
-    }
-    */
-
-    if ( _TCR_esti.log().norm() > _options._max_alignment_motion ) {
-        LOG(WARNING) << "Too large motion: " << _TCR_esti.log().norm() << ". Reject this estimation. " << endl;
-        LOG(INFO) << "TCR = \n" << _TCR_esti.matrix() << endl;
-        _TCR_esti = SE3();
-        current->_TCW = ref->_TCW;
-        return false;
-    }
-    LOG(INFO) << "TCR estimated: \n" << _TCR_esti.matrix() << endl;
-
-    return true;
-}
-
-bool Matcher::SparseImageAlignmentInPyramid(Frame* ref, Frame* current, int pyramid)
-{
-    PrecomputeReferencePatches( ref, pyramid );
-    // solve the problem
-    ceres::Problem problem;
-    Vector6d pose_curr;
-    pose_curr.head<3>() = _TCR_esti.translation();
-    pose_curr.tail<3>() = _TCR_esti.so3().log();
-    // LOG(INFO)<<"start from "<<pose_curr.transpose()<<endl;
-
-    int index = 0;
-    for ( Feature* fea : ref->_features )
-    {
-        if ( !fea->_bad && fea->_depth > 0 )
-        {
-            problem.AddResidualBlock(
-                new CeresReprojSparseDirectError(
-                    ref->_pyramid[pyramid],
-                    current->_pyramid[pyramid],
-                    _patches_align[index++],
-                    fea->_pixel,
-                    // ref->_camera->World2Camera( fea->_mappoint->_pos_world, ref->_TCW),
-                    ref->_camera->Pixel2Camera(fea->_pixel, fea->_depth),
-                    ref->_camera,
-                    1 << pyramid,
-                    _TCR_esti,
-                    true
-                ),
-                nullptr,
-                pose_curr.data()
-            );
-        }
-    }
-
-    ceres::Solver::Options options;
-    options.num_threads = 2;
-    options.num_linear_solver_threads = 2;
-    options.linear_solver_type = ceres::DENSE_NORMAL_CHOLESKY;
-    // options.minimizer_progress_to_stdout = true;
-    ceres::Solver::Summary summary;
-    ceres::Solve( options, &problem, &summary );
-
-    // set the pose
-    _TCR_esti = SE3(
-                    SO3::exp( pose_curr.tail<3>()),
-                    pose_curr.head<3>()
-                );
-
-    return true;
-}
+//     Eigen::Matrix2d ACR;
+//     Vector2d& px_ref = fea_ref->_pixel;
+//     Vector3d pt_ref = ref->_camera->Pixel2Camera( px_ref, fea_ref->_depth );
+//     SE3 TCR = curr->_TCW * ref->_TCW.inverse();
+//     GetWarpAffineMatrix( ref, curr, px_ref, pt_ref, fea_ref->_level, TCR, ACR );
+//     search_level = GetBestSearchLevel( ACR, curr->_option._pyramid_level - 1 );
+//     WarpAffine( ACR, ref->_pyramid[fea_ref->_level], fea_ref->_pixel, fea_ref->_level, search_level, WarpHalfPatchSize + 1, _patch_with_border );
+//     // 去掉边界
+//     uint8_t* ref_patch_ptr = _patch;
+//     for ( int y = 1; y < WarpPatchSize + 1; ++y, ref_patch_ptr += WarpPatchSize )
+//     {
+//         uint8_t* ref_patch_border_ptr = _patch_with_border + y * ( WarpPatchSize + 2 ) + 1;
+//         for ( int x = 0; x < WarpPatchSize; ++x )
+//             ref_patch_ptr[x] = ref_patch_border_ptr[x];
+//     }
+//     Vector2d px_scaled = px_curr / (1 << search_level);
+//     bool success = cvutils::Align2D( curr->_pyramid[search_level], _patch_with_border, _patch, 10, px_scaled);
+//     px_curr = px_scaled * (1 << search_level);
+//     if ( !curr->InFrame(px_curr) )
+//         return false;
+//     return success;
+// }
 
 
-void Matcher::PrecomputeReferencePatches( Frame* ref, int level )
-{
-    // LOG(INFO) << "computing ref patches in level "<<level<<endl;
-    if ( !_patches_align.empty() ) {
-        for ( uchar* p : _patches_align )
-            delete[] p;
-        _patches_align.clear();
-    }
+// void Matcher::GetWarpAffineMatrix(
+//     const FrameHessian* ref, const FrameHessian* curr,
+//     const Eigen::Vector2d& px_ref, const Eigen::Vector3d& pt_ref,
+//     const int& level, const SE3& TCR, Eigen::Matrix2d& ACR )
+// {
+//     Eigen::Vector3d pt_ref_world = ref->_camera->Camera2World ( pt_ref, ref->_TCW );
+//     // 偏移之后的3d点，深度取成和pt_ref一致
+//     Eigen::Vector3d pt_du_ref = ref->_camera->Pixel2Camera ( px_ref + Vector2d ( WarpHalfPatchSize, 0 ) * ( 1 << level ), pt_ref[2] );
+//     Eigen::Vector3d pt_dv_ref = ref->_camera->Pixel2Camera ( px_ref + Vector2d ( 0, WarpHalfPatchSize ) * ( 1 << level ), pt_ref[2] );
 
-    if (  !_duv_ref.empty() )
-    {
-        for ( Vector2d* d : _duv_ref )
-            delete[] d;
-        _duv_ref.clear();
-    }
+//     const Vector2d px_cur = curr->_camera->World2Pixel ( pt_ref_world, TCR );
+//     const Vector2d px_du = curr->_camera->World2Pixel ( pt_du_ref, TCR );
+//     const Vector2d px_dv = curr->_camera->World2Pixel ( pt_dv_ref, TCR );
 
-    boost::timer timer;
-    Mat& img = ref->_pyramid[level];
-    int scale = 1 << level;
-    for ( Feature* fea : ref->_features )
-    {
-        if ( fea->_mappoint && !fea->_mappoint->_bad )
-        {
-            Vector2d px_ref = fea->_pixel / scale;
-            uchar * pixels = new uchar[PATTERN_SIZE];
-            for ( int k = 0; k < PATTERN_SIZE; k++ )
-            {
-                double u = px_ref[0] + PATTERN_DX[k];
-                double v = px_ref[1] + PATTERN_DY[k];
-                pixels[k] = cvutils::GetBilateralInterpUchar( u, v, img );
-            }
-            _patches_align.push_back( pixels );
-        }
-    }
-    LOG(INFO) << "set " << _patches_align.size() << " patches." << endl;
-}
-}
+//     ACR.col ( 0 ) = ( px_du - px_cur ) / WarpHalfPatchSize;
+//     ACR.col ( 1 ) = ( px_dv - px_cur ) / WarpHalfPatchSize;
+// }
+
+// void Matcher::WarpAffine(
+//     const Matrix2d& ACR, const Mat& img_ref, const Vector2d& px_ref,
+//     const int& level_ref, const int& search_level,
+//     const int& half_patch_size, uint8_t* patch)
+// {
+//     const int patch_size = half_patch_size * 2;
+//     const Eigen::Matrix2d ARC = ACR.inverse();
+
+//     // Affine warp
+//     uint8_t* patch_ptr = patch;
+//     const Vector2d px_ref_pyr = px_ref / ( 1 << level_ref );
+//     for ( int y = 0; y < patch_size; y++ )
+//     {
+//         for ( int x = 0; x < patch_size; x++, ++patch_ptr )
+//         {
+//             Vector2d px_patch ( x - half_patch_size, y - half_patch_size );
+//             px_patch *= ( 1 << search_level );
+//             const Vector2d px ( ARC * px_patch + px_ref_pyr );
+//             if ( px[0] < 0 || px[1] < 0 || px[0] >= img_ref.cols - 1 || px[1] >= img_ref.rows - 1 )
+//             {
+//                 *patch_ptr = 0;
+//             }
+//             else
+//             {
+//                 *patch_ptr = cvutils::GetBilateralInterpUchar ( px[0], px[1], img_ref );
+//             }
+//         }
+//     }
+// }
+
+// bool Matcher::SparseImageAlignment(Frame* ref, Frame* current)
+// {
+//     // from top to bottom
+//     current->_TCW = ref->_TCW;
+//     _align->run( ref, current );
+//     _TCR_esti = current->_TCW * ref->_TCW.inverse();
+
+//     /*
+//     for ( int level = ref->_option._pyramid_level-1; level>=0; level-- )
+//     {
+//         SparseImageAlignmentInPyramid( ref, current, level );
+//     }
+//     */
+
+//     if ( _TCR_esti.log().norm() > _options._max_alignment_motion ) {
+//         LOG(WARNING) << "Too large motion: " << _TCR_esti.log().norm() << ". Reject this estimation. " << endl;
+//         LOG(INFO) << "TCR = \n" << _TCR_esti.matrix() << endl;
+//         _TCR_esti = SE3();
+//         current->_TCW = ref->_TCW;
+//         return false;
+//     }
+//     LOG(INFO) << "TCR estimated: \n" << _TCR_esti.matrix() << endl;
+
+//     return true;
+// }
+
+// bool Matcher::SparseImageAlignmentInPyramid(Frame* ref, Frame* current, int pyramid)
+// {
+//     PrecomputeReferencePatches( ref, pyramid );
+//     // solve the problem
+//     ceres::Problem problem;
+//     Vector6d pose_curr;
+//     pose_curr.head<3>() = _TCR_esti.translation();
+//     pose_curr.tail<3>() = _TCR_esti.so3().log();
+//     // LOG(INFO)<<"start from "<<pose_curr.transpose()<<endl;
+
+//     int index = 0;
+//     for ( Feature* fea : ref->_features )
+//     {
+//         if ( !fea->_bad && fea->_depth > 0 )
+//         {
+//             problem.AddResidualBlock(
+//                 new CeresReprojSparseDirectError(
+//                     ref->_pyramid[pyramid],
+//                     current->_pyramid[pyramid],
+//                     _patches_align[index++],
+//                     fea->_pixel,
+//                     // ref->_camera->World2Camera( fea->_mappoint->_pos_world, ref->_TCW),
+//                     ref->_camera->Pixel2Camera(fea->_pixel, fea->_depth),
+//                     ref->_camera,
+//                     1 << pyramid,
+//                     _TCR_esti,
+//                     true
+//                 ),
+//                 nullptr,
+//                 pose_curr.data()
+//             );
+//         }
+//     }
+
+//     ceres::Solver::Options options;
+//     options.num_threads = 2;
+//     options.num_linear_solver_threads = 2;
+//     options.linear_solver_type = ceres::DENSE_NORMAL_CHOLESKY;
+//     // options.minimizer_progress_to_stdout = true;
+//     ceres::Solver::Summary summary;
+//     ceres::Solve( options, &problem, &summary );
+
+//     // set the pose
+//     _TCR_esti = SE3(
+//                     SO3::exp( pose_curr.tail<3>()),
+//                     pose_curr.head<3>()
+//                 );
+
+//     return true;
+// }
+
+
+// void Matcher::PrecomputeReferencePatches( Frame* ref, int level )
+// {
+//     // LOG(INFO) << "computing ref patches in level "<<level<<endl;
+//     if ( !_patches_align.empty() ) {
+//         for ( uchar* p : _patches_align )
+//             delete[] p;
+//         _patches_align.clear();
+//     }
+
+//     if (  !_duv_ref.empty() )
+//     {
+//         for ( Vector2d* d : _duv_ref )
+//             delete[] d;
+//         _duv_ref.clear();
+//     }
+
+//     boost::timer timer;
+//     Mat& img = ref->_pyramid[level];
+//     int scale = 1 << level;
+//     for ( Feature* fea : ref->_features )
+//     {
+//         if ( fea->_mappoint && !fea->_mappoint->_bad )
+//         {
+//             Vector2d px_ref = fea->_pixel / scale;
+//             uchar * pixels = new uchar[PATTERN_SIZE];
+//             for ( int k = 0; k < PATTERN_SIZE; k++ )
+//             {
+//                 double u = px_ref[0] + PATTERN_DX[k];
+//                 double v = px_ref[1] + PATTERN_DY[k];
+//                 pixels[k] = cvutils::GetBilateralInterpUchar( u, v, img );
+//             }
+//             _patches_align.push_back( pixels );
+//         }
+//     }
+//     LOG(INFO) << "set " << _patches_align.size() << " patches." << endl;
+// }
+// }

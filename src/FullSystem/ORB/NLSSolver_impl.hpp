@@ -24,7 +24,7 @@ void NLLSSolver<D, T>::optimizeGaussNewton ( ModelType& model )
     ModelType old_model ( model );
 
     // perform iterative estimation
-    for ( iter_ = 0; iter_<n_iter_; ++iter_ ) {
+    for ( iter_ = 0; iter_ < n_iter_; ++iter_ ) {
         rho_ = 0;
         startIteration();
 
@@ -82,7 +82,7 @@ void NLLSSolver<D, T>::optimizeGaussNewton ( ModelType& model )
         finishIteration();
 
         // stop when converged, i.e. update step too small
-        if ( norm_max ( x_ ) <=eps_ ) {
+        if ( norm_max ( x_ ) <= eps_ ) {
             break;
         }
     }
@@ -112,14 +112,14 @@ void NLLSSolver<D, T>::optimizeLevenbergMarquardt ( ModelType& model )
     if ( mu_ < 0 ) {
         double H_max_diag = 0;
         double tau = 1e-4;
-        for ( size_t j=0; j<D; ++j ) {
-            H_max_diag = max ( H_max_diag, fabs ( H_ ( j,j ) ) );
+        for ( size_t j = 0; j < D; ++j ) {
+            H_max_diag = max ( H_max_diag, fabs ( H_ ( j, j ) ) );
         }
-        mu_ = tau*H_max_diag;
+        mu_ = tau * H_max_diag;
     }
 
     // perform iterative estimation
-    for ( iter_ = 0; iter_<n_iter_; ++iter_ ) {
+    for ( iter_ = 0; iter_ < n_iter_; ++iter_ ) {
         rho_ = 0;
         startIteration();
 
@@ -138,7 +138,7 @@ void NLLSSolver<D, T>::optimizeLevenbergMarquardt ( ModelType& model )
             computeResiduals ( model, true, false );
 
             // add damping term:
-            H_ += ( H_.diagonal() *mu_ ).asDiagonal();
+            H_ += ( H_.diagonal() * mu_ ).asDiagonal();
 
             // add prior
             if ( have_prior_ ) {
@@ -153,7 +153,7 @@ void NLLSSolver<D, T>::optimizeLevenbergMarquardt ( ModelType& model )
                 // compute error with new model and compare to old error
                 n_meas_ = 0;
                 new_chi2 = computeResiduals ( new_model, false, false );
-                rho_ = chi2_-new_chi2;
+                rho_ = chi2_ - new_chi2;
             } else {
                 // matrix was singular and could not be computed
                 cout << "Matrix is close to singular!" << endl;
@@ -162,12 +162,12 @@ void NLLSSolver<D, T>::optimizeLevenbergMarquardt ( ModelType& model )
                 rho_ = -1;
             }
 
-            if ( rho_>0 ) {
+            if ( rho_ > 0 ) {
                 // update decrased the error -> success
                 model = new_model;
                 chi2_ = new_chi2;
-                stop_ = norm_max ( x_ ) <=eps_;
-                mu_ *= max ( 1./3., min ( 1.-pow ( 2*rho_-1,3 ), 2./3. ) );
+                stop_ = norm_max ( x_ ) <= eps_;
+                mu_ *= max ( 1. / 3., min ( 1. - pow ( 2 * rho_ - 1, 3 ), 2. / 3. ) );
                 nu_ = 2.;
                 if ( verbose_ ) {
                     cout << "It. " << iter_
@@ -202,7 +202,7 @@ void NLLSSolver<D, T>::optimizeLevenbergMarquardt ( ModelType& model )
 
             finishTrial();
 
-        } while ( ! ( rho_>0 || stop_ ) );
+        } while ( ! ( rho_ > 0 || stop_ ) );
         if ( stop_ ) {
             break;
         }
@@ -223,28 +223,28 @@ void NLLSSolver<D, T>::setRobustCostFunction (
             printf ( "Using TDistribution Scale Estimator\n" );
         }
         scale_estimator_.reset ( new robust_cost::TDistributionScaleEstimator() );
-        use_weights_=true;
+        use_weights_ = true;
         break;
     case MADScale:
         if ( verbose_ ) {
             printf ( "Using MAD Scale Estimator\n" );
         }
         scale_estimator_.reset ( new robust_cost::MADScaleEstimator() );
-        use_weights_=true;
+        use_weights_ = true;
         break;
     case NormalScale:
         if ( verbose_ ) {
             printf ( "Using Normal Scale Estimator\n" );
         }
         scale_estimator_.reset ( new robust_cost::NormalDistributionScaleEstimator() );
-        use_weights_=true;
+        use_weights_ = true;
         break;
     default:
         if ( verbose_ ) {
             printf ( "Using Unit Scale Estimator\n" );
         }
         scale_estimator_.reset ( new robust_cost::UnitScaleEstimator() );
-        use_weights_=false;
+        use_weights_ = false;
     }
 
     switch ( weight_function ) {

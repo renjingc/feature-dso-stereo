@@ -34,11 +34,7 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/core/eigen.hpp>
 
-// for DBoW3
-#include <BowVector.h>
-#include <FeatureVector.h>
-#include "Vocabulary.h"
-typedef DBoW3::Vocabulary ORBVocabulary;
+
 
 namespace fdso
 {
@@ -85,13 +81,6 @@ public:
 
 	//
 	double movedByOpt;
-
-	cv::Mat imageLeft,imageRight;
-	std::vector<cv::KeyPoint> keypointsLeft,keypointsRight;
-	cv::Mat descriptorsLeft,descriptorsRight;
-
-	DBoW3::BowVector _bow_vec;
-  DBoW3::FeatureVector _feature_vec;
 
 	inline FrameShell()
 	{

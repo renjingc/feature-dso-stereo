@@ -4,6 +4,7 @@
 // 和图像处理相关的一些工具函数，例如图像插值，三角化等等
 
 #include "util/NumType.h"
+#include "FullSystem/HessianBlocks.h"
 
 namespace fdso
 {
@@ -100,7 +101,7 @@ inline Eigen::Matrix<double, 2, 6> JacobXYZ2Cam ( const Vec3& xyz )
 
 // xyz 到 像素坐标 的雅可比，平移在前
 // 这里已经取了负号，不要再取一遍！
-inline Eigen::Matrix<double, 2, 6> JacobXYZ2Pixel ( const Vec3& xyz,  PinholeCamera* cam )
+inline Eigen::Matrix<double, 2, 6> JacobXYZ2Pixel ( const Vec3& xyz, const CalibHessian& Hcalib)
 {
     Eigen::Matrix<double, 2, 6> J;
     const double x = xyz[0];
@@ -108,19 +109,19 @@ inline Eigen::Matrix<double, 2, 6> JacobXYZ2Pixel ( const Vec3& xyz,  PinholeCam
     const double z_inv = 1. / xyz[2];
     const double z_inv_2 = z_inv * z_inv;
 
-    J ( 0, 0 ) = -z_inv * cam->fx();            // -fx/Z
-    J ( 0, 1 ) = 0.0;                           // 0
-    J ( 0, 2 ) = x * z_inv_2 * cam->fx();       // fx*x/z^2
-    J ( 0, 3 ) = cam->fx() * y * J ( 0, 2 );    // fx*x*y/z^2
-    J ( 0, 4 ) = -cam->fx() * ( 1.0 + x * J ( 0, 2 ) ); // -fx*(1.0 + x^2/z^2)
-    J ( 0, 5 ) = cam->fx() * y * z_inv;         // fx*y/z
+    J ( 0, 0 ) = -z_inv * Hcalib->fxl();                // -fx/Z
+    J ( 0, 1 ) = 0.0;                                           // 0
+    J ( 0, 2 ) = x * z_inv_2 * Hcalib->fxl();       // fx*x/z^2
+    J ( 0, 3 ) = Hcalib->fxl() * y * J ( 0, 2 );        // fx*x*y/z^2
+    J ( 0, 4 ) = -Hcalib->fxl() * ( 1.0 + x * J ( 0, 2 ) ); // -fx*(1.0 + x^2/z^2)
+    J ( 0, 5 ) = Hcalib->fxl() * y * z_inv;         // fx*y/z
 
     J ( 1, 0 ) = 0.0;                           // 0
-    J ( 1, 1 ) = -cam->fy() * z_inv;            // -fy/z
-    J ( 1, 2 ) = cam->fy() * y * z_inv_2;       // fy*y/z^2
-    J ( 1, 3 ) = cam->fy() * ( 1.0 + y * J ( 1, 2 ) ); // fy*(1.0 + y^2/z^2)
-    J ( 1, 4 ) = -cam->fy() * x * J ( 1, 2 );   // fy*-x*y/z^2
-    J ( 1, 5 ) = -cam->fy() * x * z_inv;        // fy*x/z
+    J ( 1, 1 ) = -Hcalib->fyl() * z_inv;            // -fy/z
+    J ( 1, 2 ) = Hcalib->fyl() * y * z_inv_2;       // fy*y/z^2
+    J ( 1, 3 ) = Hcalib->fyl() * ( 1.0 + y * J ( 1, 2 ) ); // fy*(1.0 + y^2/z^2)
+    J ( 1, 4 ) = -Hcalib->fyl() * x * J ( 1, 2 );   // fy*-x*y/z^2
+    J ( 1, 5 ) = -Hcalib->fyl() * x * z_inv;        // fy*x/z
 
     return J;
 }

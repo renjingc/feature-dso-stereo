@@ -88,6 +88,7 @@ PointFrameResidual::PointFrameResidual(PointHessian* point_, FrameHessian* host_
  */
 double PointFrameResidual::linearize(CalibHessian* HCalib)
 {
+	//新的残差
 	state_NewEnergyWithOutlier=-1;
 	//当前状态是否是OOB，则状态都是OOB,直接返回能量
 	if(state_state == ResState::OOB)
@@ -97,11 +98,11 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
 	FrameFramePrecalc* precalc = &(host->targetPrecalc[target->idx]);
 	float energyLeft=0;
 
-	//主导帧的梯度
+	//目标帧的灰度值和梯度
 	const Eigen::Vector3f* dIl = target->dI;
 	//const float* const Il = target->I;
 
-	//预计算的
+	//预计算的位姿变换
 	const Mat33f &PRE_KRKiTll = precalc->PRE_KRKiTll;
 	const Vec3f &PRE_KtTll = precalc->PRE_KtTll;
 	const Mat33f &PRE_RTll_0 = precalc->PRE_RTll_0;
@@ -118,7 +119,6 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
 	//主导帧的b
 	float b0 = precalc->PRE_b0_mode;
 
-
 	Vec6f d_xi_x, d_xi_y;
 	Vec4f d_C_x, d_C_y;
 	float d_d_x, d_d_y;
@@ -127,17 +127,21 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
 		float Ku, Kv;
 		Vec3f KliP;
 
+		//重投影
 		if(!projectPoint(point->u, point->v, point->idepth_zero_scaled, 0, 0,HCalib,
 				PRE_RTll_0,PRE_tTll_0, drescale, u, v, Ku, Kv, KliP, new_idepth))
 			{ state_NewState = ResState::OOB; return state_energy; }
 
+		//投影后的坐标点和逆深度
 		centerProjectedTo = Vec3f(Ku, Kv, new_idepth);
 
 		// diff d_idepth
+		//几何部分之深度 Jpdd
 		d_d_x = drescale * (PRE_tTll_0[0]-PRE_tTll_0[2]*u)*SCALE_IDEPTH*HCalib->fxl();
 		d_d_y = drescale * (PRE_tTll_0[1]-PRE_tTll_0[2]*v)*SCALE_IDEPTH*HCalib->fyl();
 
 		// diff calib
+		//几何部分之相机参数 Jpdc
 		d_C_x[2] = drescale*(PRE_RTll_0(2,0)*u-PRE_RTll_0(0,0));
 		d_C_x[3] = HCalib->fxl() * drescale*(PRE_RTll_0(2,1)*u-PRE_RTll_0(0,1)) * HCalib->fyli();
 		d_C_x[0] = KliP[0]*d_C_x[2];
@@ -158,7 +162,7 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
 		d_C_y[2] *= SCALE_C;
 		d_C_y[3] = (d_C_y[3]+1)*SCALE_C;
 
-
+		//几何部分之位姿 Jpdxi
 		d_xi_x[0] = new_idepth*HCalib->fxl();
 		d_xi_x[1] = 0;
 		d_xi_x[2] = -new_idepth*u*HCalib->fxl();
@@ -176,46 +180,57 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
 
 
 	{
+		//几何部分之位姿 Jpdxi
 		J->Jpdxi[0] = d_xi_x;
 		J->Jpdxi[1] = d_xi_y;
 
+		//几何部分之相机参数 Jpdc
 		J->Jpdc[0] = d_C_x;
 		J->Jpdc[1] = d_C_y;
 
+		//几何部分之深度 Jpdd
 		J->Jpdd[0] = d_d_x;
 		J->Jpdd[1] = d_d_y;
-
 	}
 
 	float JIdxJIdx_00=0, JIdxJIdx_11=0, JIdxJIdx_10=0;
 	float JabJIdx_00=0, JabJIdx_01=0, JabJIdx_10=0, JabJIdx_11=0;
 	float JabJab_00=0, JabJab_01=0, JabJab_11=0;
 
+	//
 	float wJI2_sum = 0;
 
+	//遍历模式，将
 	for(int idx=0;idx<patternNum;idx++)
 	{
 		float Ku, Kv;
+		//重投影点
 		if(!projectPoint(point->u+patternP[idx][0], point->v+patternP[idx][1], point->idepth_scaled, PRE_KRKiTll, PRE_KtTll, Ku, Kv))
 			{ state_NewState = ResState::OOB; return state_energy; }
 
+		//投影后点的坐标
 		projectedTo[idx][0] = Ku;
 		projectedTo[idx][1] = Kv;
 
-
+		//当前点在目标帧的灰度值和梯度值
         	Vec3f hitColor = (getInterpolatedElement33(dIl, Ku, Kv, wG[0]));
+        	//残差
         	float residual = hitColor[0] - (float)(affLL[0] * color[idx] + affLL[1]);
 
+        	//主导帧的该点的灰度值-b0
 		float drdA = (color[idx]-b0);
 		if(!std::isfinite((float)hitColor[0]))
 		{ state_NewState = ResState::OOB; return state_energy; }
 
+		//权重setting_outlierTHSumComponent=50*50          w=50*50/(50*50+梯度平方和)
 		float w = sqrtf(setting_outlierTHSumComponent / (setting_outlierTHSumComponent + hitColor.tail<2>().squaredNorm()));
+
+		//平均和
         	w = 0.5f*(w + weights[idx]);
 
+        	//huber
 		float hw = fabsf(residual) < setting_huberTH ? 1 : setting_huberTH / fabsf(residual);
 		energyLeft += w*w*hw *residual*residual*(2-hw);
-
 		{
 			if(hw < 1) hw = sqrtf(hw);
 			hw = hw*w;
@@ -223,35 +238,43 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
 			hitColor[1]*=hw;
 			hitColor[2]*=hw;
 
+			//残差
 			J->resF[idx] = residual*hw;
 
+			//几何部分之光照梯度 JIdx,图像梯度图
 			J->JIdx[0][idx] = hitColor[1];
 			J->JIdx[1][idx] = hitColor[2];
+
+			//光学部分之光度参数 Jab
 			J->JabF[0][idx] = drdA*hw;
 			J->JabF[1][idx] = hw;
 
+			//几何部分之光照梯度Hessian   JIdx2
 			JIdxJIdx_00+=hitColor[1]*hitColor[1];
 			JIdxJIdx_11+=hitColor[2]*hitColor[2];
 			JIdxJIdx_10+=hitColor[1]*hitColor[2];
 
+			//光度部分和几何部分Hessian,JabJIdx
 			JabJIdx_00+= drdA*hw * hitColor[1];
 			JabJIdx_01+= drdA*hw * hitColor[2];
 			JabJIdx_10+= hw * hitColor[1];
 			JabJIdx_11+= hw * hitColor[2];
 
+			//光度部分Hessian
 			JabJab_00+= drdA*drdA*hw*hw;
 			JabJab_01+= drdA*hw*hw;
 			JabJab_11+= hw*hw;
 
-
+			//几何部分之光照梯度Hessian和
 			wJI2_sum += hw*hw*(hitColor[1]*hitColor[1]+hitColor[2]*hitColor[2]);
 
+			//fix住a和b
 			if(setting_affineOptModeA < 0) J->JabF[0][idx]=0;
 			if(setting_affineOptModeB < 0) J->JabF[1][idx]=0;
-
 		}
 	}
 
+	//设置JIdx2，JabJIdx，Jab2
 	J->JIdx2(0,0) = JIdxJIdx_00;
 	J->JIdx2(0,1) = JIdxJIdx_10;
 	J->JIdx2(1,0) = JIdxJIdx_10;
@@ -265,11 +288,15 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
 	J->Jab2(1,0) = JabJab_01;
 	J->Jab2(1,1) = JabJab_11;
 
+	//新的误差
 	state_NewEnergyWithOutlier = energyLeft;
 
+	//误差大于帧的阈值
 	if(energyLeft > std::max<float>(host->frameEnergyTH, target->frameEnergyTH) || wJI2_sum < 2)
 	{
+		//设置为帧的阈值
 		energyLeft = std::max<float>(host->frameEnergyTH, target->frameEnergyTH);
+		//残差状态设置为outlier
 		state_NewState = ResState::OUTLIER;
 	}
 	else
@@ -277,6 +304,7 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
 		state_NewState = ResState::IN;
 	}
 
+	//设置新的残差
 	state_NewEnergy = energyLeft;
 	return energyLeft;
 }

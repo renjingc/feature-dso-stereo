@@ -96,7 +96,7 @@ public:
 	//重投影
 	Eigen::Vector2f projectedTo[MAX_RES_PER_POINT];
 
-	//投影到中心
+	//投影到目标帧的像素坐标和逆深度
 	Vec3f centerProjectedTo;
 
 	~PointFrameResidual();

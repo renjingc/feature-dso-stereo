@@ -26,12 +26,12 @@ public:
         bool verbose );
 
     size_t run (
-        Frame* ref_frame,
-        Frame* cur_frame );
+        FrameHessian* ref_frame,
+        FrameHessian* cur_frame );
 
     /// Return fisher information matrix, i.e. the Hessian of the log-likelihood
     /// at the converged state.
-    Matrix<double, 6, 6> getFisherInformation();
+    Eigen::Matrix<double, 6, 6> getFisherInformation();
 
 protected:
     FrameShell* ref_frame_;            //!< reference frame, has depth for gradient pixels.
