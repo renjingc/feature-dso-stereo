@@ -120,17 +120,17 @@ struct FrameHessian
 
 	// constant info & pre-calculated values
 	//DepthImageWrap* frame;
-    	//每一帧的信息
+	//每一帧的信息
 	FrameShell* shell;
 
-    	//梯度
+	//梯度
 	Eigen::Vector3f* dI;				 // trace, fine tracking. Used for direction select (not for gradient histograms etc.)
-    	//用于跟踪，和初始化
+	//用于跟踪，和初始化
 	Eigen::Vector3f* dIp[PYR_LEVELS];	 // coarse tracking / coarse initializer. NAN in [0] only.
-    	//用于像素的选择，用直方图，金字塔
+	//用于像素的选择，用直方图，金字塔
 	float* absSquaredGrad[PYR_LEVELS];  // only used for pixel select (histograms etc.). no NAN.
 
-    	//关键帧id
+	//关键帧id
 	int frameID;						// incremental ID for keyframes only!
 	static int instanceCounter;
 	//当前窗口中的帧id
@@ -139,10 +139,10 @@ struct FrameHessian
 	// Photometric Calibration Stuff
 	// 光度矫正，根据跟踪残差动态设置
 	float frameEnergyTH;	// set dynamically depending on tracking residual
- 	//即为参数t,用来表示曝光时间
+	//即为参数t,用来表示曝光时间
 	float ab_exposure;
 
-    	//是否边缘化
+	//是否边缘化
 	bool flaggedForMarginalization;
 
 	//有效点
@@ -592,8 +592,8 @@ struct PointHessian
 
 		//残差数量够大３，１４，３，且无边缘化的残差数够小
 		if ((int)residuals.size() >= setting_minGoodActiveResForMarg &&
-		        numGoodResiduals > setting_minGoodResForMarg + 10 &&
-		        (int)residuals.size() - visInToMarg < setting_minGoodActiveResForMarg)
+		    numGoodResiduals > setting_minGoodResForMarg + 10 &&
+		    (int)residuals.size() - visInToMarg < setting_minGoodActiveResForMarg)
 			return true;
 
 		if (lastResiduals[0].second == ResState::OOB) return true;

@@ -581,11 +581,14 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 		AffLight aff_g2l_this = aff_last_2_l;
 		SE3 lastF_2_fh_this = lastF_2_fh_tries[i];
 
+		boost::timer timer;
 		//是否跟踪成功
 		bool trackingIsGood = coarseTracker->trackNewestCoarse(
 		                        fh, lastF_2_fh_this, aff_g2l_this,
 		                        pyrLevelsUsed - 1,
 		                        achievedRes);	// in each level has to be at least as good as the last try.
+		std::cout << "trackNewestCoarse: " << timer.elapsed() << std::endl;
+
 		//尝试次数++
 		tryIterations++;
 
@@ -1399,17 +1402,69 @@ void FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv:
 //           }
 //           return true;
 // }
-void FullSystem::ComputeBoW()
+//
+//
+int FullSystem::CheckFrameDescriptors (
+  FrameShell* frame1,
+  FrameShell* frame2,
+  std::list<std::pair<int, int>>& matches
+)
 {
-    if ( _vocab!=nullptr && _bow_vec.empty() ) 
-    {
-        vector<Mat> alldesp;
-        for ( Feature* fea: _features ) 
-        {
-            alldesp.push_back(fea->_desc);
-        }
-        _vocab->transform( alldesp, _bow_vec, _feature_vec, 4);
-    }
+	std::vector<int> distance;
+	for ( auto& m : matches )
+	{
+		distance.push_back( DescriptorDistance(
+		                      frame1->descriptorsLeft,
+		                      frame2->_descriptorsLeft
+		                    ));
+	}
+
+	int cnt_good = 0;
+	int best_dist = *std::min_element( distance.begin(), distance.end() );
+	//LOG(INFO) << "best dist = " << best_dist << endl;
+
+	// 取个上下限
+	best_dist = best_dist > _options.init_low ? best_dist : _options.init_low;
+	best_dist = best_dist < _options.init_high ? best_dist : _options.init_high;
+
+	int i = 0;
+	//LOG(INFO) << "original matches: " << matches.size() << endl;
+	for ( auto iter = matches.begin(); iter != matches.end(); i++ )
+	{
+		if ( distance[i] < _options.initMatchRatio * best_dist )
+		{
+			cnt_good++;
+			iter++;
+		}
+		else
+		{
+			iter = matches.erase( iter );
+		}
+	}
+	//LOG(INFO) << "correct matches: " << matches.size() << endl;
+	return cnt_good;
+}
+
+int FullSystem::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
+{
+	const int *pa = a.ptr<int32_t>();
+	const int *pb = b.ptr<int32_t>();
+	int dist = 0;
+	for (int i = 0; i < 8; i++, pa++, pb++)
+	{
+		unsigned  int v = *pa ^ *pb;
+		v = v - ((v >> 1) & 0x55555555);
+		v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
+		dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+	}
+	return dist;
+}
+void FullSystem::ComputeBoW(FrameShell* f)
+{
+	if ( _vocab != nullptr && f->_bow_vec.empty() )
+	{
+		_vocab->transform( f->descriptorsLeft, f->_bow_vec, f->_feature_vec, 4);
+	}
 }
 /**
  * [FullSystem::addActiveFrame description]
@@ -1500,9 +1555,12 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 		Eigen::Matrix3d initR;
 		std::vector<cv::DMatch> matches;
 		cv::Mat image;
-		boost::timer timer;
-		find_feature_matches(allFrameHistory[allFrameHistory.size() - 2]->descriptorsLeft, mDescriptors, matches);
-		std::cout << "match: " << timer.elapsed() << std::endl;
+
+		ComputeBoW(allFrameHistory[allFrameHistory.size() - 2]);
+		ComputeBoW(allFrameHistory[allFrameHistory.size() - 1]);
+
+		//find_feature_matches(allFrameHistory[allFrameHistory.size() - 2]->descriptorsLeft, mDescriptors, matches);
+
 		if (matches.size() > 5)
 		{
 			cv::Mat K = (cv::Mat_<float>(3, 3) << Hcalib.fxl(), 0, Hcalib.cxl(), 0, Hcalib.fyl(), Hcalib.cyl(), 0, 0, 1);
@@ -1522,7 +1580,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 			cv::cv2eigen(R, initR);
 			// std::cout << initR << std::endl;
 		}
-		//   	 cv::drawMatches(allFrameHistory[allFrameHistory.size()-2]->imageLeft,allFrameHistory[allFrameHistory.size()-2]->keypointsLeft,
+		// cv::drawMatches(allFrameHistory[allFrameHistory.size()-2]->imageLeft,allFrameHistory[allFrameHistory.size()-2]->keypointsLeft,
 		//              	imageLeft8,mvKeys,
 		//           	matches,
 		//           	image,

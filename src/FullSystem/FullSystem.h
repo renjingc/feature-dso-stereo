@@ -41,12 +41,6 @@
 
 #include "ORB/ORBextractor.h"
 
-// for DBoW3
-#include <BowVector.h>
-#include <FeatureVector.h>
-#include "Vocabulary.h"
-typedef DBoW3::Vocabulary ORBVocabulary;
-
 #include <math.h>
 #include <boost/timer.hpp>
 
@@ -364,11 +358,13 @@ private:
 	cv::Mat mDescriptors, mDescriptorsRight;
 
 	DBoW3::BowVector _bow_vec;
-    	DBoW3::FeatureVector _feature_vec;
+  DBoW3::FeatureVector _feature_vec;
 
 	cv::FlannBasedMatcher matcher_flann_;
 
 	boost::thread threadLeft, threadRight;
+
+	static ORBVocabulary* _vocab;
 
 	void ExtractORB(int flag, const cv::Mat &im);
 	void find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_);

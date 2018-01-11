@@ -3,349 +3,8 @@
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	372;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	375;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	378;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	381;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	384;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	387;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	390;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	395;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	398;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	401;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	405;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	103;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	110;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	117;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	124;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	132;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	137;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	144;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	147;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	14;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	150;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	153;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	168;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	182;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	190;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	208;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	217;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	220;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	227;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	245;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	248;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	251;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	37;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	45;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	51;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	57;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	66;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	75;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	89;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	96;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	105;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	112;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	119;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	125;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	133;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	139;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	157;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	172;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	183;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	192;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	19;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	211;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	222;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	230;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	235;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	38;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	46;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	53;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	59;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	68;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	78;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	83;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	91;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	98;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	106;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	113;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	120;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	126;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	134;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	140;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	158;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	173;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	184;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	193;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	20;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	212;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	223;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	231;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	236;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	39;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	47;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	54;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	60;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	69;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	79;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	84;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	92;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	99;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	100;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	107;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	114;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	121;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	128;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	141;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	159;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	174;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	186;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	197;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	200;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	213;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	224;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	22;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	232;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	237;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	24;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	41;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	48;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	62;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	71;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	80;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	85;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	93;"	d	file:
-COMPILER_VERSION_TWEAK	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	165;"	d	file:
-COMPILER_VERSION_TWEAK	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	204;"	d	file:
-COMPILER_VERSION_TWEAK	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	28;"	d	file:
-DEC	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	409;"	d	file:
-HEX	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	420;"	d	file:
-ID_VOID_MAIN	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	6;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	269;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	272;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	275;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	278;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	281;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	284;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	287;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	290;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	293;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	296;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	299;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	302;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	305;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	308;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	311;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	314;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	317;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	320;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	323;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	326;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	329;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	332;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	335;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	338;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	341;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	345;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	348;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	351;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	354;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	357;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	361;"	d	file:
-SIMULATE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	155;"	d	file:
-SIMULATE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	16;"	d	file:
-SIMULATE_ID	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	170;"	d	file:
-SIMULATE_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	162;"	d	file:
-SIMULATE_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	177;"	d	file:
-SIMULATE_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	32;"	d	file:
-SIMULATE_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	163;"	d	file:
-SIMULATE_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	178;"	d	file:
-SIMULATE_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	33;"	d	file:
-info_arch	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const* info_arch = "INFO" ":" "arch[" ARCHITECTURE_ID "]";$/;"	v
-info_compiler	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const* info_compiler = "INFO" ":" "compiler[" COMPILER_ID "]";$/;"	v
-info_platform	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const* info_platform = "INFO" ":" "platform[" PLATFORM_ID "]";$/;"	v
-info_simulate	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const* info_simulate = "INFO" ":" "simulate[" SIMULATE_ID "]";$/;"	v
-info_simulate_version	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const info_simulate_version[] = {$/;"	v
-info_version	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const info_version[] = {$/;"	v
-main	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^int main(int argc, char* argv[])$/;"	f
-main	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^void main() {}$/;"	f
-qnxnto	build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const* qnxnto = "INFO" ":" "qnxnto[]";$/;"	v
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	367;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	370;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	373;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	376;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	379;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	382;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	385;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	390;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	393;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	396;"	d	file:
-ARCHITECTURE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	400;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	101;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	108;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	115;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	122;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	129;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	137;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	13;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	142;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	149;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	152;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	155;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	170;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	184;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	192;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	19;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	210;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	219;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	222;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	240;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	243;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	246;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	42;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	50;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	56;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	62;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	71;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	80;"	d	file:
-COMPILER_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	94;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	103;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	110;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	117;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	124;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	130;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	138;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	144;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	159;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	15;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	174;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	185;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	194;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	213;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	225;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	230;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	24;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	43;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	51;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	58;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	64;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	73;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	83;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	88;"	d	file:
-COMPILER_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	96;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	104;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	111;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	118;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	125;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	131;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	139;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	145;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	160;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	16;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	175;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	186;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	195;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	214;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	226;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	231;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	25;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	44;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	52;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	59;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	65;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	74;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	84;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	89;"	d	file:
-COMPILER_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	97;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	105;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	112;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	119;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	126;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	133;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	146;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	161;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	176;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	188;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	199;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	202;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	215;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	227;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	232;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	27;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	29;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	46;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	53;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	67;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	76;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	85;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	90;"	d	file:
-COMPILER_VERSION_PATCH	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	98;"	d	file:
-COMPILER_VERSION_TWEAK	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	167;"	d	file:
-COMPILER_VERSION_TWEAK	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	206;"	d	file:
-COMPILER_VERSION_TWEAK	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	33;"	d	file:
-DEC	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	404;"	d	file:
-HEX	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	415;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	264;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	267;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	270;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	273;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	276;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	279;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	282;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	285;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	288;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	291;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	294;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	297;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	300;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	303;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	306;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	309;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	312;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	315;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	318;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	321;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	324;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	327;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	330;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	333;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	336;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	340;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	343;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	346;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	349;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	352;"	d	file:
-PLATFORM_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	356;"	d	file:
-SIMULATE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	157;"	d	file:
-SIMULATE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	172;"	d	file:
-SIMULATE_ID	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	21;"	d	file:
-SIMULATE_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	164;"	d	file:
-SIMULATE_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	179;"	d	file:
-SIMULATE_VERSION_MAJOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	37;"	d	file:
-SIMULATE_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	165;"	d	file:
-SIMULATE_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	180;"	d	file:
-SIMULATE_VERSION_MINOR	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	38;"	d	file:
-info_arch	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* info_arch = "INFO" ":" "arch[" ARCHITECTURE_ID "]";$/;"	v
-info_compiler	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* info_compiler = "INFO" ":" "compiler[" COMPILER_ID "]";$/;"	v
-info_platform	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* info_platform = "INFO" ":" "platform[" PLATFORM_ID "]";$/;"	v
-info_simulate	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* info_simulate = "INFO" ":" "simulate[" SIMULATE_ID "]";$/;"	v
-info_simulate_version	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const info_simulate_version[] = {$/;"	v
-info_version	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const info_version[] = {$/;"	v
-main	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^int main(int argc, char* argv[])$/;"	f
-qnxnto	build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* qnxnto = "INFO" ":" "qnxnto[]";$/;"	v
-features	build/CMakeFiles/feature_tests.c	/^  const char features[] = {""$/;"	v
-main	build/CMakeFiles/feature_tests.c	/^int main(int argc, char** argv) { (void)argv; return features[argc]; }$/;"	f
-features	build/CMakeFiles/feature_tests.cxx	/^  const char features[] = {""$/;"	v
-main	build/CMakeFiles/feature_tests.cxx	/^int main(int argc, char** argv) { (void)argv; return features[argc]; }$/;"	f
-CMAKE_BINARY_DIR	build/Makefile	/^CMAKE_BINARY_DIR = \/home\/ren\/work\/fdso\/build$/;"	m
-CMAKE_COMMAND	build/Makefile	/^CMAKE_COMMAND = \/usr\/bin\/cmake$/;"	m
-CMAKE_SOURCE_DIR	build/Makefile	/^CMAKE_SOURCE_DIR = \/home\/ren\/work\/fdso$/;"	m
-EQUALS	build/Makefile	/^EQUALS = =$/;"	m
-RM	build/Makefile	/^RM = \/usr\/bin\/cmake -E remove -f$/;"	m
-SHELL	build/Makefile	/^SHELL = \/bin\/sh$/;"	m
-SUFFIXES	build/Makefile	/^SUFFIXES =$/;"	m
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
-CoarseInitializer	src/FullSystem/CoarseInitializer.cpp	/^CoarseInitializer::CoarseInitializer(int ww, int hh) : thisToNext_aff(0,0), thisToNext(SE3())$/;"	f	class:fdso::CoarseInitializer
+CoarseInitializer	src/FullSystem/CoarseInitializer.cpp	/^CoarseInitializer::CoarseInitializer(int ww, int hh) : thisToNext_aff(0, 0), thisToNext(SE3())$/;"	f	class:fdso::CoarseInitializer
 applyStep	src/FullSystem/CoarseInitializer.cpp	/^void CoarseInitializer::applyStep(int lvl)$/;"	f	class:fdso::CoarseInitializer
 calcEC	src/FullSystem/CoarseInitializer.cpp	/^Vec3f CoarseInitializer::calcEC(int lvl)$/;"	f	class:fdso::CoarseInitializer
 calcResAndGS	src/FullSystem/CoarseInitializer.cpp	/^Vec3f CoarseInitializer::calcResAndGS($/;"	f	class:fdso::CoarseInitializer
@@ -367,16 +26,16 @@ trackFrame	src/FullSystem/CoarseInitializer.cpp	/^bool CoarseInitializer::trackF
 CoarseInitializer	src/FullSystem/CoarseInitializer.h	/^class CoarseInitializer {$/;"	c	namespace:fdso
 EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/FullSystem/CoarseInitializer.h	/^	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	class:fdso::CoarseInitializer
 EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/FullSystem/CoarseInitializer.h	/^	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	struct:fdso::Pnt
-FLANNPointcloud	src/FullSystem/CoarseInitializer.h	/^    inline FLANNPointcloud() {num=0; points=0;}$/;"	f	struct:fdso::FLANNPointcloud
-FLANNPointcloud	src/FullSystem/CoarseInitializer.h	/^    inline FLANNPointcloud(int n, Pnt* p) :  num(n), points(p) {}$/;"	f	struct:fdso::FLANNPointcloud
+FLANNPointcloud	src/FullSystem/CoarseInitializer.h	/^	inline FLANNPointcloud() {num = 0; points = 0;}$/;"	f	struct:fdso::FLANNPointcloud
+FLANNPointcloud	src/FullSystem/CoarseInitializer.h	/^	inline FLANNPointcloud(int n, Pnt* p) :  num(n), points(p) {}$/;"	f	struct:fdso::FLANNPointcloud
 FLANNPointcloud	src/FullSystem/CoarseInitializer.h	/^struct FLANNPointcloud$/;"	s	namespace:fdso
 JbBuffer	src/FullSystem/CoarseInitializer.h	/^	Vec10f* JbBuffer;			\/\/ 0-7: sum(dd * dp). 8: sum(res*dd). 9: 1\/(1+sum(dd*dd))=inverse hessian entry.$/;"	m	class:fdso::CoarseInitializer
 JbBuffer_new	src/FullSystem/CoarseInitializer.h	/^	Vec10f* JbBuffer_new;$/;"	m	class:fdso::CoarseInitializer
 K	src/FullSystem/CoarseInitializer.h	/^	Mat33 K[PYR_LEVELS];$/;"	m	class:fdso::CoarseInitializer
 Ki	src/FullSystem/CoarseInitializer.h	/^	Mat33 Ki[PYR_LEVELS];$/;"	m	class:fdso::CoarseInitializer
 Pnt	src/FullSystem/CoarseInitializer.h	/^struct Pnt$/;"	s	namespace:fdso
-acc9	src/FullSystem/CoarseInitializer.h	/^	Accumulator9 acc9;$/;"	m	class:fdso::CoarseInitializer
-acc9SC	src/FullSystem/CoarseInitializer.h	/^	Accumulator9 acc9SC;$/;"	m	class:fdso::CoarseInitializer
+acc9	src/FullSystem/CoarseInitializer.h	/^	Accumulator9 acc9;		 \/\/前面8*8为Hessian矩阵，最后一列为b$/;"	m	class:fdso::CoarseInitializer
+acc9SC	src/FullSystem/CoarseInitializer.h	/^	Accumulator9 acc9SC;	\/\/前面8*8为Hessian矩阵，最后一列为b$/;"	m	class:fdso::CoarseInitializer
 alphaK	src/FullSystem/CoarseInitializer.h	/^	float alphaK;$/;"	m	class:fdso::CoarseInitializer
 alphaW	src/FullSystem/CoarseInitializer.h	/^	float alphaW;$/;"	m	class:fdso::CoarseInitializer
 couplingWeight	src/FullSystem/CoarseInitializer.h	/^	float couplingWeight;$/;"	m	class:fdso::CoarseInitializer
@@ -406,8 +65,8 @@ idepth	src/FullSystem/CoarseInitializer.h	/^	float* idepth[PYR_LEVELS];$/;"	m	cl
 idepth_new	src/FullSystem/CoarseInitializer.h	/^	float idepth_new;$/;"	m	struct:fdso::Pnt
 isGood	src/FullSystem/CoarseInitializer.h	/^	bool isGood;$/;"	m	struct:fdso::Pnt
 isGood_new	src/FullSystem/CoarseInitializer.h	/^	bool isGood_new;$/;"	m	struct:fdso::Pnt
-kdtree_distance	src/FullSystem/CoarseInitializer.h	/^	inline float kdtree_distance(const float *p1, const size_t idx_p2,size_t \/*size*\/) const$/;"	f	struct:fdso::FLANNPointcloud
-kdtree_get_bbox	src/FullSystem/CoarseInitializer.h	/^		bool kdtree_get_bbox(BBOX& \/* bb *\/) const { return false; }$/;"	f	struct:fdso::FLANNPointcloud
+kdtree_distance	src/FullSystem/CoarseInitializer.h	/^	inline float kdtree_distance(const float *p1, const size_t idx_p2, size_t \/*size*\/) const$/;"	f	struct:fdso::FLANNPointcloud
+kdtree_get_bbox	src/FullSystem/CoarseInitializer.h	/^	bool kdtree_get_bbox(BBOX& \/* bb *\/) const { return false; }$/;"	f	struct:fdso::FLANNPointcloud
 kdtree_get_point_count	src/FullSystem/CoarseInitializer.h	/^	inline size_t kdtree_get_point_count() const { return num; }$/;"	f	struct:fdso::FLANNPointcloud
 kdtree_get_pt	src/FullSystem/CoarseInitializer.h	/^	inline float kdtree_get_pt(const size_t idx, int dim) const$/;"	f	struct:fdso::FLANNPointcloud
 lastHessian	src/FullSystem/CoarseInitializer.h	/^	float lastHessian;$/;"	m	struct:fdso::Pnt
@@ -430,12 +89,12 @@ snapped	src/FullSystem/CoarseInitializer.h	/^	bool snapped;$/;"	m	class:fdso::Co
 snappedAt	src/FullSystem/CoarseInitializer.h	/^	int snappedAt;$/;"	m	class:fdso::CoarseInitializer
 thisToNext	src/FullSystem/CoarseInitializer.h	/^	SE3 thisToNext;$/;"	m	class:fdso::CoarseInitializer
 thisToNext_aff	src/FullSystem/CoarseInitializer.h	/^	AffLight thisToNext_aff;$/;"	m	class:fdso::CoarseInitializer
-u	src/FullSystem/CoarseInitializer.h	/^	float u,v;$/;"	m	struct:fdso::Pnt
-v	src/FullSystem/CoarseInitializer.h	/^	float u,v;$/;"	m	struct:fdso::Pnt
+u	src/FullSystem/CoarseInitializer.h	/^	float u, v;$/;"	m	struct:fdso::Pnt
+v	src/FullSystem/CoarseInitializer.h	/^	float u, v;$/;"	m	struct:fdso::Pnt
 w	src/FullSystem/CoarseInitializer.h	/^	int w[PYR_LEVELS];$/;"	m	class:fdso::CoarseInitializer
-wM	src/FullSystem/CoarseInitializer.h	/^	Eigen::DiagonalMatrix<float, 8> wM;$/;"	m	class:fdso::CoarseInitializer
+wM	src/FullSystem/CoarseInitializer.h	/^	Eigen::DiagonalMatrix<float, 8> wM;	 \/\/权重对角线矩阵$/;"	m	class:fdso::CoarseInitializer
 CoarseDistanceMap	src/FullSystem/CoarseTracker.cpp	/^CoarseDistanceMap::CoarseDistanceMap(int ww, int hh)$/;"	f	class:fdso::CoarseDistanceMap
-CoarseTracker	src/FullSystem/CoarseTracker.cpp	/^CoarseTracker::CoarseTracker(int ww, int hh) : lastRef_aff_g2l(0,0)$/;"	f	class:fdso::CoarseTracker
+CoarseTracker	src/FullSystem/CoarseTracker.cpp	/^CoarseTracker::CoarseTracker(int ww, int hh) : lastRef_aff_g2l(0, 0)$/;"	f	class:fdso::CoarseTracker
 addIntoDistFinal	src/FullSystem/CoarseTracker.cpp	/^void CoarseDistanceMap::addIntoDistFinal(int u, int v)$/;"	f	class:fdso::CoarseDistanceMap
 calcGSSSE	src/FullSystem/CoarseTracker.cpp	/^void CoarseTracker::calcGSSSE(int lvl, Mat88 &H_out, Vec8 &b_out, SE3 refToNew, AffLight aff_g2l)$/;"	f	class:fdso::CoarseTracker
 calcRes	src/FullSystem/CoarseTracker.cpp	/^Vec6 CoarseTracker::calcRes(int lvl, SE3 refToNew, AffLight aff_g2l, float cutoffTH)$/;"	f	class:fdso::CoarseTracker
@@ -449,6 +108,8 @@ makeDistanceMap	src/FullSystem/CoarseTracker.cpp	/^void CoarseDistanceMap::makeD
 makeInlierVotes	src/FullSystem/CoarseTracker.cpp	/^void CoarseDistanceMap::makeInlierVotes(std::vector<FrameHessian*> frameHessians)$/;"	f	class:fdso::CoarseDistanceMap
 makeK	src/FullSystem/CoarseTracker.cpp	/^void CoarseDistanceMap::makeK(CalibHessian* HCalib)$/;"	f	class:fdso::CoarseDistanceMap
 makeK	src/FullSystem/CoarseTracker.cpp	/^void CoarseTracker::makeK(CalibHessian* HCalib)$/;"	f	class:fdso::CoarseTracker
+saveK	src/FullSystem/CoarseTracker.cpp	/^void CoarseTracker::saveK()$/;"	f	class:fdso::CoarseTracker
+saveResult	src/FullSystem/CoarseTracker.cpp	/^void CoarseTracker::saveResult($/;"	f	class:fdso::CoarseTracker
 setCTRefForFirstFrame	src/FullSystem/CoarseTracker.cpp	/^void CoarseTracker::setCTRefForFirstFrame(std::vector<FrameHessian *> frameHessians)$/;"	f	class:fdso::CoarseTracker
 setCoarseTrackingRef	src/FullSystem/CoarseTracker.cpp	/^void CoarseTracker::setCoarseTrackingRef($/;"	f	class:fdso::CoarseTracker
 trackNewestCoarse	src/FullSystem/CoarseTracker.cpp	/^bool CoarseTracker::trackNewestCoarse($/;"	f	class:fdso::CoarseTracker
@@ -515,8 +176,9 @@ w	src/FullSystem/CoarseTracker.h	/^	int w[PYR_LEVELS];$/;"	m	class:fdso::CoarseD
 w	src/FullSystem/CoarseTracker.h	/^	int w[PYR_LEVELS];$/;"	m	class:fdso::CoarseTracker
 weightSums	src/FullSystem/CoarseTracker.h	/^	float* weightSums[PYR_LEVELS];$/;"	m	class:fdso::CoarseTracker
 weightSums_bak	src/FullSystem/CoarseTracker.h	/^	float* weightSums_bak[PYR_LEVELS];$/;"	m	class:fdso::CoarseTracker
+ComputeBoW	src/FullSystem/FullSystem.cpp	/^void FullSystem::ComputeBoW()$/;"	f	class:fdso::FullSystem
 ExtractORB	src/FullSystem/FullSystem.cpp	/^void FullSystem::ExtractORB(int flag, const cv::Mat &im)$/;"	f	class:fdso::FullSystem
-FullSystem	src/FullSystem/FullSystem.cpp	/^FullSystem::FullSystem():matcher_flann_(new cv::flann::LshIndexParams(5,10,2))$/;"	f	class:fdso::FullSystem
+FullSystem	src/FullSystem/FullSystem.cpp	/^FullSystem::FullSystem(): matcher_flann_(new cv::flann::LshIndexParams(5, 10, 2))$/;"	f	class:fdso::FullSystem
 activatePointsMT	src/FullSystem/FullSystem.cpp	/^void FullSystem::activatePointsMT()$/;"	f	class:fdso::FullSystem
 activatePointsMT_Reductor	src/FullSystem/FullSystem.cpp	/^void FullSystem::activatePointsMT_Reductor($/;"	f	class:fdso::FullSystem
 activatePointsOldFirst	src/FullSystem/FullSystem.cpp	/^void FullSystem::activatePointsOldFirst()$/;"	f	class:fdso::FullSystem
@@ -524,12 +186,12 @@ addActiveFrame	src/FullSystem/FullSystem.cpp	/^void FullSystem::addActiveFrame( 
 blockUntilMappingIsFinished	src/FullSystem/FullSystem.cpp	/^void FullSystem::blockUntilMappingIsFinished()$/;"	f	class:fdso::FullSystem
 deliverTrackedFrame	src/FullSystem/FullSystem.cpp	/^void FullSystem::deliverTrackedFrame(FrameHessian* fh, FrameHessian* fh_right, bool needKF)$/;"	f	class:fdso::FullSystem
 fdso	src/FullSystem/FullSystem.cpp	/^namespace fdso$/;"	n	file:
-find_feature_matches	src/FullSystem/FullSystem.cpp	/^void FullSystem::find_feature_matches (const cv::Mat& descriptorsLast,const cv::Mat& descriptorsCur,std::vector<cv::DMatch>& feature_matches_)$/;"	f	class:fdso::FullSystem
+find_feature_matches	src/FullSystem/FullSystem.cpp	/^void FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_)$/;"	f	class:fdso::FullSystem
 flagPointsForRemoval	src/FullSystem/FullSystem.cpp	/^void FullSystem::flagPointsForRemoval()$/;"	f	class:fdso::FullSystem
 initializeFromInitializer	src/FullSystem/FullSystem.cpp	/^void FullSystem::initializeFromInitializer(FrameHessian* newFrame)$/;"	f	class:fdso::FullSystem
-instanceCounter	src/FullSystem/FullSystem.cpp	/^int CalibHessian::instanceCounter=0;$/;"	m	class:fdso::CalibHessian	file:
-instanceCounter	src/FullSystem/FullSystem.cpp	/^int FrameHessian::instanceCounter=0;$/;"	m	class:fdso::FrameHessian	file:
-instanceCounter	src/FullSystem/FullSystem.cpp	/^int PointHessian::instanceCounter=0;$/;"	m	class:fdso::PointHessian	file:
+instanceCounter	src/FullSystem/FullSystem.cpp	/^int CalibHessian::instanceCounter = 0;$/;"	m	class:fdso::CalibHessian	file:
+instanceCounter	src/FullSystem/FullSystem.cpp	/^int FrameHessian::instanceCounter = 0;$/;"	m	class:fdso::FrameHessian	file:
+instanceCounter	src/FullSystem/FullSystem.cpp	/^int PointHessian::instanceCounter = 0;$/;"	m	class:fdso::PointHessian	file:
 makeKeyFrame	src/FullSystem/FullSystem.cpp	/^void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)$/;"	f	class:fdso::FullSystem
 makeNewTraces	src/FullSystem/FullSystem.cpp	/^void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRight, float* gtDepth)$/;"	f	class:fdso::FullSystem
 makeNonKeyFrame	src/FullSystem/FullSystem.cpp	/^void FullSystem::makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right)$/;"	f	class:fdso::FullSystem
@@ -545,14 +207,17 @@ setPrecalcValues	src/FullSystem/FullSystem.cpp	/^void FullSystem::setPrecalcValu
 stereoMatch	src/FullSystem/FullSystem.cpp	/^void FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_right, int id, cv::Mat &idepthMap)$/;"	f	class:fdso::FullSystem
 traceNewCoarseKey	src/FullSystem/FullSystem.cpp	/^void FullSystem::traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right)$/;"	f	class:fdso::FullSystem
 traceNewCoarseNonKey	src/FullSystem/FullSystem.cpp	/^void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)$/;"	f	class:fdso::FullSystem
-trackNewCoarse	src/FullSystem/FullSystem.cpp	/^Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right,Eigen::Matrix3d R)$/;"	f	class:fdso::FullSystem
+trackNewCoarse	src/FullSystem/FullSystem.cpp	/^Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen::Matrix3d R)$/;"	f	class:fdso::FullSystem
 ~FullSystem	src/FullSystem/FullSystem.cpp	/^FullSystem::~FullSystem()$/;"	f	class:fdso::FullSystem
 DiagonalLog	src/FullSystem/FullSystem.h	/^	std::ofstream* DiagonalLog;$/;"	m	class:fdso::FullSystem
 EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/FullSystem/FullSystem.h	/^	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	class:fdso::FullSystem
 FullSystem	src/FullSystem/FullSystem.h	/^class FullSystem {$/;"	c	namespace:fdso
-Hcalib	src/FullSystem/FullSystem.h	/^	C　alibHessian Hcalib;$/;"	m	class:fdso::FullSystem
+Hcalib	src/FullSystem/FullSystem.h	/^	CalibHessian Hcalib;$/;"	m	class:fdso::FullSystem
 IOWrap	src/FullSystem/FullSystem.h	/^namespace IOWrap$/;"	n	namespace:fdso
 MAX_ACTIVE_FRAMES	src/FullSystem/FullSystem.h	26;"	d
+ORBVocabulary	src/FullSystem/FullSystem.h	/^typedef DBoW3::Vocabulary ORBVocabulary;$/;"	t
+_bow_vec	src/FullSystem/FullSystem.h	/^	DBoW3::BowVector _bow_vec;$/;"	m	class:fdso::FullSystem
+_feature_vec	src/FullSystem/FullSystem.h	/^    	DBoW3::FeatureVector _feature_vec;$/;"	m	class:fdso::FullSystem
 activeResiduals	src/FullSystem/FullSystem.h	/^	std::vector<PointFrameResidual*> activeResiduals;$/;"	m	class:fdso::FullSystem
 allFrameHistory	src/FullSystem/FullSystem.h	/^	std::vector<FrameShell*> allFrameHistory;$/;"	m	class:fdso::FullSystem
 allKeyFramesHistory	src/FullSystem/FullSystem.h	/^	std::vector<FrameShell*> allKeyFramesHistory;$/;"	m	class:fdso::FullSystem
@@ -602,7 +267,7 @@ needNewKFAfter	src/FullSystem/FullSystem.h	/^	int needNewKFAfter;	\/\/ Otherwise
 needToKetchupMapping	src/FullSystem/FullSystem.h	/^	bool needToKetchupMapping;$/;"	m	class:fdso::FullSystem
 nullspacesLog	src/FullSystem/FullSystem.h	/^	std::ofstream* nullspacesLog;$/;"	m	class:fdso::FullSystem
 numsLog	src/FullSystem/FullSystem.h	/^	std::ofstream* numsLog;$/;"	m	class:fdso::FullSystem
-outputWrapper	src/FullSystem/FullSystem.h	/^    std::vector<IOWrap::Output3DWrapper*> outputWrapper;$/;"	m	class:fdso::FullSystem
+outputWrapper	src/FullSystem/FullSystem.h	/^	std::vector<IOWrap::Output3DWrapper*> outputWrapper;$/;"	m	class:fdso::FullSystem
 pixelSelector	src/FullSystem/FullSystem.h	/^	PixelSelector* pixelSelector;$/;"	m	class:fdso::FullSystem
 runMapping	src/FullSystem/FullSystem.h	/^	bool runMapping;$/;"	m	class:fdso::FullSystem
 selectionMap	src/FullSystem/FullSystem.h	/^	float* selectionMap;$/;"	m	class:fdso::FullSystem
@@ -616,8 +281,8 @@ statistics_numForceDroppedResBwd	src/FullSystem/FullSystem.h	/^	long int statist
 statistics_numForceDroppedResFwd	src/FullSystem/FullSystem.h	/^	long int statistics_numForceDroppedResFwd;$/;"	m	class:fdso::FullSystem
 statistics_numMargResBwd	src/FullSystem/FullSystem.h	/^	long int statistics_numMargResBwd;$/;"	m	class:fdso::FullSystem
 statistics_numMargResFwd	src/FullSystem/FullSystem.h	/^	long int statistics_numMargResFwd;$/;"	m	class:fdso::FullSystem
-threadLeft	src/FullSystem/FullSystem.h	/^	boost::thread threadLeft,threadRight;$/;"	m	class:fdso::FullSystem
-threadRight	src/FullSystem/FullSystem.h	/^	boost::thread threadLeft,threadRight;$/;"	m	class:fdso::FullSystem
+threadLeft	src/FullSystem/FullSystem.h	/^	boost::thread threadLeft, threadRight;$/;"	m	class:fdso::FullSystem
+threadRight	src/FullSystem/FullSystem.h	/^	boost::thread threadLeft, threadRight;$/;"	m	class:fdso::FullSystem
 trackMapSyncMutex	src/FullSystem/FullSystem.h	/^	boost::mutex trackMapSyncMutex;$/;"	m	class:fdso::FullSystem
 trackMutex	src/FullSystem/FullSystem.h	/^	boost::mutex trackMutex;$/;"	m	class:fdso::FullSystem
 trackedFrameSignal	src/FullSystem/FullSystem.h	/^	boost::condition_variable trackedFrameSignal;$/;"	m	class:fdso::FullSystem
@@ -637,7 +302,7 @@ applyRes_Reductor	src/FullSystem/FullSystemOptimize.cpp	/^void FullSystem::apply
 backupState	src/FullSystem/FullSystemOptimize.cpp	/^void FullSystem::backupState(bool backupLastStep)$/;"	f	class:fdso::FullSystem
 calcLEnergy	src/FullSystem/FullSystemOptimize.cpp	/^double FullSystem::calcLEnergy()$/;"	f	class:fdso::FullSystem
 calcMEnergy	src/FullSystem/FullSystemOptimize.cpp	/^double FullSystem::calcMEnergy()$/;"	f	class:fdso::FullSystem
-doStepFromBackup	src/FullSystem/FullSystemOptimize.cpp	/^bool FullSystem::doStepFromBackup(float stepfacC,float stepfacT,float stepfacR,float stepfacA,float stepfacD)$/;"	f	class:fdso::FullSystem
+doStepFromBackup	src/FullSystem/FullSystemOptimize.cpp	/^bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR, float stepfacA, float stepfacD)$/;"	f	class:fdso::FullSystem
 fdso	src/FullSystem/FullSystemOptimize.cpp	/^namespace fdso$/;"	n	file:
 getNullspaces	src/FullSystem/FullSystemOptimize.cpp	/^std::vector<VecX> FullSystem::getNullspaces($/;"	f	class:fdso::FullSystem
 linearizeAll	src/FullSystem/FullSystemOptimize.cpp	/^Vec3 FullSystem::linearizeAll(bool fixLinearization)$/;"	f	class:fdso::FullSystem
@@ -655,7 +320,7 @@ release	src/FullSystem/HessianBlocks.cpp	/^void FrameHessian::release()$/;"	f	cl
 release	src/FullSystem/HessianBlocks.cpp	/^void PointHessian::release()$/;"	f	class:fdso::PointHessian
 set	src/FullSystem/HessianBlocks.cpp	/^void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target, CalibHessian* HCalib )$/;"	f	class:fdso::FrameFramePrecalc
 setStateZero	src/FullSystem/HessianBlocks.cpp	/^void FrameHessian::setStateZero(Vec10 state_zero)$/;"	f	class:fdso::FrameHessian
-ACTIVE	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE=0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	e	enum:fdso::PointHessian::PtStatus
+ACTIVE	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE = 0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	e	enum:fdso::PointHessian::PtStatus
 B	src/FullSystem/HessianBlocks.h	/^	float B[256];$/;"	m	struct:fdso::CalibHessian
 Binv	src/FullSystem/HessianBlocks.h	/^	float Binv[256];$/;"	m	struct:fdso::CalibHessian
 CalibHessian	src/FullSystem/HessianBlocks.h	/^	inline CalibHessian()$/;"	f	struct:fdso::CalibHessian
@@ -664,28 +329,28 @@ EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/FullSystem/HessianBlocks.h	/^	EIGEN_MAKE_ALI
 EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/FullSystem/HessianBlocks.h	/^	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	struct:fdso::FrameFramePrecalc
 EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/FullSystem/HessianBlocks.h	/^	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	struct:fdso::FrameHessian
 EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/FullSystem/HessianBlocks.h	/^	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	struct:fdso::PointHessian
-FrameFramePrecalc	src/FullSystem/HessianBlocks.h	/^    inline FrameFramePrecalc() {host=target=0;}$/;"	f	struct:fdso::FrameFramePrecalc
+FrameFramePrecalc	src/FullSystem/HessianBlocks.h	/^	inline FrameFramePrecalc() {host = target = 0;}$/;"	f	struct:fdso::FrameFramePrecalc
 FrameFramePrecalc	src/FullSystem/HessianBlocks.h	/^struct FrameFramePrecalc$/;"	s	namespace:fdso
 FrameHessian	src/FullSystem/HessianBlocks.h	/^	inline FrameHessian()$/;"	f	struct:fdso::FrameHessian
 FrameHessian	src/FullSystem/HessianBlocks.h	/^struct FrameHessian$/;"	s	namespace:fdso
-INACTIVE	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE=0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	e	enum:fdso::PointHessian::PtStatus
-MARGINALIZED	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE=0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	e	enum:fdso::PointHessian::PtStatus
+INACTIVE	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE = 0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	e	enum:fdso::PointHessian::PtStatus
+MARGINALIZED	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE = 0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	e	enum:fdso::PointHessian::PtStatus
 MAX_ACTIVE_FRAMES	src/FullSystem/HessianBlocks.h	26;"	d
-OOB	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE=0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	e	enum:fdso::PointHessian::PtStatus
-OUTLIER	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE=0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	e	enum:fdso::PointHessian::PtStatus
-PRE_KRKiTll	src/FullSystem/HessianBlocks.h	/^	Mat33f PRE_KRKiTll;$/;"	m	struct:fdso::FrameFramePrecalc
-PRE_KtTll	src/FullSystem/HessianBlocks.h	/^	Vec3f PRE_KtTll;$/;"	m	struct:fdso::FrameFramePrecalc
-PRE_RKiTll	src/FullSystem/HessianBlocks.h	/^	Mat33f PRE_RKiTll;$/;"	m	struct:fdso::FrameFramePrecalc
-PRE_RTll	src/FullSystem/HessianBlocks.h	/^	Mat33f PRE_RTll;$/;"	m	struct:fdso::FrameFramePrecalc
-PRE_RTll_0	src/FullSystem/HessianBlocks.h	/^	Mat33f PRE_RTll_0;$/;"	m	struct:fdso::FrameFramePrecalc
-PRE_aff_mode	src/FullSystem/HessianBlocks.h	/^	Vec2f PRE_aff_mode;$/;"	m	struct:fdso::FrameFramePrecalc
-PRE_b0_mode	src/FullSystem/HessianBlocks.h	/^	float PRE_b0_mode;$/;"	m	struct:fdso::FrameFramePrecalc
+OOB	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE = 0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	e	enum:fdso::PointHessian::PtStatus
+OUTLIER	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE = 0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	e	enum:fdso::PointHessian::PtStatus
+PRE_KRKiTll	src/FullSystem/HessianBlocks.h	/^	Mat33f PRE_KRKiTll;	\/\/K*R*K'$/;"	m	struct:fdso::FrameFramePrecalc
+PRE_KtTll	src/FullSystem/HessianBlocks.h	/^	Vec3f PRE_KtTll;	\/\/R*t$/;"	m	struct:fdso::FrameFramePrecalc
+PRE_RKiTll	src/FullSystem/HessianBlocks.h	/^	Mat33f PRE_RKiTll;	\/\/R*K'$/;"	m	struct:fdso::FrameFramePrecalc
+PRE_RTll	src/FullSystem/HessianBlocks.h	/^	Mat33f PRE_RTll;	\/\/R$/;"	m	struct:fdso::FrameFramePrecalc
+PRE_RTll_0	src/FullSystem/HessianBlocks.h	/^	Mat33f PRE_RTll_0;	\/\/R evalPT$/;"	m	struct:fdso::FrameFramePrecalc
+PRE_aff_mode	src/FullSystem/HessianBlocks.h	/^	Vec2f PRE_aff_mode;	\/\/主导帧和目标帧之间的光度ａ和ｂ变化$/;"	m	struct:fdso::FrameFramePrecalc
+PRE_b0_mode	src/FullSystem/HessianBlocks.h	/^	float PRE_b0_mode;	\/\/主导帧的b$/;"	m	struct:fdso::FrameFramePrecalc
 PRE_camToWorld	src/FullSystem/HessianBlocks.h	/^	SE3 PRE_camToWorld;$/;"	m	struct:fdso::FrameHessian
-PRE_tTll	src/FullSystem/HessianBlocks.h	/^	Vec3f PRE_tTll;$/;"	m	struct:fdso::FrameFramePrecalc
-PRE_tTll_0	src/FullSystem/HessianBlocks.h	/^	Vec3f PRE_tTll_0;$/;"	m	struct:fdso::FrameFramePrecalc
+PRE_tTll	src/FullSystem/HessianBlocks.h	/^	Vec3f PRE_tTll;	\/\/t$/;"	m	struct:fdso::FrameFramePrecalc
+PRE_tTll_0	src/FullSystem/HessianBlocks.h	/^	Vec3f PRE_tTll_0;	\/\/t PRE_RTll_0$/;"	m	struct:fdso::FrameFramePrecalc
 PRE_worldToCam	src/FullSystem/HessianBlocks.h	/^	SE3 PRE_worldToCam;$/;"	m	struct:fdso::FrameHessian
 PointHessian	src/FullSystem/HessianBlocks.h	/^struct PointHessian$/;"	s	namespace:fdso
-PtStatus	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE=0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	g	struct:fdso::PointHessian
+PtStatus	src/FullSystem/HessianBlocks.h	/^	enum PtStatus {ACTIVE = 0, INACTIVE, OUTLIER, OOB, MARGINALIZED};$/;"	g	struct:fdso::PointHessian
 SCALE_A	src/FullSystem/HessianBlocks.h	64;"	d
 SCALE_A_INVERSE	src/FullSystem/HessianBlocks.h	73;"	d
 SCALE_B	src/FullSystem/HessianBlocks.h	65;"	d
@@ -705,13 +370,13 @@ SCALE_XI_TRANS_INVERSE	src/FullSystem/HessianBlocks.h	69;"	d
 ab_exposure	src/FullSystem/HessianBlocks.h	/^	float ab_exposure;$/;"	m	struct:fdso::FrameHessian
 absSquaredGrad	src/FullSystem/HessianBlocks.h	/^	float* absSquaredGrad[PYR_LEVELS];  \/\/ only used for pixel select (histograms etc.). no NAN.$/;"	m	struct:fdso::FrameHessian
 affFromTo	src/FullSystem/HessianBlocks.h	/^inline Vec2 affFromTo(Vec2 from, Vec2 to)	\/\/ contains affine parameters as XtoWorld.$/;"	f	namespace:fdso
-aff_g2l	src/FullSystem/HessianBlocks.h	/^    	inline AffLight aff_g2l() const {return AffLight(get_state_scaled()[6], get_state_scaled()[7]);}$/;"	f	struct:fdso::FrameHessian
-aff_g2l_0	src/FullSystem/HessianBlocks.h	/^    	inline AffLight aff_g2l_0() const {return AffLight(get_state_zero()[6]*SCALE_A, get_state_zero()[7]*SCALE_B);}$/;"	f	struct:fdso::FrameHessian
+aff_g2l	src/FullSystem/HessianBlocks.h	/^	inline AffLight aff_g2l() const {return AffLight(get_state_scaled()[6], get_state_scaled()[7]);}$/;"	f	struct:fdso::FrameHessian
+aff_g2l_0	src/FullSystem/HessianBlocks.h	/^	inline AffLight aff_g2l_0() const {return AffLight(get_state_zero()[6] * SCALE_A, get_state_zero()[7] * SCALE_B);}$/;"	f	struct:fdso::FrameHessian
 color	src/FullSystem/HessianBlocks.h	/^	float color[MAX_RES_PER_POINT];			\/\/ colors in host frame$/;"	m	struct:fdso::PointHessian
-cxl	src/FullSystem/HessianBlocks.h	/^    inline float& cxl() {return value_scaledf[2];}$/;"	f	struct:fdso::CalibHessian
-cxli	src/FullSystem/HessianBlocks.h	/^    inline float& cxli() {return value_scaledi[2];}$/;"	f	struct:fdso::CalibHessian
-cyl	src/FullSystem/HessianBlocks.h	/^    inline float& cyl() {return value_scaledf[3];}$/;"	f	struct:fdso::CalibHessian
-cyli	src/FullSystem/HessianBlocks.h	/^    inline float& cyli() {return value_scaledi[3];}$/;"	f	struct:fdso::CalibHessian
+cxl	src/FullSystem/HessianBlocks.h	/^	inline float& cxl() {return value_scaledf[2];}$/;"	f	struct:fdso::CalibHessian
+cxli	src/FullSystem/HessianBlocks.h	/^	inline float& cxli() {return value_scaledi[2];}$/;"	f	struct:fdso::CalibHessian
+cyl	src/FullSystem/HessianBlocks.h	/^	inline float& cyl() {return value_scaledf[3];}$/;"	f	struct:fdso::CalibHessian
+cyli	src/FullSystem/HessianBlocks.h	/^	inline float& cyli() {return value_scaledi[3];}$/;"	f	struct:fdso::CalibHessian
 dI	src/FullSystem/HessianBlocks.h	/^	Eigen::Vector3f* dI;				 \/\/ trace, fine tracking. Used for direction select (not for gradient histograms etc.)$/;"	m	struct:fdso::FrameHessian
 dIp	src/FullSystem/HessianBlocks.h	/^	Eigen::Vector3f* dIp[PYR_LEVELS];	 \/\/ coarse tracking \/ coarse initializer. NAN in [0] only.$/;"	m	struct:fdso::FrameHessian
 debugImage	src/FullSystem/HessianBlocks.h	/^	MinimalImageB3* debugImage;$/;"	m	struct:fdso::FrameHessian
@@ -723,19 +388,19 @@ fdso	src/FullSystem/HessianBlocks.h	/^namespace fdso$/;"	n
 flaggedForMarginalization	src/FullSystem/HessianBlocks.h	/^	bool flaggedForMarginalization;$/;"	m	struct:fdso::FrameHessian
 frameEnergyTH	src/FullSystem/HessianBlocks.h	/^	float frameEnergyTH;	\/\/ set dynamically depending on tracking residual$/;"	m	struct:fdso::FrameHessian
 frameID	src/FullSystem/HessianBlocks.h	/^	int frameID;						\/\/ incremental ID for keyframes only!$/;"	m	struct:fdso::FrameHessian
-fxl	src/FullSystem/HessianBlocks.h	/^    inline float& fxl() {return value_scaledf[0];}$/;"	f	struct:fdso::CalibHessian
-fxli	src/FullSystem/HessianBlocks.h	/^    inline float& fxli() {return value_scaledi[0];}$/;"	f	struct:fdso::CalibHessian
-fyl	src/FullSystem/HessianBlocks.h	/^    inline float& fyl() {return value_scaledf[1];}$/;"	f	struct:fdso::CalibHessian
-fyli	src/FullSystem/HessianBlocks.h	/^    inline float& fyli() {return value_scaledi[1];}$/;"	f	struct:fdso::CalibHessian
+fxl	src/FullSystem/HessianBlocks.h	/^	inline float& fxl() {return value_scaledf[0];}$/;"	f	struct:fdso::CalibHessian
+fxli	src/FullSystem/HessianBlocks.h	/^	inline float& fxli() {return value_scaledi[0];}$/;"	f	struct:fdso::CalibHessian
+fyl	src/FullSystem/HessianBlocks.h	/^	inline float& fyl() {return value_scaledf[1];}$/;"	f	struct:fdso::CalibHessian
+fyli	src/FullSystem/HessianBlocks.h	/^	inline float& fyli() {return value_scaledi[1];}$/;"	f	struct:fdso::CalibHessian
 getBGradOnly	src/FullSystem/HessianBlocks.h	/^	EIGEN_STRONG_INLINE float getBGradOnly(float color)$/;"	f	struct:fdso::CalibHessian
 getBInvGradOnly	src/FullSystem/HessianBlocks.h	/^	EIGEN_STRONG_INLINE float getBInvGradOnly(float color)$/;"	f	struct:fdso::CalibHessian
 getPrior	src/FullSystem/HessianBlocks.h	/^	inline Vec10 getPrior()$/;"	f	struct:fdso::FrameHessian
 getPriorZero	src/FullSystem/HessianBlocks.h	/^	inline Vec10 getPriorZero()$/;"	f	struct:fdso::FrameHessian
-get_state	src/FullSystem/HessianBlocks.h	/^    EIGEN_STRONG_INLINE const Vec10 &get_state() const {return state;}$/;"	f	struct:fdso::FrameHessian
-get_state_minus_stateZero	src/FullSystem/HessianBlocks.h	/^    EIGEN_STRONG_INLINE const Vec10 get_state_minus_stateZero() const {return get_state() - get_state_zero();}$/;"	f	struct:fdso::FrameHessian
-get_state_scaled	src/FullSystem/HessianBlocks.h	/^    EIGEN_STRONG_INLINE const Vec10 &get_state_scaled() const {return state_scaled;}$/;"	f	struct:fdso::FrameHessian
-get_state_zero	src/FullSystem/HessianBlocks.h	/^    EIGEN_STRONG_INLINE const Vec10 &get_state_zero() const {return state_zero;}$/;"	f	struct:fdso::FrameHessian
-get_worldToCam_evalPT	src/FullSystem/HessianBlocks.h	/^    EIGEN_STRONG_INLINE const SE3 &get_worldToCam_evalPT() const {return worldToCam_evalPT;}$/;"	f	struct:fdso::FrameHessian
+get_state	src/FullSystem/HessianBlocks.h	/^	EIGEN_STRONG_INLINE const Vec10 &get_state() const {return state;}$/;"	f	struct:fdso::FrameHessian
+get_state_minus_stateZero	src/FullSystem/HessianBlocks.h	/^	EIGEN_STRONG_INLINE const Vec10 get_state_minus_stateZero() const {return get_state() - get_state_zero();}$/;"	f	struct:fdso::FrameHessian
+get_state_scaled	src/FullSystem/HessianBlocks.h	/^	EIGEN_STRONG_INLINE const Vec10 &get_state_scaled() const {return state_scaled;}$/;"	f	struct:fdso::FrameHessian
+get_state_zero	src/FullSystem/HessianBlocks.h	/^	EIGEN_STRONG_INLINE const Vec10 &get_state_zero() const {return state_zero;}$/;"	f	struct:fdso::FrameHessian
+get_worldToCam_evalPT	src/FullSystem/HessianBlocks.h	/^	EIGEN_STRONG_INLINE const SE3 &get_worldToCam_evalPT() const {return worldToCam_evalPT;}$/;"	f	struct:fdso::FrameHessian
 hasDepthPrior	src/FullSystem/HessianBlocks.h	/^	bool hasDepthPrior;$/;"	m	struct:fdso::PointHessian
 host	src/FullSystem/HessianBlocks.h	/^	FrameHessian* host;	\/\/ defines row$/;"	m	struct:fdso::FrameFramePrecalc
 host	src/FullSystem/HessianBlocks.h	/^	FrameHessian* host;$/;"	m	struct:fdso::PointHessian
@@ -772,7 +437,7 @@ setEvalPT_scaled	src/FullSystem/HessianBlocks.h	/^	inline void setEvalPT_scaled(
 setIdepth	src/FullSystem/HessianBlocks.h	/^	inline void setIdepth(float idepth) {$/;"	f	struct:fdso::PointHessian
 setIdepthScaled	src/FullSystem/HessianBlocks.h	/^	inline void setIdepthScaled(float idepth_scaled) {$/;"	f	struct:fdso::PointHessian
 setIdepthZero	src/FullSystem/HessianBlocks.h	/^	inline void setIdepthZero(float idepth) {$/;"	f	struct:fdso::PointHessian
-setPointStatus	src/FullSystem/HessianBlocks.h	/^    inline void setPointStatus(PtStatus s) {status=s;}$/;"	f	struct:fdso::PointHessian
+setPointStatus	src/FullSystem/HessianBlocks.h	/^	inline void setPointStatus(PtStatus s) {status = s;}$/;"	f	struct:fdso::PointHessian
 setState	src/FullSystem/HessianBlocks.h	/^	inline void setState(Vec10 state)$/;"	f	struct:fdso::FrameHessian
 setStateScaled	src/FullSystem/HessianBlocks.h	/^	inline void setStateScaled(Vec10 state_scaled)$/;"	f	struct:fdso::FrameHessian
 setValue	src/FullSystem/HessianBlocks.h	/^	inline void setValue(VecC value)$/;"	f	struct:fdso::CalibHessian
@@ -790,9 +455,9 @@ step_backup	src/FullSystem/HessianBlocks.h	/^	Vec10 step_backup;$/;"	m	struct:fd
 step_backup	src/FullSystem/HessianBlocks.h	/^	VecC step_backup;$/;"	m	struct:fdso::CalibHessian
 step_backup	src/FullSystem/HessianBlocks.h	/^	float step_backup;$/;"	m	struct:fdso::PointHessian
 target	src/FullSystem/HessianBlocks.h	/^	FrameHessian* target;	\/\/ defines column$/;"	m	struct:fdso::FrameFramePrecalc
-targetPrecalc	src/FullSystem/HessianBlocks.h	/^	std::vector<FrameFramePrecalc,Eigen::aligned_allocator<FrameFramePrecalc>> targetPrecalc;$/;"	m	struct:fdso::FrameHessian
-u	src/FullSystem/HessianBlocks.h	/^	float u,v;$/;"	m	struct:fdso::PointHessian
-v	src/FullSystem/HessianBlocks.h	/^	float u,v;$/;"	m	struct:fdso::PointHessian
+targetPrecalc	src/FullSystem/HessianBlocks.h	/^	std::vector<FrameFramePrecalc, Eigen::aligned_allocator<FrameFramePrecalc>> targetPrecalc;$/;"	m	struct:fdso::FrameHessian
+u	src/FullSystem/HessianBlocks.h	/^	float u, v;$/;"	m	struct:fdso::PointHessian
+v	src/FullSystem/HessianBlocks.h	/^	float u, v;$/;"	m	struct:fdso::PointHessian
 value	src/FullSystem/HessianBlocks.h	/^	VecC value;$/;"	m	struct:fdso::CalibHessian
 value_backup	src/FullSystem/HessianBlocks.h	/^	VecC value_backup;$/;"	m	struct:fdso::CalibHessian
 value_minus_value_zero	src/FullSystem/HessianBlocks.h	/^	VecC value_minus_value_zero;$/;"	m	struct:fdso::CalibHessian
@@ -800,13 +465,13 @@ value_scaled	src/FullSystem/HessianBlocks.h	/^	VecC value_scaled;$/;"	m	struct:f
 value_scaledf	src/FullSystem/HessianBlocks.h	/^	VecCf value_scaledf;$/;"	m	struct:fdso::CalibHessian
 value_scaledi	src/FullSystem/HessianBlocks.h	/^	VecCf value_scaledi;$/;"	m	struct:fdso::CalibHessian
 value_zero	src/FullSystem/HessianBlocks.h	/^	VecC value_zero;$/;"	m	struct:fdso::CalibHessian
-w2c_leftEps	src/FullSystem/HessianBlocks.h	/^    	inline Vec6 w2c_leftEps() const {return get_state_scaled().head<6>();}$/;"	f	struct:fdso::FrameHessian
+w2c_leftEps	src/FullSystem/HessianBlocks.h	/^	inline Vec6 w2c_leftEps() const {return get_state_scaled().head<6>();}$/;"	f	struct:fdso::FrameHessian
 weights	src/FullSystem/HessianBlocks.h	/^	float weights[MAX_RES_PER_POINT];		\/\/ host-weights for respective residuals.$/;"	m	struct:fdso::PointHessian
 worldToCam_evalPT	src/FullSystem/HessianBlocks.h	/^	SE3 worldToCam_evalPT;$/;"	m	struct:fdso::FrameHessian
-~CalibHessian	src/FullSystem/HessianBlocks.h	/^    	inline ~CalibHessian() {instanceCounter--;}$/;"	f	struct:fdso::CalibHessian
-~FrameFramePrecalc	src/FullSystem/HessianBlocks.h	/^    inline ~FrameFramePrecalc() {}$/;"	f	struct:fdso::FrameFramePrecalc
+~CalibHessian	src/FullSystem/HessianBlocks.h	/^	inline ~CalibHessian() {instanceCounter--;}$/;"	f	struct:fdso::CalibHessian
+~FrameFramePrecalc	src/FullSystem/HessianBlocks.h	/^	inline ~FrameFramePrecalc() {}$/;"	f	struct:fdso::FrameFramePrecalc
 ~FrameHessian	src/FullSystem/HessianBlocks.h	/^	inline ~FrameHessian()$/;"	f	struct:fdso::FrameHessian
-~PointHessian	src/FullSystem/HessianBlocks.h	/^    inline ~PointHessian() {assert(efPoint==0); release(); instanceCounter--;}$/;"	f	struct:fdso::PointHessian
+~PointHessian	src/FullSystem/HessianBlocks.h	/^	inline ~PointHessian() {assert(efPoint == 0); release(); instanceCounter--;}$/;"	f	struct:fdso::PointHessian
 ImmaturePoint	src/FullSystem/ImmaturePoint.cpp	/^ImmaturePoint::ImmaturePoint(float u_, float v_, FrameHessian* host_, CalibHessian* HCalib)$/;"	f	class:fdso::ImmaturePoint
 ImmaturePoint	src/FullSystem/ImmaturePoint.cpp	/^ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, CalibHessian* HCalib)$/;"	f	class:fdso::ImmaturePoint
 calcResidual	src/FullSystem/ImmaturePoint.cpp	/^float ImmaturePoint::calcResidual($/;"	f	class:fdso::ImmaturePoint
@@ -817,12 +482,12 @@ traceOn	src/FullSystem/ImmaturePoint.cpp	/^ImmaturePointStatus ImmaturePoint::tr
 traceStereo	src/FullSystem/ImmaturePoint.cpp	/^ImmaturePointStatus ImmaturePoint::traceStereo(FrameHessian* frame, Mat33f K, bool mode_right)$/;"	f	class:fdso::ImmaturePoint
 ~ImmaturePoint	src/FullSystem/ImmaturePoint.cpp	/^ImmaturePoint::~ImmaturePoint()$/;"	f	class:fdso::ImmaturePoint
 EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/FullSystem/ImmaturePoint.h	/^	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	class:fdso::ImmaturePoint
-IPS_BADCONDITION	src/FullSystem/ImmaturePoint.h	/^	IPS_BADCONDITION,			\/\/ not traced because of bad condition.$/;"	e	enum:fdso::ImmaturePointStatus
-IPS_GOOD	src/FullSystem/ImmaturePoint.h	/^	IPS_GOOD=0,					\/\/ traced well and good$/;"	e	enum:fdso::ImmaturePointStatus
-IPS_OOB	src/FullSystem/ImmaturePoint.h	/^	IPS_OOB,					\/\/ OOB: end tracking & marginalize!$/;"	e	enum:fdso::ImmaturePointStatus
-IPS_OUTLIER	src/FullSystem/ImmaturePoint.h	/^	IPS_OUTLIER,				\/\/ energy too high: if happens again: outlier!$/;"	e	enum:fdso::ImmaturePointStatus
-IPS_SKIPPED	src/FullSystem/ImmaturePoint.h	/^	IPS_SKIPPED,				\/\/ traced well and good (but not actually traced).$/;"	e	enum:fdso::ImmaturePointStatus
-IPS_UNINITIALIZED	src/FullSystem/ImmaturePoint.h	/^	IPS_UNINITIALIZED};			\/\/ not even traced once.$/;"	e	enum:fdso::ImmaturePointStatus
+IPS_BADCONDITION	src/FullSystem/ImmaturePoint.h	/^	IPS_BADCONDITION,			\/\/ not traced because of bad condition.		最大逆深度值不好了，且像素误差大于距离了$/;"	e	enum:fdso::ImmaturePointStatus
+IPS_GOOD	src/FullSystem/ImmaturePoint.h	/^	IPS_GOOD = 0,					\/\/ traced well and good     跟踪好的点$/;"	e	enum:fdso::ImmaturePointStatus
+IPS_OOB	src/FullSystem/ImmaturePoint.h	/^	IPS_OOB,					\/\/ OOB: end tracking & marginalize!	停止跟踪需要边缘化的点,超出图像的点$/;"	e	enum:fdso::ImmaturePointStatus
+IPS_OUTLIER	src/FullSystem/ImmaturePoint.h	/^	IPS_OUTLIER,				\/\/ energy too high: if happens again: outlier!		计算的误差过大，需要剔除的点，逆深度值不好的点$/;"	e	enum:fdso::ImmaturePointStatus
+IPS_SKIPPED	src/FullSystem/ImmaturePoint.h	/^	IPS_SKIPPED,				\/\/ traced well and good (but not actually traced).	跟踪好的，但最大和最小逆深度算出来的像素坐标差距过小，不进行迭代$/;"	e	enum:fdso::ImmaturePointStatus
+IPS_UNINITIALIZED	src/FullSystem/ImmaturePoint.h	/^	IPS_UNINITIALIZED 			\/\/ not even traced once.					一次都没跟踪的点，初始的状态$/;"	e	enum:fdso::ImmaturePointStatus
 ImmaturePoint	src/FullSystem/ImmaturePoint.h	/^class ImmaturePoint$/;"	c	namespace:fdso
 ImmaturePointStatus	src/FullSystem/ImmaturePoint.h	/^enum ImmaturePointStatus {$/;"	g	namespace:fdso
 ImmaturePointTemporaryResidual	src/FullSystem/ImmaturePoint.h	/^struct ImmaturePointTemporaryResidual$/;"	s	namespace:fdso
@@ -849,9 +514,9 @@ state_NewState	src/FullSystem/ImmaturePoint.h	/^	ResState state_NewState;$/;"	m	
 state_energy	src/FullSystem/ImmaturePoint.h	/^	double state_energy;$/;"	m	struct:fdso::ImmaturePointTemporaryResidual
 state_state	src/FullSystem/ImmaturePoint.h	/^	ResState state_state;$/;"	m	struct:fdso::ImmaturePointTemporaryResidual
 target	src/FullSystem/ImmaturePoint.h	/^	FrameHessian* target;$/;"	m	struct:fdso::ImmaturePointTemporaryResidual
-u	src/FullSystem/ImmaturePoint.h	/^	float u,v;$/;"	m	class:fdso::ImmaturePoint
+u	src/FullSystem/ImmaturePoint.h	/^	float u, v;$/;"	m	class:fdso::ImmaturePoint
 u_stereo	src/FullSystem/ImmaturePoint.h	/^	float u_stereo, v_stereo;  \/\/ u, v used to do static stereo matching$/;"	m	class:fdso::ImmaturePoint
-v	src/FullSystem/ImmaturePoint.h	/^	float u,v;$/;"	m	class:fdso::ImmaturePoint
+v	src/FullSystem/ImmaturePoint.h	/^	float u, v;$/;"	m	class:fdso::ImmaturePoint
 v_stereo	src/FullSystem/ImmaturePoint.h	/^	float u_stereo, v_stereo;  \/\/ u, v used to do static stereo matching$/;"	m	class:fdso::ImmaturePoint
 weights	src/FullSystem/ImmaturePoint.h	/^	float weights[MAX_RES_PER_POINT];$/;"	m	class:fdso::ImmaturePoint
 toCvMat	src/FullSystem/ORB/Converter.cpp	/^cv::Mat Converter::toCvMat(const Eigen::Matrix3d &m)$/;"	f	class:Converter
@@ -868,6 +533,37 @@ toVector3d	src/FullSystem/ORB/Converter.cpp	/^Eigen::Matrix<double,3,1> Converte
 toVector3d	src/FullSystem/ORB/Converter.cpp	/^Eigen::Matrix<double,3,1> Converter::toVector3d(const cv::Point3f &cvPoint)$/;"	f	class:Converter
 CONVERTER_H	src/FullSystem/ORB/Converter.h	2;"	d
 Converter	src/FullSystem/ORB/Converter.h	/^class Converter$/;"	c
+ComputeAngleAndDescriptor	src/FullSystem/ORB/FeatureDetector.cpp	/^void FeatureDetector::ComputeAngleAndDescriptor(Frame* frame)$/;"	f	class:ygz::FeatureDetector
+ComputeDescriptor	src/FullSystem/ORB/FeatureDetector.cpp	/^void FeatureDetector::ComputeDescriptor( Feature* fea )$/;"	f	class:ygz::FeatureDetector
+ComputeOrbDescriptor	src/FullSystem/ORB/FeatureDetector.cpp	/^void FeatureDetector::ComputeOrbDescriptor($/;"	f	class:ygz::FeatureDetector
+Detect	src/FullSystem/ORB/FeatureDetector.cpp	/^void FeatureDetector::Detect(Frame* frame, bool overwrite_existing_features)$/;"	f	class:ygz::FeatureDetector
+FeatureDetector	src/FullSystem/ORB/FeatureDetector.cpp	/^FeatureDetector::FeatureDetector()$/;"	f	class:ygz::FeatureDetector
+GET_VALUE	src/FullSystem/ORB/FeatureDetector.cpp	549;"	d	file:
+GET_VALUE	src/FullSystem/ORB/FeatureDetector.cpp	576;"	d	file:
+IC_Angle	src/FullSystem/ORB/FeatureDetector.cpp	/^float FeatureDetector::IC_Angle($/;"	f	class:ygz::FeatureDetector
+LoadParams	src/FullSystem/ORB/FeatureDetector.cpp	/^void FeatureDetector::LoadParams()$/;"	f	class:ygz::FeatureDetector
+SetExistingFeatures	src/FullSystem/ORB/FeatureDetector.cpp	/^void FeatureDetector::SetExistingFeatures ( Frame* frame )$/;"	f	class:ygz::FeatureDetector
+ShiTomasiScore	src/FullSystem/ORB/FeatureDetector.cpp	/^float FeatureDetector::ShiTomasiScore ( const cv::Mat& img, const int& u, const int& v ) const$/;"	f	class:ygz::FeatureDetector
+bit_pattern_31_	src/FullSystem/ORB/FeatureDetector.cpp	/^static int bit_pattern_31_[256 * 4] =$/;"	m	namespace:ygz	file:
+ygz	src/FullSystem/ORB/FeatureDetector.cpp	/^namespace ygz$/;"	n	file:
+EDGE_THRESHOLD	src/FullSystem/ORB/FeatureDetector.h	/^    const int EDGE_THRESHOLD = 19;$/;"	m	class:fdso::FeatureDetector
+FeatureDetector	src/FullSystem/ORB/FeatureDetector.h	/^class FeatureDetector$/;"	c	namespace:fdso
+HALF_PATCH_SIZE	src/FullSystem/ORB/FeatureDetector.h	/^    const int HALF_PATCH_SIZE = 15;$/;"	m	class:fdso::FeatureDetector
+Option	src/FullSystem/ORB/FeatureDetector.h	/^    struct Option {$/;"	s	class:fdso::FeatureDetector
+PATCH_SIZE	src/FullSystem/ORB/FeatureDetector.h	/^    const int PATCH_SIZE = 31;$/;"	m	class:fdso::FeatureDetector
+YGZ_FEATUREDETECTOR_H_	src/FullSystem/ORB/FeatureDetector.h	28;"	d
+_cell_size	src/FullSystem/ORB/FeatureDetector.h	/^        int _cell_size;                             \/\/ 网格大小$/;"	m	struct:fdso::FeatureDetector::Option
+_detection_threshold	src/FullSystem/ORB/FeatureDetector.h	/^        double _detection_threshold = 20.0;         \/\/ 特征响应阈值$/;"	m	struct:fdso::FeatureDetector::Option
+_grid_cols	src/FullSystem/ORB/FeatureDetector.h	/^        int _grid_rows = 0, _grid_cols = 0;         \/\/ 网格矩阵的行和列$/;"	m	struct:fdso::FeatureDetector::Option
+_grid_rows	src/FullSystem/ORB/FeatureDetector.h	/^        int _grid_rows = 0, _grid_cols = 0;         \/\/ 网格矩阵的行和列$/;"	m	struct:fdso::FeatureDetector::Option
+_image_height	src/FullSystem/ORB/FeatureDetector.h	/^        int _image_width = 640, _image_height = 480; \/\/ 图像长宽，用以计算网格$/;"	m	struct:fdso::FeatureDetector::Option
+_image_width	src/FullSystem/ORB/FeatureDetector.h	/^        int _image_width = 640, _image_height = 480; \/\/ 图像长宽，用以计算网格$/;"	m	struct:fdso::FeatureDetector::Option
+_new_features	src/FullSystem/ORB/FeatureDetector.h	/^    std::vector<Feature*> _new_features;$/;"	m	class:fdso::FeatureDetector
+_old_features	src/FullSystem/ORB/FeatureDetector.h	/^    std::vector<Feature*> _old_features;$/;"	m	class:fdso::FeatureDetector
+_option	src/FullSystem/ORB/FeatureDetector.h	/^    } _option;$/;"	m	class:fdso::FeatureDetector	typeref:struct:fdso::FeatureDetector::Option
+_pattern	src/FullSystem/ORB/FeatureDetector.h	/^    std::vector<cv::Point>   _pattern;$/;"	m	class:fdso::FeatureDetector
+_umax	src/FullSystem/ORB/FeatureDetector.h	/^    std::vector<int>    _umax;$/;"	m	class:fdso::FeatureDetector
+fdso	src/FullSystem/ORB/FeatureDetector.h	/^namespace fdso$/;"	n
 ComputeKeyPointsOctTree	src/FullSystem/ORB/ORBextractor.cpp	/^void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoints)$/;"	f	class:ORBextractor
 ComputeKeyPointsOld	src/FullSystem/ORB/ORBextractor.cpp	/^void ORBextractor::ComputeKeyPointsOld(std::vector<std::vector<KeyPoint> > &allKeypoints)$/;"	f	class:ORBextractor
 ComputePyramid	src/FullSystem/ORB/ORBextractor.cpp	/^void ORBextractor::ComputePyramid(cv::Mat image)$/;"	f	class:ORBextractor
@@ -1037,18 +733,18 @@ instanceCounter	src/FullSystem/Residuals.cpp	/^int PointFrameResidual::instanceC
 linearize	src/FullSystem/Residuals.cpp	/^double PointFrameResidual::linearize(CalibHessian* HCalib)$/;"	f	class:fdso::PointFrameResidual
 runningResID	src/FullSystem/Residuals.cpp	/^long runningResID=0;$/;"	m	namespace:fdso	file:
 ~PointFrameResidual	src/FullSystem/Residuals.cpp	/^PointFrameResidual::~PointFrameResidual(){assert(efResidual==0); instanceCounter--; delete J;}$/;"	f	class:fdso::PointFrameResidual
-ACTIVE	src/FullSystem/Residuals.h	/^enum ResLocation {ACTIVE=0, LINEARIZED, MARGINALIZED, NONE};$/;"	e	enum:fdso::ResLocation
+ACTIVE	src/FullSystem/Residuals.h	/^enum ResLocation {ACTIVE = 0, LINEARIZED, MARGINALIZED, NONE};$/;"	e	enum:fdso::ResLocation
 FullJacRowT	src/FullSystem/Residuals.h	/^struct FullJacRowT$/;"	s	namespace:fdso
-IN	src/FullSystem/Residuals.h	/^enum ResState {IN=0, OOB, OUTLIER};$/;"	e	enum:fdso::ResState
+IN	src/FullSystem/Residuals.h	/^enum ResState {IN = 0, OOB, OUTLIER};$/;"	e	enum:fdso::ResState
 J	src/FullSystem/Residuals.h	/^	RawResidualJacobian* J;$/;"	m	class:fdso::PointFrameResidual
-LINEARIZED	src/FullSystem/Residuals.h	/^enum ResLocation {ACTIVE=0, LINEARIZED, MARGINALIZED, NONE};$/;"	e	enum:fdso::ResLocation
-MARGINALIZED	src/FullSystem/Residuals.h	/^enum ResLocation {ACTIVE=0, LINEARIZED, MARGINALIZED, NONE};$/;"	e	enum:fdso::ResLocation
-NONE	src/FullSystem/Residuals.h	/^enum ResLocation {ACTIVE=0, LINEARIZED, MARGINALIZED, NONE};$/;"	e	enum:fdso::ResLocation
-OOB	src/FullSystem/Residuals.h	/^enum ResState {IN=0, OOB, OUTLIER};$/;"	e	enum:fdso::ResState
-OUTLIER	src/FullSystem/Residuals.h	/^enum ResState {IN=0, OOB, OUTLIER};$/;"	e	enum:fdso::ResState
+LINEARIZED	src/FullSystem/Residuals.h	/^enum ResLocation {ACTIVE = 0, LINEARIZED, MARGINALIZED, NONE};$/;"	e	enum:fdso::ResLocation
+MARGINALIZED	src/FullSystem/Residuals.h	/^enum ResLocation {ACTIVE = 0, LINEARIZED, MARGINALIZED, NONE};$/;"	e	enum:fdso::ResLocation
+NONE	src/FullSystem/Residuals.h	/^enum ResLocation {ACTIVE = 0, LINEARIZED, MARGINALIZED, NONE};$/;"	e	enum:fdso::ResLocation
+OOB	src/FullSystem/Residuals.h	/^enum ResState {IN = 0, OOB, OUTLIER};$/;"	e	enum:fdso::ResState
+OUTLIER	src/FullSystem/Residuals.h	/^enum ResState {IN = 0, OOB, OUTLIER};$/;"	e	enum:fdso::ResState
 PointFrameResidual	src/FullSystem/Residuals.h	/^class PointFrameResidual$/;"	c	namespace:fdso
-ResLocation	src/FullSystem/Residuals.h	/^enum ResLocation {ACTIVE=0, LINEARIZED, MARGINALIZED, NONE};$/;"	g	namespace:fdso
-ResState	src/FullSystem/Residuals.h	/^enum ResState {IN=0, OOB, OUTLIER};$/;"	g	namespace:fdso
+ResLocation	src/FullSystem/Residuals.h	/^enum ResLocation {ACTIVE = 0, LINEARIZED, MARGINALIZED, NONE};$/;"	g	namespace:fdso
+ResState	src/FullSystem/Residuals.h	/^enum ResState {IN = 0, OOB, OUTLIER};$/;"	g	namespace:fdso
 centerProjectedTo	src/FullSystem/Residuals.h	/^	Vec3f centerProjectedTo;$/;"	m	class:fdso::PointFrameResidual
 efResidual	src/FullSystem/Residuals.h	/^	EFResidual* efResidual;$/;"	m	class:fdso::PointFrameResidual
 fdso	src/FullSystem/Residuals.h	/^namespace fdso$/;"	n
@@ -1684,6 +1380,88 @@ source	src/main_dso_pangolin.cpp	/^std::string source = "";$/;"	v
 start	src/main_dso_pangolin.cpp	/^int start=0;$/;"	v
 useSampleOutput	src/main_dso_pangolin.cpp	/^bool useSampleOutput=false;$/;"	v
 vignette	src/main_dso_pangolin.cpp	/^std::string vignette = "";$/;"	v
+AffLight	src/test/myTracking.cpp	/^    AffLight() : a(0), b(0) {};$/;"	f	class:AffLight
+AffLight	src/test/myTracking.cpp	/^    AffLight(double a_, double b_) : a(a_), b(b_) {};$/;"	f	class:AffLight
+AffLight	src/test/myTracking.cpp	/^class AffLight$/;"	c	file:
+AlignmentFactor	src/test/myTracking.cpp	/^    AlignmentFactor(Eigen::Vector3d* _dINewl,$/;"	f	class:AlignmentFactor
+AlignmentFactor	src/test/myTracking.cpp	/^class AlignmentFactor : public ceres::SizedCostFunction<1, 6, 2>$/;"	c	file:
+EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/test/myTracking.cpp	/^    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	class:AlignmentFactor	file:
+Evaluate	src/test/myTracking.cpp	/^    bool Evaluate(double const *const *parameters, double *residuals, double **jacobians) const$/;"	f	class:AlignmentFactor
+K	src/test/myTracking.cpp	/^    Eigen::Matrix3d K, Ki;$/;"	m	class:AlignmentFactor	file:
+K	src/test/myTracking.cpp	/^Eigen::Matrix3d K[PYR_LEVELS], Ki[PYR_LEVELS];$/;"	v
+Ki	src/test/myTracking.cpp	/^    Eigen::Matrix3d K, Ki;$/;"	m	class:AlignmentFactor	file:
+Ki	src/test/myTracking.cpp	/^Eigen::Matrix3d K[PYR_LEVELS], Ki[PYR_LEVELS];$/;"	v
+PYR_LEVELS	src/test/myTracking.cpp	223;"	d	file:
+SplitString	src/test/myTracking.cpp	/^void SplitString(const string& s, vector<string>& v, const string& c)$/;"	f
+a	src/test/myTracking.cpp	/^    double a, b; \/\/ I_frame = exp(a)*I_global + b. \/\/ I_global = exp(-a)*(I_frame - b).$/;"	m	class:AffLight	file:
+b	src/test/myTracking.cpp	/^    double a, b; \/\/ I_frame = exp(a)*I_global + b. \/\/ I_global = exp(-a)*(I_frame - b).$/;"	m	class:AffLight	file:
+cutoffTH	src/test/myTracking.cpp	/^    double cutoffTH;$/;"	m	class:AlignmentFactor	file:
+dINewl	src/test/myTracking.cpp	/^    Eigen::Vector3d* dINewl;$/;"	m	class:AlignmentFactor	file:
+dINewl	src/test/myTracking.cpp	/^Eigen::Vector3d* dINewl[PYR_LEVELS];$/;"	v
+eigen2para	src/test/myTracking.cpp	/^void eigen2para(Eigen::Matrix4d T, AffLight ab, double* para_Pose, double* para_AB)$/;"	f
+fromToVecExposure	src/test/myTracking.cpp	/^    static Eigen::Vector2d fromToVecExposure(double exposureF, double exposureT, AffLight g2F, AffLight g2T)$/;"	f	class:AffLight
+getInterpolatedElement33	src/test/myTracking.cpp	/^EIGEN_ALWAYS_INLINE Eigen::Vector3d getInterpolatedElement33(const Eigen::Vector3d* const mat, const double x, const double y, const int width)$/;"	f
+h	src/test/myTracking.cpp	/^int w[PYR_LEVELS], h[PYR_LEVELS];$/;"	v
+height	src/test/myTracking.cpp	/^    int height;$/;"	m	class:AlignmentFactor	file:
+hh	src/test/myTracking.cpp	/^int hh = 320;$/;"	v
+idepth	src/test/myTracking.cpp	/^    double idepth;$/;"	m	class:AlignmentFactor	file:
+init_T	src/test/myTracking.cpp	/^Eigen::Matrix4d init_T, result_T;$/;"	v
+init_ab	src/test/myTracking.cpp	/^AffLight init_ab, result_ab,ref_ab;$/;"	v
+lastFlowIndicators	src/test/myTracking.cpp	/^Eigen::Vector3d lastFlowIndicators;$/;"	v
+main	src/test/myTracking.cpp	/^int main(int argc, char** argv)$/;"	f
+numTermsInE	src/test/myTracking.cpp	/^int numTermsInE = 0;$/;"	v
+numTermsInE1	src/test/myTracking.cpp	/^int numTermsInE1 = 0;$/;"	v
+param2eigen	src/test/myTracking.cpp	/^void param2eigen(double* para_Pose, double* para_AB,Eigen::Matrix4d& T, AffLight& ab)$/;"	f
+pc_color	src/test/myTracking.cpp	/^double* pc_color[PYR_LEVELS];$/;"	v
+pc_idepth	src/test/myTracking.cpp	/^double* pc_idepth[PYR_LEVELS];$/;"	v
+pc_n	src/test/myTracking.cpp	/^int pc_n[PYR_LEVELS];$/;"	v
+pc_u	src/test/myTracking.cpp	/^double* pc_u[PYR_LEVELS];$/;"	v
+pc_v	src/test/myTracking.cpp	/^double* pc_v[PYR_LEVELS];$/;"	v
+projectRefToNew	src/test/myTracking.cpp	/^void projectRefToNew(Sophus::SE3 refToNew, Eigen::Matrix3d K, Eigen::Matrix3d Ki,$/;"	f
+pt	src/test/myTracking.cpp	/^    Eigen::Vector2d pt;$/;"	m	class:AlignmentFactor	file:
+pyrLevelsUsed	src/test/myTracking.cpp	/^int pyrLevelsUsed = 0;$/;"	v
+readData	src/test/myTracking.cpp	/^void readData(string path, int id)$/;"	f
+refColor	src/test/myTracking.cpp	/^    double refColor;$/;"	m	class:AlignmentFactor	file:
+ref_ab	src/test/myTracking.cpp	/^AffLight init_ab, result_ab,ref_ab;$/;"	v
+ref_aff_g2l	src/test/myTracking.cpp	/^    AffLight ref_aff_g2l;$/;"	m	class:AlignmentFactor	file:
+res	src/test/myTracking.cpp	/^Eigen::Matrix<double, 5, 1> res;$/;"	v
+result_T	src/test/myTracking.cpp	/^Eigen::Matrix4d init_T, result_T;$/;"	v
+result_ab	src/test/myTracking.cpp	/^AffLight init_ab, result_ab,ref_ab;$/;"	v
+setting_huberTH	src/test/myTracking.cpp	/^double setting_huberTH = 9.0;$/;"	v
+stringTodouble	src/test/myTracking.cpp	/^double stringTodouble(string s)$/;"	f
+stringTofloat	src/test/myTracking.cpp	/^double stringTofloat(string s)$/;"	f
+vec	src/test/myTracking.cpp	/^    Eigen::Vector2d vec()$/;"	f	class:AffLight
+w	src/test/myTracking.cpp	/^int w[PYR_LEVELS], h[PYR_LEVELS];$/;"	v
+width	src/test/myTracking.cpp	/^    int width;$/;"	m	class:AlignmentFactor	file:
+ww	src/test/myTracking.cpp	/^int ww = 424;$/;"	v
+ComputeJacobian	src/test/pose_local_parameterization.cpp	/^bool PoseLocalParameterization::ComputeJacobian(const double *x, double *jacobian) const$/;"	f	class:PoseLocalParameterization
+Plus	src/test/pose_local_parameterization.cpp	/^bool PoseLocalParameterization::Plus(const double *x, const double *delta, double *x_plus_delta) const$/;"	f	class:PoseLocalParameterization
+ComputeJacobian	src/test/pose_local_parameterization.h	/^  virtual bool ComputeJacobian(double const* T_raw,$/;"	f	class:LocalParameterizationSE3
+GlobalSize	src/test/pose_local_parameterization.h	/^    virtual int GlobalSize() const { return 7; };$/;"	f	class:PoseLocalParameterization
+GlobalSize	src/test/pose_local_parameterization.h	/^  virtual int GlobalSize() const { return Sophus::SE3::DoF; }$/;"	f	class:LocalParameterizationSE3
+LocalParameterizationSE3	src/test/pose_local_parameterization.h	/^class LocalParameterizationSE3 : public ceres::LocalParameterization {$/;"	c
+LocalSize	src/test/pose_local_parameterization.h	/^    virtual int LocalSize() const { return 6; };$/;"	f	class:PoseLocalParameterization
+LocalSize	src/test/pose_local_parameterization.h	/^  virtual int LocalSize() const { return Sophus::SE3::DoF; }$/;"	f	class:LocalParameterizationSE3
+Plus	src/test/pose_local_parameterization.h	/^  virtual bool Plus(double const* T_raw, double const* delta_raw,$/;"	f	class:LocalParameterizationSE3
+PoseLocalParameterization	src/test/pose_local_parameterization.h	/^class PoseLocalParameterization : public ceres::LocalParameterization$/;"	c
+~LocalParameterizationSE3	src/test/pose_local_parameterization.h	/^  virtual ~LocalParameterizationSE3() {}$/;"	f	class:LocalParameterizationSE3
+FunctionMonitor	src/test/utility.h	/^        FunctionMonitor(const char *_name)$/;"	f	class:Utility::FunctionMonitor
+FunctionMonitor	src/test/utility.h	/^    class FunctionMonitor$/;"	c	class:Utility
+Qleft	src/test/utility.h	/^    static Eigen::Matrix<typename Derived::Scalar, 4, 4> Qleft(const Eigen::QuaternionBase<Derived> &q)$/;"	f	class:Utility
+Qright	src/test/utility.h	/^    static Eigen::Matrix<typename Derived::Scalar, 4, 4> Qright(const Eigen::QuaternionBase<Derived> &p)$/;"	f	class:Utility
+R2ypr	src/test/utility.h	/^    static Eigen::Vector3d R2ypr(const Eigen::Matrix3d &R)$/;"	f	class:Utility
+Utility	src/test/utility.h	/^class Utility$/;"	c
+deltaQ	src/test/utility.h	/^    static Eigen::Quaternion<typename Derived::Scalar> deltaQ(const Eigen::MatrixBase<Derived> &theta)$/;"	f	class:Utility
+g2R	src/test/utility.h	/^    static Eigen::Matrix3d g2R(const Eigen::Vector3d &g)$/;"	f	class:Utility
+name	src/test/utility.h	/^        char name[1000];$/;"	m	class:Utility::FunctionMonitor
+positify	src/test/utility.h	/^    static Eigen::Quaternion<typename Derived::Scalar> positify(const Eigen::QuaternionBase<Derived> &q)$/;"	f	class:Utility
+skewSymmetric	src/test/utility.h	/^    static Eigen::Matrix<typename Derived::Scalar, 3, 3> skewSymmetric(const Eigen::MatrixBase<Derived> &q)$/;"	f	class:Utility
+t	src/test/utility.h	/^        double t;$/;"	m	class:Utility::FunctionMonitor
+uint_	src/test/utility.h	/^    struct uint_$/;"	s	class:Utility
+unroller	src/test/utility.h	/^    void unroller(const Lambda &f, const IterT &iter, uint_<0>)$/;"	f	class:Utility
+unroller	src/test/utility.h	/^    void unroller(const Lambda &f, const IterT &iter, uint_<N>)$/;"	f	class:Utility
+ypr2R	src/test/utility.h	/^    static Eigen::Matrix<typename Derived::Scalar, 3, 3> ypr2R(const Eigen::MatrixBase<Derived> &ypr)$/;"	f	class:Utility
+~FunctionMonitor	src/test/utility.h	/^        ~FunctionMonitor()$/;"	f	class:Utility::FunctionMonitor
 ImageFolderReader	src/util/DatasetReader.h	/^	ImageFolderReader(std::string path, std::string calibFile, std::string gammaFile, std::string vignetteFile)$/;"	f	class:ImageFolderReader
 ImageFolderReader	src/util/DatasetReader.h	/^class ImageFolderReader$/;"	c
 PrepImageItem	src/util/DatasetReader.h	/^	inline PrepImageItem(int _id)$/;"	f	struct:PrepImageItem
@@ -1746,16 +1524,16 @@ statistics_outlierResOnThis	src/util/FrameShell.h	/^	int statistics_outlierResOn
 timestamp	src/util/FrameShell.h	/^	double timestamp;		\/\/ timestamp passed into DSO.$/;"	m	class:fdso::FrameShell
 trackingRef	src/util/FrameShell.h	/^	FrameShell* trackingRef;$/;"	m	class:fdso::FrameShell
 EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/util/ImageAndExposure.h	/^	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	class:fdso::ImageAndExposure
-ImageAndExposure	src/util/ImageAndExposure.h	/^	inline ImageAndExposure(int w_, int h_, double timestamp_=0) : w(w_), h(h_), timestamp(timestamp_)$/;"	f	class:fdso::ImageAndExposure
+ImageAndExposure	src/util/ImageAndExposure.h	/^	inline ImageAndExposure(int w_, int h_, double timestamp_ = 0) : w(w_), h(h_), timestamp(timestamp_)$/;"	f	class:fdso::ImageAndExposure
 ImageAndExposure	src/util/ImageAndExposure.h	/^class ImageAndExposure$/;"	c	namespace:fdso
 copyMetaTo	src/util/ImageAndExposure.h	/^	inline void copyMetaTo(ImageAndExposure &other)$/;"	f	class:fdso::ImageAndExposure
 exposure_time	src/util/ImageAndExposure.h	/^	float exposure_time;	\/\/ exposure time in ms.$/;"	m	class:fdso::ImageAndExposure
 fdso	src/util/ImageAndExposure.h	/^namespace fdso$/;"	n
 getDeepCopy	src/util/ImageAndExposure.h	/^	inline ImageAndExposure* getDeepCopy()$/;"	f	class:fdso::ImageAndExposure
-h	src/util/ImageAndExposure.h	/^	int w,h;				\/\/ width and height;$/;"	m	class:fdso::ImageAndExposure
+h	src/util/ImageAndExposure.h	/^	int w, h;				\/\/ width and height;$/;"	m	class:fdso::ImageAndExposure
 image	src/util/ImageAndExposure.h	/^	float* image;			\/\/ irradiance. between 0 and 256$/;"	m	class:fdso::ImageAndExposure
 timestamp	src/util/ImageAndExposure.h	/^	double timestamp;$/;"	m	class:fdso::ImageAndExposure
-w	src/util/ImageAndExposure.h	/^	int w,h;				\/\/ width and height;$/;"	m	class:fdso::ImageAndExposure
+w	src/util/ImageAndExposure.h	/^	int w, h;				\/\/ width and height;$/;"	m	class:fdso::ImageAndExposure
 ~ImageAndExposure	src/util/ImageAndExposure.h	/^	inline ~ImageAndExposure()$/;"	f	class:fdso::ImageAndExposure
 EIGEN_MAKE_ALIGNED_OPERATOR_NEW	src/util/IndexThreadReduce.h	/^        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;$/;"	m	class:fdso::IndexThreadReduce
 IndexThreadReduce	src/util/IndexThreadReduce.h	/^	inline IndexThreadReduce()$/;"	f	class:fdso::IndexThreadReduce
@@ -1804,8 +1582,8 @@ w	src/util/MinimalImage.h	/^	int w;$/;"	m	class:fdso::MinimalImage
 AffLight	src/util/NumType.h	/^	AffLight() : a(0), b(0) {};$/;"	f	struct:fdso::AffLight
 AffLight	src/util/NumType.h	/^	AffLight(double a_, double b_) : a(a_), b(b_) {};$/;"	f	struct:fdso::AffLight
 AffLight	src/util/NumType.h	/^struct AffLight$/;"	s	namespace:fdso
-CPARS	src/util/NumType.h	54;"	d
-MAX_RES_PER_POINT	src/util/NumType.h	41;"	d
+CPARS	src/util/NumType.h	49;"	d
+MAX_RES_PER_POINT	src/util/NumType.h	40;"	d
 Mat1010	src/util/NumType.h	/^typedef Eigen::Matrix<double,10,10> Mat1010;$/;"	t	namespace:fdso
 Mat1010f	src/util/NumType.h	/^typedef Eigen::Matrix<float,10,10> Mat1010f;$/;"	t	namespace:fdso
 Mat103f	src/util/NumType.h	/^typedef Eigen::Matrix<float,10,3> Mat103f;$/;"	t	namespace:fdso
@@ -1855,10 +1633,10 @@ MatC8f	src/util/NumType.h	/^typedef Eigen::Matrix<float,CPARS,8> MatC8f;$/;"	t	n
 MatCC	src/util/NumType.h	/^typedef Eigen::Matrix<double,CPARS,CPARS> MatCC;$/;"	t	namespace:fdso
 MatPCPC	src/util/NumType.h	/^typedef Eigen::Matrix<double,8+CPARS+1,8+CPARS+1> MatPCPC;$/;"	t	namespace:fdso
 MatPCPCf	src/util/NumType.h	/^typedef Eigen::Matrix<float,8+CPARS+1,8+CPARS+1> MatPCPCf;$/;"	t	namespace:fdso
-MatToDynamic	src/util/NumType.h	59;"	d
+MatToDynamic	src/util/NumType.h	53;"	d
 MatXX	src/util/NumType.h	/^typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> MatXX;$/;"	t	namespace:fdso
 MatXXf	src/util/NumType.h	/^typedef Eigen::Matrix<float,Eigen::Dynamic,Eigen::Dynamic> MatXXf;$/;"	t	namespace:fdso
-NUM_THREADS	src/util/NumType.h	42;"	d
+NUM_THREADS	src/util/NumType.h	41;"	d
 SE3	src/util/NumType.h	/^typedef Sophus::SE3d SE3;$/;"	t	namespace:fdso
 SO3	src/util/NumType.h	/^typedef Sophus::SO3d SO3;$/;"	t	namespace:fdso
 SSEE	src/util/NumType.h	38;"	d
@@ -1895,7 +1673,7 @@ a	src/util/NumType.h	/^	double a,b;	\/\/ I_frame = exp(a)*I_global + b. \/\/ I_g
 b	src/util/NumType.h	/^	double a,b;	\/\/ I_frame = exp(a)*I_global + b. \/\/ I_global = exp(-a)*(I_frame - b).$/;"	m	struct:fdso::AffLight
 fdso	src/util/NumType.h	/^namespace fdso$/;"	n
 fromToVecExposure	src/util/NumType.h	/^	static Vec2 fromToVecExposure(float exposureF, float exposureT, AffLight g2F, AffLight g2T)$/;"	f	struct:fdso::AffLight
-todouble	src/util/NumType.h	45;"	d
+todouble	src/util/NumType.h	43;"	d
 vec	src/util/NumType.h	/^	Vec2 vec()$/;"	f	struct:fdso::AffLight
 PhotometricUndistorter	src/util/Undistort.cpp	/^PhotometricUndistorter::PhotometricUndistorter($/;"	f	class:fdso::PhotometricUndistorter
 UndistortEquidistant	src/util/Undistort.cpp	/^UndistortEquidistant::UndistortEquidistant(const char* configFileName, bool noprefix)$/;"	f	class:fdso::UndistortEquidistant
@@ -2228,7 +2006,7 @@ benchmark_varBlurNoise	src/util/settings.cpp	/^float benchmark_varBlurNoise = 0;
 benchmark_varNoise	src/util/settings.cpp	/^float benchmark_varNoise = 0;$/;"	m	namespace:fdso	file:
 debugSaveImages	src/util/settings.cpp	/^bool debugSaveImages = false;$/;"	m	namespace:fdso	file:
 disableAllDisplay	src/util/settings.cpp	/^bool disableAllDisplay = false;$/;"	m	namespace:fdso	file:
-disableReconfigure	src/util/settings.cpp	/^bool disableReconfigure=false;$/;"	m	namespace:fdso	file:
+disableReconfigure	src/util/settings.cpp	/^bool disableReconfigure = false;$/;"	m	namespace:fdso	file:
 fdso	src/util/settings.cpp	/^namespace fdso$/;"	n	file:
 freeDebugParam1	src/util/settings.cpp	/^float freeDebugParam1 = 1;$/;"	m	namespace:fdso	file:
 freeDebugParam2	src/util/settings.cpp	/^float freeDebugParam2 = 1;$/;"	m	namespace:fdso	file:
@@ -2254,8 +2032,8 @@ setting_fullResetRequested	src/util/settings.cpp	/^bool setting_fullResetRequest
 setting_gammaWeightsPixelSelect	src/util/settings.cpp	/^int setting_gammaWeightsPixelSelect = 1; \/\/ 1 = use original intensity for pixel selection; 0 = use gamma-corrected intensity.$/;"	m	namespace:fdso	file:
 setting_gradDownweightPerLevel	src/util/settings.cpp	/^float setting_gradDownweightPerLevel = 0.75;$/;"	m	namespace:fdso	file:
 setting_huberTH	src/util/settings.cpp	/^float setting_huberTH = 9; \/\/ Huber Threshold$/;"	m	namespace:fdso	file:
-setting_idepthFixPrior	src/util/settings.cpp	/^float setting_idepthFixPrior = 50*50;$/;"	m	namespace:fdso	file:
-setting_idepthFixPriorMargFac	src/util/settings.cpp	/^float setting_idepthFixPriorMargFac = 600*600;$/;"	m	namespace:fdso	file:
+setting_idepthFixPrior	src/util/settings.cpp	/^float setting_idepthFixPrior = 50 * 50;$/;"	m	namespace:fdso	file:
+setting_idepthFixPriorMargFac	src/util/settings.cpp	/^float setting_idepthFixPriorMargFac = 600 * 600;$/;"	m	namespace:fdso	file:
 setting_initialAffAPrior	src/util/settings.cpp	/^float setting_initialAffAPrior = 1e14;$/;"	m	namespace:fdso	file:
 setting_initialAffBPrior	src/util/settings.cpp	/^float setting_initialAffBPrior = 1e14;$/;"	m	namespace:fdso	file:
 setting_initialCalibHessian	src/util/settings.cpp	/^float setting_initialCalibHessian = 5e9;$/;"	m	namespace:fdso	file:
@@ -2264,46 +2042,46 @@ setting_initialTransPrior	src/util/settings.cpp	/^float setting_initialTransPrio
 setting_keyframesPerSecond	src/util/settings.cpp	/^float setting_keyframesPerSecond = 0;   \/\/ if !=0, takes a fixed number of KF per second.$/;"	m	namespace:fdso	file:
 setting_kfGlobalWeight	src/util/settings.cpp	/^float setting_kfGlobalWeight = 1;   \/\/ general weight on threshold, the larger the more KF's are taken (e.g., 2 = double the amount of KF's).$/;"	m	namespace:fdso	file:
 setting_logStuff	src/util/settings.cpp	/^bool setting_logStuff = true;$/;"	m	namespace:fdso	file:
-setting_margWeightFac	src/util/settings.cpp	/^float setting_margWeightFac = 0.5*0.5;          \/\/ factor on hessian when marginalizing, to account for inaccurate linearization points.$/;"	m	namespace:fdso	file:
-setting_maxAffineWeight	src/util/settings.cpp	/^float setting_maxAffineWeight= 2;$/;"	m	namespace:fdso	file:
+setting_margWeightFac	src/util/settings.cpp	/^float setting_margWeightFac = 0.5 * 0.5;        \/\/ factor on hessian when marginalizing, to account for inaccurate linearization points.$/;"	m	namespace:fdso	file:
+setting_maxAffineWeight	src/util/settings.cpp	/^float setting_maxAffineWeight = 2;$/;"	m	namespace:fdso	file:
 setting_maxFrames	src/util/settings.cpp	/^int   setting_maxFrames = 7; \/\/ max frames in window.$/;"	m	namespace:fdso	file:
 setting_maxLogAffFacInWindow	src/util/settings.cpp	/^float setting_maxLogAffFacInWindow = 0.7; \/\/ marg a frame if factor between intensities to current frame is larger than 1\/X or X.$/;"	m	namespace:fdso	file:
-setting_maxOptIterations	src/util/settings.cpp	/^int   setting_maxOptIterations=6; \/\/ max GN iterations.$/;"	m	namespace:fdso	file:
+setting_maxOptIterations	src/util/settings.cpp	/^int   setting_maxOptIterations = 6; \/\/ max GN iterations.$/;"	m	namespace:fdso	file:
 setting_maxPixSearch	src/util/settings.cpp	/^float setting_maxPixSearch = 0.027; \/\/ max length of the ep. line segment searched during immature point tracking. relative to image resolution.$/;"	m	namespace:fdso	file:
-setting_maxShiftWeightR	src/util/settings.cpp	/^float setting_maxShiftWeightR= 0.0f * (640 + 480);    \/\/ original is 0.0f * (640+480);$/;"	m	namespace:fdso	file:
-setting_maxShiftWeightRT	src/util/settings.cpp	/^float setting_maxShiftWeightRT= 0.02f * (640 + 480);  \/\/ original is 0.02f * (640+480);$/;"	m	namespace:fdso	file:
-setting_maxShiftWeightT	src/util/settings.cpp	/^float setting_maxShiftWeightT= 0.04f * (640 + 480);   \/\/ original is 0.04f * (640+480);$/;"	m	namespace:fdso	file:
+setting_maxShiftWeightR	src/util/settings.cpp	/^float setting_maxShiftWeightR = 0.0f * (640 + 480);   \/\/ original is 0.0f * (640+480);$/;"	m	namespace:fdso	file:
+setting_maxShiftWeightRT	src/util/settings.cpp	/^float setting_maxShiftWeightRT = 0.02f * (640 + 480); \/\/ original is 0.02f * (640+480);$/;"	m	namespace:fdso	file:
+setting_maxShiftWeightT	src/util/settings.cpp	/^float setting_maxShiftWeightT = 0.04f * (640 + 480);  \/\/ original is 0.04f * (640+480);$/;"	m	namespace:fdso	file:
 setting_minFrameAge	src/util/settings.cpp	/^int   setting_minFrameAge = 1;$/;"	m	namespace:fdso	file:
 setting_minFrames	src/util/settings.cpp	/^int   setting_minFrames = 5; \/\/ min frames in window.$/;"	m	namespace:fdso	file:
-setting_minGoodActiveResForMarg	src/util/settings.cpp	/^int   setting_minGoodActiveResForMarg=3;$/;"	m	namespace:fdso	file:
-setting_minGoodResForMarg	src/util/settings.cpp	/^int   setting_minGoodResForMarg=4;$/;"	m	namespace:fdso	file:
+setting_minGoodActiveResForMarg	src/util/settings.cpp	/^int   setting_minGoodActiveResForMarg = 3;$/;"	m	namespace:fdso	file:
+setting_minGoodResForMarg	src/util/settings.cpp	/^int   setting_minGoodResForMarg = 4;$/;"	m	namespace:fdso	file:
 setting_minGradHistAdd	src/util/settings.cpp	/^float setting_minGradHistAdd = 7;$/;"	m	namespace:fdso	file:
 setting_minGradHistCut	src/util/settings.cpp	/^float setting_minGradHistCut = 0.5;$/;"	m	namespace:fdso	file:
 setting_minIdepthH_act	src/util/settings.cpp	/^float setting_minIdepthH_act = 100;$/;"	m	namespace:fdso	file:
 setting_minIdepthH_marg	src/util/settings.cpp	/^float setting_minIdepthH_marg = 50;$/;"	m	namespace:fdso	file:
-setting_minOptIterations	src/util/settings.cpp	/^int   setting_minOptIterations=1; \/\/ min GN iterations.$/;"	m	namespace:fdso	file:
+setting_minOptIterations	src/util/settings.cpp	/^int   setting_minOptIterations = 1; \/\/ min GN iterations.$/;"	m	namespace:fdso	file:
 setting_minPointsRemaining	src/util/settings.cpp	/^float setting_minPointsRemaining = 0.05;  \/\/ marg a frame if less than X% points remain.$/;"	m	namespace:fdso	file:
 setting_minTraceQuality	src/util/settings.cpp	/^float setting_minTraceQuality = 3;$/;"	m	namespace:fdso	file:
 setting_minTraceTestRadius	src/util/settings.cpp	/^int setting_minTraceTestRadius = 2;$/;"	m	namespace:fdso	file:
 setting_onlyLogKFPoses	src/util/settings.cpp	/^bool setting_onlyLogKFPoses = false;$/;"	m	namespace:fdso	file:
-setting_outlierTH	src/util/settings.cpp	/^float setting_outlierTH = 12*12;					\/\/ higher -> less strict$/;"	m	namespace:fdso	file:
-setting_outlierTHSumComponent	src/util/settings.cpp	/^float setting_outlierTHSumComponent = 50*50; 		\/\/ higher -> less strong gradient-based reweighting .$/;"	m	namespace:fdso	file:
+setting_outlierTH	src/util/settings.cpp	/^float setting_outlierTH = 12 * 12;					\/\/ higher -> less strict$/;"	m	namespace:fdso	file:
+setting_outlierTHSumComponent	src/util/settings.cpp	/^float setting_outlierTHSumComponent = 50 * 50; 		\/\/ higher -> less strong gradient-based reweighting .$/;"	m	namespace:fdso	file:
 setting_overallEnergyTHWeight	src/util/settings.cpp	/^float setting_overallEnergyTHWeight = 1;$/;"	m	namespace:fdso	file:
 setting_pattern	src/util/settings.cpp	/^int setting_pattern = 8;						\/\/ point pattern used. DISABLED.$/;"	m	namespace:fdso	file:
 setting_photometricCalibration	src/util/settings.cpp	/^int setting_photometricCalibration = 2;$/;"	m	namespace:fdso	file:
-setting_reTrackThreshold	src/util/settings.cpp	/^float setting_reTrackThreshold = 1.5; \/\/  �ĵ�1 û�еõ����� original is 1.5 (larger = re-track more often)$/;"	m	namespace:fdso	file:
+setting_reTrackThreshold	src/util/settings.cpp	/^float setting_reTrackThreshold = 1.5; \/\/  ¸Äµ½1 Ã»ÓÐµÃµ½¸ÄÉÆ original is 1.5 (larger = re-track more often)$/;"	m	namespace:fdso	file:
 setting_realTimeMaxKF	src/util/settings.cpp	/^bool setting_realTimeMaxKF = false;   \/\/ if true, takes as many KF's as possible (will break the system if the camera stays stationary)$/;"	m	namespace:fdso	file:
 setting_render_display3D	src/util/settings.cpp	/^bool setting_render_display3D = true;$/;"	m	namespace:fdso	file:
-setting_render_displayCoarseTrackingFull	src/util/settings.cpp	/^bool setting_render_displayCoarseTrackingFull=false;$/;"	m	namespace:fdso	file:
+setting_render_displayCoarseTrackingFull	src/util/settings.cpp	/^bool setting_render_displayCoarseTrackingFull = false;$/;"	m	namespace:fdso	file:
 setting_render_displayDepth	src/util/settings.cpp	/^bool setting_render_displayDepth = true;$/;"	m	namespace:fdso	file:
 setting_render_displayResidual	src/util/settings.cpp	/^bool setting_render_displayResidual = true;$/;"	m	namespace:fdso	file:
 setting_render_displayVideo	src/util/settings.cpp	/^bool setting_render_displayVideo = true;$/;"	m	namespace:fdso	file:
 setting_render_plotTrackingFull	src/util/settings.cpp	/^bool setting_render_plotTrackingFull = false;$/;"	m	namespace:fdso	file:
-setting_render_renderWindowFrames	src/util/settings.cpp	/^bool setting_render_renderWindowFrames=true;$/;"	m	namespace:fdso	file:
+setting_render_renderWindowFrames	src/util/settings.cpp	/^bool setting_render_renderWindowFrames = true;$/;"	m	namespace:fdso	file:
 setting_selectDirectionDistribution	src/util/settings.cpp	/^bool  setting_selectDirectionDistribution = true;$/;"	m	namespace:fdso	file:
 setting_solverMode	src/util/settings.cpp	/^int setting_solverMode = SOLVER_FIX_LAMBDA | SOLVER_ORTHOGONALIZE_X_LATER;$/;"	m	namespace:fdso	file:
 setting_solverModeDelta	src/util/settings.cpp	/^double setting_solverModeDelta = 0.00001;$/;"	m	namespace:fdso	file:
-setting_thOptIterations	src/util/settings.cpp	/^float setting_thOptIterations=1.2; \/\/ factor on break threshold for GN iteration (larger = break earlier)$/;"	m	namespace:fdso	file:
+setting_thOptIterations	src/util/settings.cpp	/^float setting_thOptIterations = 1.2; \/\/ factor on break threshold for GN iteration (larger = break earlier)$/;"	m	namespace:fdso	file:
 setting_trace_GNIterations	src/util/settings.cpp	/^int setting_trace_GNIterations = 3;				\/\/ max # GN iterations$/;"	m	namespace:fdso	file:
 setting_trace_GNThreshold	src/util/settings.cpp	/^float setting_trace_GNThreshold = 0.1;				\/\/ GN stop after this stepsize.$/;"	m	namespace:fdso	file:
 setting_trace_extraSlackOnTH	src/util/settings.cpp	/^float setting_trace_extraSlackOnTH = 1.2;			\/\/ for energy-based outlier check, be slightly more relaxed by this factor.$/;"	m	namespace:fdso	file:
@@ -2332,6 +2110,597 @@ fdso	src/util/settings.h	/^namespace fdso$/;"	n
 patternNum	src/util/settings.h	215;"	d
 patternP	src/util/settings.h	216;"	d
 patternPadding	src/util/settings.h	217;"	d
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	372;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	375;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	378;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	381;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	384;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	387;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	390;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	395;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	398;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	401;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	405;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	103;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	110;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	117;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	124;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	132;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	137;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	144;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	147;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	14;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	150;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	153;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	168;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	182;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	190;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	208;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	217;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	220;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	227;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	245;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	248;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	251;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	37;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	45;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	51;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	57;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	66;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	75;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	89;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	96;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	105;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	112;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	119;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	125;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	133;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	139;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	157;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	172;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	183;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	192;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	19;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	211;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	222;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	230;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	235;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	38;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	46;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	53;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	59;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	68;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	78;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	83;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	91;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	98;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	106;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	113;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	120;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	126;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	134;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	140;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	158;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	173;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	184;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	193;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	20;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	212;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	223;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	231;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	236;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	39;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	47;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	54;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	60;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	69;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	79;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	84;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	92;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	99;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	100;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	107;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	114;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	121;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	128;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	141;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	159;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	174;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	186;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	197;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	200;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	213;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	224;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	22;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	232;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	237;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	24;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	41;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	48;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	62;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	71;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	80;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	85;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	93;"	d	file:
+COMPILER_VERSION_TWEAK	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	165;"	d	file:
+COMPILER_VERSION_TWEAK	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	204;"	d	file:
+COMPILER_VERSION_TWEAK	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	28;"	d	file:
+DEC	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	409;"	d	file:
+HEX	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	420;"	d	file:
+ID_VOID_MAIN	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	6;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	269;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	272;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	275;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	278;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	281;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	284;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	287;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	290;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	293;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	296;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	299;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	302;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	305;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	308;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	311;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	314;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	317;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	320;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	323;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	326;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	329;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	332;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	335;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	338;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	341;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	345;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	348;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	351;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	354;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	357;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	361;"	d	file:
+SIMULATE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	155;"	d	file:
+SIMULATE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	16;"	d	file:
+SIMULATE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	170;"	d	file:
+SIMULATE_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	162;"	d	file:
+SIMULATE_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	177;"	d	file:
+SIMULATE_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	32;"	d	file:
+SIMULATE_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	163;"	d	file:
+SIMULATE_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	178;"	d	file:
+SIMULATE_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	33;"	d	file:
+info_arch	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const* info_arch = "INFO" ":" "arch[" ARCHITECTURE_ID "]";$/;"	v
+info_compiler	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const* info_compiler = "INFO" ":" "compiler[" COMPILER_ID "]";$/;"	v
+info_platform	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const* info_platform = "INFO" ":" "platform[" PLATFORM_ID "]";$/;"	v
+info_simulate	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const* info_simulate = "INFO" ":" "simulate[" SIMULATE_ID "]";$/;"	v
+info_simulate_version	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const info_simulate_version[] = {$/;"	v
+info_version	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const info_version[] = {$/;"	v
+main	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^int main(int argc, char* argv[])$/;"	f
+main	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^void main() {}$/;"	f
+qnxnto	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c	/^char const* qnxnto = "INFO" ":" "qnxnto[]";$/;"	v
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	367;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	370;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	373;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	376;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	379;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	382;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	385;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	390;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	393;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	396;"	d	file:
+ARCHITECTURE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	400;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	101;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	108;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	115;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	122;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	129;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	137;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	13;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	142;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	149;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	152;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	155;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	170;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	184;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	192;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	19;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	210;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	219;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	222;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	240;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	243;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	246;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	42;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	50;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	56;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	62;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	71;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	80;"	d	file:
+COMPILER_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	94;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	103;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	110;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	117;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	124;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	130;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	138;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	144;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	159;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	15;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	174;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	185;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	194;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	213;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	225;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	230;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	24;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	43;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	51;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	58;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	64;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	73;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	83;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	88;"	d	file:
+COMPILER_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	96;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	104;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	111;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	118;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	125;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	131;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	139;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	145;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	160;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	16;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	175;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	186;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	195;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	214;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	226;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	231;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	25;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	44;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	52;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	59;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	65;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	74;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	84;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	89;"	d	file:
+COMPILER_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	97;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	105;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	112;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	119;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	126;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	133;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	146;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	161;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	176;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	188;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	199;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	202;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	215;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	227;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	232;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	27;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	29;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	46;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	53;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	67;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	76;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	85;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	90;"	d	file:
+COMPILER_VERSION_PATCH	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	98;"	d	file:
+COMPILER_VERSION_TWEAK	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	167;"	d	file:
+COMPILER_VERSION_TWEAK	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	206;"	d	file:
+COMPILER_VERSION_TWEAK	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	33;"	d	file:
+DEC	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	404;"	d	file:
+HEX	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	415;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	264;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	267;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	270;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	273;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	276;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	279;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	282;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	285;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	288;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	291;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	294;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	297;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	300;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	303;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	306;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	309;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	312;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	315;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	318;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	321;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	324;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	327;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	330;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	333;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	336;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	340;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	343;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	346;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	349;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	352;"	d	file:
+PLATFORM_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	356;"	d	file:
+SIMULATE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	157;"	d	file:
+SIMULATE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	172;"	d	file:
+SIMULATE_ID	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	21;"	d	file:
+SIMULATE_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	164;"	d	file:
+SIMULATE_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	179;"	d	file:
+SIMULATE_VERSION_MAJOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	37;"	d	file:
+SIMULATE_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	165;"	d	file:
+SIMULATE_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	180;"	d	file:
+SIMULATE_VERSION_MINOR	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	38;"	d	file:
+info_arch	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* info_arch = "INFO" ":" "arch[" ARCHITECTURE_ID "]";$/;"	v
+info_compiler	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* info_compiler = "INFO" ":" "compiler[" COMPILER_ID "]";$/;"	v
+info_platform	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* info_platform = "INFO" ":" "platform[" PLATFORM_ID "]";$/;"	v
+info_simulate	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* info_simulate = "INFO" ":" "simulate[" SIMULATE_ID "]";$/;"	v
+info_simulate_version	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const info_simulate_version[] = {$/;"	v
+info_version	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const info_version[] = {$/;"	v
+main	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^int main(int argc, char* argv[])$/;"	f
+qnxnto	thirdparty/DBoW3/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* qnxnto = "INFO" ":" "qnxnto[]";$/;"	v
+features	thirdparty/DBoW3/build/CMakeFiles/feature_tests.c	/^  const char features[] = {""$/;"	v
+main	thirdparty/DBoW3/build/CMakeFiles/feature_tests.c	/^int main(int argc, char** argv) { (void)argv; return features[argc]; }$/;"	f
+features	thirdparty/DBoW3/build/CMakeFiles/feature_tests.cxx	/^  const char features[] = {""$/;"	v
+main	thirdparty/DBoW3/build/CMakeFiles/feature_tests.cxx	/^int main(int argc, char** argv) { (void)argv; return features[argc]; }$/;"	f
+CMAKE_BINARY_DIR	thirdparty/DBoW3/build/Makefile	/^CMAKE_BINARY_DIR = \/home\/ren\/work\/fdso\/thirdparty\/DBoW3\/build$/;"	m
+CMAKE_COMMAND	thirdparty/DBoW3/build/Makefile	/^CMAKE_COMMAND = \/usr\/bin\/cmake$/;"	m
+CMAKE_SOURCE_DIR	thirdparty/DBoW3/build/Makefile	/^CMAKE_SOURCE_DIR = \/home\/ren\/work\/fdso\/thirdparty\/DBoW3$/;"	m
+EQUALS	thirdparty/DBoW3/build/Makefile	/^EQUALS = =$/;"	m
+RM	thirdparty/DBoW3/build/Makefile	/^RM = \/usr\/bin\/cmake -E remove -f$/;"	m
+SHELL	thirdparty/DBoW3/build/Makefile	/^SHELL = \/bin\/sh$/;"	m
+SUFFIXES	thirdparty/DBoW3/build/Makefile	/^SUFFIXES =$/;"	m
+CMAKE_BINARY_DIR	thirdparty/DBoW3/build/src/Makefile	/^CMAKE_BINARY_DIR = \/home\/ren\/work\/fdso\/thirdparty\/DBoW3\/build$/;"	m
+CMAKE_COMMAND	thirdparty/DBoW3/build/src/Makefile	/^CMAKE_COMMAND = \/usr\/bin\/cmake$/;"	m
+CMAKE_SOURCE_DIR	thirdparty/DBoW3/build/src/Makefile	/^CMAKE_SOURCE_DIR = \/home\/ren\/work\/fdso\/thirdparty\/DBoW3$/;"	m
+EQUALS	thirdparty/DBoW3/build/src/Makefile	/^EQUALS = =$/;"	m
+RM	thirdparty/DBoW3/build/src/Makefile	/^RM = \/usr\/bin\/cmake -E remove -f$/;"	m
+SHELL	thirdparty/DBoW3/build/src/Makefile	/^SHELL = \/bin\/sh$/;"	m
+SUFFIXES	thirdparty/DBoW3/build/src/Makefile	/^SUFFIXES =$/;"	m
+CMAKE_BINARY_DIR	thirdparty/DBoW3/build/utils/Makefile	/^CMAKE_BINARY_DIR = \/home\/ren\/work\/fdso\/thirdparty\/DBoW3\/build$/;"	m
+CMAKE_COMMAND	thirdparty/DBoW3/build/utils/Makefile	/^CMAKE_COMMAND = \/usr\/bin\/cmake$/;"	m
+CMAKE_SOURCE_DIR	thirdparty/DBoW3/build/utils/Makefile	/^CMAKE_SOURCE_DIR = \/home\/ren\/work\/fdso\/thirdparty\/DBoW3$/;"	m
+EQUALS	thirdparty/DBoW3/build/utils/Makefile	/^EQUALS = =$/;"	m
+RM	thirdparty/DBoW3/build/utils/Makefile	/^RM = \/usr\/bin\/cmake -E remove -f$/;"	m
+SHELL	thirdparty/DBoW3/build/utils/Makefile	/^SHELL = \/bin\/sh$/;"	m
+SUFFIXES	thirdparty/DBoW3/build/utils/Makefile	/^SUFFIXES =$/;"	m
+BowVector	thirdparty/DBoW3/src/BowVector.cpp	/^BowVector::BowVector(void)$/;"	f	class:DBoW3::BowVector
+DBoW3	thirdparty/DBoW3/src/BowVector.cpp	/^namespace DBoW3 {$/;"	n	file:
+addIfNotExist	thirdparty/DBoW3/src/BowVector.cpp	/^void BowVector::addIfNotExist(WordId id, WordValue v)$/;"	f	class:DBoW3::BowVector
+addWeight	thirdparty/DBoW3/src/BowVector.cpp	/^void BowVector::addWeight(WordId id, WordValue v)$/;"	f	class:DBoW3::BowVector
+normalize	thirdparty/DBoW3/src/BowVector.cpp	/^void BowVector::normalize(LNorm norm_type)$/;"	f	class:DBoW3::BowVector
+operator <<	thirdparty/DBoW3/src/BowVector.cpp	/^std::ostream& operator<< (std::ostream &out, const BowVector &v)$/;"	f	namespace:DBoW3
+saveM	thirdparty/DBoW3/src/BowVector.cpp	/^void BowVector::saveM(const std::string &filename, size_t W) const$/;"	f	class:DBoW3::BowVector
+~BowVector	thirdparty/DBoW3/src/BowVector.cpp	/^BowVector::~BowVector(void)$/;"	f	class:DBoW3::BowVector
+BHATTACHARYYA	thirdparty/DBoW3/src/BowVector.h	/^  BHATTACHARYYA,$/;"	e	enum:DBoW3::ScoringType
+BINARY	thirdparty/DBoW3/src/BowVector.h	/^  BINARY$/;"	e	enum:DBoW3::WeightingType
+BowVector	thirdparty/DBoW3/src/BowVector.h	/^class DBOW_API BowVector:$/;"	c	namespace:DBoW3
+CHI_SQUARE	thirdparty/DBoW3/src/BowVector.h	/^  CHI_SQUARE,$/;"	e	enum:DBoW3::ScoringType
+DBoW3	thirdparty/DBoW3/src/BowVector.h	/^namespace DBoW3 {$/;"	n
+DOT_PRODUCT	thirdparty/DBoW3/src/BowVector.h	/^  DOT_PRODUCT$/;"	e	enum:DBoW3::ScoringType
+IDF	thirdparty/DBoW3/src/BowVector.h	/^  IDF,$/;"	e	enum:DBoW3::WeightingType
+KL	thirdparty/DBoW3/src/BowVector.h	/^  KL,$/;"	e	enum:DBoW3::ScoringType
+L1	thirdparty/DBoW3/src/BowVector.h	/^  L1,$/;"	e	enum:DBoW3::LNorm
+L1_NORM	thirdparty/DBoW3/src/BowVector.h	/^  L1_NORM,$/;"	e	enum:DBoW3::ScoringType
+L2	thirdparty/DBoW3/src/BowVector.h	/^  L2$/;"	e	enum:DBoW3::LNorm
+L2_NORM	thirdparty/DBoW3/src/BowVector.h	/^  L2_NORM,$/;"	e	enum:DBoW3::ScoringType
+LNorm	thirdparty/DBoW3/src/BowVector.h	/^enum LNorm$/;"	g	namespace:DBoW3
+NodeId	thirdparty/DBoW3/src/BowVector.h	/^typedef unsigned int NodeId;$/;"	t	namespace:DBoW3
+ScoringType	thirdparty/DBoW3/src/BowVector.h	/^enum ScoringType$/;"	g	namespace:DBoW3
+TF	thirdparty/DBoW3/src/BowVector.h	/^  TF,$/;"	e	enum:DBoW3::WeightingType
+TF_IDF	thirdparty/DBoW3/src/BowVector.h	/^  TF_IDF,$/;"	e	enum:DBoW3::WeightingType
+WeightingType	thirdparty/DBoW3/src/BowVector.h	/^enum WeightingType$/;"	g	namespace:DBoW3
+WordId	thirdparty/DBoW3/src/BowVector.h	/^typedef unsigned int WordId;$/;"	t	namespace:DBoW3
+WordValue	thirdparty/DBoW3/src/BowVector.h	/^typedef double WordValue;$/;"	t	namespace:DBoW3
+__D_T_BOW_VECTOR__	thirdparty/DBoW3/src/BowVector.h	11;"	d
+__D_T_DBOW3__	thirdparty/DBoW3/src/DBoW3.h	55;"	d
+DBoW3	thirdparty/DBoW3/src/Database.cpp	/^namespace DBoW3{$/;"	n	file:
+Database	thirdparty/DBoW3/src/Database.cpp	/^Database::Database$/;"	f	class:DBoW3::Database
+add	thirdparty/DBoW3/src/Database.cpp	/^EntryId Database::add($/;"	f	class:DBoW3::Database
+add	thirdparty/DBoW3/src/Database.cpp	/^EntryId Database::add(const BowVector &v,$/;"	f	class:DBoW3::Database
+allocate	thirdparty/DBoW3/src/Database.cpp	/^void Database::allocate(int nd, int ni)$/;"	f	class:DBoW3::Database
+clear	thirdparty/DBoW3/src/Database.cpp	/^ void Database::clear()$/;"	f	class:DBoW3::Database
+getVocabulary	thirdparty/DBoW3/src/Database.cpp	/^Database::getVocabulary() const$/;"	f	class:DBoW3::Database
+load	thirdparty/DBoW3/src/Database.cpp	/^void Database::load(const cv::FileStorage &fs,$/;"	f	class:DBoW3::Database
+load	thirdparty/DBoW3/src/Database.cpp	/^void Database::load(const std::string &filename)$/;"	f	class:DBoW3::Database
+operator <<	thirdparty/DBoW3/src/Database.cpp	/^std::ostream& operator<<(std::ostream &os,$/;"	f	namespace:DBoW3
+operator =	thirdparty/DBoW3/src/Database.cpp	/^Database& Database::operator=$/;"	f	class:DBoW3::Database
+query	thirdparty/DBoW3/src/Database.cpp	/^void Database::query($/;"	f	class:DBoW3::Database
+queryBhattacharyya	thirdparty/DBoW3/src/Database.cpp	/^void Database::queryBhattacharyya($/;"	f	class:DBoW3::Database
+queryChiSquare	thirdparty/DBoW3/src/Database.cpp	/^void Database::queryChiSquare(const BowVector &vec,$/;"	f	class:DBoW3::Database
+queryDotProduct	thirdparty/DBoW3/src/Database.cpp	/^void Database::queryDotProduct($/;"	f	class:DBoW3::Database
+queryKL	thirdparty/DBoW3/src/Database.cpp	/^void Database::queryKL(const BowVector &vec,$/;"	f	class:DBoW3::Database
+queryL1	thirdparty/DBoW3/src/Database.cpp	/^void Database::queryL1(const BowVector &vec,$/;"	f	class:DBoW3::Database
+queryL2	thirdparty/DBoW3/src/Database.cpp	/^void Database::queryL2(const BowVector &vec,$/;"	f	class:DBoW3::Database
+retrieveFeatures	thirdparty/DBoW3/src/Database.cpp	/^const FeatureVector& Database::retrieveFeatures$/;"	f	class:DBoW3::Database
+save	thirdparty/DBoW3/src/Database.cpp	/^void Database::save(const std::string &filename) const$/;"	f	class:DBoW3::Database
+save	thirdparty/DBoW3/src/Database.cpp	/^void Database::save(cv::FileStorage &fs,$/;"	f	class:DBoW3::Database
+setVocabulary	thirdparty/DBoW3/src/Database.cpp	/^  void Database::setVocabulary$/;"	f	class:DBoW3::Database
+~Database	thirdparty/DBoW3/src/Database.cpp	/^Database::~Database(void)$/;"	f	class:DBoW3::Database
+DBoW3	thirdparty/DBoW3/src/Database.h	/^namespace DBoW3 {$/;"	n
+Database	thirdparty/DBoW3/src/Database.h	/^class DBOW_API Database$/;"	c	namespace:DBoW3
+DirectFile	thirdparty/DBoW3/src/Database.h	/^  typedef std::vector<FeatureVector> DirectFile;$/;"	t	class:DBoW3::Database
+IFPair	thirdparty/DBoW3/src/Database.h	/^    IFPair(){}$/;"	f	struct:DBoW3::Database::IFPair
+IFPair	thirdparty/DBoW3/src/Database.h	/^    IFPair(EntryId eid, WordValue wv): entry_id(eid), word_weight(wv) {}$/;"	f	struct:DBoW3::Database::IFPair
+IFPair	thirdparty/DBoW3/src/Database.h	/^  struct IFPair$/;"	s	class:DBoW3::Database
+IFRow	thirdparty/DBoW3/src/Database.h	/^  typedef std::list<IFPair> IFRow;$/;"	t	class:DBoW3::Database
+InvertedFile	thirdparty/DBoW3/src/Database.h	/^  typedef std::vector<IFRow> InvertedFile; $/;"	t	class:DBoW3::Database
+MIN_COMMON_WORDS	thirdparty/DBoW3/src/Database.h	/^static int MIN_COMMON_WORDS = 5;$/;"	m	namespace:DBoW3
+__D_T_DATABASE__	thirdparty/DBoW3/src/Database.h	12;"	d
+entry_id	thirdparty/DBoW3/src/Database.h	/^    EntryId entry_id;$/;"	m	struct:DBoW3::Database::IFPair
+getDirectIndexLevels	thirdparty/DBoW3/src/Database.h	/^    int getDirectIndexLevels() const{  return m_dilevels;}$/;"	f	class:DBoW3::Database
+m_dfile	thirdparty/DBoW3/src/Database.h	/^  DirectFile m_dfile;$/;"	m	class:DBoW3::Database
+m_dilevels	thirdparty/DBoW3/src/Database.h	/^  int m_dilevels;$/;"	m	class:DBoW3::Database
+m_ifile	thirdparty/DBoW3/src/Database.h	/^  InvertedFile m_ifile;$/;"	m	class:DBoW3::Database
+m_nentries	thirdparty/DBoW3/src/Database.h	/^  int m_nentries;$/;"	m	class:DBoW3::Database
+m_use_di	thirdparty/DBoW3/src/Database.h	/^  bool m_use_di;$/;"	m	class:DBoW3::Database
+m_voc	thirdparty/DBoW3/src/Database.h	/^  Vocabulary *m_voc;$/;"	m	class:DBoW3::Database
+operator ==	thirdparty/DBoW3/src/Database.h	/^    inline bool operator==(EntryId eid) const { return entry_id == eid; }$/;"	f	struct:DBoW3::Database::IFPair
+size	thirdparty/DBoW3/src/Database.h	/^  unsigned int size() const{  return m_nentries;}$/;"	f	class:DBoW3::Database
+usingDirectIndex	thirdparty/DBoW3/src/Database.h	/^    bool usingDirectIndex() const{  return m_use_di;}$/;"	f	class:DBoW3::Database
+word_weight	thirdparty/DBoW3/src/Database.h	/^    WordValue word_weight;$/;"	m	struct:DBoW3::Database::IFPair
+DBoW3	thirdparty/DBoW3/src/DescManip.cpp	/^namespace DBoW3 {$/;"	n	file:
+distance	thirdparty/DBoW3/src/DescManip.cpp	/^double DescManip::distance(const cv::Mat &a,  const cv::Mat &b)$/;"	f	class:DBoW3::DescManip
+fromString	thirdparty/DBoW3/src/DescManip.cpp	/^void DescManip::fromString(cv::Mat &a, const std::string &s)$/;"	f	class:DBoW3::DescManip
+meanValue	thirdparty/DBoW3/src/DescManip.cpp	/^void DescManip::meanValue(const std::vector<cv::Mat> &descriptors,$/;"	f	class:DBoW3::DescManip
+toMat32F	thirdparty/DBoW3/src/DescManip.cpp	/^void DescManip::toMat32F(const std::vector<cv::Mat> &descriptors,$/;"	f	class:DBoW3::DescManip
+toString	thirdparty/DBoW3/src/DescManip.cpp	/^std::string DescManip::toString(const cv::Mat &a)$/;"	f	class:DBoW3::DescManip
+DBoW3	thirdparty/DBoW3/src/DescManip.h	/^namespace DBoW3 {$/;"	n
+DescManip	thirdparty/DBoW3/src/DescManip.h	/^class DBOW_API DescManip$/;"	c	namespace:DBoW3
+__D_T_DESCMANIP__	thirdparty/DBoW3/src/DescManip.h	11;"	d
+getnBytes	thirdparty/DBoW3/src/DescManip.h	/^  static size_t getnBytes(const cv::Mat & d){return d.cols* d.elemSize();}$/;"	f	class:DBoW3::DescManip
+DBoW3	thirdparty/DBoW3/src/FeatureVector.cpp	/^namespace DBoW3 {$/;"	n	file:
+FeatureVector	thirdparty/DBoW3/src/FeatureVector.cpp	/^FeatureVector::FeatureVector(void)$/;"	f	class:DBoW3::FeatureVector
+addFeature	thirdparty/DBoW3/src/FeatureVector.cpp	/^void FeatureVector::addFeature(NodeId id, unsigned int i_feature)$/;"	f	class:DBoW3::FeatureVector
+operator <<	thirdparty/DBoW3/src/FeatureVector.cpp	/^std::ostream& operator<<(std::ostream &out, $/;"	f	namespace:DBoW3
+~FeatureVector	thirdparty/DBoW3/src/FeatureVector.cpp	/^FeatureVector::~FeatureVector(void)$/;"	f	class:DBoW3::FeatureVector
+DBoW3	thirdparty/DBoW3/src/FeatureVector.h	/^namespace DBoW3 {$/;"	n
+FeatureVector	thirdparty/DBoW3/src/FeatureVector.h	/^class  DBOW_API FeatureVector:$/;"	c	namespace:DBoW3
+__D_T_FEATURE_VECTOR__	thirdparty/DBoW3/src/FeatureVector.h	11;"	d
+DBoW3	thirdparty/DBoW3/src/QueryResults.cpp	/^namespace DBoW3$/;"	n	file:
+operator <<	thirdparty/DBoW3/src/QueryResults.cpp	/^ostream & operator<<(ostream& os, const QueryResults& ret )$/;"	f	namespace:DBoW3
+operator <<	thirdparty/DBoW3/src/QueryResults.cpp	/^ostream & operator<<(ostream& os, const Result& ret )$/;"	f	namespace:DBoW3
+saveM	thirdparty/DBoW3/src/QueryResults.cpp	/^void QueryResults::saveM(const std::string &filename) const$/;"	f	class:DBoW3::QueryResults
+DBoW3	thirdparty/DBoW3/src/QueryResults.h	/^namespace DBoW3 {$/;"	n
+EntryId	thirdparty/DBoW3/src/QueryResults.h	/^typedef unsigned int EntryId;$/;"	t	namespace:DBoW3
+Id	thirdparty/DBoW3/src/QueryResults.h	/^  EntryId Id;$/;"	m	class:DBoW3::Result
+QueryResults	thirdparty/DBoW3/src/QueryResults.h	/^class QueryResults: public std::vector<Result>$/;"	c	namespace:DBoW3
+Result	thirdparty/DBoW3/src/QueryResults.h	/^  inline Result(){}$/;"	f	class:DBoW3::Result
+Result	thirdparty/DBoW3/src/QueryResults.h	/^  inline Result(EntryId _id, double _score): Id(_id), Score(_score){}$/;"	f	class:DBoW3::Result
+Result	thirdparty/DBoW3/src/QueryResults.h	/^class DBOW_API Result$/;"	c	namespace:DBoW3
+Score	thirdparty/DBoW3/src/QueryResults.h	/^  double Score;$/;"	m	class:DBoW3::Result
+__D_T_QUERY_RESULTS__	thirdparty/DBoW3/src/QueryResults.h	11;"	d
+bhatScore	thirdparty/DBoW3/src/QueryResults.h	/^  double bhatScore, chiScore;$/;"	m	class:DBoW3::Result
+chiScore	thirdparty/DBoW3/src/QueryResults.h	/^  double bhatScore, chiScore;$/;"	m	class:DBoW3::Result
+expectedChiScore	thirdparty/DBoW3/src/QueryResults.h	/^  double expectedChiScore;$/;"	m	class:DBoW3::Result
+ge	thirdparty/DBoW3/src/QueryResults.h	/^  inline static bool ge(const Result &a, const Result &b)$/;"	f	class:DBoW3::Result
+geq	thirdparty/DBoW3/src/QueryResults.h	/^  static inline bool geq(const Result &a, const Result &b)$/;"	f	class:DBoW3::Result
+geqv	thirdparty/DBoW3/src/QueryResults.h	/^  static inline bool geqv(const Result &a, double s)$/;"	f	class:DBoW3::Result
+gt	thirdparty/DBoW3/src/QueryResults.h	/^  static inline bool gt(const Result &a, const Result &b)$/;"	f	class:DBoW3::Result
+ltId	thirdparty/DBoW3/src/QueryResults.h	/^  static inline bool ltId(const Result &a, const Result &b)$/;"	f	class:DBoW3::Result
+nWords	thirdparty/DBoW3/src/QueryResults.h	/^  int nWords; \/\/ words in common$/;"	m	class:DBoW3::Result
+operator <	thirdparty/DBoW3/src/QueryResults.h	/^  inline bool operator<(const Result &r) const$/;"	f	class:DBoW3::Result
+operator <	thirdparty/DBoW3/src/QueryResults.h	/^  inline bool operator<(double s) const$/;"	f	class:DBoW3::Result
+operator ==	thirdparty/DBoW3/src/QueryResults.h	/^  inline bool operator==(EntryId id) const$/;"	f	class:DBoW3::Result
+operator >	thirdparty/DBoW3/src/QueryResults.h	/^  inline bool operator>(const Result &r) const$/;"	f	class:DBoW3::Result
+operator >	thirdparty/DBoW3/src/QueryResults.h	/^  inline bool operator>(double s) const$/;"	f	class:DBoW3::Result
+scaleScores	thirdparty/DBoW3/src/QueryResults.h	/^inline void QueryResults::scaleScores(double factor)$/;"	f	class:DBoW3::QueryResults
+sumCommonVi	thirdparty/DBoW3/src/QueryResults.h	/^  double sumCommonVi;$/;"	m	class:DBoW3::Result
+sumCommonWi	thirdparty/DBoW3/src/QueryResults.h	/^  double sumCommonWi;$/;"	m	class:DBoW3::Result
+LOG_EPS	thirdparty/DBoW3/src/ScoringObject.cpp	/^const double GeneralScoring::LOG_EPS = log(DBL_EPSILON); \/\/ FLT_EPSILON$/;"	m	class:GeneralScoring	file:
+score	thirdparty/DBoW3/src/ScoringObject.cpp	/^double BhattacharyyaScoring::score(const BowVector &v1, $/;"	f	class:BhattacharyyaScoring
+score	thirdparty/DBoW3/src/ScoringObject.cpp	/^double ChiSquareScoring::score(const BowVector &v1, const BowVector &v2) $/;"	f	class:ChiSquareScoring
+score	thirdparty/DBoW3/src/ScoringObject.cpp	/^double DotProductScoring::score(const BowVector &v1, $/;"	f	class:DotProductScoring
+score	thirdparty/DBoW3/src/ScoringObject.cpp	/^double KLScoring::score(const BowVector &v1, const BowVector &v2) const$/;"	f	class:KLScoring
+score	thirdparty/DBoW3/src/ScoringObject.cpp	/^double L1Scoring::score(const BowVector &v1, const BowVector &v2) const$/;"	f	class:L1Scoring
+score	thirdparty/DBoW3/src/ScoringObject.cpp	/^double L2Scoring::score(const BowVector &v1, const BowVector &v2) const$/;"	f	class:L2Scoring
+DBoW3	thirdparty/DBoW3/src/ScoringObject.h	/^namespace  DBoW3 {$/;"	n
+GeneralScoring	thirdparty/DBoW3/src/ScoringObject.h	/^class  DBOW_API GeneralScoring$/;"	c	namespace:DBoW3
+LOG_EPS	thirdparty/DBoW3/src/ScoringObject.h	/^	static const double LOG_EPS; $/;"	m	class:DBoW3::GeneralScoring
+__D_T_SCORING_OBJECT__	thirdparty/DBoW3/src/ScoringObject.h	11;"	d
+__SCORING_CLASS	thirdparty/DBoW3/src/ScoringObject.h	52;"	d
+__SCORING_CLASS	thirdparty/DBoW3/src/ScoringObject.h	90;"	d
+~GeneralScoring	thirdparty/DBoW3/src/ScoringObject.h	/^  virtual ~GeneralScoring() {} \/\/!< Required for virtual base classes	$/;"	f	class:DBoW3::GeneralScoring
+DBoW3	thirdparty/DBoW3/src/Vocabulary.cpp	/^namespace DBoW3$/;"	n	file:
+HKmeansStep	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::HKmeansStep ( NodeId parent_id,$/;"	f	class:DBoW3::Vocabulary
+Vocabulary	thirdparty/DBoW3/src/Vocabulary.cpp	/^Vocabulary::Vocabulary ($/;"	f	class:DBoW3::Vocabulary
+Vocabulary	thirdparty/DBoW3/src/Vocabulary.cpp	/^Vocabulary::Vocabulary$/;"	f	class:DBoW3::Vocabulary
+create	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::create ($/;"	f	class:DBoW3::Vocabulary
+createScoringObject	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::createScoringObject()$/;"	f	class:DBoW3::Vocabulary
+createWords	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::createWords()$/;"	f	class:DBoW3::Vocabulary
+getEffectiveLevels	thirdparty/DBoW3/src/Vocabulary.cpp	/^float Vocabulary::getEffectiveLevels() const$/;"	f	class:DBoW3::Vocabulary
+getFeatures	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::getFeatures ($/;"	f	class:DBoW3::Vocabulary
+getParentNode	thirdparty/DBoW3/src/Vocabulary.cpp	/^NodeId Vocabulary::getParentNode$/;"	f	class:DBoW3::Vocabulary
+getWord	thirdparty/DBoW3/src/Vocabulary.cpp	/^cv::Mat Vocabulary::getWord ( WordId wid ) const$/;"	f	class:DBoW3::Vocabulary
+getWordWeight	thirdparty/DBoW3/src/Vocabulary.cpp	/^WordValue Vocabulary::getWordWeight ( WordId wid ) const$/;"	f	class:DBoW3::Vocabulary
+getWordsFromNode	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::getWordsFromNode$/;"	f	class:DBoW3::Vocabulary
+initiateClusters	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::initiateClusters$/;"	f	class:DBoW3::Vocabulary
+initiateClustersKMpp	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::initiateClustersKMpp ($/;"	f	class:DBoW3::Vocabulary
+load	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::load ( const cv::FileStorage &fs,$/;"	f	class:DBoW3::Vocabulary
+load	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::load ( const std::string &filename )$/;"	f	class:DBoW3::Vocabulary
+loadFromBinaryFile	thirdparty/DBoW3/src/Vocabulary.cpp	/^bool Vocabulary::loadFromBinaryFile ( const std::string& filename )$/;"	f	class:DBoW3::Vocabulary
+loadFromTextFile	thirdparty/DBoW3/src/Vocabulary.cpp	/^bool Vocabulary::loadFromTextFile ( const std::string& filename )$/;"	f	class:DBoW3::Vocabulary
+operator <<	thirdparty/DBoW3/src/Vocabulary.cpp	/^std::ostream& operator<< ( std::ostream &os,$/;"	f	namespace:DBoW3
+operator =	thirdparty/DBoW3/src/Vocabulary.cpp	/^Vocabulary::operator=$/;"	f	class:DBoW3::Vocabulary
+save	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::save ( const std::string &filename ) const$/;"	f	class:DBoW3::Vocabulary
+save	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::save ( cv::FileStorage &f,$/;"	f	class:DBoW3::Vocabulary
+setNodeWeights	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::setNodeWeights$/;"	f	class:DBoW3::Vocabulary
+setScoringType	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::setScoringType ( ScoringType type )$/;"	f	class:DBoW3::Vocabulary
+setWeightingType	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::setWeightingType ( WeightingType type )$/;"	f	class:DBoW3::Vocabulary
+stopWords	thirdparty/DBoW3/src/Vocabulary.cpp	/^int Vocabulary::stopWords ( double minWeight )$/;"	f	class:DBoW3::Vocabulary
+transform	thirdparty/DBoW3/src/Vocabulary.cpp	/^WordId Vocabulary::transform$/;"	f	class:DBoW3::Vocabulary
+transform	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::transform ( const cv::Mat &feature,$/;"	f	class:DBoW3::Vocabulary
+transform	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::transform ($/;"	f	class:DBoW3::Vocabulary
+transform	thirdparty/DBoW3/src/Vocabulary.cpp	/^void Vocabulary::transform$/;"	f	class:DBoW3::Vocabulary
+~Vocabulary	thirdparty/DBoW3/src/Vocabulary.cpp	/^Vocabulary::~Vocabulary()$/;"	f	class:DBoW3::Vocabulary
+DBoW3	thirdparty/DBoW3/src/Vocabulary.h	/^namespace DBoW3 {$/;"	n
+Node	thirdparty/DBoW3/src/Vocabulary.h	/^    Node(): id(0), weight(0), parent(0), word_id(0){}$/;"	f	struct:DBoW3::Vocabulary::Node
+Node	thirdparty/DBoW3/src/Vocabulary.h	/^    Node(NodeId _id): id(_id), weight(0), parent(0), word_id(0){}$/;"	f	struct:DBoW3::Vocabulary::Node
+Node	thirdparty/DBoW3/src/Vocabulary.h	/^  struct Node $/;"	s	class:DBoW3::Vocabulary
+Vocabulary	thirdparty/DBoW3/src/Vocabulary.h	/^class DBOW_API Vocabulary$/;"	c	namespace:DBoW3
+__D_T__VOCABULARY__	thirdparty/DBoW3/src/Vocabulary.h	11;"	d
+children	thirdparty/DBoW3/src/Vocabulary.h	/^    std::vector<NodeId> children;$/;"	m	struct:DBoW3::Vocabulary::Node
+descriptor	thirdparty/DBoW3/src/Vocabulary.h	/^    cv::Mat descriptor;$/;"	m	struct:DBoW3::Vocabulary::Node
+empty	thirdparty/DBoW3/src/Vocabulary.h	/^  virtual inline bool empty() const{ return m_words.empty();}$/;"	f	class:DBoW3::Vocabulary
+getBranchingFactor	thirdparty/DBoW3/src/Vocabulary.h	/^  inline int getBranchingFactor() const { return m_k; }$/;"	f	class:DBoW3::Vocabulary
+getDepthLevels	thirdparty/DBoW3/src/Vocabulary.h	/^  inline int getDepthLevels() const { return m_L; }$/;"	f	class:DBoW3::Vocabulary
+getScoringType	thirdparty/DBoW3/src/Vocabulary.h	/^  inline ScoringType getScoringType() const { return m_scoring; }$/;"	f	class:DBoW3::Vocabulary
+getWeightingType	thirdparty/DBoW3/src/Vocabulary.h	/^  inline WeightingType getWeightingType() const { return m_weighting; }$/;"	f	class:DBoW3::Vocabulary
+id	thirdparty/DBoW3/src/Vocabulary.h	/^    NodeId id;$/;"	m	struct:DBoW3::Vocabulary::Node
+isLeaf	thirdparty/DBoW3/src/Vocabulary.h	/^    inline bool isLeaf() const { return children.empty(); }$/;"	f	struct:DBoW3::Vocabulary::Node
+m_L	thirdparty/DBoW3/src/Vocabulary.h	/^  int m_L;$/;"	m	class:DBoW3::Vocabulary
+m_k	thirdparty/DBoW3/src/Vocabulary.h	/^  int m_k;$/;"	m	class:DBoW3::Vocabulary
+m_nodes	thirdparty/DBoW3/src/Vocabulary.h	/^  std::vector<Node> m_nodes;$/;"	m	class:DBoW3::Vocabulary
+m_scoring	thirdparty/DBoW3/src/Vocabulary.h	/^  ScoringType m_scoring;$/;"	m	class:DBoW3::Vocabulary
+m_scoring_object	thirdparty/DBoW3/src/Vocabulary.h	/^  GeneralScoring* m_scoring_object;$/;"	m	class:DBoW3::Vocabulary
+m_weighting	thirdparty/DBoW3/src/Vocabulary.h	/^  WeightingType m_weighting;$/;"	m	class:DBoW3::Vocabulary
+m_words	thirdparty/DBoW3/src/Vocabulary.h	/^  std::vector<Node*> m_words;$/;"	m	class:DBoW3::Vocabulary
+pDescriptor	thirdparty/DBoW3/src/Vocabulary.h	/^  typedef const cv::Mat pDescriptor;$/;"	t	class:DBoW3::Vocabulary
+parent	thirdparty/DBoW3/src/Vocabulary.h	/^    NodeId parent;$/;"	m	struct:DBoW3::Vocabulary::Node
+score	thirdparty/DBoW3/src/Vocabulary.h	/^  double score(const BowVector &a, const BowVector &b) const{    return m_scoring_object->score(a, b);}$/;"	f	class:DBoW3::Vocabulary
+size	thirdparty/DBoW3/src/Vocabulary.h	/^  virtual inline unsigned int size() const{  return (unsigned int)m_words.size();}$/;"	f	class:DBoW3::Vocabulary
+weight	thirdparty/DBoW3/src/Vocabulary.h	/^    WordValue weight;$/;"	m	struct:DBoW3::Vocabulary::Node
+word_id	thirdparty/DBoW3/src/Vocabulary.h	/^    WordId word_id;$/;"	m	struct:DBoW3::Vocabulary::Node
+DBOW_API	thirdparty/DBoW3/src/exports.h	39;"	d
+DBOW_API	thirdparty/DBoW3/src/exports.h	46;"	d
+DBOW_VERSION	thirdparty/DBoW3/src/exports.h	50;"	d
+_CRT_SECURE_NO_DEPRECATE	thirdparty/DBoW3/src/exports.h	35;"	d
+__DBOW_CORE_TYPES_H__	thirdparty/DBoW3/src/exports.h	32;"	d
+CmdLineParser	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	c	file:
+CmdLineParser	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	f	class:CmdLineParser
+EXTENDED_SURF	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^const bool EXTENDED_SURF = false;$/;"	v
+argc	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	m	class:CmdLineParser	file:
+argv	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	m	class:CmdLineParser	file:
+loadFeatures	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^vector< cv::Mat  >  loadFeatures( std::vector<string> path_to_images,string descriptor="") throw (std::exception){$/;"	f
+main	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^int main(int argc,char **argv)$/;"	f
+operator ()	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	f	class:CmdLineParser
+operator []	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	f	class:CmdLineParser
+readImagePaths	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^vector<string> readImagePaths(int argc,char **argv,int start){$/;"	f
+saveToFile	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^void saveToFile(string filename,const vector<cv::Mat> &features){$/;"	f
+wait	thirdparty/DBoW3/utils/create_voc_step0.cpp	/^void wait()$/;"	f
+CmdLineParser	thirdparty/DBoW3/utils/create_voc_step1.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	c	file:
+CmdLineParser	thirdparty/DBoW3/utils/create_voc_step1.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	f	class:CmdLineParser
+argc	thirdparty/DBoW3/utils/create_voc_step1.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	m	class:CmdLineParser	file:
+argv	thirdparty/DBoW3/utils/create_voc_step1.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	m	class:CmdLineParser	file:
+main	thirdparty/DBoW3/utils/create_voc_step1.cpp	/^int main(int argc,char **argv)$/;"	f
+operator ()	thirdparty/DBoW3/utils/create_voc_step1.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	f	class:CmdLineParser
+operator []	thirdparty/DBoW3/utils/create_voc_step1.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	f	class:CmdLineParser
+readFeaturesFromFile	thirdparty/DBoW3/utils/create_voc_step1.cpp	/^vector<cv::Mat> readFeaturesFromFile(string filename){$/;"	f
+CmdLineParser	thirdparty/DBoW3/utils/demo_general.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	c	file:
+CmdLineParser	thirdparty/DBoW3/utils/demo_general.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	f	class:CmdLineParser
+EXTENDED_SURF	thirdparty/DBoW3/utils/demo_general.cpp	/^const bool EXTENDED_SURF = false;$/;"	v
+argc	thirdparty/DBoW3/utils/demo_general.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	m	class:CmdLineParser	file:
+argv	thirdparty/DBoW3/utils/demo_general.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	m	class:CmdLineParser	file:
+loadFeatures	thirdparty/DBoW3/utils/demo_general.cpp	/^vector< cv::Mat  >  loadFeatures( std::vector<string> path_to_images,string descriptor="") throw (std::exception){$/;"	f
+main	thirdparty/DBoW3/utils/demo_general.cpp	/^int main(int argc,char **argv)$/;"	f
+operator ()	thirdparty/DBoW3/utils/demo_general.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	f	class:CmdLineParser
+operator []	thirdparty/DBoW3/utils/demo_general.cpp	/^class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char **_argv):argc(_argc),argv(_argv){}  bool operator[] ( string param ) {int idx=-1;  for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i;    return ( idx!=-1 ) ;    } string operator()(string param,string defvalue="-1"){int idx=-1;    for ( int i=0; i<argc && idx==-1; i++ ) if ( string ( argv[i] ) ==param ) idx=i; if ( idx==-1 ) return defvalue;   else  return ( argv[  idx+1] ); }};$/;"	f	class:CmdLineParser
+readImagePaths	thirdparty/DBoW3/utils/demo_general.cpp	/^vector<string> readImagePaths(int argc,char **argv,int start){$/;"	f
+saveFeatures	thirdparty/DBoW3/utils/demo_general.cpp	/^void saveFeatures(const  vector< cv::Mat   > &features){$/;"	f
+testDatabase	thirdparty/DBoW3/utils/demo_general.cpp	/^void testDatabase(const  vector<cv::Mat > &features)$/;"	f
+testVocCreation	thirdparty/DBoW3/utils/demo_general.cpp	/^void testVocCreation(const vector<cv::Mat> &features)$/;"	f
+wait	thirdparty/DBoW3/utils/demo_general.cpp	/^void wait()$/;"	f
 DException	thirdparty/DUtils/DException.h	/^	DException(const char *msg) throw(): m_message(msg){}$/;"	f	class:DUtils::DException
 DException	thirdparty/DUtils/DException.h	/^	DException(const string &msg) throw(): m_message(msg){}$/;"	f	class:DUtils::DException
 DException	thirdparty/DUtils/DException.h	/^	DException(void) throw(): m_message("DUtils exception"){}$/;"	f	class:DUtils::DException
