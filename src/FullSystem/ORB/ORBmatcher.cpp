@@ -1,26 +1,38 @@
 #include <boost/timer.hpp>
-#include "ORBMatcher.h"
+#include "ORBmatcher.h"
 
 namespace fdso {
 
 Matcher::Matcher ()
 {
-    _options.th_low = Config::Get<int>("matcher.th_low");
-    _options.th_high = Config::Get<int>("matcher.th_high");
+//    _options.th_low = Config::Get<int>("matcher.th_low");
+//    _options.th_high = Config::Get<int>("matcher.th_high");
 
-    _options.init_low = Config::Get<int>("matcher.init_low");
-    _options.init_high = Config::Get<int>("matcher.init_high");
-    _options.knnRatio = Config::Get<int>("matcher.knnRatio");
+//    _options.init_low = Config::Get<int>("matcher.init_low");
+//    _options.init_high = Config::Get<int>("matcher.init_high");
+//    _options.knnRatio = Config::Get<int>("matcher.knnRatio");
+    //_align = new SparseImgAlign(2, 0, 30, SparseImgAlign::GaussNewton, false, false );
+}
+
+Matcher::Matcher(int th_low, int th_high, int init_low, int init_high, float knnRatio)
+{
+    _options.th_low = th_low;//Config::Get<int>("matcher.th_low");
+    _options.th_high = th_high;//Config::Get<int>("matcher.th_high");
+
+    _options.init_low = init_low;//Config::Get<int>("matcher.init_low");
+    _options.init_high = init_high;//Config::Get<int>("matcher.init_high");
+    _options.knnRatio = knnRatio;//Config::Get<int>("matcher.knnRatio");
+
     //_align = new SparseImgAlign(2, 0, 30, SparseImgAlign::GaussNewton, false, false );
 }
 
 Matcher::~Matcher()
 {
-    if ( !_patches_align.empty() ) {
-        for ( uchar* p : _patches_align )
-            delete[] p;
-        _patches_align.clear();
-    }
+//    if ( !_patches_align.empty() ) {
+//        for ( uchar* p : _patches_align )
+//            delete[] p;
+//        _patches_align.clear();
+//    }
 }
 
 int Matcher::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
@@ -31,17 +43,49 @@ int Matcher::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
     for (int i = 0; i < 8; i++, pa++, pb++)
     {
         unsigned  int v = *pa ^ *pb;
+
+#ifdef __SSE2__
+        dist += _mm_popcnt_u64(v);
+#else
         v = v - ((v >> 1) & 0x55555555);
         v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
         dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+#endif
     }
     return dist;
+}
+
+int Matcher::SearchBruteForce(FrameHessian* frame1, FrameHessian* frame2, std::vector<cv::DMatch> &matches)
+{
+    assert (matches.empty());
+    matches.reserve(frame1->_features.size());
+
+    for (size_t i = 0; i < frame1->_features.size(); i++) {
+        Feature* f1 = frame1->_features[i];
+        int min_dist = 9999;
+        int min_dist_index = -1;
+
+        for (size_t j = 0; j < frame2->_features.size(); j++) {
+            Feature* f2 = frame2->_features[j];
+            int dist = Matcher::DescriptorDistance(f1->_desc, f2->_desc);
+            if (dist < min_dist) {
+                min_dist = dist;
+                min_dist_index = j;
+            }
+        }
+
+        if (min_dist < _options.th_low) {
+            matches.push_back(cv::DMatch(i, min_dist_index, float(min_dist)));
+        }
+    }
+
+    return matches.size();
 }
 
 int Matcher::CheckFrameDescriptors (
     FrameHessian* frame1,
     FrameHessian* frame2,
-    std::list<pair<int, int>>& matches
+    std::list<std::pair<int, int>>& matches
 )
 {
     std::vector<int> distance;
@@ -55,14 +99,14 @@ int Matcher::CheckFrameDescriptors (
 
     int cnt_good = 0;
     int best_dist = *std::min_element( distance.begin(), distance.end() );
-    LOG(INFO) << "best dist = " << best_dist << endl;
+    LOG(INFO) << "best dist = " << best_dist << std::endl;
 
     // 取个上下限
     best_dist = best_dist > _options.init_low ? best_dist : _options.init_low;
     best_dist = best_dist < _options.init_high ? best_dist : _options.init_high;
 
     int i = 0;
-    LOG(INFO) << "original matches: " << matches.size() << endl;
+    LOG(INFO) << "original matches: " << matches.size() << std::endl;
     for ( auto iter = matches.begin(); iter != matches.end(); i++ )
     {
         if ( distance[i] < _options.initMatchRatio * best_dist )
@@ -75,7 +119,7 @@ int Matcher::CheckFrameDescriptors (
             iter = matches.erase( iter );
         }
     }
-    LOG(INFO) << "correct matches: " << matches.size() << endl;
+    LOG(INFO) << "correct matches: " << matches.size() << std::endl;
     return cnt_good;
 }
 
@@ -84,6 +128,7 @@ int Matcher::SearchForTriangulation (
     FrameHessian* kf2,
     const Matrix3d& E12,
     std::vector< std::pair< int, int > >& matched_points,
+    CalibHessian* HCalib,
     const bool& onlyStereo )
 {
     DBoW3::FeatureVector& fv1 = kf1->_feature_vec;
@@ -133,8 +178,8 @@ int Matcher::SearchForTriangulation (
                         continue;
 
                     // 计算两个 keypoint 是否满足极线约束
-                    Eigen::Vector3d pt1 = kf1->_camera->Pixel2Camera( kp1 );
-                    Eigen::Vector3d pt2 = kf2->_camera->Pixel2Camera( kp2 );
+                    Eigen::Vector3d pt1 = projectPixel2Camera(kp1, HCalib); //kf1->_camera->Pixel2Camera( kp1 );
+                    Eigen::Vector3d pt2 = projectPixel2Camera(kp2, HCalib); //kf2->_camera->Pixel2Camera( kp2 );
                     if ( CheckDistEpipolarLine(pt1, pt2, E12) ) {
                         // 极线约束成立
                         bestIdx2 = idx2;
@@ -181,7 +226,7 @@ int Matcher::SearchForTriangulation (
 
     for ( size_t i = 0; i < matches12.size(); i++ ) {
         if ( matches12[i] >= 0 )
-            matched_points.push_back( make_pair(i, matches12[i]) );
+            matched_points.push_back(std::make_pair(i, matches12[i]) );
     }
 
     LOG(INFO) << "matches: " << matches;
@@ -192,10 +237,15 @@ int Matcher::SearchForTriangulation (
 int Matcher::SearchByBoW(
     FrameHessian* kf1,
     FrameHessian* kf2,
-    std::map<int, int>& matches )
+    std::vector<cv::DMatch> &matches )
 {
+    if(kf1->_bow_vec.empty() || kf2->_bow_vec.empty())
+        return 0;
+
     DBoW3::FeatureVector& fv1 = kf1->_feature_vec;
     DBoW3::FeatureVector& fv2 = kf2->_feature_vec;
+
+//    std::cout<<"featureVector: "<<fv1.size()<<" "<<fv2.size()<<std::endl;
 
     int cnt_matches = 0;
 
@@ -234,12 +284,13 @@ int Matcher::SearchByBoW(
                         bestDist2 = dist;
                     }
                 }
-
+//                std::cout<<bestDist1<<" "<<bestDist2<<" "<<_options.th_low<<" "<<_options.knnRatio<<std::endl;
                 if ( bestDist1 < _options.th_low ) {
                     // 最小匹配距离小于阈值
                     if ( float(bestDist1) < _options.knnRatio * float(bestDist2) ) {
                         // 最好的匹配明显比第二好的匹配好
-                        matches[ real_idx_f1 ] = bestIdxF2;
+                        matches.push_back(cv::DMatch(real_idx_f1, bestIdxF2, float(bestDist1)));
+                        //matches[ real_idx_f1 ] = bestIdxF2;
                         if ( _options.checkOrientation ) {
                             float rot = kf1->_features[real_idx_f1]->_angle - kf2->_features[bestIdxF2]->_angle;
                             if ( rot < 0 ) rot += 360;
@@ -283,6 +334,20 @@ int Matcher::SearchByBoW(
             }
         }
     }
+
+//    cnt_matches = 0;
+//    std::vector<cv::DMatch> matches_tmp=matches;
+//    matches.clear();
+//    double min_dis = std::min_element( matches_tmp.begin(), matches_tmp.end(), [](const cv::DMatch & m1, const cv::DMatch & m2) {return m1.distance < m2.distance;})->distance;
+//    min_dis = min_dis < 20 ? 20 : min_dis;
+//    min_dis = min_dis > 50 ? 50 : min_dis;
+//    //LOG(INFO) << "min dis=" << min_dis << endl;
+//    for ( cv::DMatch& m : matches_tmp )
+//        if ( m.distance < 2 * min_dis)
+//        {
+//            matches.push_back(m);
+//            cnt_matches++;
+//        }
 
     return cnt_matches;
 }
@@ -580,3 +645,4 @@ bool Matcher::CheckDistEpipolarLine(
 //     LOG(INFO) << "set " << _patches_align.size() << " patches." << endl;
 // }
 // }
+}

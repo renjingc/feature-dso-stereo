@@ -20,7 +20,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "common_include.h"
+#include "util/NumType.h"
 
 namespace fdso
 {

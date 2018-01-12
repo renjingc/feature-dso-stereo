@@ -244,12 +244,10 @@ int PixelSelector::makeMaps(
 //			100*numHaveSub/(float)(wG[0]*hG[0]));
 	currentPotential = idealPotential;
 
-
 	if(plot)
 	{
 		int w = wG[0];
 		int h = hG[0];
-
 
 		MinimalImageB3 img(w,h);
 
@@ -286,12 +284,10 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
 	float * mapmax1 = fh->absSquaredGrad[1];
 	float * mapmax2 = fh->absSquaredGrad[2];
 
-
 	int w = wG[0];
 	int w1 = wG[1];
 	int w2 = wG[2];
 	int h = hG[0];
-
 
 	const Vec2f directions[16] = {
 	         Vec2f(0,    1.0000),
@@ -312,8 +308,6 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
 	         Vec2f(0.1951,   -0.9808)};
 
 	memset(map_out,0,w*h*sizeof(PixelSelectorStatus));
-
-
 
 	float dw1 = setting_gradDownweightPerLevel;   //0.75
 	float dw2 = dw1*dw1;

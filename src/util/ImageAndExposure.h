@@ -70,11 +70,11 @@ public:
 
 	inline cv::Mat toMat()
 	{
-                cv::Mat imageMat =cv::Mat(h, w, CV_32FC1, image);
+		cv::Mat imageMat = cv::Mat(h, w, CV_32FC1, image);
 		cv::Mat imageMat8;
 		imageMat.convertTo(imageMat8, CV_8U, 1, 0);
 
-                return imageMat8;
+		return imageMat8;
 	}
 };
 

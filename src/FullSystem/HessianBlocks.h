@@ -41,6 +41,8 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/core/eigen.hpp>
 
+#include "ORB/FeatureDetector.h"
+
 // for DBoW3
 #include <BowVector.h>
 #include <FeatureVector.h>
@@ -66,6 +68,8 @@ class FrameShell;
 
 class EFFrame;
 class EFPoint;
+
+class Feature;
 
 #define SCALE_IDEPTH 1.0f		// scales internal value to idepth.
 #define SCALE_XI_ROT 1.0f
@@ -172,12 +176,15 @@ struct FrameHessian
 	// std::vector<cv::KeyPoint> keypointsLeft,keypointsRight;
 	// cv::Mat descriptorsLeft,descriptorsRight;
 
-	// cv::Mat image;
-	// std::vector<cv::KeyPoint> keypoints;
-	// cv::Mat descriptors;
+	cv::Mat image;
+	// 金字塔，越往上越小，默认缩放倍数是2，因为2可以用SSE优化...虽然目前还没有用SSE
+	std::vector<cv::Mat>  _pyramid;      // gray image pyramid, it must be CV_8U
+	std::vector<cv::KeyPoint> keypoints;
+	cv::Mat descriptors;
+	std::vector<Feature*> _features;
 
-	DBoW3::BowVector _bow_vec;
-  	DBoW3::FeatureVector _feature_vec;
+    DBoW3::BowVector _bow_vec;
+    DBoW3::FeatureVector _feature_vec;
 
 	//零空间位姿
 	Mat66 nullspaces_pose;
@@ -343,7 +350,38 @@ struct FrameHessian
 	 * @param HCalib         [description]
 	 * 构建帧的梯度图，构建帧的雅克比和Hessian矩阵
 	 */
-	void makeImages(float* color, CalibHessian* HCalib);
+	void makeImages(ImageAndExposure* imageE, CalibHessian* HCalib);
+
+	// 将备选点的描述转换成 bow
+    void ComputeBoW(ORBVocabulary* _vocab);
+
+	void CleanAllFeatures()
+	{
+		for ( size_t i = 0; i < _features.size(); i++ )
+		{
+			delete _features[i];
+		}
+		_features.clear();
+	}
+
+	inline bool InFrame( const Eigen::Vector2d& pixel, const int& boarder = 10 ) const
+	{
+		return pixel[0] >= boarder && pixel[0] < image.cols - boarder
+		       && pixel[1] >= boarder && pixel[1] < image.rows - boarder;
+	}
+
+	inline bool InFrame( const cv::Point2f& pixel, const int& boarder = 10 ) const
+	{
+		return pixel.x >= boarder && pixel.x < image.cols - boarder
+		       && pixel.y >= boarder && pixel.y < image.rows - boarder;
+	}
+
+// 带level的查询
+	inline bool InFrame( const Eigen::Vector2d& pixel, const int& boarder, const int& level ) const
+	{
+		return pixel[0] / (1 << level) >= boarder && pixel[0] / (1 << level) < image.cols - boarder
+		       && pixel[1] / (1 << level) >= boarder && pixel[1] / (1 << level) < image.rows - boarder;
+	}
 
 	/**
 	 * [getPrior description]

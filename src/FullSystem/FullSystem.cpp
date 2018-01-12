@@ -72,84 +72,107 @@ int FrameHessian::instanceCounter = 0;
 int PointHessian::instanceCounter = 0;
 int CalibHessian::instanceCounter = 0;
 
-//void poseEstimationPnP(const Matrix44& T_init,
-//	const std::vector<cv::Point3f>& pts_3d_ref_,
-//	const std::vector<cv::KeyPoint>& keypoints,
-//    const std::vector<cv::DMatch>& feature_matches_,
-//	SE3& T_c_r_estimated_)
-//{
-//    // construct the 3d 2d observations
-//    std::vector<cv::Point3f> pts3d;
-//    std::vector<cv::Point2f> pts2d;
+ORBVocabulary* FullSystem::_vocab = nullptr;
 
-//    for ( cv::DMatch m:feature_matches_ )
-//    {
-//        pts3d.push_back( pts_3d_ref_[m.queryIdx] );
-//        pts2d.push_back(keypoints[m.trainIdx].pt );
-//    }
+void setRef3DPoints(FrameHessian* fh, std::vector<cv::Point3f>& pts_3d_ref_)
+{
+    // pts_3d_ref_.clear();
+    // descriptors_ref_ = Mat();
+    // cv::Mat depth;
+    // _ref_frame->disparityPointer()->copyTo(depth);
+    // for ( size_t i=0; i<_ref_frame->keypoints.size(); i++ )
+    // {
+    //     double d = findDepth(depth,_ref_frame->keypoints[i]);
+    //     if (d > 0)
+    //     {
+    //         Eigen::Vector3d p_cam = camera_->pixel2camera(
+    //             Vector2d(_ref_frame->keypoints[i].pt.x, _ref_frame->keypoints[i].pt.y), d
+    //         );
+    //         pts_3d_ref_.push_back( cv::Point3f( p_cam(0,0), p_cam(1,0), p_cam(2,0) ));
+    //         descriptors_ref_.push_back(_ref_frame->descriptors.row(i));
+    //     }
+    // }
+}
 
-//    cv::Mat K;
-//    cv::eigen2cv(_K,K);
+void poseEstimationPnP(const SE3& T_init,
+                       const std::vector<cv::Point3f>& pts_3d_ref_,
+                       const std::vector<Feature*>& points,
+                       const std::vector<cv::DMatch>& feature_matches_,
+                       const Eigen::Matrix3d _K,
+                       SE3& T_c_r_estimated_)
+{
+	// construct the 3d 2d observations
+	std::vector<cv::Point3d> pts3d;
+	std::vector<cv::Point2d> pts2d;
 
-//    Eigen::Matrix<float, 3, 3> r;
-//    Eigen::Vector3f t;
-//    r=T_init.block<3,3>(0,0);
-//    t<<T_init(0,3),T_init(1,3),T_init(2,3);
-//    cv::Mat rvec, tvec, inliers;
+	for ( cv::DMatch m : feature_matches_ )
+	{
+		pts3d.push_back( pts_3d_ref_[m.queryIdx] );
+		pts2d.push_back( points[m.trainIdx]._pixel );
+	}
 
-//    cv::eigen2cv(r,rvec);
-//    cv::eigen2cv(t,tvec);
-//    cv::solvePnPRansac( pts3d, pts2d, K, Mat(), rvec, tvec, true, 100, 4.0, 0.99, inliers,EPNP);
-//    int num_inliers_ = inliers.rows;
+	cv::Mat K;
+	cv::eigen2cv(_K, K);
 
-////    int inlierCount=0;
-////    ransac_cc(pts2d,pts3d,K,Mat(),rvec,tvec,inlierCount);
-////    num_inliers_=inlierCount;
+	Eigen::Matrix<double, 3, 3> r;
+	Eigen::Vector3d t;
+	r = T_init.block<3, 3>(0, 0);
+	t << T_init(0, 3), T_init(1, 3), T_init(2, 3);
+	cv::Mat rvec, tvec, inliers;
 
-//    cout<<"pnp inliers: "<<num_inliers_<<endl;
-//    T_c_r_estimated_ = SE3(
-//        SO3(rvec.at<double>(0,0), rvec.at<double>(1,0), rvec.at<double>(2,0)),
-//        Vector3d( tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0))
-//    );
+	cv::eigen2cv(r, rvec);
+	cv::eigen2cv(t, tvec);
+	cv::solvePnPRansac( pts3d, pts2d, K, Mat(), rvec, tvec, true, 100, 4.0, 0.99, inliers, cv::SOLVEPNP_EPNP);
+	int num_inliers_ = inliers.rows;
 
-//    // using bundle adjustment to optimize the pose
-//    typedef g2o::BlockSolver<g2o::BlockSolverTraits<6,2>> Block;
-//    Block::LinearSolverType* linearSolver = new g2o::LinearSolverDense<Block::PoseMatrixType>();
-//    Block* solver_ptr = new Block( linearSolver );
-//    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg ( solver_ptr );
-//    g2o::SparseOptimizer optimizer;
-//    optimizer.setAlgorithm ( solver );
+//    int inlierCount=0;
+//    ransac_cc(pts2d,pts3d,K,Mat(),rvec,tvec,inlierCount);
+//    num_inliers_=inlierCount;
 
-//    g2o::VertexSE3Expmap* pose = new g2o::VertexSE3Expmap();
-//    pose->setId ( 0 );
-//    pose->setEstimate ( g2o::SE3Quat (
-//                            T_c_r_estimated_.rotation_matrix(), T_c_r_estimated_.translation()
-//                        ) );
-//    optimizer.addVertex ( pose );
+	std::cout << "pnp inliers: " << num_inliers_ << std::endl;
+	T_c_r_estimated_ = SE3(
+	                     SO3(rvec.at<double>(0, 0), rvec.at<double>(1, 0), rvec.at<double>(2, 0)),
+	                     Vector3d( tvec.at<double>(0, 0), tvec.at<double>(1, 0), tvec.at<double>(2, 0))
+	                   );
 
-//    // edges
-//    for ( int i=0; i<inliers.rows; i++ )
-//    {
-//        int index = inliers.at<int>(i,0);
-//        // 3D -> 2D projection
-//        EdgeProjectXYZ2UVPoseOnly* edge = new EdgeProjectXYZ2UVPoseOnly();
-//        edge->setId(i);
-//        edge->setVertex(0, pose);
-//        edge->camera_ = camera_.get();
-//        edge->point_ = Vector3d( pts3d[index].x, pts3d[index].y, pts3d[index].z );
-//        edge->setMeasurement( Vector2d(pts2d[index].x, pts2d[index].y) );
-//        edge->setInformation( Eigen::Matrix2d::Identity() );
-//        optimizer.addEdge( edge );
-//    }
+//	// using bundle adjustment to optimize the pose
+//	typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 2>> Block;
+//	Block::LinearSolverType* linearSolver = new g2o::LinearSolverDense<Block::PoseMatrixType>();
+//	Block* solver_ptr = new Block( linearSolver );
+//	g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg ( solver_ptr );
+//	g2o::SparseOptimizer optimizer;
+//	optimizer.setAlgorithm ( solver );
 
-//    optimizer.initializeOptimization();
-//    optimizer.optimize(10);
+//	g2o::VertexSE3Expmap* pose = new g2o::VertexSE3Expmap();
+//	pose->setId ( 0 );
+//	pose->setEstimate ( g2o::SE3Quat (
+//	                      T_c_r_estimated_.rotation_matrix(), T_c_r_estimated_.translation()
+//	                    ) );
+//	optimizer.addVertex ( pose );
 
-//    T_c_r_estimated_ = SE3 (
-//        pose->estimate().rotation(),
-//        pose->estimate().translation()
-//    );
-//}
+//	// edges
+//	for ( int i = 0; i < inliers.rows; i++ )
+//	{
+//		int index = inliers.at<int>(i, 0);
+//		// 3D -> 2D projection
+//		EdgeProjectXYZ2UVPoseOnly* edge = new EdgeProjectXYZ2UVPoseOnly();
+//		edge->setId(i);
+//		edge->setVertex(0, pose);
+//		edge->camera_ = camera_.get();
+//		edge->point_ = Vector3d( pts3d[index].x, pts3d[index].y, pts3d[index].z );
+//		edge->setMeasurement( Vector2d(pts2d[index].x, pts2d[index].y) );
+//		edge->setInformation( Eigen::Matrix2d::Identity() );
+//		optimizer.addEdge( edge );
+//	}
+
+//	optimizer.initializeOptimization();
+//	optimizer.optimize(10);
+
+//	T_c_r_estimated_ = SE3 (
+//	                     pose->estimate().rotation(),
+//	                     pose->estimate().translation()
+//	                   );
+}
 /**
  *
  */
@@ -255,8 +278,16 @@ FullSystem::FullSystem(): matcher_flann_(new cv::flann::LshIndexParams(5, 10, 2)
 	minIdJetVisTracker = -1;
 	maxIdJetVisTracker = -1;
 
-	mpORBextractorLeft = new ORBextractor(300, 1.2, 3, 20, 8);
-	mpORBextractorRight = new ORBextractor(300, 1.2, 3, 20, 8);
+	mpORBextractorLeft = new ORBextractor(1000, 1.2, 5, 20, 8);
+	mpORBextractorRight = new ORBextractor(1000, 1.2, 5, 20, 8);
+
+	detectorLeft = new FeatureDetector(wG[0], hG[0], 10, 15.0);
+	detectorRight = new FeatureDetector(wG[0], hG[0], 10, 15.0);
+
+	_vocab = new ORBVocabulary();
+	_vocab->loadFromBinaryFile("/home/ren/work/fdso-build/bin/vocab/ORBvoc.bin");
+
+	matcher = new Matcher(65, 100, 30, 100, 0.7);
 }
 
 /**
@@ -397,7 +428,7 @@ void FullSystem::printResult(std::string file)
  * @param  fh_right [description]
  * @return          [description]
  */
-Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen::Matrix3d R)
+Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen::Matrix4d initT)
 {
 
 	assert(allFrameHistory.size() > 0);
@@ -411,9 +442,9 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen:
 		ow->pushStereoLiveFrame(fh, fh_right);
 	}
 
-	Sophus::SO3 init_R(R);
-	Eigen::Vector3d t(0, 0, 0); //
-	Sophus::SE3 init_Rt(R, t); //
+	// Sophus::SO3 init_R(R);
+	// Eigen::Vector3d t(0, 0, 0); //
+	// Sophus::SE3 init_Rt(R, t); //
 
 	//参考帧
 	FrameHessian* lastF = coarseTracker->lastRef;
@@ -716,11 +747,11 @@ void FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_r
 	fh->ab_exposure = image->exposure_time;
 
 	//左图的梯度点
-	fh->makeImages(image->image, &Hcalib);
+	fh->makeImages(image, &Hcalib);
 	fh_right->ab_exposure = image_right->exposure_time;
 
 	//右图的梯度点
-	fh_right->makeImages(image_right->image, &Hcalib);
+	fh_right->makeImages(image_right, &Hcalib);
 
 	//内参
 	Mat33f K = Mat33f::Identity();
@@ -1357,38 +1388,38 @@ void FullSystem::flagPointsForRemoval()
 }
 
 
-void FullSystem::ExtractORB(int flag, const cv::Mat &im)
-{
-	if (flag == 0)
-		(*mpORBextractorLeft)(im, cv::Mat(), mvKeys, mDescriptors);
-	else
-		(*mpORBextractorRight)(im, cv::Mat(), mvKeysRight, mDescriptorsRight);
-}
-void FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_)
+// void FullSystem::ExtractORB(int flag, const cv::Mat &im)
+// {
+// 	if (flag == 0)
+// 		(*mpORBextractorLeft)(im, cv::Mat(), mvKeys, mDescriptors);
+// 	else
+// 		(*mpORBextractorRight)(im, cv::Mat(), mvKeysRight, mDescriptorsRight);
+// }
+bool FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_)
 {
 	if (descriptorsLast.empty() || descriptorsCur.empty())
 	{
 		std::cout << "error" << std::endl;
-		return;
+		return false;
 	}
 	std::vector<cv::DMatch> matches;
 	matcher_flann_.match( descriptorsLast, descriptorsCur, matches );
-	// select the best matches
-	float min_dis = std::min_element (
-	                  matches.begin(), matches.end(),
-	                  [] ( const cv::DMatch & m1, const cv::DMatch & m2 )
-	{
-		return m1.distance < m2.distance;
-	} )->distance;
+	// // select the best matches
+	// float min_dis = std::min_element (
+	//                   matches.begin(), matches.end(),
+	//                   [] ( const cv::DMatch & m1, const cv::DMatch & m2 )
+	// {
+	// 	return m1.distance < m2.distance;
+	// } )->distance;
 
-	feature_matches_.clear();
-	for ( cv::DMatch& m : matches )
-	{
-		if ( m.distance < std::max<float> ( min_dis * 2.0, 30.0 ) )
-		{
-			feature_matches_.push_back(m);
-		}
-	}
+	// feature_matches_.clear();
+	// for ( cv::DMatch& m : matches )
+	// {
+	// 	if ( m.distance < std::max<float> ( min_dis * 2.0, 30.0 ) )
+	// 	{
+	// 		feature_matches_.push_back(m);
+	// 	}
+	// }
 }
 
 // bool checkEstimatedPose(const cv::Mat& R,const cv::Mat& t,)
@@ -1408,70 +1439,8 @@ void FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv:
 //           }
 //           return true;
 // }
-//
-//
-//int FullSystem::CheckFrameDescriptors (
-//  FrameShell* frame1,
-//  FrameShell* frame2,
-//  std::list<std::pair<int, int>>& matches
-//)
-//{
-//	std::vector<int> distance;
-//	for ( auto& m : matches )
-//	{
-//		distance.push_back( DescriptorDistance(
-//		                      frame1->descriptorsLeft,
-//		                      frame2->_descriptorsLeft
-//		                    ));
-//	}
 
-//	int cnt_good = 0;
-//	int best_dist = *std::min_element( distance.begin(), distance.end() );
-//	//LOG(INFO) << "best dist = " << best_dist << endl;
 
-//	// 取个上下限
-//	best_dist = best_dist > _options.init_low ? best_dist : _options.init_low;
-//	best_dist = best_dist < _options.init_high ? best_dist : _options.init_high;
-
-//	int i = 0;
-//	//LOG(INFO) << "original matches: " << matches.size() << endl;
-//	for ( auto iter = matches.begin(); iter != matches.end(); i++ )
-//	{
-//		if ( distance[i] < _options.initMatchRatio * best_dist )
-//		{
-//			cnt_good++;
-//			iter++;
-//		}
-//		else
-//		{
-//			iter = matches.erase( iter );
-//		}
-//	}
-//	//LOG(INFO) << "correct matches: " << matches.size() << endl;
-//	return cnt_good;
-//}
-
-//int FullSystem::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
-//{
-//	const int *pa = a.ptr<int32_t>();
-//	const int *pb = b.ptr<int32_t>();
-//	int dist = 0;
-//	for (int i = 0; i < 8; i++, pa++, pb++)
-//	{
-//		unsigned  int v = *pa ^ *pb;
-//		v = v - ((v >> 1) & 0x55555555);
-//		v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
-//		dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
-//	}
-//	return dist;
-//}
-//void FullSystem::ComputeBoW(FrameShell* f)
-//{
-//	if ( _vocab != nullptr && f->_bow_vec.empty() )
-//	{
-//		_vocab->transform( f->descriptorsLeft, f->_bow_vec, f->_feature_vec, 4);
-//	}
-//}
 /**
  * [FullSystem::addActiveFrame description]
  * @param image       [description]
@@ -1506,40 +1475,79 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	//曝光时间
 	fh->ab_exposure = image->exposure_time;
 	//得到当前帧的每一层的灰度图像和xy方向梯度值和xy梯度平方和，用于跟踪和初始化
-	fh->makeImages(image->image, &Hcalib);
+	fh->makeImages(image, &Hcalib);
 	//曝光时间
 	fh_right->ab_exposure = image_right->exposure_time;
 	//得到当前帧的每一层的灰度图像和xy方向梯度值和xy梯度平方和，用于跟踪和初始化
-	fh_right->makeImages(image_right->image, &Hcalib);
-
-//	fh->image = image->toMat();
-//	fh_right->image = image->toMat();
+	fh_right->makeImages(image_right, &Hcalib);
 
 	//提取特征点
 	// ORB extraction
 	// 同时对左右目提特征
 	// (*mpORBextractorLeft)(fh->image, cv::Mat(), fh->keypoints, fh->descriptors);
-	// (*mpORBextractorRight)(fh_right->image, cv::Mat(), fh->keypoints, fh->descriptors);
+	// (*mpORBextractorRight)(fh_right->image, cv::Mat(), fh_right->keypoints, fh_right->descriptors);
 
-	// fh->keypointsLeft = mvKeys;
-	// shell->keypointsRight = mvKeysRight;
-	// mDescriptors.copyTo(shell->descriptorsLeft);
-	// mDescriptorsRight.copyTo(shell->descriptorsRight);
-	// imageLeft8.copyTo(shell->imageLeft);
-	// imageRight8.copyTo(shell->imageRight);
+//    cv::Mat show = fh->image.clone();
+//    for (Feature* fea : fh->_features )
+//    {
+//        cv::circle( show, cv::Point2f(fea->_pixel[0], fea->_pixel[1]), 2, cv::Scalar(255, 250, 255), 2);
+//    }
+//    cv::imshow("Features", show );
+//    cv::waitKey(1);
+	makeNewTraces(fh, fh_right, 0);
+	fh->ComputeBoW(_vocab);
 
-	// for(int i=0;i<mvKeys.size();i++)
-	// 	cv::circle(imageLeft8, mvKeys[i].pt, 2, cv::Scalar(255,0,0),2);
-	// for(int i=0;i<mvKeysRight.size();i++)
-	// 	cv::circle(imageRight8, mvKeysRight[i].pt, 2, cv::Scalar(255,0,0),2);
+	Mat33f K = Mat33f::Identity();
+	K(0, 0) = Hcalib.fxl();
+	K(1, 1) = Hcalib.fyl();
+	K(0, 2) = Hcalib.cxl();
+	K(1, 2) = Hcalib.cyl();
+//    for (ImmaturePoint* ph : fh->immaturePoints)
+//    {
+//        //坐标
+//        ph->u_stereo = ph->u;
+//        ph->v_stereo = ph->v;
+//        ph->idepth_min_stereo = ph->idepth_min = 0;
+//        ph->idepth_max_stereo = ph->idepth_max = NAN;
 
-	// imshow("imageLeft",imageLeft8);
-	// imshow("imageRight",imageRight8);
+//        //左图与右图进行双目匹配，获取静态深度
+//        ImmaturePointStatus phTraceRightStatus = ph->traceStereo(fh_right, K, 1);
+
+//        //判断当前点的深度值是否好
+//        if (phTraceRightStatus == ImmaturePointStatus::IPS_GOOD)
+//        {
+//            //获取右图中的这个点
+//            ImmaturePoint* phRight = new ImmaturePoint(ph->lastTraceUV(0), ph->lastTraceUV(1), fh_right, &Hcalib );
+
+//            //获取右图中的像素坐标
+//            phRight->u_stereo = phRight->u;
+//            phRight->v_stereo = phRight->v;
+//            phRight->idepth_min_stereo = ph->idepth_min = 0;
+//            phRight->idepth_max_stereo = ph->idepth_max = NAN;
+
+//            //右图与左图进行双目匹配，获取静态深度
+//            ImmaturePointStatus  phTraceLeftStatus = phRight->traceStereo(fh, K, 0);
+
+//            //两张图中的ｕ坐标差
+//            float u_stereo_delta = abs(ph->u_stereo - phRight->lastTraceUV(0));
+
+//            //左图中这个点的深度
+//            float depth = 1.0f / ph->idepth_stereo;
+
+//            //判断这个点的状态，这个点左图ｕ坐标小于１，深度在０-70之间
+//            if (phTraceLeftStatus == ImmaturePointStatus::IPS_GOOD && u_stereo_delta < 1 && depth > 0 && depth < 70)   //original u_stereo_delta 1 depth < 70
+//            {
+//                //更新该点的最小和最大的深度
+//                ph->idepth_min = ph->idepth_min_stereo;
+//                ph->idepth_max = ph->idepth_max_stereo;
+//            }
+//        }
+//    }
 
 	//将当前帧增加到历史记录中
 	allFrameHistory.push_back(shell);
-	// allFrameHessianHistory.push_back(fh);
-	// allFrameHessianRightHistory.push_back(fh_right);
+	allFrameHessianHistory.push_back(fh);
+	allFrameHessianRightHistory.push_back(fh_right);
 
 	if (!initialized)
 	{
@@ -1555,17 +1563,63 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	}
 	else	// do front-end operation.
 	{
-         Eigen::Matrix3d initR;
-		// std::vector<cv::DMatch> matches;
-		// cv::Mat image;
+		Eigen::Matrix3d initR;
+		if (allFrameHessianHistory.size() > 4)
+		{
+			std::vector<cv::DMatch> matches;
+			FrameHessian* kf1 = allKeyFramesHessianHistory[allKeyFramesHessianHistory.size() - 1];
+			FrameHessian* kf2 = fh;
+			if (matcher->SearchByBoW(kf1, kf2, matches))
+				LOG(INFO) << "search by bow matches: " << matches.size() << std::endl;
 
-//		ComputeBoW(allFrameHistory[allFrameHistory.size() - 2]);
-//		ComputeBoW(allFrameHistory[allFrameHistory.size() - 1]);
+			// cv::Mat img_show(kf1->image.rows, 2 * kf1->image.cols, CV_8UC1);
+			// kf1->image.copyTo( img_show(cv::Rect(0, 0, kf1->image.cols, kf1->image.rows)) );
+			// kf2->image.copyTo( img_show(cv::Rect(kf1->image.cols, 0, kf1->image.cols, kf1->image.rows)) );
 
-//		find_feature_matches(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->descriptors,
-//		                     allFrameHessianHistory[allFrameHessianHistory.size() - 1]->descriptors, matches);
+			// for ( cv::DMatch& m : matches )
+			// {
+			// 	cv::circle( img_show,
+			// 	            cv::Point2f(kf1->_features[m.queryIdx]->_pixel[0], kf1->_features[m.queryIdx]->_pixel[1]),
+			// 	            2, cv::Scalar(255, 250, 255), 2 );
+			// 	cv::circle( img_show,
+			// 	            cv::Point2f(kf1->image.cols + kf2->_features[m.trainIdx]->_pixel[0], kf2->_features[m.trainIdx]->_pixel[1]),
+			// 	            2, cv::Scalar(255, 250, 255), 2 );
+			// 	cv::line( img_show,
+			// 	          cv::Point2f(kf1->_features[m.queryIdx]->_pixel[0], kf1->_features[m.queryIdx]->_pixel[1]),
+			// 	          cv::Point2f(kf2->image.cols + kf2->_features[m.trainIdx]->_pixel[0], kf2->_features[m.trainIdx]->_pixel[1]),
+			// 	          cv::Scalar(255, 250, 255), 1
+			// 	        );
+			// }
+			// cv::imshow("match", img_show);
+			// cv::waitKey(1);
+			//
+			if (matches.size() >= 5)
+			{
+				FrameShell* slast = allFrameHistory[allFrameHistory.size() - 2];
+				//上上一帧
+				FrameShell* sprelast = allFrameHistory[allFrameHistory.size() - 3];
+				SE3 slast_2_sprelast;
+				SE3 lastF_2_slast;
+				SE3 motionPose;
+				SE3 initT;
+				{	// lock on global pose consistency!
+					boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
+					//上上一帧相对与上一帧的相对位姿
+					slast_2_sprelast = sprelast->camToWorld.inverse() * slast->camToWorld;
+					//上一帧相对与参考帧的位姿的变换
+					lastF_2_slast = slast->camToWorld.inverse() * lastF->shell->camToWorld;
+					//上一帧的a和b变换
+					aff_last_2_l = slast->aff_g2l;
+					initT=motionPose = slast_2_sprelast.inverse() * lastF_2_slast;
+				}
+				// poseEstimationPnP(motionPose, fh->_features,K.cast<double>(),initT);
+			}
+		}
 
-//		if (matches.size() > 5)
+		// bool ok = find_feature_matches(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->descriptors,
+		//                                allFrameHessianHistory[allFrameHessianHistory.size() - 1]->descriptors, matches);
+
+//		if (ok && matches.size() > 5)
 //		{
 //			cv::Mat K = (cv::Mat_<float>(3, 3) << Hcalib.fxl(), 0, Hcalib.cxl(), 0, Hcalib.fyl(), Hcalib.cyl(), 0, 0, 1);
 //			std::vector<cv::Point2f> points1;
@@ -1583,14 +1637,14 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 //			cv::recoverPose(essential_matrix, points1, points2, K, R, t);
 //			cv::cv2eigen(R, initR);
 //			// std::cout << initR << std::endl;
+//			cv::drawMatches(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->image, allFrameHessianHistory[allFrameHessianHistory.size() - 2]->keypoints,
+//			                allFrameHessianHistory[allFrameHessianHistory.size() - 1]->image, allFrameHessianHistory[allFrameHessianHistory.size() - 1]->keypoints,
+//			                matches,
+//			                image,
+//			                cv::Scalar(255, 0, 0)
+//			               );
+//			cv::imshow("match", image);
 //		}
-//		cv::drawMatches(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->image, allFrameHessianHistory[allFrameHessianHistory.size() - 2]->keypoints,
-//		                allFrameHessianHistory[allFrameHessianHistory.size() - 1]->image, allFrameHessianHistory[allFrameHessianHistory.size() - 1]->keypoints,
-//		                matches,
-//		                image,
-//		                cv::Scalar(255, 0, 0)
-//		               );
-//		cv::imshow("match", image);
 
 		// =========================== SWAP tracking reference?. =========================
 		//如果当前关键帧的参考帧ID大于当前跟踪的参考帧ID
@@ -1916,6 +1970,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 
 	//插入关键帧
 	allKeyFramesHistory.push_back(fh->shell);
+	allKeyFramesHessianHistory.push_back(fh);
 
 	//误差能量函数插入该帧的Hessian
 	ef->insertFrame(fh, &Hcalib);
@@ -2029,7 +2084,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 
 	// =========================== add new Immature points & new residuals =========================
 	//获取当前新的关键帧的点
-	makeNewTraces(fh, fh_right, 0);
+	//makeNewTraces(fh, fh_right, 0);
 
 	//发布关键帧
 	for (IOWrap::Output3DWrapper* ow : outputWrapper)
@@ -2086,6 +2141,8 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 	firstFrame->frameID = allKeyFramesHistory.size();
 	//插入这一帧的信息
 	allKeyFramesHistory.push_back(firstFrame->shell);
+	allKeyFramesHessianHistory.push_back(firstFrame);
+
 	//能量函数插入当前帧
 	ef->insertFrame(firstFrame, &Hcalib);
 	//设置每一帧的目标帧，这时候只有第一帧
@@ -2094,7 +2151,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 	//第一帧的右帧
 	FrameHessian* firstFrameRight = coarseInitializer->firstRightFrame;
 	// //
-	frameHessiansRight.push_back(firstFrameRight);
+	// frameHessiansRight.push_back(firstFrameRight);
 
 	//设置第一帧的点Hessian矩阵
 	firstFrame->pointHessians.reserve(wG[0]*hG[0] * 0.2f);
@@ -2209,6 +2266,8 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
  */
 void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRight, float* gtDepth)
 {
+	boost::timer t;
+
 	pixelSelector->allowFast = true;
 	//int numPointsTotal = makePixelStatus(newFrame->dI, selectionMap, wG[0], hG[0], setting_desiredDensity);
 	//筛选新的点，点的总数
@@ -2220,7 +2279,7 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 	newFrame->pointHessiansMarginalized.reserve(numPointsTotal * 1.2f);
 	newFrame->pointHessiansOut.reserve(numPointsTotal * 1.2f);
 
-	//遍历每一个点
+	//遍历每一个点,selectionMap==0则不是。1则是
 	for (int y = patternPadding + 1; y < hG[0] - patternPadding - 2; y++)
 		for (int x = patternPadding + 1; x < wG[0] - patternPadding - 2; x++)
 		{
@@ -2234,8 +2293,57 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 			if (!std::isfinite(impt->energyTH))
 				delete impt;
 			else
+			{
 				newFrame->immaturePoints.push_back(impt);
+
+				Feature* fea = new Feature(Eigen::Vector2d(x, y), 0, 0);
+				fea->_frame = newFrame;
+				detectorLeft->ComputeDescriptorAndAngle(fea);
+				newFrame->_features.push_back(fea);
+			}
 		}
+
+	// (*mpORBextractorLeft)(newFrame->image, cv::Mat(), newFrame->keypoints, newFrame->descriptors);
+	// int numPointsTotal = newFrame->keypoints.size();
+	// newFrame->pointHessians.reserve(numPointsTotal * 1.2f);
+	// //fh->pointHessiansInactive.reserve(numPointsTotal*1.2f);
+	// newFrame->pointHessiansMarginalized.reserve(numPointsTotal * 1.2f);
+	// newFrame->pointHessiansOut.reserve(numPointsTotal * 1.2f);
+
+	// for (int i = 0; i < numPointsTotal; i++)
+	// {
+	// 	ImmaturePoint* impt = new ImmaturePoint(newFrame->keypoints[i].pt.x, newFrame->keypoints[i].pt.y, newFrame, 1, &Hcalib);
+
+	// 	//插入
+	// 	if (!std::isfinite(impt->energyTH))
+	// 		delete impt;
+	// 	else
+	// 		newFrame->immaturePoints.push_back(impt);
+	// }
+
+	// detectorLeft->Detect(newFrame);
+	// //detectorRight->Detect(newFrameRight);
+	// //设置新参考帧的点Hessian矩阵
+
+	// int numPointsTotal = newFrame->_features.size();
+	// newFrame->pointHessians.reserve(numPointsTotal * 1.2f);
+	// //fh->pointHessiansInactive.reserve(numPointsTotal*1.2f);
+	// newFrame->pointHessiansMarginalized.reserve(numPointsTotal * 1.2f);
+	// newFrame->pointHessiansOut.reserve(numPointsTotal * 1.2f);
+
+	// for (int i = 0; i < numPointsTotal; i++)
+	// {
+	// 	ImmaturePoint* impt = new ImmaturePoint(newFrame->_features[i]->_pixel[0], newFrame->_features[i]->_pixel[1], newFrame, 1, &Hcalib);
+
+	// 	//插入
+	// 	if (!std::isfinite(impt->energyTH))
+	// 		delete impt;
+	// 	else
+	// 		newFrame->immaturePoints.push_back(impt);
+	// }
+
+	std::cout << "t: " << t.elapsed() << std::endl;
+	std::cout << "numPointsTotal*1.2: " << numPointsTotal * 1.2 << std::endl;
 	printf("MADE %d IMMATURE POINTS!\n", (int)newFrame->immaturePoints.size());
 }
 

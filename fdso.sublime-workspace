@@ -4,6 +4,38 @@
 		"selected_items":
 		[
 			[
+				"selec",
+				"selectionMap"
+			],
+			[
+				"dete",
+				"detectorRight"
+			],
+			[
+				"Fe",
+				"FeatureDetector	(FullSystem.h)"
+			],
+			[
+				"HessianB",
+				"HessianBlocks.h	(FeatureDetector.h)"
+			],
+			[
+				"Featu",
+				"FeatureDetector	(FeatureDetector.cpp)"
+			],
+			[
+				"Fea",
+				"FeatureDetector"
+			],
+			[
+				"_image",
+				"_image_height"
+			],
+			[
+				"set",
+				"settings	(main_dso_pangolin.cpp)"
+			],
+			[
 				"key",
 				"keypoint	(ORBextractor.cpp)"
 			],
@@ -159,15 +191,58 @@
 			"file": "src/FullSystem/HessianBlocks.h",
 			"settings":
 			{
-				"buffer_size": 16378,
+				"buffer_size": 17481,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "src/FullSystem/HessianBlocks.cpp",
+			"contents": "/**\n* This file is part of DSO.\n*\n* Copyright 2016 Technical University of Munich and Intel.\n* Developed by Jakob Engel <engelj at in dot tum dot de>,\n* for more information see <http://vision.in.tum.de/dso>.\n* If you use this code, please cite the respective publications as\n* listed on the above website.\n*\n* DSO is free software: you can redistribute it and/or modify\n* it under the terms of the GNU General Public License as published by\n* the Free Software Foundation, either version 3 of the License, or\n* (at your option) any later version.\n*\n* DSO is distributed in the hope that it will be useful,\n* but WITHOUT ANY WARRANTY; without even the implied warranty of\n* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n* GNU General Public License for more details.\n*\n* You should have received a copy of the GNU General Public License\n* along with DSO. If not, see <http://www.gnu.org/licenses/>.\n*/\n\n\n/*\n * KFBuffer.cpp\n *\n *  Created on: Jan 7, 2014\n *      Author: engelj\n */\n\n#include \"FullSystem/FullSystem.h\"\n\n#include \"stdio.h\"\n#include \"util/globalFuncs.h\"\n#include <Eigen/LU>\n#include <algorithm>\n#include \"IOWrapper/ImageDisplay.h\"\n#include \"util/globalCalib.h\"\n#include <Eigen/SVD>\n#include <Eigen/Eigenvalues>\n#include \"FullSystem/PixelSelector.h\"\n#include \"FullSystem/PixelSelector2.h\"\n#include \"FullSystem/ResidualProjections.h\"\n#include \"FullSystem/ImmaturePoint.h\"\n\n#include \"FullSystem/CoarseTracker.h\"\n#include \"FullSystem/CoarseInitializer.h\"\n\n#include \"OptimizationBackend/EnergyFunctional.h\"\n#include \"OptimizationBackend/EnergyFunctionalStructs.h\"\n\n#include \"IOWrapper/Output3DWrapper.h\"\n\n#include \"util/ImageAndExposure.h\"\n\n#include \"ORB/ORBextractor.h\"\n\n#include <cmath>\n#include <cv.h>\n#include <opencv2/core/core.hpp>\n#include <opencv2/highgui/highgui.hpp>\n#include <opencv2/imgproc/imgproc.hpp>\n#include <opencv2/features2d/features2d.hpp>\n#include <opencv2/calib3d/calib3d.hpp>\n#include <opencv2/core/eigen.hpp>\n\n\nnamespace fdso\n{\nint FrameHessian::instanceCounter = 0;\nint PointHessian::instanceCounter = 0;\nint CalibHessian::instanceCounter = 0;\n\n//void poseEstimationPnP(const Matrix44& T_init,\n//	const std::vector<cv::Point3f>& pts_3d_ref_,\n//	const std::vector<cv::KeyPoint>& keypoints,\n//    const std::vector<cv::DMatch>& feature_matches_,\n//	SE3& T_c_r_estimated_)\n//{\n//    // construct the 3d 2d observations\n//    std::vector<cv::Point3f> pts3d;\n//    std::vector<cv::Point2f> pts2d;\n\n//    for ( cv::DMatch m:feature_matches_ )\n//    {\n//        pts3d.push_back( pts_3d_ref_[m.queryIdx] );\n//        pts2d.push_back(keypoints[m.trainIdx].pt );\n//    }\n\n//    cv::Mat K;\n//    cv::eigen2cv(_K,K);\n\n//    Eigen::Matrix<float, 3, 3> r;\n//    Eigen::Vector3f t;\n//    r=T_init.block<3,3>(0,0);\n//    t<<T_init(0,3),T_init(1,3),T_init(2,3);\n//    cv::Mat rvec, tvec, inliers;\n\n//    cv::eigen2cv(r,rvec);\n//    cv::eigen2cv(t,tvec);\n//    cv::solvePnPRansac( pts3d, pts2d, K, Mat(), rvec, tvec, true, 100, 4.0, 0.99, inliers,EPNP);\n//    int num_inliers_ = inliers.rows;\n\n////    int inlierCount=0;\n////    ransac_cc(pts2d,pts3d,K,Mat(),rvec,tvec,inlierCount);\n////    num_inliers_=inlierCount;\n\n//    cout<<\"pnp inliers: \"<<num_inliers_<<endl;\n//    T_c_r_estimated_ = SE3(\n//        SO3(rvec.at<double>(0,0), rvec.at<double>(1,0), rvec.at<double>(2,0)),\n//        Vector3d( tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0))\n//    );\n\n//    // using bundle adjustment to optimize the pose\n//    typedef g2o::BlockSolver<g2o::BlockSolverTraits<6,2>> Block;\n//    Block::LinearSolverType* linearSolver = new g2o::LinearSolverDense<Block::PoseMatrixType>();\n//    Block* solver_ptr = new Block( linearSolver );\n//    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg ( solver_ptr );\n//    g2o::SparseOptimizer optimizer;\n//    optimizer.setAlgorithm ( solver );\n\n//    g2o::VertexSE3Expmap* pose = new g2o::VertexSE3Expmap();\n//    pose->setId ( 0 );\n//    pose->setEstimate ( g2o::SE3Quat (\n//                            T_c_r_estimated_.rotation_matrix(), T_c_r_estimated_.translation()\n//                        ) );\n//    optimizer.addVertex ( pose );\n\n//    // edges\n//    for ( int i=0; i<inliers.rows; i++ )\n//    {\n//        int index = inliers.at<int>(i,0);\n//        // 3D -> 2D projection\n//        EdgeProjectXYZ2UVPoseOnly* edge = new EdgeProjectXYZ2UVPoseOnly();\n//        edge->setId(i);\n//        edge->setVertex(0, pose);\n//        edge->camera_ = camera_.get();\n//        edge->point_ = Vector3d( pts3d[index].x, pts3d[index].y, pts3d[index].z );\n//        edge->setMeasurement( Vector2d(pts2d[index].x, pts2d[index].y) );\n//        edge->setInformation( Eigen::Matrix2d::Identity() );\n//        optimizer.addEdge( edge );\n//    }\n\n//    optimizer.initializeOptimization();\n//    optimizer.optimize(10);\n\n//    T_c_r_estimated_ = SE3 (\n//        pose->estimate().rotation(),\n//        pose->estimate().translation()\n//    );\n//}\n/**\n *\n */\nFullSystem::FullSystem(): matcher_flann_(new cv::flann::LshIndexParams(5, 10, 2))\n{\n	int retstat = 0;\n	if (setting_logStuff)\n	{\n		retstat += system(\"rm -rf logs\");\n		retstat += system(\"mkdir logs\");\n\n		retstat += system(\"rm -rf mats\");\n		retstat += system(\"mkdir mats\");\n\n		calibLog = new std::ofstream();\n		calibLog->open(\"logs/calibLog.txt\", std::ios::trunc | std::ios::out);\n		calibLog->precision(12);\n\n		numsLog = new std::ofstream();\n		numsLog->open(\"logs/numsLog.txt\", std::ios::trunc | std::ios::out);\n		numsLog->precision(10);\n\n		coarseTrackingLog = new std::ofstream();\n		coarseTrackingLog->open(\"logs/coarseTrackingLog.txt\", std::ios::trunc | std::ios::out);\n		coarseTrackingLog->precision(10);\n\n		eigenAllLog = new std::ofstream();\n		eigenAllLog->open(\"logs/eigenAllLog.txt\", std::ios::trunc | std::ios::out);\n		eigenAllLog->precision(10);\n\n		eigenPLog = new std::ofstream();\n		eigenPLog->open(\"logs/eigenPLog.txt\", std::ios::trunc | std::ios::out);\n		eigenPLog->precision(10);\n\n		eigenALog = new std::ofstream();\n		eigenALog->open(\"logs/eigenALog.txt\", std::ios::trunc | std::ios::out);\n		eigenALog->precision(10);\n\n		DiagonalLog = new std::ofstream();\n		DiagonalLog->open(\"logs/diagonal.txt\", std::ios::trunc | std::ios::out);\n		DiagonalLog->precision(10);\n\n		variancesLog = new std::ofstream();\n		variancesLog->open(\"logs/variancesLog.txt\", std::ios::trunc | std::ios::out);\n		variancesLog->precision(10);\n\n\n		nullspacesLog = new std::ofstream();\n		nullspacesLog->open(\"logs/nullspacesLog.txt\", std::ios::trunc | std::ios::out);\n		nullspacesLog->precision(10);\n	}\n	else\n	{\n		nullspacesLog = 0;\n		variancesLog = 0;\n		DiagonalLog = 0;\n		eigenALog = 0;\n		eigenPLog = 0;\n		eigenAllLog = 0;\n		numsLog = 0;\n		calibLog = 0;\n	}\n\n	assert(retstat != 293847);\n\n	selectionMap = new float[wG[0]*hG[0]];\n\n	coarseDistanceMap = new CoarseDistanceMap(wG[0], hG[0]);\n	coarseTracker = new CoarseTracker(wG[0], hG[0]);\n	coarseTracker_forNewKF = new CoarseTracker(wG[0], hG[0]);\n	coarseInitializer = new CoarseInitializer(wG[0], hG[0]);\n	pixelSelector = new PixelSelector(wG[0], hG[0]);\n\n	statistics_lastNumOptIts = 0;\n	statistics_numDroppedPoints = 0;\n	statistics_numActivatedPoints = 0;\n	statistics_numCreatedPoints = 0;\n	statistics_numForceDroppedResBwd = 0;\n	statistics_numForceDroppedResFwd = 0;\n	statistics_numMargResFwd = 0;\n	statistics_numMargResBwd = 0;\n\n	lastCoarseRMSE.setConstant(100);\n\n	currentMinActDist = 2;\n	initialized = false;\n\n	ef = new EnergyFunctional();\n	ef->red = &this->treadReduce;\n\n	isLost = false;\n	initFailed = false;\n\n	needNewKFAfter = -1;\n\n	linearizeOperation = true;\n	runMapping = true;\n	mappingThread = boost::thread(&FullSystem::mappingLoop, this);\n	lastRefStopID = 0;\n\n	minIdJetVisDebug = -1;\n	maxIdJetVisDebug = -1;\n	minIdJetVisTracker = -1;\n	maxIdJetVisTracker = -1;\n\n	mpORBextractorLeft = new ORBextractor(300, 1.2, 3, 20, 8);\n	mpORBextractorRight = new ORBextractor(300, 1.2, 3, 20, 8);\n\n	detectorLeft = new FeatureDetector(wG[0], hG[0], 10, 15.0);\n	detectorRight = new FeatureDetector(wG[0], hG[0], 10, 15.0);\n}\n\n/**\n *\n */\nFullSystem::~FullSystem()\n{\n	blockUntilMappingIsFinished();\n\n	if (setting_logStuff)\n	{\n		calibLog->close(); delete calibLog;\n		numsLog->close(); delete numsLog;\n		coarseTrackingLog->close(); delete coarseTrackingLog;\n		//errorsLog->close(); delete errorsLog;\n		eigenAllLog->close(); delete eigenAllLog;\n		eigenPLog->close(); delete eigenPLog;\n		eigenALog->close(); delete eigenALog;\n		DiagonalLog->close(); delete DiagonalLog;\n		variancesLog->close(); delete variancesLog;\n		nullspacesLog->close(); delete nullspacesLog;\n	}\n\n	delete[] selectionMap;\n\n	for (FrameShell* s : allFrameHistory)\n		delete s;\n	for (FrameHessian* fh : unmappedTrackedFrames)\n		delete fh;\n\n	delete coarseDistanceMap;\n	delete coarseTracker;\n	delete coarseTracker_forNewKF;\n	delete coarseInitializer;\n	delete pixelSelector;\n	delete ef;\n}\n\n/**\n * [FullSystem::setOriginalCalib description]\n * @param originalCalib [description]\n * @param originalW     [description]\n * @param originalH     [description]\n */\nvoid FullSystem::setOriginalCalib(VecXf originalCalib, int originalW, int originalH)\n{\n}\n\n/**\n * [FullSystem::setGammaFunction description]\n * @param BInv [description]\n */\nvoid FullSystem::setGammaFunction(float* BInv)\n{\n	if (BInv == 0) return;\n\n	// copy BInv.\n	memcpy(Hcalib.Binv, BInv, sizeof(float) * 256);\n\n	// invert.\n	for (int i = 1; i < 255; i++)\n	{\n		// find val, such that Binv[val] = i.\n		// I dont care about speed for this, so do it the stupid way.\n\n		for (int s = 1; s < 255; s++)\n		{\n			if (BInv[s] <= i && BInv[s + 1] >= i)\n			{\n				Hcalib.B[i] = s + (i - BInv[s]) / (BInv[s + 1] - BInv[s]);\n				break;\n			}\n		}\n	}\n	Hcalib.B[0] = 0;\n	Hcalib.B[255] = 255;\n}\n\n/**\n * [FullSystem::printResult description]\n * @param file [description]\n */\nvoid FullSystem::printResult(std::string file)\n{\n	boost::unique_lock<boost::mutex> lock(trackMutex);\n	boost::unique_lock<boost::mutex> crlock(shellPoseMutex);\n\n	std::ofstream myfile;\n	myfile.open (file.c_str());\n	myfile << std::setprecision(15);\n	int i = 0;\n\n	Eigen::Matrix<double, 3, 3> last_R = (*(allFrameHistory.begin()))->camToWorld.so3().matrix();\n	Eigen::Matrix<double, 3, 1> last_T = (*(allFrameHistory.begin()))->camToWorld.translation().transpose();\n\n	for (FrameShell* s : allFrameHistory)\n	{\n		if (!s->poseValid)\n		{\n			myfile << last_R(0, 0) << \" \" << last_R(0, 1) << \" \" << last_R(0, 2) << \" \" << last_T(0, 0) << \" \" <<\n			       last_R(1, 0) << \" \" << last_R(1, 1) << \" \" << last_R(1, 2) << \" \" << last_T(1, 0) << \" \" <<\n			       last_R(2, 0) << \" \" << last_R(2, 1) << \" \" << last_R(2, 2) << \" \" << last_T(2, 0) << \"\\n\";\n			continue;\n		}\n\n		if (setting_onlyLogKFPoses && s->marginalizedAt == s->id)\n		{\n			myfile << last_R(0, 0) << \" \" << last_R(0, 1) << \" \" << last_R(0, 2) << \" \" << last_T(0, 0) << \" \" <<\n			       last_R(1, 0) << \" \" << last_R(1, 1) << \" \" << last_R(1, 2) << \" \" << last_T(1, 0) << \" \" <<\n			       last_R(2, 0) << \" \" << last_R(2, 1) << \" \" << last_R(2, 2) << \" \" << last_T(2, 0) << \"\\n\";\n			continue;\n		}\n\n		const Eigen::Matrix<double, 3, 3> R = s->camToWorld.so3().matrix();\n		const Eigen::Matrix<double, 3, 1> T = s->camToWorld.translation().transpose();\n\n		last_R = R;\n		last_T = T;\n\n		myfile << R(0, 0) << \" \" << R(0, 1) << \" \" << R(0, 2) << \" \" << T(0, 0) << \" \" <<\n		       R(1, 0) << \" \" << R(1, 1) << \" \" << R(1, 2) << \" \" << T(1, 0) << \" \" <<\n		       R(2, 0) << \" \" << R(2, 1) << \" \" << R(2, 2) << \" \" << T(2, 0) << \"\\n\";\n\n//		myfile << s->timestamp <<\n//			\" \" << s->camToWorld.translation().transpose()<<\n//			\" \" << s->camToWorld.so3().unit_quaternion().x()<<\n//			\" \" << s->camToWorld.so3().unit_quaternion().y()<<\n//			\" \" << s->camToWorld.so3().unit_quaternion().z()<<\n//			\" \" << s->camToWorld.so3().unit_quaternion().w() << \"\\n\";\n		i++;\n	}\n	myfile.close();\n}\n\n/**\n * [FullSystem::trackNewCoarse description]\n * @param  fh       [description]\n * @param  fh_right [description]\n * @return          [description]\n */\nVec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen::Matrix3d R)\n{\n\n	assert(allFrameHistory.size() > 0);\n	// set pose initialization.\n\n//    printf(\"the size of allFrameHistory is %d \\n\", (int)allFrameHistory.size());\n\n	// show original images\n	for (IOWrap::Output3DWrapper* ow : outputWrapper)\n	{\n		ow->pushStereoLiveFrame(fh, fh_right);\n	}\n\n	Sophus::SO3 init_R(R);\n	Eigen::Vector3d t(0, 0, 0); //\n	Sophus::SE3 init_Rt(R, t); //\n\n	//参考帧\n	FrameHessian* lastF = coarseTracker->lastRef;\n\n	//a和b\n	AffLight aff_last_2_l = AffLight(0, 0);\n\n	//\n	std::vector<SE3, Eigen::aligned_allocator<SE3>> lastF_2_fh_tries;\n\n	// for first two frames process differently\n	if (allFrameHistory.size() == 2)\n	{\n		initializeFromInitializer(fh);\n\n//		lastF_2_fh_tries.push_back(init_Rt);\n		lastF_2_fh_tries.push_back(SE3(Eigen::Matrix<double, 3, 3>::Identity(), Eigen::Matrix<double, 3, 1>::Zero() ));\n\n		for (float rotDelta = 0.02; rotDelta < 0.05; rotDelta = rotDelta + 0.02)\n		{\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, rotDelta, 0, 0), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, 0, rotDelta, 0), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, 0, 0, rotDelta), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, -rotDelta, 0, 0), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, 0, -rotDelta, 0), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, 0, 0, -rotDelta), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, rotDelta, rotDelta, 0), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, 0, rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, rotDelta, 0, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, -rotDelta, rotDelta, 0), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, 0, -rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, -rotDelta, 0, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, rotDelta, -rotDelta, 0), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, 0, rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, rotDelta, 0, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, -rotDelta, -rotDelta, 0), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, 0, -rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, -rotDelta, 0, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, -rotDelta, -rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, -rotDelta, -rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, -rotDelta, rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, -rotDelta, rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, rotDelta, -rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, rotDelta, -rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, rotDelta, rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(SE3(Sophus::Quaterniond(1, rotDelta, rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n		}\n\n		//设置内参\n		coarseTracker->makeK(&Hcalib);\n		//设置第一帧的参考帧,设置参考帧的逆深度图和每个点的权重pc_u，pc_v，pc_idepth，pc_color\n		//权重图weightSums\n		coarseTracker->setCTRefForFirstFrame(frameHessians);\n\n		//最新的参考帧\n		lastF = coarseTracker->lastRef;\n	}\n	else\n	{\n		//上一帧\n		FrameShell* slast = allFrameHistory[allFrameHistory.size() - 2];\n		//上上一帧\n		FrameShell* sprelast = allFrameHistory[allFrameHistory.size() - 3];\n		SE3 slast_2_sprelast;\n		SE3 lastF_2_slast;\n		{	// lock on global pose consistency!\n			boost::unique_lock<boost::mutex> crlock(shellPoseMutex);\n			//上上一帧相对与上一帧的相对位姿\n			slast_2_sprelast = sprelast->camToWorld.inverse() * slast->camToWorld;\n			//上一帧相对与参考帧的位姿的变换\n			lastF_2_slast = slast->camToWorld.inverse() * lastF->shell->camToWorld;\n			//上一帧的a和b变换\n			aff_last_2_l = slast->aff_g2l;\n		}\n\n		//上上一帧\n		SE3 fh_2_slast = slast_2_sprelast;// assumed to be the same as fh_2_slast.\n\n\n		// get last delta-movement.\n		//lastF_2_fh_tries.push_back(init_Rt.inverse()*lastF_2_slast);\n		//匀速模型，上一次的位移*上一帧相对参考帧的位姿\n		lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast);	// assume constant motion.\n		//两次运动\n		lastF_2_fh_tries.push_back(fh_2_slast.inverse() * fh_2_slast.inverse() * lastF_2_slast);	// assume double motion (frame skipped)\n		//一半的运动\n		lastF_2_fh_tries.push_back(SE3::exp(fh_2_slast.log() * 0.5).inverse() * lastF_2_slast); // assume half motion.\n		//无运动\n		lastF_2_fh_tries.push_back(lastF_2_slast); // assume zero motion.\n		//与关键帧无运动\n		lastF_2_fh_tries.push_back(SE3()); // assume zero motion FROM KF.\n\n		/*        lastF_2_fh_tries.push_back(SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() * lastF_2_slast);\n\n		        	lastF_2_fh_tries.push_back(fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * lastF_2_slast);\n		        	lastF_2_fh_tries.push_back(SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() *  SE3::exp(fh_2_slast.log()*1.5).inverse() * lastF_2_slast);\n\n		        	lastF_2_fh_tries.push_back(fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * lastF_2_slast);\n		        	lastF_2_fh_tries.push_back(SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() *  SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() * lastF_2_slast);\n\n		        	lastF_2_fh_tries.push_back(fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * fh_2_slast.inverse() * lastF_2_slast);\n		        	lastF_2_fh_tries.push_back(SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() *  SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() * SE3::exp(fh_2_slast.log()*1.5).inverse() * lastF_2_slast);*/\n\n		// just try a TON of different initializations (all rotations). In the end,\n		// if they don't work they will only be tried on the coarsest level, which is super fast anyway.\n		// also, if tracking rails here we loose, so we really, really want to avoid that.\n		// 匀速模型*角度的噪声\n		for (float rotDelta = 0.02; rotDelta < 0.02; rotDelta++)\n		{\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, rotDelta, 0, 0), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, 0, rotDelta, 0), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, 0, 0, rotDelta), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, -rotDelta, 0, 0), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, 0, -rotDelta, 0), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, 0, 0, -rotDelta), Vec3(0, 0, 0)));			// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, rotDelta, rotDelta, 0), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, 0, rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, rotDelta, 0, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, -rotDelta, rotDelta, 0), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, 0, -rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, -rotDelta, 0, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, rotDelta, -rotDelta, 0), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, 0, rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, rotDelta, 0, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, -rotDelta, -rotDelta, 0), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, 0, -rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, -rotDelta, 0, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, -rotDelta, -rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, -rotDelta, -rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, -rotDelta, rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, -rotDelta, rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, rotDelta, -rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, rotDelta, -rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, rotDelta, rotDelta, -rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n			lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast * SE3(Sophus::Quaterniond(1, rotDelta, rotDelta, rotDelta), Vec3(0, 0, 0)));	// assume constant motion.\n		}\n\n		if (!slast->poseValid || !sprelast->poseValid || !lastF->shell->poseValid)\n		{\n			lastF_2_fh_tries.clear();\n			lastF_2_fh_tries.push_back(SE3());\n		}\n	}\n\n	Vec3 flowVecs = Vec3(100, 100, 100);\n	SE3 lastF_2_fh = SE3();\n	AffLight aff_g2l = AffLight(0, 0);\n\n	// as long as maxResForImmediateAccept is not reached, I'll continue through the options.\n	// I'll keep track of the so-far best achieved residual for each level in achievedRes.\n	// If on a coarse level, tracking is WORSE than achievedRes, we will not continue to save time.\n\n	//用于更新最好的残差\n	Vec5 achievedRes = Vec5::Constant(NAN);\n\n	//是否一次好的寻找\n	bool haveOneGood = false;\n\n	//寻找次数\n	int tryIterations = 0;\n\n	//一般都是第一个位姿就迭代成功了\n	for (unsigned int i = 0; i < lastF_2_fh_tries.size(); i++)\n	{\n		AffLight aff_g2l_this = aff_last_2_l;\n		SE3 lastF_2_fh_this = lastF_2_fh_tries[i];\n\n		//是否跟踪成功\n		bool trackingIsGood = coarseTracker->trackNewestCoarse(\n		                          fh, lastF_2_fh_this, aff_g2l_this,\n		                          pyrLevelsUsed - 1,\n		                          achievedRes);	// in each level has to be at least as good as the last try.\n\n		//尝试次数++\n		tryIterations++;\n\n		if (i != 0)\n		{\n			printf(\"RE-TRACK ATTEMPT %d with initOption %d and start-lvl %d (ab %f %f): %f %f %f %f %f -> %f %f %f %f %f \\n\",\n			       i,\n			       i, pyrLevelsUsed - 1,\n			       aff_g2l_this.a, aff_g2l_this.b,\n			       achievedRes[0],\n			       achievedRes[1],\n			       achievedRes[2],\n			       achievedRes[3],\n			       achievedRes[4],\n			       coarseTracker->lastResiduals[0],\n			       coarseTracker->lastResiduals[1],\n			       coarseTracker->lastResiduals[2],\n			       coarseTracker->lastResiduals[3],\n			       coarseTracker->lastResiduals[4]);\n		}\n\n		// do we have a new winner?\n		// 跟踪成功,残差是否有值,lastResiduals每一层的残差，lastResiduals[0]就是第一层的残差\n		if (trackingIsGood && std::isfinite((float)coarseTracker->lastResiduals[0]) && !(coarseTracker->lastResiduals[0] >=  achievedRes[0]))\n		{\n			//printf(\"take over. minRes %f -> %f!\\n\", achievedRes[0], coarseTracker->lastResiduals[0]);\n			flowVecs = coarseTracker->lastFlowIndicators;\n			aff_g2l = aff_g2l_this;\n			lastF_2_fh = lastF_2_fh_this;\n			//成功\n			haveOneGood = true;\n		}\n\n		// take over achieved res (always).\n		// 更新achievedRes\n		if (haveOneGood)\n		{\n			for (int i = 0; i < 5; i++)\n			{\n				//残差减小了，更新每一层的残差\n				if (!std::isfinite((float)achievedRes[i]) || achievedRes[i] > coarseTracker->lastResiduals[i])	// take over if achievedRes is either bigger or NAN.\n					achievedRes[i] = coarseTracker->lastResiduals[i];\n			}\n		}\n\n		//成功了，且残差小于一定阈值,setting_reTrackThreshold=1.5\n		if (haveOneGood &&  achievedRes[0] < lastCoarseRMSE[0]*setting_reTrackThreshold)\n			break;\n	}\n\n	//不成功，则跟踪失败\n	if (!haveOneGood)\n	{\n		printf(\"BIG ERROR! tracking failed entirely. Take predictred pose and hope we may somehow recover.\\n\");\n		flowVecs = Vec3(0, 0, 0);\n		aff_g2l = aff_last_2_l;\n		lastF_2_fh = lastF_2_fh_tries[0];\n	}\n\n	//每一层的残差，即记录上一次的残差\n	lastCoarseRMSE = achievedRes;\n\n	// no lock required, as fh is not used anywhere yet.\n	// 更新位姿\n	fh->shell->camToTrackingRef = lastF_2_fh.inverse();\n	fh->shell->trackingRef = lastF->shell;\n	fh->shell->aff_g2l = aff_g2l;\n	fh->shell->camToWorld = fh->shell->trackingRef->camToWorld * fh->shell->camToTrackingRef;\n\n	//平移\n	Eigen::Matrix<double, 3, 1> last_T = fh->shell->camToWorld.translation().transpose();\n	std::cout << \"x:\" << last_T(0, 0) << \"y:\" << last_T(1, 0) << \"z:\" << last_T(2, 0) << std::endl;\n\n	if (coarseTracker->firstCoarseRMSE < 0)\n		coarseTracker->firstCoarseRMSE = achievedRes[0];\n\n	if (!setting_debugout_runquiet)\n		printf(\"Coarse Tracker tracked ab = %f %f (exp %f). Res %f!\\n\", aff_g2l.a, aff_g2l.b, fh->ab_exposure, achievedRes[0]);\n\n	if (setting_logStuff)\n	{\n		(*coarseTrackingLog) << std::setprecision(16)\n		                     << fh->shell->id << \" \"\n		                     << fh->shell->timestamp << \" \"\n		                     << fh->ab_exposure << \" \"\n		                     << fh->shell->camToWorld.log().transpose() << \" \"\n		                     << aff_g2l.a << \" \"\n		                     << aff_g2l.b << \" \"\n		                     << achievedRes[0] << \" \"\n		                     << tryIterations << \"\\n\";\n	}\n\n	//返回残差第一个值，从第三位后的三位\n	//1：平移后的像素重投影误差误差/个数/2\n	//2： 0\n	//3：平移旋转后像素重投影误差误差/个数/2\n	//std::cout<<achievedRes[0]<<\" \"<<flowVecs[0]<<\" \"<<flowVecs[1]<<\" \"<<flowVecs[2]<<std::endl;\n	return Vec4(achievedRes[0], flowVecs[0], flowVecs[1], flowVecs[2]);\n}\n\n/**\n * [FullSystem::stereoMatch description]\n * @param image       [description]\n * @param image_right [description]\n * @param id          [description]\n * @param idepthMap   [description]\n */\nvoid FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_right, int id, cv::Mat &idepthMap)\n{\n	// =========================== add into allFrameHistory =========================\n	FrameHessian* fh = new FrameHessian();\n	FrameHessian* fh_right = new FrameHessian();\n	FrameShell* shell = new FrameShell();\n	shell->camToWorld = SE3(); 		// no lock required, as fh is not used anywhere yet.\n	shell->aff_g2l = AffLight(0, 0);\n	shell->marginalizedAt = shell->id = allFrameHistory.size();\n	shell->timestamp = image->timestamp;\n\n	//一直递增的id\n	shell->incoming_id = id; // id passed into DSO\n\n	//当前帧的信息\n	fh->shell = shell;\n	fh_right->shell = shell;\n\n	// =========================== make Images / derivatives etc. =========================\n	fh->ab_exposure = image->exposure_time;\n\n	//左图的梯度点\n	fh->makeImages(image, &Hcalib);\n	fh_right->ab_exposure = image_right->exposure_time;\n\n	//右图的梯度点\n	fh_right->makeImages(image_right, &Hcalib);\n\n	//内参\n	Mat33f K = Mat33f::Identity();\n	K(0, 0) = Hcalib.fxl();\n	K(1, 1) = Hcalib.fyl();\n	K(0, 2) = Hcalib.cxl();\n	K(1, 2) = Hcalib.cyl();\n\n	//计数\n	int counter = 0;\n\n	//创建新的一帧中的点\n	makeNewTraces(fh, fh_right, 0);\n\n	//逆深度图\n	unsigned  char * idepthMapPtr = idepthMap.data;\n\n	//遍历每一个点\n	for (ImmaturePoint* ph : fh->immaturePoints)\n	{\n		//坐标\n		ph->u_stereo = ph->u;\n		ph->v_stereo = ph->v;\n		ph->idepth_min_stereo = ph->idepth_min = 0;\n		ph->idepth_max_stereo = ph->idepth_max = NAN;\n\n		//左图与右图进行双目匹配，获取静态深度\n		ImmaturePointStatus phTraceRightStatus = ph->traceStereo(fh_right, K, 1);\n\n		//判断当前点的深度值是否好\n		if (phTraceRightStatus == ImmaturePointStatus::IPS_GOOD)\n		{\n			//获取右图中的这个点\n			ImmaturePoint* phRight = new ImmaturePoint(ph->lastTraceUV(0), ph->lastTraceUV(1), fh_right, &Hcalib );\n\n			//获取右图中的像素坐标\n			phRight->u_stereo = phRight->u;\n			phRight->v_stereo = phRight->v;\n			phRight->idepth_min_stereo = ph->idepth_min = 0;\n			phRight->idepth_max_stereo = ph->idepth_max = NAN;\n\n			//右图与左图进行双目匹配，获取静态深度\n			ImmaturePointStatus  phTraceLeftStatus = phRight->traceStereo(fh, K, 0);\n\n			//两张图中的ｕ坐标差\n			float u_stereo_delta = abs(ph->u_stereo - phRight->lastTraceUV(0));\n\n			//左图中这个点的深度\n			float depth = 1.0f / ph->idepth_stereo;\n\n			//判断这个点的状态，这个点左图ｕ坐标小于１，深度在０-70之间\n			if (phTraceLeftStatus == ImmaturePointStatus::IPS_GOOD && u_stereo_delta < 1 && depth > 0 && depth < 70)   //original u_stereo_delta 1 depth < 70\n			{\n				//更新该点的最小和最大的深度\n				ph->idepth_min = ph->idepth_min_stereo;\n				ph->idepth_max = ph->idepth_max_stereo;\n\n				//更新逆深度图\n				*((float *)(idepthMapPtr + int(ph->v) * idepthMap.step) + (int)ph->u * 3) = ph->idepth_stereo;\n				*((float *)(idepthMapPtr + int(ph->v) * idepthMap.step) + (int)ph->u * 3 + 1) = ph->idepth_min;\n				*((float *)(idepthMapPtr + int(ph->v) * idepthMap.step) + (int)ph->u * 3 + 2) = ph->idepth_max;\n\n				counter++;\n			}\n		}\n	}\n\n//    std::sort(error.begin(), error.end());\n//    std::cout << 0.25 <<\" \"<<error[error.size()*0.25].first<<\" \"<<\n//              0.5 <<\" \"<<error[error.size()*0.5].first<<\" \"<<\n//              0.75 <<\" \"<<error[error.size()*0.75].first<<\" \"<<\n//              0.1 <<\" \"<<error.back().first << std::endl;\n\n//    for(int i = 0; i < error.size(); i++)\n//        std::cout << error[i].first << \" \" << error[i].second.first << \" \" << error[i].second.second << std::endl;\n\n	std::cout << \" frameID \" << id << \" got good matches \" << counter << std::endl;\n\n	delete fh;\n	delete fh_right;\n\n	return;\n}\n\n// process nonkey frame to refine key frame idepth\n/**\n * [FullSystem::traceNewCoarseNonKey description]\n * @param fh       [description]\n * @param fh_right [description]\n */\nvoid FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)\n{\n	boost::unique_lock<boost::mutex> lock(mapMutex);\n\n	//新的逆深度最大和最小值\n	// new idepth after refinement\n	float idepth_min_update = 0;\n	float idepth_max_update = 0;\n\n	//内参\n	Mat33f K = Mat33f::Identity();\n	K(0, 0) = Hcalib.fxl();\n	K(1, 1) = Hcalib.fyl();\n	K(0, 2) = Hcalib.cxl();\n	K(1, 2) = Hcalib.cyl();\n\n	//内参的逆\n	Mat33f Ki = K.inverse();\n\n	//遍历每一帧\n	for (FrameHessian *host : frameHessians)        // go through all active frames\n	{\n		//个数\n		// number++;\n		int trace_total = 0, trace_good = 0, trace_oob = 0, trace_out = 0, trace_skip = 0, trace_badcondition = 0, trace_uninitialized = 0;\n\n		//参考帧到当前帧位姿\n		// trans from reference keyframe to newest frame\n		SE3 hostToNew = fh->PRE_worldToCam * host->PRE_camToWorld;\n		// KRK-1\n		Mat33f KRKi = K * hostToNew.rotationMatrix().cast<float>() * K.inverse();\n		// KRi\n		Mat33f KRi = K * hostToNew.rotationMatrix().inverse().cast<float>();\n		// Kt\n		Vec3f Kt = K * hostToNew.translation().cast<float>();\n		// t\n		Vec3f t = hostToNew.translation().cast<float>();\n\n		//aff\n		Vec2f aff = AffLight::fromToVecExposure(host->ab_exposure, fh->ab_exposure, host->aff_g2l(), fh->aff_g2l()).cast<float>();\n\n		//遍历该帧中每一个点\n		for (ImmaturePoint *ph : host->immaturePoints)\n		{\n			//进行点的跟踪\n			// do temperol stereo match\n			ImmaturePointStatus phTrackStatus = ph->traceOn(fh, KRKi, Kt, aff, &Hcalib, false);\n\n			//如果是好的点\n			if (phTrackStatus == ImmaturePointStatus::IPS_GOOD)\n			{\n				//新建一个点\n				ImmaturePoint *phNonKey = new ImmaturePoint(ph->lastTraceUV(0), ph->lastTraceUV(1), fh, &Hcalib);\n\n				// project onto newest frame\n				//重投影到新一帧，根据之前的最小逆深度\n				Vec3f ptpMin = KRKi * (Vec3f(ph->u, ph->v, 1) / ph->idepth_min) + Kt;\n				//重投影后的最小逆深度值\n				float idepth_min_project = 1.0f / ptpMin[2];\n				//重投影到新一帧，根据之前的最大逆深度\n				Vec3f ptpMax = KRKi * (Vec3f(ph->u, ph->v, 1) / ph->idepth_max) + Kt;\n				//重投影后的最大逆深度值\n				float idepth_max_project = 1.0f / ptpMax[2];\n\n				//重新设置该点的最小和最大逆深度\n				phNonKey->idepth_min = idepth_min_project;\n				phNonKey->idepth_max = idepth_max_project;\n				//设置改点u,v坐标\n				phNonKey->u_stereo = phNonKey->u;\n				phNonKey->v_stereo = phNonKey->v;\n				//重新设置该点的最小和最大逆深度\n				phNonKey->idepth_min_stereo = phNonKey->idepth_min;\n				phNonKey->idepth_max_stereo = phNonKey->idepth_max;\n\n				// do static stereo match from left image to right\n				// 进行双目静态的逆深度滤波，左目到右目\n				ImmaturePointStatus phNonKeyStereoStatus = phNonKey->traceStereo(fh_right, K, 1);\n\n				//静态状态是好的\n				if (phNonKeyStereoStatus == ImmaturePointStatus::IPS_GOOD)\n				{\n					//右边点\n					ImmaturePoint* phNonKeyRight = new ImmaturePoint(phNonKey->lastTraceUV(0), phNonKey->lastTraceUV(1), fh_right, &Hcalib );\n\n					phNonKeyRight->u_stereo = phNonKeyRight->u;\n					phNonKeyRight->v_stereo = phNonKeyRight->v;\n					phNonKeyRight->idepth_min_stereo = phNonKey->idepth_min;\n					phNonKeyRight->idepth_max_stereo = phNonKey->idepth_max;\n\n					// do static stereo match from right image to left\n					// 进行双目静态的逆深度滤波，右目到左目\n					ImmaturePointStatus  phNonKeyRightStereoStatus = phNonKeyRight->traceStereo(fh, K, 0);\n\n					// change of u after two different stereo match\n					// 两次得到u坐标的绝对差值\n					float u_stereo_delta = abs(phNonKey->u_stereo - phNonKeyRight->lastTraceUV(0));\n					//\n					float disparity = phNonKey->u_stereo - phNonKey->lastTraceUV[0];\n\n					// free to debug the threshold\n					// 差值过大，或者视差小于10，则out点\n					if (u_stereo_delta > 1 && disparity < 10)\n					{\n						ph->lastTraceStatus = ImmaturePointStatus :: IPS_OUTLIER;\n						continue;\n					}\n					else\n					{\n						//重投影该点，更新最小和最大逆深度\n						// project back\n						Vec3f pinverse_min = KRi * (Ki * Vec3f(phNonKey->u_stereo, phNonKey->v_stereo, 1) / phNonKey->idepth_min_stereo - t);\n						idepth_min_update = 1.0f / pinverse_min(2);\n\n						Vec3f pinverse_max = KRi * (Ki * Vec3f(phNonKey->u_stereo, phNonKey->v_stereo, 1) / phNonKey->idepth_max_stereo - t);\n						idepth_max_update = 1.0f / pinverse_max(2);\n\n						ph->idepth_min = idepth_min_update;\n						ph->idepth_max = idepth_max_update;\n\n						delete phNonKey;\n						delete phNonKeyRight;\n					}\n				}\n				else\n				{\n					delete phNonKey;\n					continue;\n				}\n			}\n\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_GOOD) trace_good++;\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_BADCONDITION) trace_badcondition++;\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_OOB) trace_oob++;\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_OUTLIER) trace_out++;\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_SKIPPED) trace_skip++;\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_UNINITIALIZED) trace_uninitialized++;\n			trace_total++;\n		}\n	}\n}\n\n\n//process keyframe\n/**\n * [FullSystem::traceNewCoarseKey description]\n * @param fh       [description]\n * @param fh_right [description]\n */\nvoid FullSystem::traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right)\n{\n	boost::unique_lock<boost::mutex> lock(mapMutex);\n\n	int trace_total = 0, trace_good = 0, trace_oob = 0, trace_out = 0, trace_skip = 0, trace_badcondition = 0, trace_uninitialized = 0;\n\n	//内参\n	Mat33f K = Mat33f::Identity();\n	K(0, 0) = Hcalib.fxl();\n	K(1, 1) = Hcalib.fyl();\n	K(0, 2) = Hcalib.cxl();\n	K(1, 2) = Hcalib.cyl();\n\n	//遍历每一个关键帧的中的点\n	for (FrameHessian* host : frameHessians)		// go through all active frames\n	{\n		// trans from reference key frame to the newest one\n		SE3 hostToNew = fh->PRE_worldToCam * host->PRE_camToWorld;\n		//KRK-1\n		Mat33f KRKi = K * hostToNew.rotationMatrix().cast<float>() * K.inverse();\n		//Kt\n		Vec3f Kt = K * hostToNew.translation().cast<float>();\n\n		Vec2f aff = AffLight::fromToVecExposure(host->ab_exposure, fh->ab_exposure, host->aff_g2l(), fh->aff_g2l()).cast<float>();\n\n		for (ImmaturePoint* ph : host->immaturePoints)\n		{\n			//点的深度滤波\n			ImmaturePointStatus phTrackStatus = ph->traceOn(fh, KRKi, Kt, aff, &Hcalib, false );\n\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_GOOD) trace_good++;\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_BADCONDITION) trace_badcondition++;\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_OOB) trace_oob++;\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_OUTLIER) trace_out++;\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_SKIPPED) trace_skip++;\n			if (ph->lastTraceStatus == ImmaturePointStatus::IPS_UNINITIALIZED) trace_uninitialized++;\n			trace_total++;\n		}\n	}\n}\n\n/**\n * [FullSystem::activatePointsMT_Reductor description]\n * @param optimized  [description]	优化后的点\n * @param toOptimize [description]	优化前的点\n * @param min        [description]	最小的个数\n * @param max        [description]	最大的个数\n * @param stats      [description]	当前状态\n * @param tid        [description]\n * 从选出的ImmaturePoint点中生成实际的PointHessian点，生成深度\n */\nvoid FullSystem::activatePointsMT_Reductor(\n    std::vector<PointHessian*>* optimized,\n    std::vector<ImmaturePoint*>* toOptimize,\n    int min, int max, Vec10* stats, int tid)\n{\n	ImmaturePointTemporaryResidual* tr = new ImmaturePointTemporaryResidual[frameHessians.size()];\n\n	//优化每一个点从toOptimize中生成optimized\n	for (int k = min; k < max; k++)\n	{\n		(*optimized)[k] = optimizeImmaturePoint((*toOptimize)[k], 1, tr);\n	}\n	delete[] tr;\n}\n\n/**\n * [FullSystem::activatePointsMT description]\n * 遍历窗口中的每一个关键帧的每一个点，判断这个点的状态并且将这个点与每一个关键帧进行逆深度残差更新，更新该点的逆深度\n * 并在ef中插入该点，加入该点与每一个关键帧的残差\n * 为每个关键帧从其ImmaturePoint中生成PointHessian点\n */\nvoid FullSystem::activatePointsMT()\n{\n	//点个数\n	if (ef->nPoints < setting_desiredPointDensity * 0.66) //setting_desiredPointDensity 是2000\n		currentMinActDist -= 0.8;  //original 0.8\n	if (ef->nPoints < setting_desiredPointDensity * 0.8)\n		currentMinActDist -= 0.5;  //original 0.5\n	else if (ef->nPoints < setting_desiredPointDensity * 0.9)\n		currentMinActDist -= 0.2;  //original 0.2\n	else if (ef->nPoints < setting_desiredPointDensity)\n		currentMinActDist -= 0.1;  //original 0.1\n\n	if (ef->nPoints > setting_desiredPointDensity * 1.5)\n		currentMinActDist += 0.8;\n	if (ef->nPoints > setting_desiredPointDensity * 1.3)\n		currentMinActDist += 0.5;\n	if (ef->nPoints > setting_desiredPointDensity * 1.15)\n		currentMinActDist += 0.2;\n	if (ef->nPoints > setting_desiredPointDensity)\n		currentMinActDist += 0.1;\n\n	//currentMinActDist在０－４之间\n	if (currentMinActDist < 0) currentMinActDist = 0;\n	if (currentMinActDist > 4) currentMinActDist = 4;\n\n	if (!setting_debugout_runquiet)\n		printf(\"SPARSITY:  MinActDist %f (need %d points, have %d points)!\\n\",\n		       currentMinActDist, (int)(setting_desiredPointDensity), ef->nPoints);\n\n	//最新的一关键帧\n	FrameHessian* newestHs = frameHessians.back();\n\n	// make dist map.\n	//设置内参\n	coarseDistanceMap->makeK(&Hcalib);\n	//创建距离图\n	coarseDistanceMap->makeDistanceMap(frameHessians, newestHs);\n\n	//coarseTracker->debugPlotDistMap(\"distMap\");\n\n	//待优化的每一个点\n	std::vector<ImmaturePoint*> toOptimize;\n	//最大20000个点\n	toOptimize.reserve(20000);\n\n	//遍历窗口中的每一帧，选择待优化的点toOptimize\n	for (FrameHessian* host : frameHessians)		// go through all active frames\n	{\n		if (host == newestHs) continue;\n\n		//最新关键帧与主导帧的相对坐标\n		SE3 fhToNew = newestHs->PRE_worldToCam * host->PRE_camToWorld;\n\n		//K*R*K'\n		Mat33f KRKi = (coarseDistanceMap->K[1] * fhToNew.rotationMatrix().cast<float>() * coarseDistanceMap->Ki[0]);\n		//K*t\n		Vec3f Kt = (coarseDistanceMap->K[1] * fhToNew.translation().cast<float>());\n\n		// for all immaturePoints in frameHessian\n		//遍历每一个主导中的点\n		for (unsigned int i = 0; i < host->immaturePoints.size(); i += 1)\n		{\n			//点\n			ImmaturePoint* ph = host->immaturePoints[i];\n			//点id\n			ph->idxInImmaturePoints = i;\n\n			// delete points that have never been traced successfully, or that are outlier on the last trace.\n			//判断点的状态，删除未成功跟踪的点，或删除最后一个跟踪点上的离群点。\n			if (!std::isfinite(ph->idepth_max) || ph->lastTraceStatus == IPS_OUTLIER)\n			{\n//				immature_invalid_deleted++;\n				// remove point.\n				//删除该点\n				delete ph;\n				host->immaturePoints[i] = 0;\n				continue;\n			}\n\n			// can activate only if this is true.\n			// 这个点是否能激活\n			bool canActivate = (ph->lastTraceStatus == IPS_GOOD\n			                    || ph->lastTraceStatus == IPS_SKIPPED\n			                    || ph->lastTraceStatus == IPS_BADCONDITION\n			                    || ph->lastTraceStatus == IPS_OOB )\n			                   && ph->lastTracePixelInterval < 8\n			                   && ph->quality > setting_minTraceQuality\n			                   && (ph->idepth_max + ph->idepth_min) > 0;\n\n			// if I cannot activate the point, skip it. Maybe also delete it.\n			//若不能激活，则删除这个点\n			if (!canActivate)\n			{\n				// if point will be out afterwards, delete it instead.\n				//若该点的主导帧已经被边缘化或者当前跟踪状态为OOB\n				if (ph->host->flaggedForMarginalization || ph->lastTraceStatus == IPS_OOB)\n				{\n//					immature_notReady_deleted++;\n					//删除该点\n					delete ph;\n					//该点为空\n					host->immaturePoints[i] = 0;\n				}\n//				immature_notReady_skipped++;\n				continue;\n			}\n\n			// see if we need to activate point due to distance map.\n			//重投影该点\n			Vec3f ptp = KRKi * Vec3f(ph->u, ph->v, 1) + Kt * (0.5f * (ph->idepth_max + ph->idepth_min));\n			int u = ptp[0] / ptp[2] + 0.5f;\n			int v = ptp[1] / ptp[2] + 0.5f;\n\n			//该点在当前帧的坐标是否在画面内\n			if ((u > 0 && v > 0 && u < wG[1] && v < hG[1]))\n			{\n				//该点的距离\n				float dist = coarseDistanceMap->fwdWarpedIDDistFinal[u + wG[1] * v] + (ptp[0] - floorf((float)(ptp[0])));\n\n				//若距离大于currentMinActDist * ph->my_type\n				if (dist >= currentMinActDist * ph->my_type)\n				{\n					//则距离图中插入该坐标\n					coarseDistanceMap->addIntoDistFinal(u, v);\n					//待优化点插入该点\n					toOptimize.push_back(ph);\n				}\n			}\n			else\n			{\n				//删除该点\n				delete ph;\n				host->immaturePoints[i] = 0; //删除点的操作\n			}\n		}\n	}\n\n//	printf(\"ACTIVATE: %d. (del %d, notReady %d, marg %d, good %d, marg-skip %d)\\n\",\n//			(int)toOptimize.size(), immature_deleted, immature_notReady, immature_needMarg, immature_want, immature_margskip);\n\n	//优化后的每一个点\n	std::vector<PointHessian*> optimized;\n	optimized.resize(toOptimize.size());\n\n	// std::cout<<\"toOptimize: \"<<toOptimize.size()<<std::endl;\n	//多线程优化每一个点的逆深度\n	//多线程生成PointHessian点,为每个关键帧帧生成PointHessian点\n	if (multiThreading)\n		treadReduce.reduce(boost::bind(&FullSystem::activatePointsMT_Reductor, this, &optimized, &toOptimize, _1, _2, _3, _4), 0, toOptimize.size(), 50);\n	else\n		activatePointsMT_Reductor(&optimized, &toOptimize, 0, toOptimize.size(), 0, 0);\n\n	//遍历每一个优化前的点\n	for (unsigned k = 0; k < toOptimize.size(); k++)\n	{\n		//该点优化后的\n		PointHessian* newpoint = optimized[k];\n\n		//之前的\n		ImmaturePoint* ph = toOptimize[k];\n\n		//新的点好的\n		if (newpoint != 0 && newpoint != (PointHessian*)((long)(-1)))\n		{\n			//新的点\n			newpoint->host->immaturePoints[ph->idxInImmaturePoints] = 0;\n\n			//该点的主导帧的点插入该点\n			newpoint->host->pointHessians.push_back(newpoint);\n\n			//误差函数中加入该点\n			ef->insertPoint(newpoint);\n\n			//遍历每一个点与帧的残差，ef中插入该残差\n			for (PointFrameResidual* r : newpoint->residuals)\n				ef->insertResidual(r);\n			assert(newpoint->efPoint != 0);\n			delete ph;\n		}\n		else if (newpoint == (PointHessian*)((long)(-1)) || ph->lastTraceStatus == IPS_OOB)\n		{\n			//删除该点\n			delete ph;\n			ph->host->immaturePoints[ph->idxInImmaturePoints] = 0;\n		}\n		else\n		{\n			assert(newpoint == 0 || newpoint == (PointHessian*)((long)(-1)));\n		}\n	}\n\n	//遍历每一个主导帧\n	for (FrameHessian* host : frameHessians)\n	{\n		//遍历每一个主导帧的点\n		for (int i = 0; i < (int)host->immaturePoints.size(); i++)\n		{\n			//若该点未被优化\n			if (host->immaturePoints[i] == 0)\n			{\n				//则删除这个点\n				host->immaturePoints[i] = host->immaturePoints.back();\n				host->immaturePoints.pop_back();\n				i--;\n			}\n		}\n	}\n}\n\n/**\n * [FullSystem::activatePointsOldFirst description]\n */\nvoid FullSystem::activatePointsOldFirst()\n{\n	assert(false);\n}\n\n/**\n * [FullSystem::flagPointsForRemoval description]\n * 优化后，删除点\n * host->pointHessiansOut.push_back(ph);\n * efPoint->stateFlag = EFPointStatus::PS_DROP或PS_MARGINALIZE\n * host->pointHessians[i] = 0;pointHessians删除\n */\nvoid FullSystem::flagPointsForRemoval()\n{\n	assert(EFIndicesValid);\n\n	//保持的帧和边缘化的帧\n	std::vector<FrameHessian*> fhsToKeepPoints;\n	std::vector<FrameHessian*> fhsToMargPoints;\n\n	//if(setting_margPointVisWindow>0)\n	{\n		for (int i = ((int)frameHessians.size()) - 1; i >= 0 && i >= ((int)frameHessians.size()); i--)\n			if (!frameHessians[i]->flaggedForMarginalization) fhsToKeepPoints.push_back(frameHessians[i]);\n\n		for (int i = 0; i < (int)frameHessians.size(); i++)\n			if (frameHessians[i]->flaggedForMarginalization) fhsToMargPoints.push_back(frameHessians[i]);\n	}\n\n	//ef->setAdjointsF();\n	//ef->setDeltaF(&Hcalib);\n	int flag_oob = 0, flag_in = 0, flag_inin = 0, flag_nores = 0;\n\n	//遍历每一个关键帧\n	for (FrameHessian* host : frameHessians)		// go through all active frames\n	{\n		//遍历每一个点\n		for (unsigned int i = 0; i < host->pointHessians.size(); i++)\n		{\n			//这个点\n			PointHessian* ph = host->pointHessians[i];\n			if (ph == 0) continue;\n\n			//这个点逆深度＝＝０，则这个点边缘化　　插入pointHessiansOut\n			//该点的状态＝PS_DROP，\n			if (ph->idepth_scaled < 0 || ph->residuals.size() == 0)\n			{\n				host->pointHessiansOut.push_back(ph);\n				ph->efPoint->stateFlag = EFPointStatus::PS_DROP;\n				host->pointHessians[i] = 0;\n				flag_nores++;\n			}\n			//主导帧被边缘化，或者该点被观察到的帧数够小\n			else if (ph->isOOB(fhsToKeepPoints, fhsToMargPoints) || host->flaggedForMarginalization)\n			{\n				flag_oob++;\n				if (ph->isInlierNew())\n				{\n					flag_in++;\n					int ngoodRes = 0;\n					//遍历该点的每个与帧的残差\n					for (PointFrameResidual* r : ph->residuals)\n					{\n						r->resetOOB();\n						r->linearize(&Hcalib);\n						r->efResidual->isLinearized = false;\n						r->applyRes(true);\n						if (r->efResidual->isActive())\n						{\n							r->efResidual->fixLinearizationF(ef);\n							ngoodRes++;\n						}\n					}\n					//若该点的逆深度Hessian超出边缘阈值，则加入pointHessiansMarginalized，该点为边缘化点\n					if (ph->idepth_hessian > setting_minIdepthH_marg)\n					{\n						flag_inin++;\n						ph->efPoint->stateFlag = EFPointStatus::PS_MARGINALIZE;\n						host->pointHessiansMarginalized.push_back(ph);\n					}\n					//否则该点为out点\n					else\n					{\n						ph->efPoint->stateFlag = EFPointStatus::PS_DROP;\n						host->pointHessiansOut.push_back(ph);\n					}\n\n				}\n				else 	//该点为out点\n				{\n					//该点设置为out\n					host->pointHessiansOut.push_back(ph);\n					ph->efPoint->stateFlag = EFPointStatus::PS_DROP;\n					//printf(\"drop point in frame %d (%d goodRes, %d activeRes)\\n\", ph->host->idx, ph->numGoodResiduals, (int)ph->residuals.size());\n				}\n\n				host->pointHessians[i] = 0;\n			}\n		}\n\n		//删除每一个要移除的点\n		for (int i = 0; i < (int)host->pointHessians.size(); i++)\n		{\n			if (host->pointHessians[i] == 0)\n			{\n				host->pointHessians[i] = host->pointHessians.back();\n				host->pointHessians.pop_back();\n				i--;\n			}\n		}\n	}\n}\n\n\nvoid FullSystem::ExtractORB(int flag, const cv::Mat &im)\n{\n	if (flag == 0)\n		(*mpORBextractorLeft)(im, cv::Mat(), mvKeys, mDescriptors);\n	else\n		(*mpORBextractorRight)(im, cv::Mat(), mvKeysRight, mDescriptorsRight);\n}\nbool FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_)\n{\n	if (descriptorsLast.empty() || descriptorsCur.empty())\n	{\n		std::cout << \"error\" << std::endl;\n		return false;\n	}\n	std::vector<cv::DMatch> matches;\n	matcher_flann_.match( descriptorsLast, descriptorsCur, matches );\n	// // select the best matches\n	// float min_dis = std::min_element (\n	//                   matches.begin(), matches.end(),\n	//                   [] ( const cv::DMatch & m1, const cv::DMatch & m2 )\n	// {\n	// 	return m1.distance < m2.distance;\n	// } )->distance;\n\n	// feature_matches_.clear();\n	// for ( cv::DMatch& m : matches )\n	// {\n	// 	if ( m.distance < std::max<float> ( min_dis * 2.0, 30.0 ) )\n	// 	{\n	// 		feature_matches_.push_back(m);\n	// 	}\n	// }\n}\n\n// bool checkEstimatedPose(const cv::Mat& R,const cv::Mat& t,)\n// {\n//           // check if the estimated pose is good\n//           if ( num_inliers_ < min_inliers_ )\n//           {\n//               std::cout<<\"reject because inlier is too small: \"<<num_inliers_<<endl;\n//               return false;\n//           }\n//           // if the motion is too large, it is probably wrong\n//           Sophus::Vector6d d = T_c_r_estimated_.log();\n//           if ( d.norm() > 3.0 )\n//           {\n//               std::cout<<\"reject because motion is too large: \"<<d.norm()<<endl;\n//               return false;\n//           }\n//           return true;\n// }\n//\n//\n//int FullSystem::CheckFrameDescriptors (\n//  FrameShell* frame1,\n//  FrameShell* frame2,\n//  std::list<std::pair<int, int>>& matches\n//)\n//{\n//	std::vector<int> distance;\n//	for ( auto& m : matches )\n//	{\n//		distance.push_back( DescriptorDistance(\n//		                      frame1->descriptorsLeft,\n//		                      frame2->_descriptorsLeft\n//		                    ));\n//	}\n\n//	int cnt_good = 0;\n//	int best_dist = *std::min_element( distance.begin(), distance.end() );\n//	//LOG(INFO) << \"best dist = \" << best_dist << endl;\n\n//	// 取个上下限\n//	best_dist = best_dist > _options.init_low ? best_dist : _options.init_low;\n//	best_dist = best_dist < _options.init_high ? best_dist : _options.init_high;\n\n//	int i = 0;\n//	//LOG(INFO) << \"original matches: \" << matches.size() << endl;\n//	for ( auto iter = matches.begin(); iter != matches.end(); i++ )\n//	{\n//		if ( distance[i] < _options.initMatchRatio * best_dist )\n//		{\n//			cnt_good++;\n//			iter++;\n//		}\n//		else\n//		{\n//			iter = matches.erase( iter );\n//		}\n//	}\n//	//LOG(INFO) << \"correct matches: \" << matches.size() << endl;\n//	return cnt_good;\n//}\n\n//int FullSystem::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )\n//{\n//	const int *pa = a.ptr<int32_t>();\n//	const int *pb = b.ptr<int32_t>();\n//	int dist = 0;\n//	for (int i = 0; i < 8; i++, pa++, pb++)\n//	{\n//		unsigned  int v = *pa ^ *pb;\n//		v = v - ((v >> 1) & 0x55555555);\n//		v = (v & 0x33333333) + ((v >> 2) & 0x33333333);\n//		dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;\n//	}\n//	return dist;\n//}\n//void FullSystem::ComputeBoW(FrameShell* f)\n//{\n//	if ( _vocab != nullptr && f->_bow_vec.empty() )\n//	{\n//		_vocab->transform( f->descriptorsLeft, f->_bow_vec, f->_feature_vec, 4);\n//	}\n//}\n/**\n * [FullSystem::addActiveFrame description]\n * @param image       [description]\n * @param image_right [description]\n * @param id          [description]\n */\nvoid FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* image_right, int id )\n{\n	if (isLost) return;\n	boost::unique_lock<boost::mutex> lock(trackMutex);\n\n	// =========================== add into allFrameHistory =========================\n	//新建一个帧Hessian类\n	FrameHessian* fh = new FrameHessian();\n	//新建一个帧的位姿信息\n	FrameHessian* fh_right = new FrameHessian();\n	FrameShell* shell = new FrameShell();\n	//相机坐标系到世界坐标系的变换矩阵，单位矩阵\n	shell->camToWorld = SE3(); 		// no lock required, as fh is not used anywhere yet.\n	//参数为a和b，0,0\n	shell->aff_g2l = AffLight(0, 0);\n	//帧id为当前历史帧的数量\n	shell->marginalizedAt = shell->id = allFrameHistory.size();\n	//时间\n	shell->timestamp = image->timestamp;\n	shell->incoming_id = id; // id passed into DSO\n	//设FrameHessian的位姿信息\n	fh->shell = shell;\n	fh_right->shell = shell;\n\n	// =========================== make Images / derivatives etc. =========================\n	//曝光时间\n	fh->ab_exposure = image->exposure_time;\n	//得到当前帧的每一层的灰度图像和xy方向梯度值和xy梯度平方和，用于跟踪和初始化\n	fh->makeImages(image, &Hcalib);\n	//曝光时间\n	fh_right->ab_exposure = image_right->exposure_time;\n	//得到当前帧的每一层的灰度图像和xy方向梯度值和xy梯度平方和，用于跟踪和初始化\n	fh_right->makeImages(image_right, &Hcalib);\n\n\n	//提取特征点\n	// ORB extraction\n	// 同时对左右目提特征\n	// (*mpORBextractorLeft)(fh->image, cv::Mat(), fh->keypoints, fh->descriptors);\n	// (*mpORBextractorRight)(fh_right->image, cv::Mat(), fh_right->keypoints, fh_right->descriptors);\n\n//    cv::Mat show = fh->image.clone();\n//    for (Feature* fea : fh->_features )\n//    {\n//        cv::circle( show, cv::Point2f(fea->_pixel[0], fea->_pixel[1]), 2, cv::Scalar(255, 250, 255), 2);\n//    }\n//    cv::imshow(\"Features\", show );\n//    cv::waitKey(1);\n\n	//将当前帧增加到历史记录中\n	allFrameHistory.push_back(shell);\n	allFrameHessianHistory.push_back(fh);\n	allFrameHessianRightHistory.push_back(fh_right);\n\n	if (!initialized)\n	{\n		// use initializer!\n		if (coarseInitializer->frameID < 0)	// first frame set. fh is kept by coarseInitializer.\n		{\n			//设置初始的双目\n			coarseInitializer->setFirstStereo(&Hcalib, fh, fh_right);\n			//初始化成功\n			initialized = true;\n		}\n		return;\n	}\n	else	// do front-end operation.\n	{\n		Eigen::Matrix3d initR;\n		std::vector<cv::DMatch> matches;\n		cv::Mat image;\n\n//		ComputeBoW(allFrameHistory[allFrameHistory.size() - 2]);\n//		ComputeBoW(allFrameHistory[allFrameHistory.size() - 1]);\n\n		// bool ok = find_feature_matches(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->descriptors,\n		//                                allFrameHessianHistory[allFrameHessianHistory.size() - 1]->descriptors, matches);\n\n//		if (ok && matches.size() > 5)\n//		{\n//			cv::Mat K = (cv::Mat_<float>(3, 3) << Hcalib.fxl(), 0, Hcalib.cxl(), 0, Hcalib.fyl(), Hcalib.cyl(), 0, 0, 1);\n//			std::vector<cv::Point2f> points1;\n//			std::vector<cv::Point2f> points2;\n//			for (int i = 0; i < (int)matches.size(); i++)\n//			{\n//				points1.push_back(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->keypoints[matches[i].queryIdx].pt);\n//				points2.push_back(allFrameHessianHistory[allFrameHessianHistory.size() - 1]->keypoints[matches[i].trainIdx].pt);\n//			}\n//			// std::cout<<Hcalib.fxl()<<\" \"<<Hcalib.fyl()<<\" \"<<Hcalib.cxl()<<\" \"<<Hcalib.cyl()<<std::endl;\n//			cv::Point2d principal_point(Hcalib.cxl(), Hcalib.cyl());\n//			float focal_length = Hcalib.fxl();\n//			cv::Mat R, t;\n//			cv::Mat essential_matrix = cv::findEssentialMat(points1, points2, K, CV_RANSAC);\n//			cv::recoverPose(essential_matrix, points1, points2, K, R, t);\n//			cv::cv2eigen(R, initR);\n//			// std::cout << initR << std::endl;\n//			cv::drawMatches(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->image, allFrameHessianHistory[allFrameHessianHistory.size() - 2]->keypoints,\n//			                allFrameHessianHistory[allFrameHessianHistory.size() - 1]->image, allFrameHessianHistory[allFrameHessianHistory.size() - 1]->keypoints,\n//			                matches,\n//			                image,\n//			                cv::Scalar(255, 0, 0)\n//			               );\n//			cv::imshow(\"match\", image);\n//		}\n\n		// =========================== SWAP tracking reference?. =========================\n		//如果当前关键帧的参考帧ID大于当前跟踪的参考帧ID\n		if (coarseTracker_forNewKF->refFrameID > coarseTracker->refFrameID)\n		{\n			boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);\n			//交换当前跟踪和和关键帧跟踪，始终保持跟踪ID大于关键帧跟踪个ID?\n			CoarseTracker* tmp = coarseTracker;\n			coarseTracker = coarseTracker_forNewKF;\n			coarseTracker_forNewKF = tmp;\n		}\n\n		Vec4 tres = trackNewCoarse(fh, fh_right, initR);\n		if (!std::isfinite((double)tres[0]) || !std::isfinite((double)tres[1]) || !std::isfinite((double)tres[2]) || !std::isfinite((double)tres[3]))\n		{\n			printf(\"Initial Tracking failed: LOST!\\n\");\n			isLost = true;\n			return;\n		}\n\n		//是否需要加入关键帧\n		bool needToMakeKF = false;\n\n		//这里setting_keyframesPerSecond=0，所以不会跳进去\n		//这个使用两帧的间隔时间判断，即两帧之间时间大于0.95/setting_keyframesPerSecond，则设为关键帧\n		if (setting_keyframesPerSecond > 0)\n		{\n			needToMakeKF = allFrameHistory.size() == 1 ||\n			               (fh->shell->timestamp - allKeyFramesHistory.back()->timestamp) > 0.95f / setting_keyframesPerSecond;\n		}\n		else\n		{\n			//当前帧和参考帧的a和b的变换\n			//得到两帧间的曝光变化\n			//refToFh[0]=a＝e^(aj-ai)*tj*ti^(-1),两帧间的光度曝光变化\n			//refToFh[1]=b = 当前帧的b - refToFh[0]*当前帧的b\n			//参考帧的曝光:两帧间的光度曝光变化\n			//当前帧的曝光时间:fh->ab_exposure\n			Vec2 refToFh = AffLight::fromToVecExposure(coarseTracker->lastRef->ab_exposure, fh->ab_exposure,\n			               coarseTracker->lastRef_aff_g2l, fh->shell->aff_g2l);\n\n			//判断是否是\n			// BRIGHTNESS CHECK\n			//亮度判断，是否将当前帧作为关键帧\n			//如果历史只有一帧，则该帧加入关键帧\n			/*或者\n			* 初始setting_kfGlobalWeight=1，\n			* setting_maxShiftWeightT＝0.04*(640+480)\n			* setting_maxShiftWeightR＝0.0*(640+480)\n			* setting_maxShiftWeightRT＝0.02*(640+480)\n			* setting_maxAffineWeight=2\n			* 即论文中的公示 wf*f + wft*ft + wa*a > Tkf,\n			* 所以tres[1]为两帧间像素点重投影的位移偏差，tres[2]为两帧间的旋转偏差，tres[3]为两帧间的旋转和位移偏差。\n			* 这里偏差只变换这些位移，旋转，和变换矩阵后每个像素点的差值。\n			* refToFh[a]＝e^(aj-ai)*tj*ti^(-1),两帧间的光度曝光变化\n			*/\n			//当前帧的tres[0]大于第一帧的均方根误差\n			float delta = setting_kfGlobalWeight * setting_maxShiftWeightT *  sqrtf((double)tres[1]) / (wG[0] + hG[0]) +\n			              setting_kfGlobalWeight * setting_maxShiftWeightR *  sqrtf((double)tres[2]) / (wG[0] + hG[0]) +\n			              setting_kfGlobalWeight * setting_maxShiftWeightRT * sqrtf((double)tres[3]) / (wG[0] + hG[0]) +\n			              setting_kfGlobalWeight * setting_maxAffineWeight * fabs(logf((float)refToFh[0]));\n			printf(\" delta is %f \\n\", delta);\n			// BRIGHTNESS CHECK\n			// 判断是否是关键帧\n			// 第一帧或者delta够大，或者误差残差大于了第一次的两倍\n			needToMakeKF = allFrameHistory.size() == 1 || delta > 1 || 2 * coarseTracker->firstCoarseRMSE < tres[0];\n		}\n\n		//显示位姿\n		for (IOWrap::Output3DWrapper* ow : outputWrapper)\n			ow->publishCamPose(fh->shell, &Hcalib);\n\n		lock.unlock();\n\n		//传递到后端，是否加入关键帧判断是否后端优化\n		deliverTrackedFrame(fh, fh_right, needToMakeKF);\n		return;\n	}\n}\n\n/**\n * [FullSystem::deliverTrackedFrame description]\n * @param fh       [description]\n * @param fh_right [description]\n * @param needKF   [description]\n */\nvoid FullSystem::deliverTrackedFrame(FrameHessian* fh, FrameHessian* fh_right, bool needKF)\n{\n	if (linearizeOperation)\n	{\n		//这里goStepByStep＝false，即是否一步一步显示\n		//并且上一参考帧ID是不等于当前参考帧时，即参考帧有变化的时候，才显示\n		if (goStepByStep && lastRefStopID != coarseTracker->refFrameID)\n		{\n			MinimalImageF3 img(wG[0], hG[0], fh->dI);\n			//显示当前图像dI\n			IOWrap::displayImage(\"frameToTrack\", &img);\n			while (true)\n			{\n				char k = IOWrap::waitKey(0);\n				if (k == ' ') break;\n				handleKey( k );\n			}\n			//更新参考帧id\n			lastRefStopID = coarseTracker->refFrameID;\n		}\n		else handleKey( IOWrap::waitKey(1) );\n\n		//加入关键帧\n		if (needKF) makeKeyFrame(fh, fh_right);\n		//不加入关键帧\n		else makeNonKeyFrame(fh, fh_right);\n	}\n	//如果不使用linearizeOperation\n	else\n	{\n		boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);\n		//不建图序列插入\n		unmappedTrackedFrames.push_back(fh);\n		unmappedTrackedFrames_right.push_back(fh_right);\n		//是否是关键帧，设置最新的关键帧id\n		if (needKF)\n			needNewKFAfter = fh->shell->trackingRef->id;\n\n		//通知处在等待该对象的线程的方法\n		//唤醒所有正在等待该对象的线程\n		trackedFrameSignal.notify_all();\n\n		//当跟踪的参考帧为-1时，则建图信号上锁\n		while (coarseTracker_forNewKF->refFrameID == -1 && coarseTracker->refFrameID == -1 )\n		{\n			mappedFrameSignal.wait(lock);\n		}\n\n		lock.unlock();\n	}\n}\n\n/**\n * [FullSystem::mappingLoop description]\n * 后端优化\n * 若linearizeOperation=true，则这里不进行，\n * 若linearizeOperation=false,unmappedTrackedFrame才有值\n */\nvoid FullSystem::mappingLoop()\n{\n	boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);\n\n	while (runMapping)\n	{\n		//若unmappedTrackedFrames为０\n		while (unmappedTrackedFrames.size() == 0)\n		{\n			//跟踪线程进行等待\n			trackedFrameSignal.wait(lock);\n			if (!runMapping) return;\n		}\n\n		//最前面的一帧\n		FrameHessian* fh = unmappedTrackedFrames.front();\n		//弹出\n		unmappedTrackedFrames.pop_front();\n		FrameHessian* fh_right = unmappedTrackedFrames_right.front();\n		unmappedTrackedFrames_right.pop_front();\n\n		// guaranteed to make a KF for the very first two tracked frames.\n		// 保证为前两个跟踪帧制作一个KF。小于一帧的时候\n		if (allKeyFramesHistory.size() <= 2)\n		{\n			lock.unlock();\n			makeKeyFrame(fh, fh_right);\n			lock.lock();\n			mappedFrameSignal.notify_all();\n			continue;\n		}\n\n		//unmappedTrackedFrames>3的时，需要进行needToKetchupMapping\n		if (unmappedTrackedFrames.size() > 3)\n			needToKetchupMapping = true;\n\n		//needToKetchupMapping大于0\n		if (unmappedTrackedFrames.size() > 0) // if there are other frames to track, do that first.\n		{\n			//插入非关键帧\n			lock.unlock();\n			makeNonKeyFrame(fh, fh_right);\n			lock.lock();\n\n			if (needToKetchupMapping && unmappedTrackedFrames.size() > 0)\n			{\n				//弹出最前面的一帧\n				FrameHessian* fh = unmappedTrackedFrames.front();\n				unmappedTrackedFrames.pop_front();\n				{\n					boost::unique_lock<boost::mutex> crlock(shellPoseMutex);\n					assert(fh->shell->trackingRef != 0);\n\n					//当前帧位姿\n					fh->shell->camToWorld = fh->shell->trackingRef->camToWorld * fh->shell->camToTrackingRef;\n					fh->setEvalPT_scaled(fh->shell->camToWorld.inverse(), fh->shell->aff_g2l);\n				}\n				delete fh;\n				delete fh_right;\n			}\n		}\n		else\n		{\n			//setting_realTimeMaxKF=false实时最大帧数\n			//若当前最新的关键帧id大于关键帧序列中最后的一帧\n			if (setting_realTimeMaxKF || needNewKFAfter >= frameHessians.back()->shell->id)\n			{\n				//插入关键帧\n				lock.unlock();\n				makeKeyFrame(fh, fh_right);\n				//不进行KetchupMapping\n				needToKetchupMapping = false;\n				lock.lock();\n			}\n			else\n			{\n				//插入非关键帧\n				lock.unlock();\n				makeNonKeyFrame(fh, fh_right);\n				lock.lock();\n			}\n		}\n		mappedFrameSignal.notify_all();\n	}\n	printf(\"MAPPING FINISHED!\\n\");\n}\n\n/**\n * [FullSystem::blockUntilMappingIsFinished description]\n */\nvoid FullSystem::blockUntilMappingIsFinished()\n{\n	//上锁trackMapSyncMutex\n	boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);\n	//关闭mapping\n	runMapping = false;\n	//唤醒所有正在等待该对象的线程\n	trackedFrameSignal.notify_all();\n	//解锁\n	lock.unlock();\n	//mapping线程阻塞\n	mappingThread.join();\n}\n\n/**\n * [FullSystem::makeNonKeyFrame description]\n * @param fh       [description]\n * @param fh_right [description]\n * 不将当前帧作为关键帧\n */\nvoid FullSystem::makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right)\n{\n	// needs to be set by mapping thread. no lock required since we are in mapping thread.\n	{\n		boost::unique_lock<boost::mutex> crlock(shellPoseMutex);\n		assert(fh->shell->trackingRef != 0);\n		//根据参考帧到世界坐标系的变换和当前帧和参考帧之间的变换，计算当前帧到世界坐标系的变换\n		fh->shell->camToWorld = fh->shell->trackingRef->camToWorld * fh->shell->camToTrackingRef;\n		//设置当前帧的位姿和a和b\n		fh->setEvalPT_scaled(fh->shell->camToWorld.inverse(), fh->shell->aff_g2l);\n	}\n\n	//跟踪这一帧中的每个点，对这个点的像素坐标和状态进行更新\n	traceNewCoarseNonKey(fh, fh_right);\n\n	delete fh;\n	delete fh_right;\n}\n\n/**\n * [FullSystem::makeKeyFrame description]\n * @param fh       [description]\n * @param fh_right [description]\n *\n * 1.先对每个点进行更新\n * 2.判断窗口中的关键帧，是否边缘化关键帧\n * 3.设置每一个关键帧之间为主导帧\n * 4.加入每一个关键帧中的点与其它关键帧的残差\n * 5.遍历窗口中的每一个关键帧的每一个点，判断这个点的状态并且将这个点与每一个关键帧进行逆深度残差更新，更新该点的逆深度\n * 	并在ef中插入该点，加入该点与每一个关键帧的残差\n * 6.优化，最大优化次数6次\n * 7.移除外点removeOutliers\n * 8.设置新的跟踪器coarseTracker_forNewKF\n * 9.删除点，并在ef中删除点和并跟新ef中的H和b\n */\nvoid FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)\n{\n	// needs to be set by mapping thread\n	{\n		boost::unique_lock<boost::mutex> crlock(shellPoseMutex);\n		assert(fh->shell->trackingRef != 0);\n		//根据参考帧到世界坐标系的变换和当前帧和参考帧之间的变换，计算当前帧到世界坐标系的变换\n		fh->shell->camToWorld = fh->shell->trackingRef->camToWorld * fh->shell->camToTrackingRef;\n		//设置当前帧的位姿和a和b\n		fh->setEvalPT_scaled(fh->shell->camToWorld.inverse(), fh->shell->aff_g2l);\n	}\n\n	//跟踪这一帧中的每个点，对这个点的像素坐标和状态进行更新\n	traceNewCoarseKey(fh, fh_right);\n\n	boost::unique_lock<boost::mutex> lock(mapMutex);\n\n	// =========================== Flag Frames to be Marginalized. =========================\n	//是否边缘化该帧\n	//1. 前帧的点个数过小，则该帧被边缘化或者该帧与最新的帧的光度变化较大，且剩下的帧数大于最小帧数\n	//2. 帧数大于最大帧数，则移除与其它帧距离和最大的一帧\n	flagFramesForMarginalization(fh);\n\n	// =========================== add New Frame to Hessian Struct. =========================\n	// 加入新帧信息到Hessian矩阵中\n	//窗口中关键帧id，若是６个窗口，则一直是６\n	fh->idx = frameHessians.size();\n\n	//插入Hessian帧,做为关键帧\n	frameHessians.push_back(fh);\n\n	//关键帧id\n	fh->frameID = allKeyFramesHistory.size();\n\n	//插入关键帧\n	allKeyFramesHistory.push_back(fh->shell);\n\n	//误差能量函数插入该帧的Hessian\n	ef->insertFrame(fh, &Hcalib);\n\n	//设置每一个关键帧之间为主导帧\n	setPrecalcValues();\n\n	// =========================== add new residuals for old points =========================\n	//对于每一个旧点增加残差\n	int numFwdResAdde = 0;\n	//遍历每一个关键帧很\n	for (FrameHessian* fh1 : frameHessians)		// go through all active frames\n	{\n		if (fh1 == fh)\n			continue;\n		//遍历每一个点\n		for (PointHessian* ph : fh1->pointHessians)\n		{\n			//当前帧与这个关键帧这个点的残差\n			PointFrameResidual* r = new PointFrameResidual(ph, fh1, fh);\n			//设置类型\n			r->setState(ResState::IN);\n			//加入残差\n			ph->residuals.push_back(r);\n			ef->insertResidual(r);\n\n			//更新这个点的残差\n			ph->lastResiduals[1] = ph->lastResiduals[0];\n			ph->lastResiduals[0] = std::pair<PointFrameResidual*, ResState>(r, ResState::IN);\n\n			//个数++\n			numFwdResAdde += 1;\n		}\n	}\n\n	// =========================== Activate Points (& flag for marginalization). =========================\n	// 遍历窗口中的每一个关键帧的每一个点，判断这个点的状态并且将这个点与每一个关键帧进行逆深度残差更新，更新该点的逆深度\n	// 并在ef中插入该点，加入该点与每一个关键帧的残差\n	// 为最新帧的主导帧从其ImmaturePoint中生成PointHessian点\n	activatePointsMT();\n\n	//重新设置ef中帧和点的Idx,因为新加了点和帧\n	ef->makeIDX();\n\n	// =========================== OPTIMIZE ALL =========================\n	//每一帧的误差阈值\n	fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;\n\n	//优化\n	float rmse = optimize(setting_maxOptIterations);\n\n	//printf(\"allKeyFramesHistory size is %d \\n\", (int)allKeyFramesHistory.size());\n	printf(\"rmse is %f \\n\", rmse);\n\n	// =========================== Figure Out if INITIALIZATION FAILED =========================\n	//判断初始化是否成功\n	if (allKeyFramesHistory.size() <= 4)\n	{\n		if (allKeyFramesHistory.size() == 2 && rmse > 20 * benchmark_initializerSlackFactor)\n		{\n			printf(\"I THINK INITIALIZATINO FAILED! Resetting.\\n\");\n			initFailed = true;\n		}\n		if (allKeyFramesHistory.size() == 3 && rmse > 13 * benchmark_initializerSlackFactor)\n		{\n			printf(\"I THINK INITIALIZATINO FAILED! Resetting.\\n\");\n			initFailed = true;\n		}\n		if (allKeyFramesHistory.size() == 4 && rmse > 9 * benchmark_initializerSlackFactor)\n		{\n			printf(\"I THINK INITIALIZATINO FAILED! Resetting.\\n\");\n			initFailed = true;\n		}\n	}\n\n	if (isLost)\n		return;\n\n	// =========================== REMOVE OUTLIER =========================\n	//移除外点，删除点和窗口中的帧之间都无残差，则加入pointHessiansOut，并从pointHessians，在ef中删除PS_DROP\n	removeOutliers();\n	{\n		boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);\n		//设置新的跟踪器的内参\n		coarseTracker_forNewKF->makeK(&Hcalib);\n		//设置新的跟踪器的参考帧，并且使用双目静态匹配获取参考帧的点的逆深度\n		coarseTracker_forNewKF->setCoarseTrackingRef(frameHessians, fh_right, Hcalib);\n\n		coarseTracker_forNewKF->debugPlotIDepthMap(&minIdJetVisTracker, &maxIdJetVisTracker, outputWrapper);\n		coarseTracker_forNewKF->debugPlotIDepthMapFloat(outputWrapper);\n	}\n\n	//	debugPlot(\"post Optimize\");\n\n	// =========================== (Activate-)Marginalize Points =========================\n	//边缘化点，删除点\n	flagPointsForRemoval();\n\n	//在ef误差函数中移除被边缘化的点\n	ef->dropPointsF();\n\n	//获取零空间\n	getNullspaces(\n	    ef->lastNullspaces_pose,\n	    ef->lastNullspaces_scale,\n	    ef->lastNullspaces_affA,\n	    ef->lastNullspaces_affB);\n\n	//边缘化点后，更新ef误差函数中的Ｈessian和ｂ矩阵\n	ef->marginalizePointsF();\n\n	// =========================== add new Immature points & new residuals =========================\n	//获取当前新的关键帧的点\n	makeNewTraces(fh, fh_right, 0);\n\n	//发布关键帧\n	for (IOWrap::Output3DWrapper* ow : outputWrapper)\n	{\n		ow->publishGraph(ef->connectivityMap);\n		ow->publishKeyframes(frameHessians, false, &Hcalib);\n	}\n\n	// =========================== Marginalize Frames =========================\n	//边缘化帧\n	for (unsigned int i = 0; i < frameHessians.size(); i++)\n	{\n		//该帧需要边缘化\n		if (frameHessians[i]->flaggedForMarginalization)\n		{\n			//边缘化这一帧\n			marginalizeFrame(frameHessians[i]);\n			i = 0;\n		}\n	}\n\n	delete fh_right;\n\n//	printLogLine();\n//    printEigenValLine();\n\n}\n\n// insert the first Frame into FrameHessians\n/**\n * [FullSystem::initializeFromInitializer description]\n * @param newFrame [description]\n */\nvoid FullSystem::initializeFromInitializer(FrameHessian* newFrame)\n{\n	//地图上锁\n	boost::unique_lock<boost::mutex> lock(mapMutex);\n\n	//设置内参\n	Mat33f K = Mat33f::Identity();\n	K(0, 0) = Hcalib.fxl();\n	K(1, 1) = Hcalib.fyl();\n	K(0, 2) = Hcalib.cxl();\n	K(1, 2) = Hcalib.cyl();\n\n	// add firstframe.\n	// 第一帧\n	FrameHessian* firstFrame = coarseInitializer->firstFrame;\n	//关键帧id\n	firstFrame->idx = frameHessians.size();\n	//插入这一帧,\n	frameHessians.push_back(firstFrame);\n	//关键帧id\n	firstFrame->frameID = allKeyFramesHistory.size();\n	//插入这一帧的信息\n	allKeyFramesHistory.push_back(firstFrame->shell);\n	//能量函数插入当前帧\n	ef->insertFrame(firstFrame, &Hcalib);\n	//设置每一帧的目标帧，这时候只有第一帧\n	setPrecalcValues();\n\n	//第一帧的右帧\n	FrameHessian* firstFrameRight = coarseInitializer->firstRightFrame;\n	// //\n	// frameHessiansRight.push_back(firstFrameRight);\n\n	//设置第一帧的点Hessian矩阵\n	firstFrame->pointHessians.reserve(wG[0]*hG[0] * 0.2f);\n	firstFrame->pointHessiansMarginalized.reserve(wG[0]*hG[0] * 0.2f);\n	firstFrame->pointHessiansOut.reserve(wG[0]*hG[0] * 0.2f);\n\n	float idepthStereo = 0;\n	float sumID = 1e-5, numID = 1e-5;\n\n	//遍历每一个点\n	for (int i = 0; i < coarseInitializer->numPoints[0]; i++)\n	{\n		sumID += coarseInitializer->points[0][i].iR;\n		numID++;\n	}\n\n	// randomly sub-select the points I need.\n	// 随机采样\n	float keepPercentage = setting_desiredPointDensity / coarseInitializer->numPoints[0];\n\n	if (!setting_debugout_runquiet)\n		printf(\"Initialization: keep %.1f%% (need %d, have %d)!\\n\", 100 * keepPercentage,\n		       (int)(setting_desiredPointDensity), coarseInitializer->numPoints[0] );\n\n	// initialize first frame by idepth computed by static stereo matching\n	// 遍历每一个点\n	for (int i = 0; i < coarseInitializer->numPoints[0]; i++)\n	{\n		if (rand() / (float)RAND_MAX > keepPercentage) continue;\n\n		Pnt* point = coarseInitializer->points[0] + i;\n\n		//初始化一个点\n		ImmaturePoint* pt = new ImmaturePoint(point->u + 0.5f, point->v + 0.5f, firstFrame, point->my_type, &Hcalib);\n\n		//设置该点的坐标和最小和最大的逆深度\n		pt->u_stereo = pt->u;\n		pt->v_stereo = pt->v;\n		pt->idepth_min_stereo = 0;\n		pt->idepth_max_stereo = NAN;\n\n		//静态双目跟踪，左图与右图进行匹配\n		pt->traceStereo(firstFrameRight, K, 1);\n\n		//设置点的最小和最大逆深度\n		pt->idepth_min = pt->idepth_min_stereo;\n		pt->idepth_max = pt->idepth_max_stereo;\n		idepthStereo = pt->idepth_stereo;\n\n		//判断该点的最小和最大的逆深度\n		if (!std::isfinite(pt->energyTH) || !std::isfinite(pt->idepth_min) || !std::isfinite(pt->idepth_max)\n		        || pt->idepth_min < 0 || pt->idepth_max < 0)\n		{\n			delete pt;\n			continue;\n		}\n\n		//创建该点的Hessian矩阵\n		PointHessian* ph = new PointHessian(pt, &Hcalib);\n		delete pt;\n		if (!std::isfinite(ph->energyTH)) {delete ph; continue;}\n\n		//插入该点\n		ph->setIdepthScaled(idepthStereo);\n		ph->setIdepthZero(idepthStereo);\n		//是否有逆深度的初值，该点有初始的逆深度\n		ph->hasDepthPrior = true;\n		//设置点的状态，激活状态\n		ph->setPointStatus(PointHessian::ACTIVE);\n\n		//该帧插入该点\n		firstFrame->pointHessians.push_back(ph);\n\n		//ef插入该点\n		ef->insertPoint(ph);\n	}\n\n	//第一帧到最新一阵的位姿变换\n	SE3 firstToNew = coarseInitializer->thisToNext;\n\n	//设置这两帧的位姿\n	// really no lock required, as we are initializing.\n	{\n		//设置第一帧\n		boost::unique_lock<boost::mutex> crlock(shellPoseMutex);\n		firstFrame->shell->camToWorld = SE3();\n		firstFrame->shell->aff_g2l = AffLight(0, 0);\n		firstFrame->setEvalPT_scaled(firstFrame->shell->camToWorld.inverse(), firstFrame->shell->aff_g2l);\n		firstFrame->shell->trackingRef = 0;\n		firstFrame->shell->camToTrackingRef = SE3();\n\n		//设置最新的一帧\n		newFrame->shell->camToWorld = firstToNew.inverse();\n		newFrame->shell->aff_g2l = AffLight(0, 0);\n		newFrame->setEvalPT_scaled(newFrame->shell->camToWorld.inverse(), newFrame->shell->aff_g2l);\n		newFrame->shell->trackingRef = firstFrame->shell;\n		newFrame->shell->camToTrackingRef = firstToNew.inverse();\n\n	}\n\n	//初始化成功\n	initialized = true;\n	printf(\"INITIALIZE FROM INITIALIZER (%d pts)!\\n\", (int)firstFrame->pointHessians.size());\n}\n\n/**\n * [FullSystem::makeNewTraces description]\n * @param newFrame      [description]\n * @param newFrameRight [description]\n * @param gtDepth       [description]\n * 选取新关键帧的点,创建ImmaturePoint\n */\nvoid FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRight, float* gtDepth)\n{\n	boost::timer t;\n	//detectorLeft->Detect(newFrame);\n	//detectorRight->Detect(newFrameRight);\n\n	pixelSelector->allowFast = true;\n	//int numPointsTotal = makePixelStatus(newFrame->dI, selectionMap, wG[0], hG[0], setting_desiredDensity);\n	//筛选新的点，点的总数\n	int numPointsTotal = pixelSelector->makeMaps(newFrame, selectionMap, setting_desiredImmatureDensity);\n\n	//设置新参考帧的点Hessian矩阵\n	newFrame->pointHessians.reserve(numPointsTotal * 1.2f);\n	//fh->pointHessiansInactive.reserve(numPointsTotal*1.2f);\n	newFrame->pointHessiansMarginalized.reserve(numPointsTotal * 1.2f);\n	newFrame->pointHessiansOut.reserve(numPointsTotal * 1.2f);\n\n	//遍历每一个点,selectionMap==0\n	for (int y = patternPadding + 1; y < hG[0] - patternPadding - 2; y++)\n		for (int x = patternPadding + 1; x < wG[0] - patternPadding - 2; x++)\n		{\n			int i = x + y * wG[0];\n			if (selectionMap[i] == 0)\n				continue;\n			//创建新的未成熟的点\n			ImmaturePoint* impt = new ImmaturePoint(x, y, newFrame, selectionMap[i], &Hcalib);\n\n			//插入\n			if (!std::isfinite(impt->energyTH))\n				delete impt;\n			else\n				newFrame->immaturePoints.push_back(impt);\n		}\n	//设置新参考帧的点Hessian矩阵\n	// newFrame->pointHessians.reserve(newFrame->_features.size() * 1.2f);\n	// //fh->pointHessiansInactive.reserve(numPointsTotal*1.2f);\n	// newFrame->pointHessiansMarginalized.reserve(newFrame->_features.size() * 1.2f);\n	// newFrame->pointHessiansOut.reserve(newFrame->_features.size() * 1.2f);\n\n	// for (int i = 0; i < newFrame->_features.size(); i++)\n	// {\n	// 	ImmaturePoint* impt = new ImmaturePoint(x, y, newFrame, 1, &Hcalib);\n\n	// 	//插入\n	// 	if (!std::isfinite(impt->energyTH))\n	// 		delete impt;\n	// 	else\n	// 		newFrame->immaturePoints.push_back(impt);\n	// }\n\n	std::cout << \"t: \" << t.elapsed() << std::endl;\n	std::cout << \"numPointsTotal*1.2: \" << numPointsTotal * 1.2 << std::endl;\n	printf(\"MADE %d IMMATURE POINTS!\\n\", (int)newFrame->immaturePoints.size());\n}\n\n/**\n * [FullSystem::setPrecalcValues description]\n */\nvoid FullSystem::setPrecalcValues()\n{\n	for (FrameHessian* fh : frameHessians)\n	{\n		//每一帧的目标帧大小设为当前帧的大小\n		fh->targetPrecalc.resize(frameHessians.size());\n		//设置当前帧的每一个参考帧\n		for (unsigned int i = 0; i < frameHessians.size(); i++)\n			fh->targetPrecalc[i].set(fh, frameHessians[i], &Hcalib);\n	}\n\n	//设置\n	ef->setDeltaF(&Hcalib);\n}\n\n\n/**\n * [FullSystem::printLogLine description]\n */\nvoid FullSystem::printLogLine()\n{\n	if (frameHessians.size() == 0) return;\n\n	if (!setting_debugout_runquiet)\n		printf(\"LOG %d: %.3f fine. Res: %d A, %d L, %d M; (%'d / %'d) forceDrop. a=%f, b=%f. Window %d (%d)\\n\",\n		       allKeyFramesHistory.back()->id,\n		       statistics_lastFineTrackRMSE,\n		       ef->resInA,\n		       ef->resInL,\n		       ef->resInM,\n		       (int)statistics_numForceDroppedResFwd,\n		       (int)statistics_numForceDroppedResBwd,\n		       allKeyFramesHistory.back()->aff_g2l.a,\n		       allKeyFramesHistory.back()->aff_g2l.b,\n		       frameHessians.back()->shell->id - frameHessians.front()->shell->id,\n		       (int)frameHessians.size());\n\n\n	if (!setting_logStuff) return;\n\n	if (numsLog != 0)\n	{\n		(*numsLog) << allKeyFramesHistory.back()->id << \" \"  <<\n		           statistics_lastFineTrackRMSE << \" \"  <<\n		           (int)statistics_numCreatedPoints << \" \"  <<\n		           (int)statistics_numActivatedPoints << \" \"  <<\n		           (int)statistics_numDroppedPoints << \" \"  <<\n		           (int)statistics_lastNumOptIts << \" \"  <<\n		           ef->resInA << \" \"  <<\n		           ef->resInL << \" \"  <<\n		           ef->resInM << \" \"  <<\n		           statistics_numMargResFwd << \" \"  <<\n		           statistics_numMargResBwd << \" \"  <<\n		           statistics_numForceDroppedResFwd << \" \"  <<\n		           statistics_numForceDroppedResBwd << \" \"  <<\n		           frameHessians.back()->aff_g2l().a << \" \"  <<\n		           frameHessians.back()->aff_g2l().b << \" \"  <<\n		           frameHessians.back()->shell->id - frameHessians.front()->shell->id << \" \"  <<\n		           (int)frameHessians.size() << \" \"  << \"\\n\";\n		numsLog->flush();\n	}\n}\n\n/**\n * [FullSystem::printEigenValLine description]\n */\nvoid FullSystem::printEigenValLine()\n{\n	if (!setting_logStuff) return;\n	if (ef->lastHS.rows() < 12) return;\n\n\n	MatXX Hp = ef->lastHS.bottomRightCorner(ef->lastHS.cols() - CPARS, ef->lastHS.cols() - CPARS);\n	MatXX Ha = ef->lastHS.bottomRightCorner(ef->lastHS.cols() - CPARS, ef->lastHS.cols() - CPARS);\n	int n = Hp.cols() / 8;\n	assert(Hp.cols() % 8 == 0);\n\n	// sub-select\n	for (int i = 0; i < n; i++)\n	{\n		MatXX tmp6 = Hp.block(i * 8, 0, 6, n * 8);\n		Hp.block(i * 6, 0, 6, n * 8) = tmp6;\n\n		MatXX tmp2 = Ha.block(i * 8 + 6, 0, 2, n * 8);\n		Ha.block(i * 2, 0, 2, n * 8) = tmp2;\n	}\n	for (int i = 0; i < n; i++)\n	{\n		MatXX tmp6 = Hp.block(0, i * 8, n * 8, 6);\n		Hp.block(0, i * 6, n * 8, 6) = tmp6;\n\n		MatXX tmp2 = Ha.block(0, i * 8 + 6, n * 8, 2);\n		Ha.block(0, i * 2, n * 8, 2) = tmp2;\n	}\n\n	VecX eigenvaluesAll = ef->lastHS.eigenvalues().real();\n	VecX eigenP = Hp.topLeftCorner(n * 6, n * 6).eigenvalues().real();\n	VecX eigenA = Ha.topLeftCorner(n * 2, n * 2).eigenvalues().real();\n	VecX diagonal = ef->lastHS.diagonal();\n\n	std::sort(eigenvaluesAll.data(), eigenvaluesAll.data() + eigenvaluesAll.size());\n	std::sort(eigenP.data(), eigenP.data() + eigenP.size());\n	std::sort(eigenA.data(), eigenA.data() + eigenA.size());\n\n	int nz = std::max(100, setting_maxFrames * 10);\n\n	if (eigenAllLog != 0)\n	{\n		VecX ea = VecX::Zero(nz); ea.head(eigenvaluesAll.size()) = eigenvaluesAll;\n		(*eigenAllLog) << allKeyFramesHistory.back()->id << \" \" <<  ea.transpose() << \"\\n\";\n		eigenAllLog->flush();\n	}\n	if (eigenALog != 0)\n	{\n		VecX ea = VecX::Zero(nz); ea.head(eigenA.size()) = eigenA;\n		(*eigenALog) << allKeyFramesHistory.back()->id << \" \" <<  ea.transpose() << \"\\n\";\n		eigenALog->flush();\n	}\n	if (eigenPLog != 0)\n	{\n		VecX ea = VecX::Zero(nz); ea.head(eigenP.size()) = eigenP;\n		(*eigenPLog) << allKeyFramesHistory.back()->id << \" \" <<  ea.transpose() << \"\\n\";\n		eigenPLog->flush();\n	}\n\n	if (DiagonalLog != 0)\n	{\n		VecX ea = VecX::Zero(nz); ea.head(diagonal.size()) = diagonal;\n		(*DiagonalLog) << allKeyFramesHistory.back()->id << \" \" <<  ea.transpose() << \"\\n\";\n		DiagonalLog->flush();\n	}\n\n	if (variancesLog != 0)\n	{\n		VecX ea = VecX::Zero(nz); ea.head(diagonal.size()) = ef->lastHS.inverse().diagonal();\n		(*variancesLog) << allKeyFramesHistory.back()->id << \" \" <<  ea.transpose() << \"\\n\";\n		variancesLog->flush();\n	}\n\n	std::vector<VecX> &nsp = ef->lastNullspaces_forLogging;\n	(*nullspacesLog) << allKeyFramesHistory.back()->id << \" \";\n	for (unsigned int i = 0; i < nsp.size(); i++)\n		(*nullspacesLog) << nsp[i].dot(ef->lastHS * nsp[i]) << \" \" << nsp[i].dot(ef->lastbS) << \" \" ;\n	(*nullspacesLog) << \"\\n\";\n	nullspacesLog->flush();\n\n}\n\n/**\n * [FullSystem::printFrameLifetimes description]\n */\nvoid FullSystem::printFrameLifetimes()\n{\n	if (!setting_logStuff) return;\n\n	boost::unique_lock<boost::mutex> lock(trackMutex);\n\n	std::ofstream* lg = new std::ofstream();\n	lg->open(\"logs/lifetimeLog.txt\", std::ios::trunc | std::ios::out);\n	lg->precision(15);\n\n	for (FrameShell* s : allFrameHistory)\n	{\n		(*lg) << s->id\n		      << \" \" << s->marginalizedAt\n		      << \" \" << s->statistics_goodResOnThis\n		      << \" \" << s->statistics_outlierResOnThis\n		      << \" \" << s->movedByOpt;\n		(*lg) << \"\\n\";\n	}\n\n	lg->close();\n	delete lg;\n}\n\n/**\n * [FullSystem::printEvalLine description]\n */\nvoid FullSystem::printEvalLine()\n{\n	return;\n}\n\n}\n",
+			"file": "src/FullSystem/FullSystem.cpp",
+			"file_size": 87079,
+			"file_write_time": 131602100361113070,
 			"settings":
 			{
-				"buffer_size": 7528,
+				"buffer_size": 80239,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/FullSystem/ImmaturePoint.cpp",
+			"settings":
+			{
+				"buffer_size": 30452,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/FullSystem/ORB/FeatureDetector.h",
+			"settings":
+			{
+				"buffer_size": 4041,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/FullSystem/ORB/FeatureDetector.cpp",
+			"settings":
+			{
+				"buffer_size": 29988,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/FullSystem/ORB/Feature.h",
+			"settings":
+			{
+				"buffer_size": 1015,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/util/settings.cpp",
+			"settings":
+			{
+				"buffer_size": 13502,
 				"line_ending": "Unix"
 			}
 		},
@@ -180,26 +255,10 @@
 			}
 		},
 		{
-			"file": "src/FullSystem/CoarseTracker.cpp",
+			"file": "src/FullSystem/FullSystem.h",
 			"settings":
 			{
-				"buffer_size": 53946,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/FullSystem/FullSystem.cpp",
-			"settings":
-			{
-				"buffer_size": 79579,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/FullSystem/Residuals.cpp",
-			"settings":
-			{
-				"buffer_size": 9395,
+				"buffer_size": 9971,
 				"line_ending": "Unix"
 			}
 		}
@@ -211,10 +270,30 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 219.0,
-		"last_filter": "install",
+		"height": 392.0,
+		"last_filter": "gs",
 		"selected_items":
 		[
+			[
+				"gs",
+				"Git: Status"
+			],
+			[
+				"git: add ",
+				"Git: Add Tag"
+			],
+			[
+				"git: co",
+				"Git: Commit"
+			],
+			[
+				"git: add",
+				"Git: Add Remote"
+			],
+			[
+				"git: d",
+				"Git: Diff"
+			],
 			[
 				"install",
 				"Package Control: Install Package"
@@ -240,7 +319,7 @@
 				"Package Control: Remove Channel"
 			]
 		],
-		"width": 560.0
+		"width": 528.0
 	},
 	"console":
 	{
@@ -265,42 +344,47 @@
 		"/home/ren/work/fdso/src",
 		"/home/ren/work/fdso/src/FullSystem",
 		"/home/ren/work/fdso/src/FullSystem/ORB",
-		"/home/ren/work/fdso/src/util",
-		"/home/ren/work/fdso/thirdparty"
+		"/home/ren/work/fdso/src/util"
 	],
 	"file_history":
 	[
+		"/home/ren/work/fdso/src/main_dso_pangolin.cpp",
+		"/home/ren/work/fdso/src/FullSystem/ORB/FeatureDetector.h",
+		"/home/ren/work/fdso/src/FullSystem/ORB/FeatureDetector.cpp",
+		"/home/ren/work/fdso/src/FullSystem/CoarseTracker.h",
+		"/home/ren/work/fdso/CMakeLists.txt",
+		"/home/ren/work/fdso/src/util/NumType.h",
+		"/home/ren/work/fdso/src/util/FrameShell.h",
+		"/home/ren/work/fdso/src/FullSystem/FullSystem.cpp",
+		"/home/ren/work/fdso/src/FullSystem/HessianBlocks.cpp",
+		"/home/ren/work/fdso/src/FullSystem/Residuals.cpp",
+		"/home/ren/work/fdso/src/util/ImageAndExposure.h",
+		"/home/ren/work/fdso/src/util/DatasetReader.h",
+		"/home/ren/work/fdso/src/FullSystem/CoarseTracker.cpp",
+		"/home/ren/work/fdso/src/util/settings.cpp",
+		"/home/ren/work/fdso/src/test/myTracking.cpp",
+		"/home/ren/work/fdso/.tags",
 		"/home/ren/.config/sublime-text-3/Packages/User/Package Control.sublime-settings",
 		"/home/ren/work/fdso/src/FullSystem/CoarseInitializer.cpp",
 		"/home/ren/work/fdso/src/FullSystem/FullSystem.h",
 		"/home/ren/work/fdso/src/FullSystem/FullSystemOptimize.cpp",
 		"/home/ren/work/fdso/src/OptimizationBackend/EnergyFunctional.cpp",
-		"/home/ren/work/fdso/src/util/settings.cpp",
 		"/home/ren/work/fdso/src/util/settings.h",
 		"/home/ren/work/fdso/src/FullSystem/Residuals.h",
 		"/home/ren/work/fdso/src/FullSystem/ORB/ORBextractor.cpp",
 		"/home/ren/work/fdso/src/FullSystem/ORB/ORBmatcher.h",
 		"/home/ren/work/fdso/src/FullSystem/ORB/ORBmatcher.cpp",
-		"/home/ren/work/fdso/src/util/ImageAndExposure.h",
 		"/home/ren/work/fdso/src/OptimizationBackend/EnergyFunctional.h",
-		"/home/ren/work/fdso/src/util/FrameShell.h",
 		"/home/ren/work/fdso/src/FullSystem/ORB/SparseImageAlign.h",
 		"/home/ren/work/fdso/src/FullSystem/ORB/SparseImageAlign.cpp",
-		"/home/ren/work/fdso/src/FullSystem/CoarseTracker.cpp",
 		"/home/ren/work/fdso/src/FullSystem/FullSystemMarginalize.cpp",
 		"/home/ren/work/fdso/src/OptimizationBackend/AccumulatedSCHessian.cpp",
 		"/home/ren/work/fdso/src/OptimizationBackend/AccumulatedTopHessian.cpp",
 		"/home/ren/work/fdso/src/OptimizationBackend/AccumulatedTopHessian.h",
 		"/home/ren/work/fdso/src/OptimizationBackend/EnergyFunctionalStructs.h",
-		"/home/ren/work/fdso/src/FullSystem/Residuals.cpp",
 		"/home/ren/work/fdso/src/FullSystem/HessianBlocks.h",
 		"/home/ren/work/fdso/src/FullSystem/ResidualProjections.h",
-		"/home/ren/work/fdso/src/FullSystem/FullSystem.cpp",
-		"/home/ren/work/fdso/src/FullSystem/HessianBlocks.cpp",
-		"/home/ren/work/fdso/src/FullSystem/ORB/FeatureDetector.h",
-		"/home/ren/work/fdso/src/FullSystem/ORB/FeatureDetector.cpp",
 		"/home/ren/work/fdso/src/OptimizationBackend/RawResidualJacobian.h",
-		"/home/ren/work/fdso/src/util/NumType.h",
 		"/home/ren/work/fdso/src/FullSystem/ImmaturePoint.cpp",
 		"/home/ren/work/fdso/src/FullSystem/FullSystemOptPoint.cpp",
 		"/home/ren/work/fdso/src/FullSystem/ORB/NLSSolver.h",
@@ -311,10 +395,6 @@
 		"/home/ren/work/fdso/src/util/globalCalib.cpp",
 		"/home/ren/work/fdso/src/FullSystem/ORB/RobustCost.h",
 		"/home/ren/work/fdso/src/FullSystem/ORB/NLSSolver_impl.hpp",
-		"/home/ren/work/fdso/src/test/myTracking.cpp",
-		"/home/ren/work/fdso/src/FullSystem/CoarseTracker.h",
-		"/home/ren/work/fdso/CMakeLists.txt",
-		"/home/ren/work/fdso/src/main_dso_pangolin.cpp",
 		"/home/ren/work/fdso/src/FullSystem/PixelSelector2.cpp",
 		"/home/ren/work/fdso/src/FullSystem/camera.h",
 		"/home/ren/work/fdso/src/FullSystem/ORB/ORBextractor.h",
@@ -395,9 +475,7 @@
 		"/home/ren/catkin_ws/src/direct_edge_imu-master/main_live_odometry.cpp",
 		"/home/ren/.config/sublime-text-3/Packages/SublimeClang/SublimeClang.sublime-settings",
 		"/home/ren/work/fdso/src/IOWrapper/OpenCV/ImageDisplay_OpenCV.cpp",
-		"/home/ren/work/fdso/src/util/MinimalImage.h",
-		"/home/ren/work/fdso/src/IOWrapper/ImageDisplay.h",
-		"/home/ren/slam/fdso/src/FullSystem/FullSystem.cpp"
+		"/home/ren/work/fdso/src/util/MinimalImage.h"
 	],
 	"find":
 	{
@@ -420,6 +498,26 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"Feature",
+			"Vector",
+			"Vector3d",
+			"Vector2d",
+			"Mat",
+			"frame",
+			"addA",
+			"find_feature_matches",
+			"frame",
+			"Frame",
+			"playbackSpeed",
+			"SKIPFRAME",
+			"find_feature_matches",
+			"error",
+			"PRE_worldToCam",
+			"_pyramid",
+			"ComputeDescriptor",
+			"_frame",
+			"_mappoint",
+			"MapPoint",
 			"RE-TRACK ATTEMPT",
 			"delete",
 			"fh",
@@ -527,27 +625,7 @@
 			"buf_warped_v",
 			"v",
 			"u",
-			"save",
-			"dINewl",
-			"save",
-			"sIdepth",
-			"saveResult",
-			"save",
-			"saveResult",
-			"minResForAbort",
-			"lastResiduals",
-			"lastF_2_fh_this",
-			"save",
-			"dIp",
-			"dINewl",
-			"hitColor",
-			"dINewl",
-			"newFrame->dIp",
-			"save",
-			"dINewl",
-			"newFrame",
-			"    \n",
-			"incoming_id"
+			"save"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -567,7 +645,7 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -576,15 +654,408 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 16378,
+						"buffer_size": 17481,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5600,
-								5600
+								4871,
+								4871
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": 36,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+									"1":
+									[
+										3131,
+										3132
+									]
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"side_bar_folders_auto_load_folder": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3733.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/FullSystem/FullSystem.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 80239,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								73541,
+								73541
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										74803,
+										74804
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"region.purplish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										72894,
+										72895
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										74771,
+										74772
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"region.purplish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										72894,
+										72895
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"side_bar_folders_auto_load_folder": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 53130.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "src/FullSystem/ImmaturePoint.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 30452,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1382,
+								1382
 							]
 						],
 						"settings":
@@ -604,70 +1075,258 @@
 								},
 								"unmatched":
 								{
-									"1":
-									[
-										3081,
-										3082
-									]
 								}
 							},
 							"bracket_highlighter.clone_regions":
 							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
 								"bh_curly_close",
 								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										1404,
+										1405
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"region.yellowish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										1334,
+										1335
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
-								"bh_c_define_content"
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"side_bar_folders_auto_load_folder": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 792.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "src/FullSystem/ORB/FeatureDetector.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4041,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": 127,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
 							],
 							"bracket_highlighter.locations":
 							{
@@ -686,46 +1345,6 @@
 							},
 							"bracket_highlighter.regions":
 							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
@@ -736,38 +1355,273 @@
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
-								"bh_angle_content"
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
 							],
 							"side_bar_folders_auto_load_folder": 1,
 							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 4841.0,
+						"translation.y": 1872.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "src/FullSystem/ORB/FeatureDetector.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 29988,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								20180,
+								20180
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										20250,
+										20251
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"region.yellowish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										20196,
+										20197
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"side_bar_folders_auto_load_folder": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 8629.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 1,
-					"file": "src/FullSystem/HessianBlocks.cpp",
+					"buffer": 5,
+					"file": "src/FullSystem/ORB/Feature.h",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7528,
+						"buffer_size": 1015,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2846,
-								2846
+								94,
+								94
 							]
 						],
 						"settings":
@@ -780,8 +1634,8 @@
 								{
 									"1":
 									[
-										3554,
-										3555
+										992,
+										993
 									]
 								},
 								"icon":
@@ -796,8 +1650,8 @@
 								{
 									"1":
 									[
-										2282,
-										2283
+										92,
+										93
 									]
 								},
 								"unmatched":
@@ -806,134 +1660,6 @@
 							},
 							"bracket_highlighter.clone_regions":
 							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content"
-							],
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-									"1":
-									[
-										3554,
-										3555
-									]
-								},
-								"icon":
-								{
-									"1":
-									[
-										"Packages/BracketHighlighter/icons/curly_bracket.png",
-										"region.purplish"
-									]
-								},
-								"open":
-								{
-									"1":
-									[
-										2282,
-										2283
-									]
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
@@ -944,25 +1670,338 @@
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
-								"bh_angle_content"
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										992,
+										993
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"region.purplish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										92,
+										93
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"open_with_edit": true,
+							"side_bar_folders_auto_load_folder": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "src/util/settings.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 13502,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1009,
+								1009
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+									"1":
+									[
+										990,
+										991
+									]
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
 							],
 							"side_bar_folders_auto_load_folder": 1,
 							"syntax": "Packages/C++/C++.sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 2160.0,
+						"translation.y": 72.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
+					"buffer": 7,
 					"file": "src/FullSystem/FullSystemOptimize.cpp",
 					"semi_transient": false,
 					"settings":
@@ -1102,61 +2141,61 @@
 							},
 							"bracket_highlighter.regions":
 							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
 								"bh_curly_close",
 								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content"
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
 							],
 							"side_bar_folders_auto_load_folder": 1,
 							"syntax": "Packages/C++/C++.sublime-syntax",
@@ -1166,24 +2205,24 @@
 						"translation.y": 12613.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "src/FullSystem/CoarseTracker.cpp",
+					"buffer": 8,
+					"file": "src/FullSystem/FullSystem.h",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 53946,
+						"buffer_size": 9971,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								18395,
-								18395
+								9372,
+								9372
 							]
 						],
 						"settings":
@@ -1194,74 +2233,24 @@
 							{
 								"close":
 								{
-									"1":
-									[
-										19367,
-										19368
-									]
 								},
 								"icon":
 								{
-									"1":
-									[
-										"Packages/BracketHighlighter/icons/curly_bracket.png",
-										"region.purplish"
-									]
 								},
 								"open":
 								{
-									"1":
-									[
-										18160,
-										18161
-									]
 								},
 								"unmatched":
 								{
+									"1":
+									[
+										9965,
+										9966
+									]
 								}
 							},
 							"bracket_highlighter.clone_regions":
 							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
@@ -1272,84 +2261,74 @@
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
-								"bh_angle_content"
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
 							],
 							"bracket_highlighter.locations":
 							{
 								"close":
 								{
-									"1":
-									[
-										19367,
-										19368
-									]
 								},
 								"icon":
 								{
-									"1":
-									[
-										"Packages/BracketHighlighter/icons/curly_bracket.png",
-										"region.purplish"
-									]
 								},
 								"open":
 								{
-									"1":
-									[
-										18160,
-										18161
-									]
 								},
 								"unmatched":
 								{
+									"1":
+									[
+										9965,
+										9966
+									]
 								}
 							},
 							"bracket_highlighter.regions":
 							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
@@ -1360,378 +2339,62 @@
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
-								"bh_angle_content"
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
 							],
 							"side_bar_folders_auto_load_folder": 1,
 							"syntax": "Packages/C++/C++.sublime-syntax",
 							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 12573.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "src/FullSystem/FullSystem.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 79579,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								11810,
-								11810
-							]
-						],
-						"settings":
-						{
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.clone": -1,
-							"bracket_highlighter.clone_locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.clone_regions":
-							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content"
-							],
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content"
-							],
-							"side_bar_folders_auto_load_folder": 1,
-							"syntax": "Packages/C++/C++.sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 9117.0,
+						"translation.y": 8085.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "src/FullSystem/Residuals.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9395,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.clone": -1,
-							"bracket_highlighter.clone_locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.clone_regions":
-							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content"
-							],
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content"
-							],
-							"side_bar_folders_auto_load_folder": 1,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 6048.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]

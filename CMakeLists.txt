@@ -30,6 +30,10 @@ include_directories( ${fast_INCLUDE_DIRS} )
 # ceres
 find_package(Ceres REQUIRED)
 
+# glog 
+find_package( Glog REQUIRED )
+include_directories( ${GLOG_INCLUDE_DIRS} )
+
 # flags
 add_definitions("-DENABLE_SSE")
 set(CMAKE_CXX_FLAGS
@@ -52,8 +56,6 @@ set(dso_SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/FullSystem/PixelSelector2.cpp
 #  ${PROJECT_SOURCE_DIR}/src/FullSystem/factor/projection_factor.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/utility/utility.cpp
-  ${PROJECT_SOURCE_DIR}/src/FullSystem/ORB/ORBextractor.cpp
-  ${PROJECT_SOURCE_DIR}/src/FullSystem/camera.cc
   ${PROJECT_SOURCE_DIR}/src/OptimizationBackend/EnergyFunctional.cpp
   ${PROJECT_SOURCE_DIR}/src/OptimizationBackend/AccumulatedTopHessian.cpp
   ${PROJECT_SOURCE_DIR}/src/OptimizationBackend/AccumulatedSCHessian.cpp
@@ -61,6 +63,11 @@ set(dso_SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/util/settings.cpp
   ${PROJECT_SOURCE_DIR}/src/util/Undistort.cpp
   ${PROJECT_SOURCE_DIR}/src/util/globalCalib.cpp
+
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/ORB/ORBextractor.cpp
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/ORB/FeatureDetector.cpp
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/ORB/ORBmatcher.cpp
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/camera.cc
 )
 
 
@@ -130,6 +137,7 @@ if (OpenCV_FOUND AND Pangolin_FOUND)
 	message("--- compiling dso_dataset.")
 	add_executable(dso_dataset ${PROJECT_SOURCE_DIR}/src/main_dso_pangolin.cpp )
        target_link_libraries(dso_dataset dso boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} pthread
+            ${GLOG_LIBRARY}
             ${fast_LIBRARIES} ${PROJECT_SOURCE_DIR}/thirdparty/DBoW3/build/src/libDBoW3.so)
 else()
 	message("--- not building dso_dataset, since either don't have openCV or Pangolin.")

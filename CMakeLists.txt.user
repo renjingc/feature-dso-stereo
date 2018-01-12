@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.5.1, 2018-01-11T21:52:54. -->
+<!-- Written by QtCreator 3.5.1, 2018-01-12T10:11:00. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -207,7 +207,7 @@
      <value type="int">14</value>
     </valuelist>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">dso_dataset</value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments">files=/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/kitti_gray/dataset/sequences/05 calib=/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/kitti_gray/dataset/sequences/05/kitti_s_camera.txt preset=2 mode=1</value>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments">files=/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/kitti_gray/dataset/sequences/05 calib=/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/kitti_gray/dataset/sequences/05/kitti_s_camera.txt preset=3 mode=1</value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>

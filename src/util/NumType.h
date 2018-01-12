@@ -24,9 +24,34 @@
 
 #pragma once
 
-#include "Eigen/Core"
 #include "sophus/sim3.hpp"
 #include "sophus/se3.hpp"
+#include "sophus/so3.hpp"
+
+#include <glog/logging.h>
+
+// for Eigen
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+using Eigen::Vector2d;
+using Eigen::Vector3d;
+
+using Sophus::SO3;
+using Sophus::SE3;
+
+// for cv
+#include <opencv2/core/core.hpp>
+using cv::Mat;
+
+// std
+#include <vector>
+#include <list>
+#include <memory>
+#include <string>
+#include <iostream>
+#include <set>
+#include <unordered_map>
+#include <map>
 
 
 namespace fdso

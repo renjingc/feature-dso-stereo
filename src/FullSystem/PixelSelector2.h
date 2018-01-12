@@ -57,7 +57,6 @@ private:
 
 	unsigned char* randomPattern;
 
-
 	int* gradHist;
 	float* ths;
 	float* thsSmoothed;

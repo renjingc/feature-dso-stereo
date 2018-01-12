@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <algorithm>
 #include <map>
+#include <list>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -22,8 +23,11 @@
 
 #include "ORBextractor.h"
 
-#include "util/FrameHessian.h"
+#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/ResidualProjections.h"
 #include "util/NumType.h"
+
+namespace fdso {
 
 // 匹配相关的算法，包括特征点的匹配法和直接法的匹配法
 class Matcher
@@ -47,16 +51,66 @@ public:
 
   } _options;
 
+  // struct Match {
+  //   Match(int _index1 = -1, int _index2 = -1, int _dist = -1) : index1(_index1), index2(_index2), dist(_dist) {}
+
+  //   int index1 = -1;
+  //   int index2 = -1;
+  //   int dist = -1;
+  // };
+
 
   static const int HISTO_LENGTH = 30;  // 旋转直方图的size
 
   Matcher();
+  Matcher(int th_low, int th_high, int init_low, int init_high, float knnRatio);
   ~Matcher();
 
   void SetTCR( const SE3& TCR )
   {
     _TCR_esti = TCR;
   }
+
+  // 尝试通过投影关系将LastFrame中的特征与CurrentFrame中的相匹配
+  /**
+   * @param CurrentFrame 当前帧
+   * @param LastFrame 上一个帧
+   * @param th 窗口大小
+   * @return 匹配数量
+   */
+  // int SearchByProjection(FrameHessian* CurrentFrame, FrameHessian* LastFrame, const float th,CalibHessian* HCalib);
+
+  // Search matches between Frame keypoints and projected MapPoints. Returns number of matches
+  // Used to track the local map (Tracking)
+  /**
+   * 寻找从局部地图投影到当前帧的匹配,在Tracker中使用，注意F中有一部分特征可能已经被匹配过
+   * @param F 当前帧
+   * @param vpMapPoints 局部地图，由后端维护
+   * @param th 搜索窗口倍率
+   * @return 匹配点数量
+   */
+  //int SearchByProjection(FrameHessian* F, const std::set<shared_ptr<MapPoint>> &vpMapPoints, const float th = 3);
+
+  /**
+  * Search by direct project, use image alignment to estimate the pixel location instread of feature matching, can be faster
+  * @param F
+  * @param vpMapPoints
+  * @param th
+  * @return
+  */
+  //int SearchByDirectProjection(FrameHessian* F, const std::set<shared_ptr<MapPoint>> &vpMapPoints);
+
+  // // 计算一个帧左右的图像匹配
+  // enum StereoMethod {
+  //   ORB_BASED, OPTIFLOW_BASED, OPTIFLOW_CV
+  // }; // 计算双目匹配的方法，分为基于ORB匹配的和基于双目光流的
+  // void ComputeStereoMatches(FrameHessian* f, StereoMethod method = ORB_BASED);
+
+  // void ComputeStereoMatchesORB(FrameHessian* f);
+
+  // void ComputeStereoMatchesOptiFlow(FrameHessian* f, bool only2Dpoints = false);
+
+  // void ComputeStereoMatchesOptiFlowCV(FrameHessian* f);
 
   // 特征点法的匹配
   // Computes the Hamming distance between two ORB descriptors
@@ -69,11 +123,12 @@ public:
   int SearchForTriangulation(
     FrameHessian* kf1, FrameHessian* kf2, const Eigen::Matrix3d& E12,
     std::vector< std::pair<int, int> >& matched_points,
+    CalibHessian* HCalib,
     const bool& onlyStereo = false
   );
-
+  int SearchBruteForce(FrameHessian* frame1, FrameHessian* frame2, std::vector<cv::DMatch> &matches);
   // 在Keyframe之间搜索匹配情况，利用BoW加速
-  int SearchByBoW( FrameHessian * kf1, FrameHessian* kf2, std::map<int, int>& matches );
+  int SearchByBoW( FrameHessian * kf1, FrameHessian* kf2, std::vector<cv::DMatch> &matches );
 
   // 在KeyFrame和地图之间搜索匹配情况
   // int SearchByProjection(Frame *F, const std::vector<MapPoint*> &vpMapPoints, const float th=3);
@@ -102,6 +157,18 @@ public:
   }
 
 private:
+  /**
+   * 视线角垂直的时候，取大一点的窗
+   * @param viewCos
+   * @return
+   */
+  inline float RadiusByViewingCos(const float &viewCos) {
+    if (viewCos > 0.998)
+      return 2.5;
+    else
+      return 4.0;
+  }
+
   // 内部函数
   // 计算旋转直方图中三个最大值
   void ComputeThreeMaxima( std::vector<int>* histo, const int L, int& ind1, int& ind2, int& ind3 );

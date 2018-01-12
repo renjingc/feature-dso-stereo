@@ -41,6 +41,10 @@
 
 #include "ORB/ORBextractor.h"
 
+#include "ORB/FeatureDetector.h"
+
+#include "ORB/ORBmatcher.h"
+
 #include <math.h>
 #include <boost/timer.hpp>
 
@@ -62,6 +66,8 @@ class ImageAndExposure;
 class CoarseDistanceMap;
 
 class EnergyFunctional;
+
+class Matcher;
 
 template<typename T> inline void deleteOut(std::vector<T*> &v, const int i)
 {
@@ -127,10 +133,6 @@ inline bool eigenTestNan(MatXX m, std::string msg)
 	return foundNan;
 }
 
-
-
-
-
 class FullSystem {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -187,7 +189,7 @@ private:
 
 	// mainPipelineFunctions
 	//主跟踪函数
-	Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen::Matrix3d R);
+	Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen::Matrix4d initT);
 	//关键帧的更新
 	void traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right);
 	//更新一个点
@@ -222,10 +224,10 @@ private:
 	void debugPlotTracking();
 
 	std::vector<VecX> getNullspaces(
-	  std::vector<VecX> &nullspaces_pose,
-	  std::vector<VecX> &nullspaces_scale,
-	  std::vector<VecX> &nullspaces_affA,
-	  std::vector<VecX> &nullspaces_affB);
+	    std::vector<VecX> &nullspaces_pose,
+	    std::vector<VecX> &nullspaces_scale,
+	    std::vector<VecX> &nullspaces_affA,
+	    std::vector<VecX> &nullspaces_affB);
 
 	void setNewFrameEnergyTH();
 
@@ -275,6 +277,7 @@ private:
 	boost::mutex mapMutex;
 	//全部的关键帧
 	std::vector<FrameShell*> allKeyFramesHistory;
+    std::vector<FrameHessian*> allKeyFramesHessianHistory;
 
 	//误差能量函数
 	EnergyFunctional* ef;
@@ -295,11 +298,10 @@ private:
 	float currentMinActDist;
 
 	// //右图的
-	std::vector<FrameHessian*> frameHessiansRight;
+	// std::vector<FrameHessian*> frameHessiansRight;
 
 	//全部的残差
 	std::vector<float> allResVec;
-
 
 	// mutex etc. for tracker exchange.
 	//用于跟新跟踪器的
@@ -353,21 +355,20 @@ private:
 	int lastRefStopID;
 
 	/*---ORB---*/
+	FeatureDetector* detectorLeft, *detectorRight;
 	ORBextractor* mpORBextractorLeft, *mpORBextractorRight;
-	std::vector<cv::KeyPoint> mvKeys, mvKeysRight;
-	cv::Mat mDescriptors, mDescriptorsRight;
 
-	DBoW3::BowVector _bow_vec;
-	DBoW3::FeatureVector _feature_vec;
 
 	cv::FlannBasedMatcher matcher_flann_;
+
+	Matcher* matcher;
 
 	boost::thread threadLeft, threadRight;
 
 	static ORBVocabulary* _vocab;
 
-	void ExtractORB(int flag, const cv::Mat &im);
-	void find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_);
+	// void ExtractORB(int flag, const cv::Mat &im);
+	bool find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_);
 };
 }
 

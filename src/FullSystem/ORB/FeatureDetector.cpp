@@ -32,7 +32,6 @@
 namespace fdso
 {
 
-
 static int bit_pattern_31_[256 * 4] =
 {
     8, -3, 9, 5/*mean (0), correlation (0)*/,
@@ -324,30 +323,67 @@ FeatureDetector::FeatureDetector()
     const int npoints = 512;
     std::copy(pattern0, pattern0 + npoints, std::back_inserter(_pattern));
 
-    _old_features = vector<Feature*>( _option._grid_cols * _option._grid_rows, nullptr );
+    _old_features = std::vector<Feature*>( _option._grid_cols * _option._grid_rows, nullptr );
+}
+
+FeatureDetector::FeatureDetector(int _image_width,int _image_height,
+    int _cell_size,double _detection_threshold)
+{
+    _option._image_width = _image_width;
+    _option._image_height = _image_height;
+    _option._cell_size=_cell_size;
+    _option._detection_threshold=_detection_threshold;
+    _option._grid_rows = ceil ( double ( _option._image_height ) / _option._cell_size );
+    _option._grid_cols = ceil ( double ( _option._image_width ) / _option._cell_size );
+
+    _umax.resize(HALF_PATCH_SIZE + 1);
+    int v, v0, vmax = cvFloor(HALF_PATCH_SIZE * sqrt(2.f) / 2 + 1);
+    int vmin = cvCeil(HALF_PATCH_SIZE * sqrt(2.f) / 2);
+    for (v = HALF_PATCH_SIZE, v0 = 0; v >= vmin; --v)
+    {
+        while (_umax[v0] == _umax[v0 + 1])
+            ++v0;
+        _umax[v] = v0;
+        ++v0;
+    }
+
+    // Make sure we are symmetric
+    for (v = HALF_PATCH_SIZE, v0 = 0; v >= vmin; --v)
+    {
+        while (_umax[v0] == _umax[v0 + 1])
+            ++v0;
+        _umax[v] = v0;
+        ++v0;
+    }
+
+    const cv::Point* pattern0 = (const cv::Point*)bit_pattern_31_;
+    const int npoints = 512;
+    std::copy(pattern0, pattern0 + npoints, std::back_inserter(_pattern));
+
+    _old_features = std::vector<Feature*>( _option._grid_cols * _option._grid_rows, nullptr );
 }
 
 void FeatureDetector::LoadParams()
 {
-    _option._image_width = Config::Get<int> ( "image.width" );
-    _option._image_height = Config::Get<int> ( "image.height" );
-    _option._cell_size = Config::Get<int> ( "feature.cell" );
-    _option._grid_rows = ceil ( double ( _option._image_height ) / _option._cell_size );
-    _option._grid_cols = ceil ( double ( _option._image_width ) / _option._cell_size );
-    _option._detection_threshold = Config::Get<double> ( "feature.detection_threshold" );
-    _old_features = vector<Feature*>( _option._grid_cols * _option._grid_rows, nullptr );
+    // _option._image_width = Config::Get<int> ( "image.width" );
+    // _option._image_height = Config::Get<int> ( "image.height" );
+    // _option._cell_size = Config::Get<int> ( "feature.cell" );
+    // _option._grid_rows = ceil ( double ( _option._image_height ) / _option._cell_size );
+    // _option._grid_cols = ceil ( double ( _option._image_width ) / _option._cell_size );
+    // _option._detection_threshold = Config::Get<double> ( "feature.detection_threshold" );
+    // _old_features = vector<Feature*>( _option._grid_cols * _option._grid_rows, nullptr );
 }
 
 
 // 提取算法
 // 用变阈值可能更好一些
-void FeatureDetector::Detect(Frame* frame, bool overwrite_existing_features)
+void FeatureDetector::Detect(FrameHessian* frame, bool overwrite_existing_features)
 {
-    _new_features = vector<Feature*> ( _option._grid_cols * _option._grid_rows, nullptr );
+    _new_features = std::vector<Feature*> ( _option._grid_cols * _option._grid_rows, nullptr );
 
     if ( overwrite_existing_features )
     {
-        _old_features = vector<Feature*> ( _option._grid_cols * _option._grid_rows, nullptr );
+        _old_features = std::vector<Feature*> ( _option._grid_cols * _option._grid_rows, nullptr );
         frame->CleanAllFeatures();
     }
     else
@@ -356,10 +392,10 @@ void FeatureDetector::Detect(Frame* frame, bool overwrite_existing_features)
         SetExistingFeatures( frame );
     }
 
-    for ( int L = 0; L < frame->_option._pyramid_level; ++L )
+    for ( int L = 0; L < pyrLevelsUsed; ++L )
     {
         const int scale = ( 1 << L );
-        vector<fast::fast_xy> fast_corners;
+        std::vector<fast::fast_xy> fast_corners;
 
 #if __SSE2__
         fast::fast_corner_detect_10_sse2 (
@@ -375,14 +411,14 @@ void FeatureDetector::Detect(Frame* frame, bool overwrite_existing_features)
             frame->_pyramid[L].rows, frame->_pyramid[L].cols, _option._detection_threshold, fast_corners );
 #endif
         // nomax
-        vector<int> scores, nm_corners;
+        std::vector<int> scores, nm_corners;
         fast::fast_corner_score_10 ( ( fast::fast_byte* ) frame->_pyramid[L].data, frame->_pyramid[L].cols, fast_corners, _option._detection_threshold, scores );
         fast::fast_nonmax_3x3 ( fast_corners, scores, nm_corners );
 
         for ( auto it = nm_corners.begin(), ite = nm_corners.end(); it != ite; ++it )
         {
             fast::fast_xy& xy = fast_corners.at ( *it );
-            if ( frame->InFrame( Vector2d(xy.x, xy.y), 20, L ) == false ) {
+            if ( frame->InFrame( Eigen::Vector2d(xy.x, xy.y), 20, L ) == false ) {
                 continue;
             }
 
@@ -393,7 +429,7 @@ void FeatureDetector::Detect(Frame* frame, bool overwrite_existing_features)
             if ( k > _new_features.size() )
             {
                 // 这应该不会发生
-                LOG ( ERROR ) << k << " is larger than grid size " << _new_features.size() << endl;
+                LOG ( ERROR ) << k << " is larger than grid size " << _new_features.size() << std::endl;
                 continue;
             }
 
@@ -412,7 +448,7 @@ void FeatureDetector::Detect(Frame* frame, bool overwrite_existing_features)
                     // 比新提的特征好,那就把这个地方的特征给删了
                     delete _new_features[k];
                     _new_features[k] = new Feature (
-                        Vector2d(xy.x * scale, xy.y * scale), L, score );
+                        Eigen::Vector2d(xy.x * scale, xy.y * scale), L, score );
                 }
             }
             else
@@ -420,26 +456,27 @@ void FeatureDetector::Detect(Frame* frame, bool overwrite_existing_features)
                 // 没有任何特征
                 const float score = this->ShiTomasiScore ( frame->_pyramid[L], xy.x, xy.y );
                 _new_features[k] = new Feature (
-                    Vector2d(xy.x * scale, xy.y * scale), L, score );
+                    Eigen::Vector2d(xy.x * scale, xy.y * scale), L, score );
             }
         }
     }
 
     int cnt_new_features = 0;
-    LOG(INFO) << "old features: " << frame->_features.size() << endl;
+    //LOG(INFO) << "old features: " << frame->_features.size() << std::endl;
     for ( Feature* fea : _new_features )
     {
         if ( fea ) {
             cnt_new_features++;
             frame->_features.push_back( fea );
-            fea->_frame = frame;
+
+            //fea->_frame = frame;
             // compute the angle and descriptor
             fea->_angle = IC_Angle( frame->_pyramid[fea->_level], fea->_pixel / (1 << fea->_level), _umax );
             ComputeOrbDescriptor( fea, frame->_pyramid[fea->_level], &_pattern[0], fea->_desc.data );
         }
     }
 
-    LOG(INFO) << "add total " << cnt_new_features << " new features." << endl;
+    //LOG(INFO) << "add total " << cnt_new_features << " new features." << std::endl;
 }
 
 /**
@@ -447,7 +484,7 @@ void FeatureDetector::Detect(Frame* frame, bool overwrite_existing_features)
  *
  * @param      frame  The frame
  */
-void FeatureDetector::SetExistingFeatures ( Frame* frame )
+void FeatureDetector::SetExistingFeatures ( FrameHessian* frame )
 {
     for ( Feature*& fea : _old_features )
         fea = nullptr;
@@ -528,8 +565,8 @@ float FeatureDetector::ShiTomasiScore ( const cv::Mat& img, const int& u, const 
  * @return     { description_of_the_return_value }
  */
 float FeatureDetector::IC_Angle(
-    const Mat& image, const Vector2d& pt,
-    const vector<int>& u_max)
+    const cv::Mat& image, const Eigen::Vector2d& pt,
+    const std::vector<int>& u_max)
 {
     int m_01 = 0, m_10 = 0;
     const uchar* center = &image.at<uchar> (cvRound(pt[1]), cvRound(pt[0]));
@@ -566,7 +603,7 @@ float FeatureDetector::IC_Angle(
  * @param      desc     The description
  */
 void FeatureDetector::ComputeOrbDescriptor(
-    const Feature* feature, const Mat& img, const cv::Point* pattern, uchar* desc)
+    const Feature* feature, const cv::Mat& img, const cv::Point* pattern, uchar* desc)
 {
     const float factorPI = (float)(CV_PI / 180.f);
     float angle = (float)feature->_angle * factorPI;
@@ -606,7 +643,7 @@ void FeatureDetector::ComputeOrbDescriptor(
 #undef GET_VALUE
 }
 
-void FeatureDetector::ComputeAngleAndDescriptor(Frame* frame)
+void FeatureDetector::ComputeAngleAndDescriptor(FrameHessian* frame)
 {
     for ( Feature* fea : frame->_features )
     {
@@ -616,6 +653,11 @@ void FeatureDetector::ComputeAngleAndDescriptor(Frame* frame)
     }
 }
 
+void FeatureDetector::ComputeDescriptorAndAngle( Feature* fea)
+{
+        fea->_angle = IC_Angle( fea->_frame->_pyramid[fea->_level], fea->_pixel / (1 << fea->_level), _umax );
+        ComputeOrbDescriptor( fea, fea->_frame->_pyramid[fea->_level], &_pattern[0], fea->_desc.data );
+}
 
 /**
  * @brief      Calculates the descriptor.
