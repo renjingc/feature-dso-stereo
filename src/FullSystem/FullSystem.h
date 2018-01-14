@@ -189,7 +189,7 @@ private:
 
 	// mainPipelineFunctions
 	//主跟踪函数
-	Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen::Matrix4d initT);
+    Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 initT);
 	//关键帧的更新
 	void traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right);
 	//更新一个点
@@ -313,6 +313,7 @@ private:
 
 
 	// mutex for camToWorl's in shells (these are always in a good configuration).
+	//位姿互斥锁
 	boost::mutex shellPoseMutex;
 
 	/*
@@ -330,15 +331,21 @@ private:
 	//后端优化
 	void mappingLoop();
 
+	//闭环检测线程
+	void loopDetect();
+
 	// tracking / mapping synchronization. All protected by [trackMapSyncMutex].
 	//非同步的跟踪和后端优化的一些变量
 	//互斥锁
 	boost::mutex trackMapSyncMutex;
+	boost::mutex loopDetectSyncMutex;
+
 	//条件变量
 	boost::condition_variable trackedFrameSignal;
 	boost::condition_variable mappedFrameSignal;
+	boost::condition_variable loopDetectSignal;
 
-	//
+	//非同步优化的时候的队列
 	std::deque<FrameHessian*> unmappedTrackedFrames;
 	std::deque<FrameHessian*> unmappedTrackedFrames_right;
 
@@ -347,8 +354,13 @@ private:
 
 	//后端优化线程
 	boost::thread mappingThread;
+	boost::thread loopDetectThread;
+
 	//是否运行后端优化
 	bool runMapping;
+	//是否进行闭环检测
+	bool runLoopDetect;
+
 	bool needToKetchupMapping;
 
 	//上一帧的关键帧的ID

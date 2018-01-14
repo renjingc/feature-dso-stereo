@@ -35,6 +35,30 @@ Matcher::~Matcher()
 //    }
 }
 
+void Matcher::showMatch(FrameHessian * kf1, FrameHessian* kf2, std::vector<cv::DMatch>& matches)
+{
+    cv::Mat img_show(kf1->image.rows, 2 * kf1->image.cols, CV_8UC1);
+    kf1->image.copyTo( img_show(cv::Rect(0, 0, kf1->image.cols, kf1->image.rows)) );
+    kf2->image.copyTo( img_show(cv::Rect(kf1->image.cols, 0, kf1->image.cols, kf1->image.rows)) );
+
+    for ( cv::DMatch& m : matches )
+    {
+        cv::circle( img_show,
+                    cv::Point2f(kf1->_features[m.queryIdx]->_pixel[0], kf1->_features[m.queryIdx]->_pixel[1]),
+                    2, cv::Scalar(255, 250, 255), 2 );
+        cv::circle( img_show,
+                    cv::Point2f(kf1->image.cols + kf2->_features[m.trainIdx]->_pixel[0], kf2->_features[m.trainIdx]->_pixel[1]),
+                    2, cv::Scalar(255, 250, 255), 2 );
+        cv::line( img_show,
+                  cv::Point2f(kf1->_features[m.queryIdx]->_pixel[0], kf1->_features[m.queryIdx]->_pixel[1]),
+                  cv::Point2f(kf2->image.cols + kf2->_features[m.trainIdx]->_pixel[0], kf2->_features[m.trainIdx]->_pixel[1]),
+                  cv::Scalar(255, 250, 255), 1
+                );
+    }
+    cv::imshow("match", img_show);
+    cv::waitKey(1);
+}
+
 int Matcher::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
 {
     const int *pa = a.ptr<int32_t>();
@@ -239,7 +263,7 @@ int Matcher::SearchByBoW(
     FrameHessian* kf2,
     std::vector<cv::DMatch> &matches )
 {
-    if(kf1->_bow_vec.empty() || kf2->_bow_vec.empty())
+    if (kf1->_bow_vec.empty() || kf2->_bow_vec.empty())
         return 0;
 
     DBoW3::FeatureVector& fv1 = kf1->_feature_vec;

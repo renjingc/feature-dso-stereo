@@ -64,6 +64,7 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization, std::vector<PointF
 	{
 		//遍历每一个点与帧产生的残差，进行线性化，即计算点与帧之间的残差和各个雅克比
 		PointFrameResidual* r = activeResiduals[k];
+		//线性化,计算每个点到目标帧的坐标,逆深度,并计算其残差和雅克比和状态
 		(*stats)[0] += r->linearize(&Hcalib);
 
 		if (fixLinearization)

@@ -84,7 +84,7 @@ PointFrameResidual::PointFrameResidual(PointHessian* point_, FrameHessian* host_
  * [PointFrameResidual::linearize description]
  * @param  HCalib [description]
  * @return        [description]
- * 线性化
+ * 线性化,即将当前帧的点投影到目标帧,获取投影后的坐标,并计算其雅克比
  */
 double PointFrameResidual::linearize(CalibHessian* HCalib)
 {

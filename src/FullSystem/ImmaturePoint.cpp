@@ -72,6 +72,8 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, Ca
 
 	//质量
 	quality = 10000;
+
+	idepth_stereo = 0.0;
 }
 
 /**
@@ -127,7 +129,7 @@ ImmaturePoint::~ImmaturePoint()
  * @param[in]  mode_right  The mode right
  *
  * @return     { description_of_the_return_value }
- * 静态双目匹配，mode_right = true，左图与右图进行匹配，否则为右图与作图匹配
+ * 静态双目匹配，mode_right = true，左图与右图进行匹配，否则为右图与作图匹配,j计算得到idepth_stereo和idepth_stereo_min和idepth_stereo_max
  */
 ImmaturePointStatus ImmaturePoint::traceStereo(FrameHessian* frame, Mat33f K, bool mode_right)
 {
@@ -432,6 +434,7 @@ ImmaturePointStatus ImmaturePoint::traceStereo(FrameHessian* frame, Mat33f K, bo
  * * OOB -> point is optimized and marginalized
  * * UPDATED -> point has been updated.
  * * SKIP -> point has not been updated.
+ * 更新了lastTraceUV和idepth_min和idepth_max
  */
 ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame, Mat33f hostToFrame_KRKi, Vec3f hostToFrame_Kt, Vec2f hostToFrame_affine, CalibHessian* HCalib, bool debugPrint)
 {

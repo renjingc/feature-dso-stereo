@@ -130,6 +130,8 @@ public:
   // 在Keyframe之间搜索匹配情况，利用BoW加速
   int SearchByBoW( FrameHessian * kf1, FrameHessian* kf2, std::vector<cv::DMatch> &matches );
 
+  void showMatch(FrameHessian * kf1, FrameHessian* kf2, std::vector<cv::DMatch>& matches);
+
   // 在KeyFrame和地图之间搜索匹配情况
   // int SearchByProjection(Frame *F, const std::vector<MapPoint*> &vpMapPoints, const float th=3);
 

@@ -76,22 +76,22 @@ ORBVocabulary* FullSystem::_vocab = nullptr;
 
 void setRef3DPoints(FrameHessian* fh, std::vector<cv::Point3f>& pts_3d_ref_)
 {
-    // pts_3d_ref_.clear();
-    // descriptors_ref_ = Mat();
-    // cv::Mat depth;
-    // _ref_frame->disparityPointer()->copyTo(depth);
-    // for ( size_t i=0; i<_ref_frame->keypoints.size(); i++ )
-    // {
-    //     double d = findDepth(depth,_ref_frame->keypoints[i]);
-    //     if (d > 0)
-    //     {
-    //         Eigen::Vector3d p_cam = camera_->pixel2camera(
-    //             Vector2d(_ref_frame->keypoints[i].pt.x, _ref_frame->keypoints[i].pt.y), d
-    //         );
-    //         pts_3d_ref_.push_back( cv::Point3f( p_cam(0,0), p_cam(1,0), p_cam(2,0) ));
-    //         descriptors_ref_.push_back(_ref_frame->descriptors.row(i));
-    //     }
-    // }
+	// pts_3d_ref_.clear();
+	// descriptors_ref_ = Mat();
+	// cv::Mat depth;
+	// _ref_frame->disparityPointer()->copyTo(depth);
+	// for ( size_t i=0; i<_ref_frame->keypoints.size(); i++ )
+	// {
+	//     double d = findDepth(depth,_ref_frame->keypoints[i]);
+	//     if (d > 0)
+	//     {
+	//         Eigen::Vector3d p_cam = camera_->pixel2camera(
+	//             Vector2d(_ref_frame->keypoints[i].pt.x, _ref_frame->keypoints[i].pt.y), d
+	//         );
+	//         pts_3d_ref_.push_back( cv::Point3f( p_cam(0,0), p_cam(1,0), p_cam(2,0) ));
+	//         descriptors_ref_.push_back(_ref_frame->descriptors.row(i));
+	//     }
+	// }
 }
 
 void poseEstimationPnP(const SE3& T_init,
@@ -101,39 +101,39 @@ void poseEstimationPnP(const SE3& T_init,
                        const Eigen::Matrix3d _K,
                        SE3& T_c_r_estimated_)
 {
-	// construct the 3d 2d observations
-	std::vector<cv::Point3d> pts3d;
-	std::vector<cv::Point2d> pts2d;
+//	// construct the 3d 2d observations
+//	std::vector<cv::Point3d> pts3d;
+//	std::vector<cv::Point2d> pts2d;
 
-	for ( cv::DMatch m : feature_matches_ )
-	{
-		pts3d.push_back( pts_3d_ref_[m.queryIdx] );
-		pts2d.push_back( points[m.trainIdx]._pixel );
-	}
+//	for ( cv::DMatch m : feature_matches_ )
+//	{
+//		pts3d.push_back( pts_3d_ref_[m.queryIdx] );
+//        pts2d.push_back( cv::Point2d(points[m.trainIdx]->_pixel[0],points[m.trainIdx]->_pixel[1]));
+//	}
 
-	cv::Mat K;
-	cv::eigen2cv(_K, K);
+//	cv::Mat K;
+//	cv::eigen2cv(_K, K);
 
-	Eigen::Matrix<double, 3, 3> r;
-	Eigen::Vector3d t;
-	r = T_init.block<3, 3>(0, 0);
-	t << T_init(0, 3), T_init(1, 3), T_init(2, 3);
-	cv::Mat rvec, tvec, inliers;
+//	Eigen::Matrix<double, 3, 3> r;
+//	Eigen::Vector3d t;
+//    r = T_init.rotation_matrix();
+//    t <<  T_init.translation().transpose();
+//    cv::Mat rvec, tvec, inliers;
 
-	cv::eigen2cv(r, rvec);
-	cv::eigen2cv(t, tvec);
-	cv::solvePnPRansac( pts3d, pts2d, K, Mat(), rvec, tvec, true, 100, 4.0, 0.99, inliers, cv::SOLVEPNP_EPNP);
-	int num_inliers_ = inliers.rows;
+//	cv::eigen2cv(r, rvec);
+//	cv::eigen2cv(t, tvec);
+//	cv::solvePnPRansac( pts3d, pts2d, K, Mat(), rvec, tvec, true, 100, 4.0, 0.99, inliers, cv::SOLVEPNP_EPNP);
+//	int num_inliers_ = inliers.rows;
 
-//    int inlierCount=0;
-//    ransac_cc(pts2d,pts3d,K,Mat(),rvec,tvec,inlierCount);
-//    num_inliers_=inlierCount;
+////    int inlierCount=0;
+////    ransac_cc(pts2d,pts3d,K,Mat(),rvec,tvec,inlierCount);
+////    num_inliers_=inlierCount;
 
-	std::cout << "pnp inliers: " << num_inliers_ << std::endl;
-	T_c_r_estimated_ = SE3(
-	                     SO3(rvec.at<double>(0, 0), rvec.at<double>(1, 0), rvec.at<double>(2, 0)),
-	                     Vector3d( tvec.at<double>(0, 0), tvec.at<double>(1, 0), tvec.at<double>(2, 0))
-	                   );
+//	std::cout << "pnp inliers: " << num_inliers_ << std::endl;
+//	T_c_r_estimated_ = SE3(
+//	                     SO3(rvec.at<double>(0, 0), rvec.at<double>(1, 0), rvec.at<double>(2, 0)),
+//	                     Vector3d( tvec.at<double>(0, 0), tvec.at<double>(1, 0), tvec.at<double>(2, 0))
+//	                   );
 
 //	// using bundle adjustment to optimize the pose
 //	typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 2>> Block;
@@ -271,6 +271,7 @@ FullSystem::FullSystem(): matcher_flann_(new cv::flann::LshIndexParams(5, 10, 2)
 	linearizeOperation = true;
 	runMapping = true;
 	mappingThread = boost::thread(&FullSystem::mappingLoop, this);
+	loopDetectThread = boost::thread(&FullSystem::loopDetect, this);
 	lastRefStopID = 0;
 
 	minIdJetVisDebug = -1;
@@ -428,7 +429,7 @@ void FullSystem::printResult(std::string file)
  * @param  fh_right [description]
  * @return          [description]
  */
-Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, Eigen::Matrix4d initT)
+Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 initT)
 {
 
 	assert(allFrameHistory.size() > 0);
@@ -841,6 +842,7 @@ void FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_r
  * [FullSystem::traceNewCoarseNonKey description]
  * @param fh       [description]
  * @param fh_right [description]
+ * 非关键帧时,将前面的关键帧的点都投影到当前帧,进行traceOn,进行点逆深度滤波,并使用两次traceStereo,跟新这个点的最小和最大逆深度
  */
 void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)
 {
@@ -861,14 +863,14 @@ void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)
 	//内参的逆
 	Mat33f Ki = K.inverse();
 
-	//遍历每一帧
+	//遍历每一个关键帧
 	for (FrameHessian *host : frameHessians)        // go through all active frames
 	{
 		//个数
 		// number++;
 		int trace_total = 0, trace_good = 0, trace_oob = 0, trace_out = 0, trace_skip = 0, trace_badcondition = 0, trace_uninitialized = 0;
 
-		//参考帧到当前帧位姿
+		//参考帧到当前帧位姿,将其投影到当前帧
 		// trans from reference keyframe to newest frame
 		SE3 hostToNew = fh->PRE_worldToCam * host->PRE_camToWorld;
 		// KRK-1
@@ -945,12 +947,14 @@ void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)
 					// 差值过大，或者视差小于10，则out点
 					if (u_stereo_delta > 1 && disparity < 10)
 					{
+						//跟新这个点的状态
 						ph->lastTraceStatus = ImmaturePointStatus :: IPS_OUTLIER;
 						continue;
 					}
 					else
 					{
 						//重投影该点，更新最小和最大逆深度
+						//将这个点在最大和最小逆深度处投影回关键帧,更新这个点的最小和最大逆深度
 						// project back
 						Vec3f pinverse_min = KRi * (Ki * Vec3f(phNonKey->u_stereo, phNonKey->v_stereo, 1) / phNonKey->idepth_min_stereo - t);
 						idepth_min_update = 1.0f / pinverse_min(2);
@@ -958,6 +962,7 @@ void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)
 						Vec3f pinverse_max = KRi * (Ki * Vec3f(phNonKey->u_stereo, phNonKey->v_stereo, 1) / phNonKey->idepth_max_stereo - t);
 						idepth_max_update = 1.0f / pinverse_max(2);
 
+						//更新这个点的最小和最大逆深度
 						ph->idepth_min = idepth_min_update;
 						ph->idepth_max = idepth_max_update;
 
@@ -989,6 +994,7 @@ void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)
  * [FullSystem::traceNewCoarseKey description]
  * @param fh       [description]
  * @param fh_right [description]
+ * 遍历每一个关键帧的中的点,将关键帧的点投影到当前帧,使用traceOn,更新逆深度
  */
 void FullSystem::traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right)
 {
@@ -1003,7 +1009,7 @@ void FullSystem::traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right)
 	K(0, 2) = Hcalib.cxl();
 	K(1, 2) = Hcalib.cyl();
 
-	//遍历每一个关键帧的中的点
+	//遍历每一个关键帧的中的点,将关键帧的点投影到当前帧,进行traceOn,更新逆深度
 	for (FrameHessian* host : frameHessians)		// go through all active frames
 	{
 		// trans from reference key frame to the newest one
@@ -1338,8 +1344,10 @@ void FullSystem::flagPointsForRemoval()
 					for (PointFrameResidual* r : ph->residuals)
 					{
 						r->resetOOB();
+						//线性化残差,即重新计算点到目标帧的坐标,并且计算这个点到目标帧的雅克比和残差
 						r->linearize(&Hcalib);
 						r->efResidual->isLinearized = false;
+						//更新残差
 						r->applyRes(true);
 						if (r->efResidual->isActive())
 						{
@@ -1450,6 +1458,8 @@ bool FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv:
 void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* image_right, int id )
 {
 	if (isLost) return;
+
+	//跟踪线程中互斥锁
 	boost::unique_lock<boost::mutex> lock(trackMutex);
 
 	// =========================== add into allFrameHistory =========================
@@ -1494,6 +1504,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 //    }
 //    cv::imshow("Features", show );
 //    cv::waitKey(1);
+
 	makeNewTraces(fh, fh_right, 0);
 	fh->ComputeBoW(_vocab);
 
@@ -1564,6 +1575,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	else	// do front-end operation.
 	{
 		Eigen::Matrix3d initR;
+		SE3 initT;
 		if (allFrameHessianHistory.size() > 4)
 		{
 			std::vector<cv::DMatch> matches;
@@ -1572,26 +1584,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 			if (matcher->SearchByBoW(kf1, kf2, matches))
 				LOG(INFO) << "search by bow matches: " << matches.size() << std::endl;
 
-			// cv::Mat img_show(kf1->image.rows, 2 * kf1->image.cols, CV_8UC1);
-			// kf1->image.copyTo( img_show(cv::Rect(0, 0, kf1->image.cols, kf1->image.rows)) );
-			// kf2->image.copyTo( img_show(cv::Rect(kf1->image.cols, 0, kf1->image.cols, kf1->image.rows)) );
 
-			// for ( cv::DMatch& m : matches )
-			// {
-			// 	cv::circle( img_show,
-			// 	            cv::Point2f(kf1->_features[m.queryIdx]->_pixel[0], kf1->_features[m.queryIdx]->_pixel[1]),
-			// 	            2, cv::Scalar(255, 250, 255), 2 );
-			// 	cv::circle( img_show,
-			// 	            cv::Point2f(kf1->image.cols + kf2->_features[m.trainIdx]->_pixel[0], kf2->_features[m.trainIdx]->_pixel[1]),
-			// 	            2, cv::Scalar(255, 250, 255), 2 );
-			// 	cv::line( img_show,
-			// 	          cv::Point2f(kf1->_features[m.queryIdx]->_pixel[0], kf1->_features[m.queryIdx]->_pixel[1]),
-			// 	          cv::Point2f(kf2->image.cols + kf2->_features[m.trainIdx]->_pixel[0], kf2->_features[m.trainIdx]->_pixel[1]),
-			// 	          cv::Scalar(255, 250, 255), 1
-			// 	        );
-			// }
-			// cv::imshow("match", img_show);
-			// cv::waitKey(1);
 			//
 			if (matches.size() >= 5)
 			{
@@ -1601,7 +1594,8 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 				SE3 slast_2_sprelast;
 				SE3 lastF_2_slast;
 				SE3 motionPose;
-				SE3 initT;
+				AffLight aff_last_2_l;
+				FrameHessian* lastF = coarseTracker->lastRef;
 				{	// lock on global pose consistency!
 					boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
 					//上上一帧相对与上一帧的相对位姿
@@ -1610,7 +1604,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 					lastF_2_slast = slast->camToWorld.inverse() * lastF->shell->camToWorld;
 					//上一帧的a和b变换
 					aff_last_2_l = slast->aff_g2l;
-					initT=motionPose = slast_2_sprelast.inverse() * lastF_2_slast;
+					initT = motionPose = slast_2_sprelast.inverse() * lastF_2_slast;
 				}
 				// poseEstimationPnP(motionPose, fh->_features,K.cast<double>(),initT);
 			}
@@ -1657,7 +1651,8 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 			coarseTracker_forNewKF = tmp;
 		}
 
-		Vec4 tres = trackNewCoarse(fh, fh_right, initR);
+		//进行跟踪
+		Vec4 tres = trackNewCoarse(fh, fh_right, initT);
 		if (!std::isfinite((double)tres[0]) || !std::isfinite((double)tres[1]) || !std::isfinite((double)tres[2]) || !std::isfinite((double)tres[3]))
 		{
 			printf("Initial Tracking failed: LOST!\n");
@@ -1757,12 +1752,14 @@ void FullSystem::deliverTrackedFrame(FrameHessian* fh, FrameHessian* fh_right, b
 		if (needKF) makeKeyFrame(fh, fh_right);
 		//不加入关键帧
 		else makeNonKeyFrame(fh, fh_right);
+
 	}
 	//如果不使用linearizeOperation
 	else
 	{
+		//上锁trackMapSyncMutex
 		boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);
-		//不建图序列插入
+		//mappingLoop中图像插入序列插入
 		unmappedTrackedFrames.push_back(fh);
 		unmappedTrackedFrames_right.push_back(fh_right);
 		//是否是关键帧，设置最新的关键帧id
@@ -1770,15 +1767,17 @@ void FullSystem::deliverTrackedFrame(FrameHessian* fh, FrameHessian* fh_right, b
 			needNewKFAfter = fh->shell->trackingRef->id;
 
 		//通知处在等待该对象的线程的方法
-		//唤醒所有正在等待该对象的线程
+		//notify_all唤醒所有正在等待该对象的线程,这里唤醒mappingLoop
 		trackedFrameSignal.notify_all();
 
-		//当跟踪的参考帧为-1时，则建图信号上锁
+		//当跟踪器和新的跟踪器的的参考帧为-1时,即跟踪器和新的跟踪器没有设置时，则建图信号上锁
+		//当前线程进行上锁,
 		while (coarseTracker_forNewKF->refFrameID == -1 && coarseTracker->refFrameID == -1 )
 		{
 			mappedFrameSignal.wait(lock);
 		}
 
+		//解锁trackMapSyncMutex
 		lock.unlock();
 	}
 }
@@ -1791,6 +1790,7 @@ void FullSystem::deliverTrackedFrame(FrameHessian* fh, FrameHessian* fh_right, b
  */
 void FullSystem::mappingLoop()
 {
+	//非同步互斥锁,上锁trackMapSyncMutex
 	boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);
 
 	while (runMapping)
@@ -1798,82 +1798,98 @@ void FullSystem::mappingLoop()
 		//若unmappedTrackedFrames为０
 		while (unmappedTrackedFrames.size() == 0)
 		{
-			//跟踪线程进行等待
+			//当前被锁住,.当前线程一直阻塞,等待deliverTrackedFrame中进行释放
 			trackedFrameSignal.wait(lock);
 			if (!runMapping) return;
 		}
 
-		//最前面的一帧
+		//则此时unmappedTrackedFrames大小肯定大于0
+		//获取最前面的一帧
 		FrameHessian* fh = unmappedTrackedFrames.front();
 		//弹出
 		unmappedTrackedFrames.pop_front();
+
+		//获取最前面的右图像的帧
 		FrameHessian* fh_right = unmappedTrackedFrames_right.front();
+		//弹出
 		unmappedTrackedFrames_right.pop_front();
 
 		// guaranteed to make a KF for the very first two tracked frames.
 		// 保证为前两个跟踪帧制作一个KF。小于一帧的时候
 		if (allKeyFramesHistory.size() <= 2)
 		{
+			//解锁,则此时deliverTrackedFrame线程和makeFrame线程同时进行
 			lock.unlock();
+			//插入关键帧
 			makeKeyFrame(fh, fh_right);
+
+			//上锁
 			lock.lock();
+			//唤醒deliverTrackedFrame的线程,此时已经插入了关键帧了,即跟新了跟踪器
 			mappedFrameSignal.notify_all();
 			continue;
 		}
 
 		//unmappedTrackedFrames>3的时，需要进行needToKetchupMapping
+		//即意味着deliverTrackedFrame的线程运行了5次,这个线程才运行了1次,则needToKetchupMapping=true
 		if (unmappedTrackedFrames.size() > 3)
 			needToKetchupMapping = true;
 
-		//needToKetchupMapping大于0
+		//needToKetchupMapping还大于0,说明unmappedTrackedFrames>1,则次帧为非关键帧
 		if (unmappedTrackedFrames.size() > 0) // if there are other frames to track, do that first.
 		{
-			//插入非关键帧
+			//解锁,则此时deliverTrackedFrame线程和makeFrame线程同时进行
 			lock.unlock();
+			//插入非关键帧
 			makeNonKeyFrame(fh, fh_right);
+			//上锁
 			lock.lock();
 
+			//这个needToKetchupMapping==true,说明优化比较慢的时候
 			if (needToKetchupMapping && unmappedTrackedFrames.size() > 0)
 			{
 				//弹出最前面的一帧
 				FrameHessian* fh = unmappedTrackedFrames.front();
 				unmappedTrackedFrames.pop_front();
 				{
+					//位姿锁
 					boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
 					assert(fh->shell->trackingRef != 0);
 
-					//当前帧位姿
+					//当前帧位姿,设置当前帧位姿
 					fh->shell->camToWorld = fh->shell->trackingRef->camToWorld * fh->shell->camToTrackingRef;
 					fh->setEvalPT_scaled(fh->shell->camToWorld.inverse(), fh->shell->aff_g2l);
 				}
+				//删除当前帧
 				delete fh;
 				delete fh_right;
 			}
 		}
 		else
 		{
-			//setting_realTimeMaxKF=false实时最大帧数
+			//setting_realTimeMaxKF=false	为true实时最大帧数,即几乎每一帧都为关键帧插入,如果相机静止,则会有问题
 			//若当前最新的关键帧id大于关键帧序列中最后的一帧
 			if (setting_realTimeMaxKF || needNewKFAfter >= frameHessians.back()->shell->id)
 			{
-				//插入关键帧
 				lock.unlock();
+				//插入关键帧
 				makeKeyFrame(fh, fh_right);
-				//不进行KetchupMapping
+				//插完了关键帧,不进行KetchupMapping
 				needToKetchupMapping = false;
 				lock.lock();
 			}
 			else
 			{
-				//插入非关键帧
 				lock.unlock();
+				//插入非关键帧
 				makeNonKeyFrame(fh, fh_right);
 				lock.lock();
 			}
 		}
+		//唤醒deliverTrackedFrame的线程,此时已经插入了关键帧了,即跟新了跟踪器
 		mappedFrameSignal.notify_all();
 	}
-	printf("MAPPING FINISHED!\n");
+	LOG(INFO) << "MAPPING FINISHED!" << std::endl;
 }
 
 /**
@@ -1883,14 +1899,24 @@ void FullSystem::blockUntilMappingIsFinished()
 {
 	//上锁trackMapSyncMutex
 	boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);
+	boost::unique_lock<boost::mutex> lock1(loopDetectSyncMutex);
+
 	//关闭mapping
 	runMapping = false;
+	//关闭闭环检测
+	runLoopDetect=false;
+
 	//唤醒所有正在等待该对象的线程
 	trackedFrameSignal.notify_all();
-	//解锁
+	//解锁trackMapSyncMutex
 	lock.unlock();
+
+	loopDetectSignal.notify_all();
+	lock1.unlock();
+
 	//mapping线程阻塞
 	mappingThread.join();
+	loopDetectThread.join();
 }
 
 /**
@@ -1914,6 +1940,7 @@ void FullSystem::makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//跟踪这一帧中的每个点，对这个点的像素坐标和状态进行更新
 	traceNewCoarseNonKey(fh, fh_right);
 
+	//删除当前帧
 	delete fh;
 	delete fh_right;
 }
@@ -1928,7 +1955,7 @@ void FullSystem::makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
  * 3.设置每一个关键帧之间为主导帧
  * 4.加入每一个关键帧中的点与其它关键帧的残差
  * 5.遍历窗口中的每一个关键帧的每一个点，判断这个点的状态并且将这个点与每一个关键帧进行逆深度残差更新，更新该点的逆深度
- * 	并在ef中插入该点，加入该点与每一个关键帧的残差
+ * 	并在ef中插入该点，加入该点与每一个关键帧的残差,为最新帧的主导帧从其ImmaturePoint中生成PointHessian点
  * 6.优化，最大优化次数6次
  * 7.移除外点removeOutliers
  * 8.设置新的跟踪器coarseTracker_forNewKF
@@ -1945,8 +1972,11 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 		//设置当前帧的位姿和a和b
 		fh->setEvalPT_scaled(fh->shell->camToWorld.inverse(), fh->shell->aff_g2l);
 	}
-
-	//跟踪这一帧中的每个点，对这个点的像素坐标和状态进行更新
+	// for (ImmaturePoint* pt : fh->immaturePoints)
+	// {
+	// 	LOG(INFO) << "indepth1: " << pt->idepth_stereo << " " << std::endl;
+	// }
+	//将之前关键帧的点全部投影到当前帧,使用traceOn计算当之前关键帧的点的逆深度
 	traceNewCoarseKey(fh, fh_right);
 
 	boost::unique_lock<boost::mutex> lock(mapMutex);
@@ -2006,7 +2036,19 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 		}
 	}
 
+	//每一帧的误差阈值
+	fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;
+
+	LOG(INFO) << "point size1() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
+
+	//遍历这个关键帧中的每一个点
+	// for (ImmaturePoint* pt : fh->immaturePoints)
+	// {
+	// 	LOG(INFO) << "indepth2: " << pt->idepth_stereo << " " << std::endl;
+	// }
+
 	// =========================== Activate Points (& flag for marginalization). =========================
+	// 这里生成了逆深度
 	// 遍历窗口中的每一个关键帧的每一个点，判断这个点的状态并且将这个点与每一个关键帧进行逆深度残差更新，更新该点的逆深度
 	// 并在ef中插入该点，加入该点与每一个关键帧的残差
 	// 为最新帧的主导帧从其ImmaturePoint中生成PointHessian点
@@ -2018,6 +2060,16 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	// =========================== OPTIMIZE ALL =========================
 	//每一帧的误差阈值
 	fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;
+
+	LOG(INFO) << "point size2() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
+	//for (FrameHessian* fh : frameHessians)
+	//{
+	// //遍历这个关键帧中的每一个点
+	// for (PointHessian* ph : fh->pointHessians)
+	// {
+	// 	LOG(INFO)<<"indepth2: "<<ph->idepth_scaled<<" "<<ph->idepth_zero_scaled<<" "<<ph->idepth_zero<<" "<<ph->idepth<<" "<<std::endl;
+	// }
+	//}
 
 	//优化
 	float rmse = optimize(setting_maxOptIterations);
@@ -2049,6 +2101,8 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	if (isLost)
 		return;
 
+	LOG(INFO) << "point size3() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
+
 	// =========================== REMOVE OUTLIER =========================
 	//移除外点，删除点和窗口中的帧之间都无残差，则加入pointHessiansOut，并从pointHessians，在ef中删除PS_DROP
 	removeOutliers();
@@ -2063,8 +2117,12 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 		coarseTracker_forNewKF->debugPlotIDepthMapFloat(outputWrapper);
 	}
 
+	LOG(INFO) << "point size4() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 	//	debugPlot("post Optimize");
-
+	for (ImmaturePoint* pt : fh->immaturePoints)
+	{
+		LOG(INFO) << "indepth2: " << pt->idepth_stereo << " " << std::endl;
+	}
 	// =========================== (Activate-)Marginalize Points =========================
 	//边缘化点，删除点
 	flagPointsForRemoval();
@@ -2083,8 +2141,9 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	ef->marginalizePointsF();
 
 	// =========================== add new Immature points & new residuals =========================
-	//获取当前新的关键帧的点
+	//获取当前新的关键帧的点,fh->immaturePoints
 	//makeNewTraces(fh, fh_right, 0);
+	LOG(INFO) << "point size5() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 
 	//发布关键帧
 	for (IOWrap::Output3DWrapper* ow : outputWrapper)
@@ -2105,6 +2164,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 			i = 0;
 		}
 	}
+	LOG(INFO) << "point size6() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 
 	delete fh_right;
 
@@ -2343,7 +2403,7 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 	// }
 
 	std::cout << "t: " << t.elapsed() << std::endl;
-	std::cout << "numPointsTotal*1.2: " << numPointsTotal * 1.2 << std::endl;
+	// std::cout << "numPointsTotal*1.2: " << numPointsTotal * 1.2 << std::endl;
 	printf("MADE %d IMMATURE POINTS!\n", (int)newFrame->immaturePoints.size());
 }
 
@@ -2365,6 +2425,16 @@ void FullSystem::setPrecalcValues()
 	ef->setDeltaF(&Hcalib);
 }
 
+
+void FullSystem::loopDetect()
+{
+	boost::unique_lock<boost::mutex> lock(loopDetectSyncMutex);
+
+	while (runLoopDetect)
+	{
+
+	}
+}
 
 /**
  * [FullSystem::printLogLine description]

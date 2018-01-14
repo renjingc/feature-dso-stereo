@@ -102,7 +102,7 @@ public:
    	void debugPlotIDepthMap(float* minID, float* maxID, std::vector<IOWrap::Output3DWrapper*> &wraps);
     	void debugPlotIDepthMapFloat(std::vector<IOWrap::Output3DWrapper*> &wraps);
 
-    	//参考帧的Hessian矩阵
+    	//最新跟踪的参考帧的Hessian矩阵
 	FrameHessian* lastRef;
 	//当前帧与参考帧的光度线性变换
 	AffLight lastRef_aff_g2l;

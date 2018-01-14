@@ -183,8 +183,8 @@ struct FrameHessian
 	cv::Mat descriptors;
 	std::vector<Feature*> _features;
 
-    DBoW3::BowVector _bow_vec;
-    DBoW3::FeatureVector _feature_vec;
+	DBoW3::BowVector _bow_vec;
+	DBoW3::FeatureVector _feature_vec;
 
 	//零空间位姿
 	Mat66 nullspaces_pose;
@@ -353,7 +353,7 @@ struct FrameHessian
 	void makeImages(ImageAndExposure* imageE, CalibHessian* HCalib);
 
 	// 将备选点的描述转换成 bow
-    void ComputeBoW(ORBVocabulary* _vocab);
+	void ComputeBoW(ORBVocabulary* _vocab);
 
 	void CleanAllFeatures()
 	{

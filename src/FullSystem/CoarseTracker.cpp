@@ -346,7 +346,7 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, 
     memset(idepth[0], 0, sizeof(float)*w[0]*h[0]);
     memset(weightSums[0], 0, sizeof(float)*w[0]*h[0]);
 
-    //目标帧
+    //目标帧,fh_target就是lastRef
     FrameHessian* fh_target = frameHessians.back();
     //内参
     Mat33f K1 = Mat33f::Identity();
@@ -355,7 +355,9 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, 
     K1(0, 2) = Hcalib.cxl();
     K1(1, 2) = Hcalib.cyl();
 
-    //遍历每一个关键帧
+    //遍历每一个关键帧,将之前全部的关键帧的点全投影到最新的关键帧上
+
+    // LOG(INFO)<< "fh_target frameID: " << fh_target->frameID << std::endl;
     for (FrameHessian* fh : frameHessians)
     {
         //遍历这个关键帧中的每一个点
@@ -364,8 +366,9 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, 
             //判断点的残差状态
             if (ph->lastResiduals[0].first != 0 && ph->lastResiduals[0].second == ResState::IN) //contains information about residuals to the last two (!) frames. ([0] = latest, [1] = the one before).
             {
-
+                //点的残差
                 PointFrameResidual* r = ph->lastResiduals[0].first;
+                //判断点的目标帧是否是最新的参考帧
                 assert(r->efResidual->isActive() && r->target == lastRef);
 
                 //获取点的投影坐标
@@ -381,34 +384,44 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, 
 
                 // free to debug
                 //设置初始的最小和最大逆深度
+                // LOG(INFO)<<"centerProjectedTo: "<<r->centerProjectedTo[0]<<" "<<r->centerProjectedTo[1]<<" "<<r->centerProjectedTo[2]<<std::endl;
+                //centerProjectedTo的坐标在optimize的时候线性化时计算了
+
+                //1/2的深度到10倍的深度
                 pt_track->idepth_min_stereo = r->centerProjectedTo[2] * 0.1f;
                 pt_track->idepth_max_stereo = r->centerProjectedTo[2] * 1.9f;
 
-                //
+                //左图与右图进行静态匹配
                 ImmaturePointStatus pt_track_right = pt_track->traceStereo(fh_right, K1, 1);
 
+                //新的逆深度
                 float new_idepth = 0;
 
                 if (pt_track_right == ImmaturePointStatus::IPS_GOOD)
                 {
+                    //新的点
                     ImmaturePoint* pt_track_back = new ImmaturePoint(pt_track->lastTraceUV(0), pt_track->lastTraceUV(1), fh_right, &Hcalib);
                     pt_track_back->u_stereo = pt_track_back->u;
                     pt_track_back->v_stereo = pt_track_back->v;
 
-
                     pt_track_back->idepth_min_stereo = r->centerProjectedTo[2] * 0.1f;
                     pt_track_back->idepth_max_stereo = r->centerProjectedTo[2] * 1.9f;
 
+                    //右图与左图进行静态匹配
                     ImmaturePointStatus pt_track_left = pt_track_back->traceStereo(fh_target, K1, 0);
 
+                    //深度
+                    // LOG(INFO)<<"new idepth: "<<pt_track->idepth_stereo<<std::endl;
                     float depth = 1.0f / pt_track->idepth_stereo;
+                    //u的变化
                     float u_delta = abs(pt_track->u - pt_track_back->lastTraceUV(0));
+
+                    //只有u小于1且深度在0-50之间,则更新逆深度,否则还是原来的
                     if (u_delta < 1 && depth > 0 && depth < 50)
                     {
                         new_idepth = pt_track->idepth_stereo;
                         delete pt_track;
                         delete pt_track_back;
-
                     }
                     else
                     {
@@ -416,17 +429,19 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, 
                         delete pt_track;
                         delete pt_track_back;
                     }
-
                 }
                 else {
                     new_idepth = r->centerProjectedTo[2];
                     delete pt_track;
                 }
+
+                //点权重
                 float weight = sqrtf(1e-3 / (ph->efPoint->HdiF + 1e-12));
 
+                //点的逆深度
                 idepth[0][u + w[0]*v] += new_idepth * weight;
+                //点的权重
                 weightSums[0][u + w[0]*v] += weight;
-
             }
         }
     }
