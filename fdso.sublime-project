@@ -3,6 +3,9 @@
 	[
 		{
 			"path": "."
+		},
+		{
+			"path": "/home/ren/work/dso_semantic"
 		}
 	]
 }

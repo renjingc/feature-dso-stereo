@@ -1103,7 +1103,7 @@ void FullSystem::activatePointsMT()
 	// make dist map.
 	//设置内参
 	coarseDistanceMap->makeK(&Hcalib);
-	//创建距离图
+	//根据前面的关键帧为当前关键帧创建距离图
 	coarseDistanceMap->makeDistanceMap(frameHessians, newestHs);
 
 	//coarseTracker->debugPlotDistMap("distMap");
@@ -1186,8 +1186,8 @@ void FullSystem::activatePointsMT()
 			{
 				//该点的距离
 				float dist = coarseDistanceMap->fwdWarpedIDDistFinal[u + wG[1] * v] + (ptp[0] - floorf((float)(ptp[0])));
-
-				//若距离大于currentMinActDist * ph->my_type
+				// LOG(INFO)<<"dist: "<<dist<<" "<<currentMinActDist<<" "<<ph->my_type<<std::endl;
+				//若距离大于currentMinActDist * (ph->my_type==1)  currentMinActDist好像一直是0,my_type一直是1,所以dist一直大于
 				if (dist >= currentMinActDist * ph->my_type)
 				{
 					//则距离图中插入该坐标
@@ -1232,6 +1232,7 @@ void FullSystem::activatePointsMT()
 		//新的点好的
 		if (newpoint != 0 && newpoint != (PointHessian*)((long)(-1)))
 		{
+			// std::cout<<"newpoint id: "<<newpoint->host->shell->id<<" "<<newestHs->shell->id<<std::endl;
 			//新的点
 			newpoint->host->immaturePoints[ph->idxInImmaturePoints] = 0;
 
@@ -2039,8 +2040,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//每一帧的误差阈值
 	fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;
 
-	LOG(INFO) << "point size1() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
-
 	//遍历这个关键帧中的每一个点
 	// for (ImmaturePoint* pt : fh->immaturePoints)
 	// {
@@ -2051,8 +2050,10 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	// 这里生成了逆深度
 	// 遍历窗口中的每一个关键帧的每一个点，判断这个点的状态并且将这个点与每一个关键帧进行逆深度残差更新，更新该点的逆深度
 	// 并在ef中插入该点，加入该点与每一个关键帧的残差
-	// 为最新帧的主导帧从其ImmaturePoint中生成PointHessian点
+	// 为前面几个关键帧从其ImmaturePoint中生成PointHessian点,最主要是加入前面一个关键帧的的点
+
 	activatePointsMT();
+	LOG(INFO)<<"point size2(): "<<frameHessians[frameHessians.size()-2]->pointHessians.size()<<std::endl;
 
 	//重新设置ef中帧和点的Idx,因为新加了点和帧
 	ef->makeIDX();
@@ -2061,7 +2062,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//每一帧的误差阈值
 	fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;
 
-	LOG(INFO) << "point size2() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 	//for (FrameHessian* fh : frameHessians)
 	//{
 	// //遍历这个关键帧中的每一个点
@@ -2101,11 +2101,11 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	if (isLost)
 		return;
 
-	LOG(INFO) << "point size3() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
-
 	// =========================== REMOVE OUTLIER =========================
 	//移除外点，删除点和窗口中的帧之间都无残差，则加入pointHessiansOut，并从pointHessians，在ef中删除PS_DROP
+	//这里去掉了一些pointHessians
 	removeOutliers();
+	// LOG(INFO)<<"point size4(): "<<frameHessians[frameHessians.size()-2]->pointHessians.size()<<std::endl;
 	{
 		boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
 		//设置新的跟踪器的内参
@@ -2117,15 +2117,16 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 		coarseTracker_forNewKF->debugPlotIDepthMapFloat(outputWrapper);
 	}
 
-	LOG(INFO) << "point size4() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 	//	debugPlot("post Optimize");
-	for (ImmaturePoint* pt : fh->immaturePoints)
-	{
-		LOG(INFO) << "indepth2: " << pt->idepth_stereo << " " << std::endl;
-	}
+	// for (ImmaturePoint* pt : fh->immaturePoints)
+	// {
+	// 	LOG(INFO) << "indepth2: " << pt->idepth_stereo << " " << std::endl;
+	// }
 	// =========================== (Activate-)Marginalize Points =========================
-	//边缘化点，删除点
+	//边缘化点，删除点,这里又去掉了一些pointHessians
 	flagPointsForRemoval();
+
+	// LOG(INFO)<<"point size5(): "<<frameHessians[frameHessians.size()-2]->pointHessians.size()<<std::endl;
 
 	//在ef误差函数中移除被边缘化的点
 	ef->dropPointsF();
@@ -2143,7 +2144,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	// =========================== add new Immature points & new residuals =========================
 	//获取当前新的关键帧的点,fh->immaturePoints
 	//makeNewTraces(fh, fh_right, 0);
-	LOG(INFO) << "point size5() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 
 	//发布关键帧
 	for (IOWrap::Output3DWrapper* ow : outputWrapper)
@@ -2164,7 +2164,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 			i = 0;
 		}
 	}
-	LOG(INFO) << "point size6() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 
 	delete fh_right;
 

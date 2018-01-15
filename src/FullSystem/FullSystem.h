@@ -189,7 +189,7 @@ private:
 
 	// mainPipelineFunctions
 	//主跟踪函数
-    Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 initT);
+	Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 initT);
 	//关键帧的更新
 	void traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right);
 	//更新一个点
@@ -224,10 +224,10 @@ private:
 	void debugPlotTracking();
 
 	std::vector<VecX> getNullspaces(
-	    std::vector<VecX> &nullspaces_pose,
-	    std::vector<VecX> &nullspaces_scale,
-	    std::vector<VecX> &nullspaces_affA,
-	    std::vector<VecX> &nullspaces_affB);
+	  std::vector<VecX> &nullspaces_pose,
+	  std::vector<VecX> &nullspaces_scale,
+	  std::vector<VecX> &nullspaces_affA,
+	  std::vector<VecX> &nullspaces_affB);
 
 	void setNewFrameEnergyTH();
 
@@ -277,7 +277,7 @@ private:
 	boost::mutex mapMutex;
 	//全部的关键帧
 	std::vector<FrameShell*> allKeyFramesHistory;
-    std::vector<FrameHessian*> allKeyFramesHessianHistory;
+	std::vector<FrameHessian*> allKeyFramesHessianHistory;
 
 	//误差能量函数
 	EnergyFunctional* ef;

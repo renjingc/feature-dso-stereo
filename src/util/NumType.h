@@ -171,6 +171,7 @@ typedef Eigen::Matrix<float,14,1> Vec14f;
 typedef Eigen::Matrix<double,14,14> Mat1414;
 typedef Eigen::Matrix<double,14,1> Vec14;
 
+
 // I_frame = exp(a)*I_global + b. // I_global = exp(-a)*(I_frame - b).
 //每个点像素的变换光度GAffine变换，即affine brightness transfer function 线性相应的逆函数
 // transforms points from one frame to another.

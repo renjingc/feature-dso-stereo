@@ -213,7 +213,7 @@ public:
 
 	void addIntoDistFinal(int u, int v);
 private:
-
+	//残差
 	PointFrameResidual** coarseProjectionGrid;
 	int* coarseProjectionGridNum;
 	Eigen::Vector2i* bfsList1;

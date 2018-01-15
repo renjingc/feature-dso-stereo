@@ -360,6 +360,8 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, 
     // LOG(INFO)<< "fh_target frameID: " << fh_target->frameID << std::endl;
     for (FrameHessian* fh : frameHessians)
     {
+        if(fh->frameID==(lastRef->frameID-1))
+            LOG(INFO) <<"lasetRef point size: "<<fh->pointHessians.size()<<std::endl;
         //遍历这个关键帧中的每一个点
         for (PointHessian* ph : fh->pointHessians)
         {
@@ -1433,13 +1435,13 @@ CoarseDistanceMap::CoarseDistanceMap(int ww, int hh)
     bfsList1 = new Eigen::Vector2i[ww * hh / 4];
     bfsList2 = new Eigen::Vector2i[ww * hh / 4];
 
-    //
+    //最小层的缩小倍数
     int fac = 1 << (pyrLevelsUsed - 1);
 
     //点与帧的残差
     coarseProjectionGrid = new PointFrameResidual*[2048 * (ww * hh / (fac * fac))];
 
-    //个数
+    //最上层的个数
     coarseProjectionGridNum = new int[ww * hh / (fac * fac)];
 
     w[0] = h[0] = 0;
@@ -1479,12 +1481,12 @@ void CoarseDistanceMap::makeDistanceMap(
     // make coarse tracking templates for latstRef.
     int numItems = 0;
 
-    //遍历窗口中每一个关键帧
+    //遍历窗口中每一个关键帧,跳过最新的帧
     for (FrameHessian* fh : frameHessians)
     {
         if (frame == fh) continue;
 
-        //位姿
+        //相对于最新的关键帧的位姿
         SE3 fhToNew = frame->PRE_worldToCam * fh->PRE_camToWorld;
         Mat33f KRKi = (K[1] * fhToNew.rotationMatrix().cast<float>() * Ki[0]);
         Vec3f Kt = (K[1] * fhToNew.translation().cast<float>());
@@ -1492,9 +1494,10 @@ void CoarseDistanceMap::makeDistanceMap(
         //遍历每一个激活的点
         for (PointHessian* ph : fh->pointHessians)
         {
+            //判断状态是否是ACTIVE
             assert(ph->status == PointHessian::ACTIVE);
 
-            //重投影该点
+            //重投影该点到最新的关键帧上
             Vec3f ptp = KRKi * Vec3f(ph->u, ph->v, 1) + Kt * ph->idepth_scaled;
             int u = ptp[0] / ptp[2] + 0.5f;
             int v = ptp[1] / ptp[2] + 0.5f;
@@ -1503,7 +1506,7 @@ void CoarseDistanceMap::makeDistanceMap(
             //该点的距离值＝０
             fwdWarpedIDDistFinal[u + w1 * v] = 0;
 
-            //该点的坐标
+            //将该点的坐标插入队列
             bfsList1[numItems] = Eigen::Vector2i(u, v);
 
             //点个数++
@@ -1511,6 +1514,7 @@ void CoarseDistanceMap::makeDistanceMap(
         }
     }
 
+    //点个数
     growDistBFS(numItems);
 }
 
@@ -1530,23 +1534,34 @@ void CoarseDistanceMap::makeInlierVotes(std::vector<FrameHessian*> frameHessians
  */
 void CoarseDistanceMap::growDistBFS(int bfsNum)
 {
+    //判断宽已经设置
     assert(w[0] != 0);
+    //第二层金字塔图像大小
     int w1 = w[1], h1 = h[1];
     for (int k = 1; k < 40; k++) // original K is 40
     {
+        //当前点个数
         int bfsNum2 = bfsNum;
+        //将bfsList1和bfsList2进行交换
         std::swap<Eigen::Vector2i*>(bfsList1, bfsList2);
+
+        //点个数为0
         bfsNum = 0;
 
+        //如果k是2的倍数
         if (k % 2 == 0)
         {
             for (int i = 0; i < bfsNum2; i++)
             {
+                //坐标
                 int x = bfsList2[i][0];
                 int y = bfsList2[i][1];
                 if (x == 0 || y == 0 || x == w1 - 1 || y == h1 - 1) continue;
+
+                //fwdWarpedIDDistFinal中的idx
                 int idx = x + y * w1;
 
+                //判断上下左右四个点的值是否是大于k,则=k
                 if (fwdWarpedIDDistFinal[idx + 1] > k)
                 {
                     fwdWarpedIDDistFinal[idx + 1] = k;
@@ -1578,6 +1593,7 @@ void CoarseDistanceMap::growDistBFS(int bfsNum)
                 if (x == 0 || y == 0 || x == w1 - 1 || y == h1 - 1) continue;
                 int idx = x + y * w1;
 
+                //上下左右和四个斜对角 八个点
                 if (fwdWarpedIDDistFinal[idx + 1] > k)
                 {
                     fwdWarpedIDDistFinal[idx + 1] = k;
@@ -1627,19 +1643,24 @@ void CoarseDistanceMap::growDistBFS(int bfsNum)
 /**
  * [CoarseDistanceMap::addIntoDistFinal description]
  * @param u [description]
- * @param v [description]
+ * @param v [description]\
+ * 插入一个新的点
  */
 void CoarseDistanceMap::addIntoDistFinal(int u, int v)
 {
     if (w[0] == 0) return;
+    //设置bfsList1队列中一个新的点
     bfsList1[0] = Eigen::Vector2i(u, v);
+    //fwdWarpedIDDistFinal将其对应的点值=0
     fwdWarpedIDDistFinal[u + w[1]*v] = 0;
+    //膨胀遍历
     growDistBFS(1);
 }
 
 /**
  * [CoarseDistanceMap::makeK description]
  * @param HCalib [description]
+ * 设置内参
  */
 void CoarseDistanceMap::makeK(CalibHessian* HCalib)
 {
