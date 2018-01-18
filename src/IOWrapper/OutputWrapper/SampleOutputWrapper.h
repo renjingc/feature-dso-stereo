@@ -30,7 +30,7 @@
 #include "FullSystem/FrameHessian.h"
 #include "FullSystem/PointHessian.h"
 #include "FullSystem/CalibHessian.h"
-#include "util/FrameShell.h"
+#include "FullSystem/FrameShell.h"
 
 namespace fdso
 {

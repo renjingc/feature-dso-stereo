@@ -24,7 +24,7 @@
 
 
 #include "FullSystem/ImmaturePoint.h"
-#include "util/FrameShell.h"
+#include "FullSystem/FrameShell.h"
 #include "FullSystem/ResidualProjections.h"
 
 namespace fdso

@@ -36,7 +36,7 @@
 #include "FullSystem/PointHessian.h"
 #include "FullSystem/CalibHessian.h"
 #include "FullSystem/ImmaturePoint.h"
-#include "util/FrameShell.h"
+#include "FullSystem/FrameShell.h"
 
 
 

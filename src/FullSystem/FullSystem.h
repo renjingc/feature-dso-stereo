@@ -36,7 +36,7 @@
 #include "FullSystem/FrameHessian.h"
 #include "FullSystem/PointHessian.h"
 #include "FullSystem/CalibHessian.h"
-#include "util/FrameShell.h"
+#include "FullSystem/FrameShell.h"
 #include "util/IndexThreadReduce.h"
 #include "OptimizationBackend/EnergyFunctional.h"
 #include "FullSystem/PixelSelector2.h"

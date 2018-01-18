@@ -1298,7 +1298,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	boost::unique_lock<boost::mutex> lock(trackMutex);
 
 	// =========================== add into allFrameHistory =========================
-    LOG(INFO)<<"addActiveFrame: "<<id<<" "<<allFrameHistory.size()<<std::endl;
+    	LOG(INFO)<<"addActiveFrame: "<<id<<" "<<allFrameHistory.size()<<std::endl;
 	//新建一个帧Hessian类
 	FrameHessian* fh = new FrameHessian();
 	//新建一个帧的位姿信息
@@ -1894,7 +1894,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//优化
 	float rmse = optimize(setting_maxOptIterations);
 
-    LOG(INFO)<<"rmse is"<<rmse<<std::endl;
+    	LOG(INFO)<<"rmse is"<<rmse<<std::endl;
 
 	// =========================== Figure Out if INITIALIZATION FAILED =========================
 	//判断初始化是否成功
@@ -1983,7 +1983,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 			i = 0;
 		}
 	}
-//	LOG(INFO) << "point size6() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 
 	delete fh_right;
 

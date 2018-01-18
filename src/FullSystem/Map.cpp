@@ -1,5 +1,4 @@
 #include "Map.h"
-#include "Feature.h"
 
 #include "FullSystem/FrameHessian.h"
 #include "FullSystem/PointHessian.h"
@@ -20,7 +19,7 @@ using namespace fdso::internal;
 namespace fdso {
 
     //增加关键帧
-    void Map::addKeyFrame(shared_ptr<Frame> kf)
+    void Map::addKeyFrame(FrameHessian* kf)
     {
         unique_lock<mutex> mapLock(mapMutex);
         if (frames.find(kf) == frames.end())
@@ -127,11 +126,17 @@ namespace fdso {
             frame->>shell->camToWorldOpti = Tcw.inverse();
 
             // reset the map point world position because we've changed the keyframe pose
-            for (auto &feat: frame->_features) 
+            for (auto &point: frame->pointHessians)
             {
-                if (feat->mpPoint) {
-                    feat->mpPoint->ComputeWorldPos();
-                }
+                    point->ComputeWorldPos();
+            }
+            for (auto &point: frame->pointHessiansOut)
+            {
+                    point->ComputeWorldPos();
+            }
+            for (auto &point: frame->pointHessiansMarginalized)
+            {
+                    point->ComputeWorldPos();
             }
         }
 

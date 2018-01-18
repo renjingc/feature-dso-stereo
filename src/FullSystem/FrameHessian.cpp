@@ -1,5 +1,5 @@
 #include "FullSystem/FrameHessian.h"
-#include "util/FrameShell.h"
+#include "FullSystem/FrameShell.h"
 #include "FullSystem/ImmaturePoint.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
 
@@ -59,7 +59,6 @@ void FrameHessian::release()
   for (unsigned int i = 0; i < pointHessiansMarginalized.size(); i++) delete pointHessiansMarginalized[i];
   for (unsigned int i = 0; i < pointHessiansOut.size(); i++) delete pointHessiansOut[i];
   for (unsigned int i = 0; i < immaturePoints.size(); i++) delete immaturePoints[i];
-
 
   pointHessians.clear();
   pointHessiansMarginalized.clear();
