@@ -68,17 +68,17 @@ void FrameHessian::release()
 
 void FrameHessian::ComputeBoW(ORBVocabulary* _vocab)
 {
-    if ( _vocab != nullptr && _bow_vec.empty() )
-    {
+  if ( _vocab != nullptr && _bow_vec.empty() )
+  {
 //        _bow_vec =new DBoW3::BowVector();
 //        _feature_vec = new DBoW3::FeatureVector();
-        std::vector<cv::Mat> alldesp;
-        for ( Feature* fea : _features )
-        {
-            alldesp.push_back(fea->_desc);
-        }
-        _vocab->transform( alldesp, _bow_vec, _feature_vec, 4);
+    std::vector<cv::Mat> alldesp;
+    for ( Feature* fea : _features )
+    {
+      alldesp.push_back(fea->_desc);
     }
+    _vocab->transform( alldesp, _bow_vec, _feature_vec, 4);
+  }
 }
 
 /**
@@ -92,7 +92,7 @@ void FrameHessian::makeImages(ImageAndExposure* imageE, CalibHessian* HCalib)
   float* color = imageE->image;
   image = imageE->toMat();
   _pyramid.resize( pyrLevelsUsed );
-      _pyramid[0] = image;
+  _pyramid[0] = image;
   for ( size_t i = 1; i < pyrLevelsUsed; i++ )
   {
     // 在CV里使用down构造分辨率更低的图像，中间有高斯模糊化以降低噪声
@@ -222,6 +222,19 @@ void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target, CalibHessi
   //根据两帧的曝光时间和a和b，计算两帧之间的a和b,光度线性变换
   PRE_aff_mode = AffLight::fromToVecExposure(host->ab_exposure, target->ab_exposure, host->aff_g2l(), target->aff_g2l()).cast<float>();
   PRE_b0_mode = host->aff_g2l_0().b;
+}
+
+
+/**
+ * { item_description }
+ * 获取当前帧的连接
+ */
+set<FrameHessian*> FrameHessian::GetConnectedKeyFrames()
+{
+  set<FrameHessian*> connectedFrames;
+  for (auto &rel : mPoseRel)
+    connectedFrames.insert(rel.first);
+  return connectedFrames;
 }
 
 }

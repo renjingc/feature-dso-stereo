@@ -57,14 +57,14 @@ void PointHessian::release()
   residuals.clear();
 }
 
-void PointHessian::ComputeWorldPos(CalibHessian* HCalib)
+void PointHessian::ComputeWorldPos()
 {
   if (!host)
     return;
   SE3 Twc = host->shell->camToWorldOpti;
   Vec3 Kip = 1.0 / this->idepth * Vec3(
-               HCalib->fxli() * this->u + HCalib->cxli(),
-             HCalib->fyli() * this->v + HCalib->cyli(),
+               fxiG[0]  * this->u + cxiG[0],
+             fyiG[0]  * this->v + cyiG[0],
              1);
   mWorldPos = Twc * Kip;
 }

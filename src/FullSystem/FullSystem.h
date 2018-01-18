@@ -39,10 +39,13 @@
 #include "FullSystem/FrameShell.h"
 #include "util/IndexThreadReduce.h"
 #include "OptimizationBackend/EnergyFunctional.h"
+
 #include "FullSystem/PixelSelector2.h"
 
 #include "FullSystem/FeatureDetector.h"
+#include "FullSystem/FeatureMatcher.h"
 
+#include "FullSystem/Map.h"
 
 #include <math.h>
 #include <boost/timer.hpp>
@@ -66,7 +69,7 @@ class CoarseDistanceMap;
 
 class EnergyFunctional;
 
-class Matcher;
+class FeatureMatcher;
 
 template<typename T> inline void deleteOut(std::vector<T*> &v, const int i)
 {
@@ -164,14 +167,17 @@ public:
 	bool initialized;
 	bool linearizeOperation;
 
+	ORBVocabulary* _vocab;
+	//矫正类
+	CalibHessian Hcalib;
+
+	//全部的关键帧
+       Map* globalMap=nullptr;
 
 	void setGammaFunction(float* BInv);
 	void setOriginalCalib(VecXf originalCalib, int originalW, int originalH);
 
 private:
-	//矫正类
-	CalibHessian Hcalib;
-
 
 	// opt single point
 	//　优化一个点
@@ -263,8 +269,7 @@ private:
 	boost::mutex trackMutex;
 	//全部帧的信息
 	std::vector<FrameShell*> allFrameHistory;
-	std::vector<FrameHessian*> allFrameHessianHistory;
-	std::vector<FrameHessian*> allFrameHessianRightHistory;
+
 	//初始化类
 	CoarseInitializer* coarseInitializer;
 	//上一时刻的残差
@@ -276,7 +281,6 @@ private:
 	boost::mutex mapMutex;
 	//全部的关键帧
 	std::vector<FrameShell*> allKeyFramesHistory;
-	std::vector<FrameHessian*> allKeyFramesHessianHistory;
 
 	//误差能量函数
 	EnergyFunctional* ef;
@@ -361,9 +365,7 @@ private:
 	/*---ORB---*/
 	FeatureDetector* detectorLeft, *detectorRight;
 
-	Matcher* matcher;
-
-	ORBVocabulary* _vocab;
+	FeatureMatcher* matcher;
 
 	// void ExtractORB(int flag, const cv::Mat &im);
 	bool find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NumTypes.h"
+#include "util/NumType.h"
 #include "FullSystem/FrameHessian.h"
 #include "FullSystem/PointHessian.h"
 #include "FullSystem/ImmaturePoint.h"
@@ -15,72 +15,72 @@ using namespace fdso;
 
 namespace fdso {
 
+/**
+ * The global map contains all keyframes and map points, even if they are outdated.
+ * The map can be saved to and loaded from disk, if you wanna reuse it.
+ *
+ * The loop closing thread will call the optimize function if there is a consistent loop closure.
+ */
+
+class Map {
+public:
+    Map() {}
+
     /**
-     * The global map contains all keyframes and map points, even if they are outdated.
-     * The map can be saved to and loaded from disk, if you wanna reuse it.
-     *
-     * The loop closing thread will call the optimize function if there is a consistent loop closure.
+     * add a keyframe into the global map
+     * @param kf
+     * 插入关键帧
      */
+    void addKeyFrame(FrameHessian* kf);
 
-    class Map {
-    public:
-        Map() {}
+    /**
+     * optimize pose graph of all kfs
+     * this will start the pose graph optimization thread (usually takes several seconds to return in my machine)
+     * @param allKFs
+     * 优化全部的关键帧
+     */
+    void optimizeALLKFs();
 
-        /**
-         * add a keyframe into the global map
-         * @param kf
-         * 插入关键帧
-         */
-        void addKeyFrame(FrameHessian* kf);
+    /**
+     * get number of frames stored in global map
+     * @return
+     * 帧的数量
+     */
+    inline int numFrames() const
+    {
+        return frames.size();
+    }
 
-        /**
-         * optimize pose graph of all kfs
-         * this will start the pose graph optimization thread (usually takes several seconds to return in my machine)
-         * @param allKFs
-         * 优化全部的关键帧
-         */
-        void optimizeALLKFs();
+    // is pose graph running?
+    //是否在位姿图优化
+    bool idle() {
+        std::unique_lock<std::mutex> lock(mutexPoseGraph);
+        return !poseGraphRunning;
+    }
 
-        /**
-         * get number of frames stored in global map
-         * @return
-         * 帧的数量
-         */
-        inline int numFrames() const
-        {
-            return frames.size();
-        }
+    //全部的关键帧
+    std::set<FrameHessian*, CmpFrameID> getAllKFs() { return frames; }
 
-        // is pose graph running?
-        //是否在位姿图优化
-        bool idle() {
-            unique_lock<mutex> lock(mutexPoseGraph);
-            return !poseGraphRunning;
-        }
+private:
+    // the pose graph optimization thread
+    //位姿图优化
+    void runPoseGraphOptimization();
 
-        //全部的关键帧
-        set<FrameHessian*, CmpFrameID> getAllKFs() { return frames; }
+    //地图互斥锁
+    std::mutex mapMutex; // map mutex to protect its data
 
-    private:
-        // the pose graph optimization thread
-        //位姿图优化
-        void runPoseGraphOptimization();
+    //全部的关键帧包括ID
+    std::set<FrameHessian*, CmpFrameID> frames;  // all KFs by ID
+    //关键帧被优化
+    std::set<FrameHessian*, CmpFrameID> framesOpti;  // KFs to be optimized
+    //当前关键帧
+    FrameHessian* currentKF = nullptr;
 
-        //地图互斥锁
-        mutex mapMutex; // map mutex to protect its data
+    //是否在运行位姿图优化
+    bool poseGraphRunning = false;  // is pose graph running?
 
-        //全部的关键帧包括ID
-        set<FrameHessian*, CmpFrameID> frames;  // all KFs by ID
-        //关键帧被优化
-        set<FrameHessian*, CmpFrameID> framesOpti;  // KFs to be optimized
-        //当前关键帧
-        FrameHessian* currentKF = nullptr;
-
-        //是否在运行位姿图优化
-        bool poseGraphRunning = false;  // is pose graph running?
-
-        //位姿图互斥锁
-        mutex mutexPoseGraph;
-    };
+    //位姿图互斥锁
+    std::mutex mutexPoseGraph;
+};
 
 }

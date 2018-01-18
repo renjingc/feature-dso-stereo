@@ -158,10 +158,19 @@ struct FrameHessian
 	DBoW2::BowVector _bow_vec;
 	DBoW2::FeatureVector _feature_vec;
 
-        // pose relative to keyframes in the window, stored as T_cur_ref
-        // this will be changed by full system and loop closing, so we need a mutex
-        std::map<FrameHessian*, SE3, std::less<FrameHessian*>, Eigen::aligned_allocator<SE3>> mPoseRel;
-        std::mutex mMutexPoseRel;
+        // Variables used by the keyframe database
+        //闭环时用到额
+        long unsigned int mnLoopQuery = 0;
+        int mnLoopWords = 0;
+        float mLoopScore = 0;
+        long unsigned int mnRelocQuery = 0;
+        int mnRelocWords = 0;
+        float mRelocScore = 0;
+
+	// pose relative to keyframes in the window, stored as T_cur_ref
+	// this will be changed by full system and loop closing, so we need a mutex
+	std::map<FrameHessian*, SE3, std::less<FrameHessian*>, Eigen::aligned_allocator<SE3>> mPoseRel;
+	std::mutex mMutexPoseRel;
 
 	//零空间位姿
 	Mat66 nullspaces_pose;
@@ -332,6 +341,8 @@ struct FrameHessian
 	// 将备选点的描述转换成 bow
 	void ComputeBoW(ORBVocabulary* _vocab);
 
+	set<FrameHessian*> GetConnectedKeyFrames();
+
 	void CleanAllFeatures()
 	{
 		for ( size_t i = 0; i < _features.size(); i++ )
@@ -409,6 +420,28 @@ struct FrameHessian
 		return Vec10::Zero();
 	}
 
+};
+
+/**
+ * Compare frame ID, used to get a sorted map or set of frames
+ * 比较帧的id
+ */
+class CmpFrameID {
+public:
+	inline bool operator()(const FrameHessian* f1, const FrameHessian* f2) {
+		return f1->shell->id < f2->shell->id;
+	}
+};
+
+/**
+ * Compare frame by Keyframe ID, used to get a sorted keyframe map or set.
+ * 比较帧的关键帧id
+ */
+class CmpFrameKFID {
+public:
+	inline bool operator()(const FrameHessian* f1, const FrameHessian* f2) {
+		return f1->frameID < f2->frameID;
+	}
 };
 
 }

@@ -3,7 +3,7 @@
 
 namespace fdso {
 
-Matcher::Matcher ()
+FeatureMatcher::FeatureMatcher ()
 {
 //    _options.th_low = Config::Get<int>("matcher.th_low");
 //    _options.th_high = Config::Get<int>("matcher.th_high");
@@ -14,7 +14,7 @@ Matcher::Matcher ()
     //_align = new SparseImgAlign(2, 0, 30, SparseImgAlign::GaussNewton, false, false );
 }
 
-Matcher::Matcher(int th_low, int th_high, int init_low, int init_high, float knnRatio)
+FeatureMatcher::FeatureMatcher(int th_low, int th_high, int init_low, int init_high, float knnRatio)
 {
     _options.th_low = th_low;//Config::Get<int>("matcher.th_low");
     _options.th_high = th_high;//Config::Get<int>("matcher.th_high");
@@ -26,7 +26,7 @@ Matcher::Matcher(int th_low, int th_high, int init_low, int init_high, float knn
     //_align = new SparseImgAlign(2, 0, 30, SparseImgAlign::GaussNewton, false, false );
 }
 
-Matcher::~Matcher()
+FeatureMatcher::~FeatureMatcher()
 {
 //    if ( !_patches_align.empty() ) {
 //        for ( uchar* p : _patches_align )
@@ -35,7 +35,7 @@ Matcher::~Matcher()
 //    }
 }
 
-void Matcher::showMatch(FrameHessian * kf1, FrameHessian* kf2, std::vector<cv::DMatch>& matches)
+void FeatureMatcher::showMatch(FrameHessian * kf1, FrameHessian* kf2, std::vector<cv::DMatch>& matches)
 {
     cv::Mat img_show(kf1->image.rows, 2 * kf1->image.cols, CV_8UC1);
     kf1->image.copyTo( img_show(cv::Rect(0, 0, kf1->image.cols, kf1->image.rows)) );
@@ -59,7 +59,7 @@ void Matcher::showMatch(FrameHessian * kf1, FrameHessian* kf2, std::vector<cv::D
     cv::waitKey(1);
 }
 
-int Matcher::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
+int FeatureMatcher::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
 {
     const int *pa = a.ptr<int32_t>();
     const int *pb = b.ptr<int32_t>();
@@ -79,7 +79,7 @@ int Matcher::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
     return dist;
 }
 
-int Matcher::SearchBruteForce(FrameHessian* frame1, FrameHessian* frame2, std::vector<cv::DMatch> &matches)
+int FeatureMatcher::SearchBruteForce(FrameHessian* frame1, FrameHessian* frame2, std::vector<cv::DMatch> &matches)
 {
     assert (matches.empty());
     matches.reserve(frame1->_features.size());
@@ -91,7 +91,7 @@ int Matcher::SearchBruteForce(FrameHessian* frame1, FrameHessian* frame2, std::v
 
         for (size_t j = 0; j < frame2->_features.size(); j++) {
             Feature* f2 = frame2->_features[j];
-            int dist = Matcher::DescriptorDistance(f1->_desc, f2->_desc);
+            int dist = FeatureMatcher::DescriptorDistance(f1->_desc, f2->_desc);
             if (dist < min_dist) {
                 min_dist = dist;
                 min_dist_index = j;
@@ -106,7 +106,7 @@ int Matcher::SearchBruteForce(FrameHessian* frame1, FrameHessian* frame2, std::v
     return matches.size();
 }
 
-int Matcher::CheckFrameDescriptors (
+int FeatureMatcher::CheckFrameDescriptors (
     FrameHessian* frame1,
     FrameHessian* frame2,
     std::list<std::pair<int, int>>& matches
@@ -147,7 +147,7 @@ int Matcher::CheckFrameDescriptors (
     return cnt_good;
 }
 
-int Matcher::SearchForTriangulation (
+int FeatureMatcher::SearchForTriangulation (
     FrameHessian* kf1,
     FrameHessian* kf2,
     const Matrix3d& E12,
@@ -258,7 +258,7 @@ int Matcher::SearchForTriangulation (
 }
 
 // 利用 Bag of Words 加速匹配
-int Matcher::SearchByBoW(
+int FeatureMatcher::SearchByBoW(
     FrameHessian* kf1,
     FrameHessian* kf2,
     std::vector<cv::DMatch> &matches )
@@ -376,7 +376,7 @@ int Matcher::SearchByBoW(
     return cnt_matches;
 }
 
-void Matcher::ComputeThreeMaxima(
+void FeatureMatcher::ComputeThreeMaxima(
     std::vector<int>* histo, const int L, int& ind1, int& ind2, int& ind3)
 {
     int max1 = 0;
@@ -420,7 +420,7 @@ void Matcher::ComputeThreeMaxima(
     }
 }
 
-bool Matcher::CheckDistEpipolarLine(
+bool FeatureMatcher::CheckDistEpipolarLine(
     const Eigen::Vector3d& pt1, const Eigen::Vector3d& pt2, const Eigen::Matrix3d& E12)
 {
     const float a = pt1[0] * E12(0, 0) + pt1[1] * E12(1, 0) + E12(2, 0);
@@ -438,7 +438,7 @@ bool Matcher::CheckDistEpipolarLine(
     return fabs(dsqr) < _options._epipolar_dsqr;
 }
 
-// bool Matcher::FindDirectProjection(
+// bool FeatureMatcher::FindDirectProjection(
 //     FrameHessian* ref, FrameHessian* curr, MapPoint* mp, Vector2d& px_curr, int& search_level)
 // {
 //     Eigen::Matrix2d ACR;
@@ -471,7 +471,7 @@ bool Matcher::CheckDistEpipolarLine(
 //     return success;
 // }
 
-// bool Matcher::FindDirectProjection(
+// bool FeatureMatcher::FindDirectProjection(
 //     Frame* ref, Frame* curr, Feature* fea_ref, Vector2d& px_curr, int& search_level )
 // {
 //     if ( fea_ref->_depth < 0 )
@@ -506,7 +506,7 @@ bool Matcher::CheckDistEpipolarLine(
 // }
 
 
-// void Matcher::GetWarpAffineMatrix(
+// void FeatureMatcher::GetWarpAffineMatrix(
 //     const FrameHessian* ref, const FrameHessian* curr,
 //     const Eigen::Vector2d& px_ref, const Eigen::Vector3d& pt_ref,
 //     const int& level, const SE3& TCR, Eigen::Matrix2d& ACR )
@@ -524,7 +524,7 @@ bool Matcher::CheckDistEpipolarLine(
 //     ACR.col ( 1 ) = ( px_dv - px_cur ) / WarpHalfPatchSize;
 // }
 
-// void Matcher::WarpAffine(
+// void FeatureMatcher::WarpAffine(
 //     const Matrix2d& ACR, const Mat& img_ref, const Vector2d& px_ref,
 //     const int& level_ref, const int& search_level,
 //     const int& half_patch_size, uint8_t* patch)
@@ -554,7 +554,7 @@ bool Matcher::CheckDistEpipolarLine(
 //     }
 // }
 
-// bool Matcher::SparseImageAlignment(Frame* ref, Frame* current)
+// bool FeatureMatcher::SparseImageAlignment(Frame* ref, Frame* current)
 // {
 //     // from top to bottom
 //     current->_TCW = ref->_TCW;
@@ -580,7 +580,7 @@ bool Matcher::CheckDistEpipolarLine(
 //     return true;
 // }
 
-// bool Matcher::SparseImageAlignmentInPyramid(Frame* ref, Frame* current, int pyramid)
+// bool FeatureMatcher::SparseImageAlignmentInPyramid(Frame* ref, Frame* current, int pyramid)
 // {
 //     PrecomputeReferencePatches( ref, pyramid );
 //     // solve the problem
@@ -632,7 +632,7 @@ bool Matcher::CheckDistEpipolarLine(
 // }
 
 
-// void Matcher::PrecomputeReferencePatches( Frame* ref, int level )
+// void FeatureMatcher::PrecomputeReferencePatches( Frame* ref, int level )
 // {
 //     // LOG(INFO) << "computing ref patches in level "<<level<<endl;
 //     if ( !_patches_align.empty() ) {

@@ -9,6 +9,7 @@
 #include <fstream>
 #include "util/NumType.h"
 #include "util/settings.h"
+#include "util/globalCalib.h"
 
 #include "FullSystem/FrameHessian.h"
 #include "FullSystem/FrameShell.h"
@@ -70,6 +71,7 @@ struct PointHessian
 
   //对应的特帧点
   Feature* mF=nullptr;
+  int feaMode=0;
 
   //类型
   float my_type;
@@ -181,10 +183,10 @@ struct PointHessian
            && numGoodResiduals >= setting_minGoodResForMarg;
   }
 
-  inline void save(ofstream &fout);
-  inline void load(ifstream &fin, vector<FrameHessian*> &allKFs);
+  void save(ofstream &fout);
+  void load(ifstream &fin, vector<FrameHessian*> &allKFs);
 
-  inline void ComputeWorldPos(CalibHessian* HCalib);
+  void ComputeWorldPos();
 
 };
 

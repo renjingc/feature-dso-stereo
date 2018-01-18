@@ -30,6 +30,8 @@
 
 #include <glog/logging.h>
 
+#include <Eigen/StdVector>
+
 // for Eigen
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -49,12 +51,15 @@ using cv::Mat;
 #include <memory>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <set>
 #include <unordered_map>
 #include <map>
 
 #include "DBoW2/FORB.h"
 #include "DBoW2/TemplatedVocabulary.h"
+
+using namespace std;
 
 
 namespace fdso

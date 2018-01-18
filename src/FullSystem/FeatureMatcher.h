@@ -29,7 +29,7 @@
 namespace fdso {
 
 // 匹配相关的算法，包括特征点的匹配法
-class Matcher
+class FeatureMatcher
 {
 public:
 
@@ -61,9 +61,9 @@ public:
 
   static const int HISTO_LENGTH = 30;  // 旋转直方图的size
 
-  Matcher();
-  Matcher(int th_low, int th_high, int init_low, int init_high, float knnRatio);
-  ~Matcher();
+  FeatureMatcher();
+  FeatureMatcher(int th_low, int th_high, int init_low, int init_high, float knnRatio);
+  ~FeatureMatcher();
 
   void SetTCR( const SE3& TCR )
   {

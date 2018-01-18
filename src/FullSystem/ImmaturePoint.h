@@ -113,6 +113,7 @@ public:
 	float idepth_stereo;
 
 	Feature* mF=nullptr;
+	int feaMode=0;
 
 	//初始化
 	ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, CalibHessian* HCalib);

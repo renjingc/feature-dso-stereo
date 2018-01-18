@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/NumTypes.h"
+#include "util/NumType.h"
 #include "FullSystem/CalibHessian.h"
 
 #include <g2o/core/base_vertex.h>

@@ -64,6 +64,7 @@ public:
     double   _score = 0;                                                // 分数
 
     ImmaturePoint* mImP=nullptr;
+    PointHessian* mPH=nullptr;
 };
 
 

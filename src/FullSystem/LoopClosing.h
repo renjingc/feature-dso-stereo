@@ -30,7 +30,7 @@ namespace fdso {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-        KeyFrameDatabase(const ORBVocabulary* voc);
+        KeyFrameDatabase(ORBVocabulary* voc);
 
         void add(FrameHessian* pKF);
 
