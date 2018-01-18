@@ -27,7 +27,11 @@
 
 #include "util/NumType.h"
 
-#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/FrameHessian.h"
+#include "FullSystem/PointHessian.h"
+#include "FullSystem/CalibHessian.h"
+#include "FeatureDetector.h"
+
 namespace fdso
 {
 
@@ -107,6 +111,8 @@ public:
 	float idepth_max_stereo;  // idepth_max used to do static matching
 	//双目得到的逆深度
 	float idepth_stereo;
+
+	Feature* mF=nullptr;
 
 	//初始化
 	ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, CalibHessian* HCalib);

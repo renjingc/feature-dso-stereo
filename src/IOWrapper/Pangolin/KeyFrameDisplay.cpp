@@ -32,7 +32,9 @@
 
 #include <pangolin/pangolin.h>
 #include "KeyFrameDisplay.h"
-#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/FrameHessian.h"
+#include "FullSystem/PointHessian.h"
+#include "FullSystem/CalibHessian.h"
 #include "FullSystem/ImmaturePoint.h"
 #include "util/FrameShell.h"
 

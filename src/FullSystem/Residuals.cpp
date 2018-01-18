@@ -35,7 +35,7 @@
 #include "util/globalFuncs.h"
 #include <Eigen/LU>
 #include <algorithm>
-#include "IOWrapper/ImageDisplay.h"
+#include "IOWrapper/OpenCV/ImageDisplay.h"
 #include "util/globalCalib.h"
 #include <Eigen/SVD>
 #include <Eigen/Eigenvalues>
@@ -44,7 +44,9 @@
 #include "OptimizationBackend/EnergyFunctional.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
 
-#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/FrameHessian.h"
+#include "FullSystem/PointHessian.h"
+#include "FullSystem/CalibHessian.h"
 
 namespace fdso
 {

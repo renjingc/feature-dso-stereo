@@ -35,7 +35,7 @@
 #include "util/globalFuncs.h"
 #include <Eigen/LU>
 #include <algorithm>
-#include "IOWrapper/ImageDisplay.h"
+#include "IOWrapper/OpenCV/ImageDisplay.h"
 #include "util/globalCalib.h"
 
 #include <Eigen/SVD>
@@ -46,7 +46,7 @@
 #include "OptimizationBackend/EnergyFunctional.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
 
-#include "IOWrapper/Output3DWrapper.h"
+#include "IOWrapper/OutputWrapper/Output3DWrapper.h"
 
 #include "FullSystem/CoarseTracker.h"
 

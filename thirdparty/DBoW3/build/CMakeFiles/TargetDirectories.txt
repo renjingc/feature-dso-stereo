@@ -1,5 +1,0 @@
-/home/ren/work/fdso/thirdparty/DBoW3/build/utils/CMakeFiles/demo_general.dir
-/home/ren/work/fdso/thirdparty/DBoW3/build/CMakeFiles/uninstall.dir
-/home/ren/work/fdso/thirdparty/DBoW3/build/utils/CMakeFiles/create_voc_step0.dir
-/home/ren/work/fdso/thirdparty/DBoW3/build/utils/CMakeFiles/create_voc_step1.dir
-/home/ren/work/fdso/thirdparty/DBoW3/build/src/CMakeFiles/DBoW3.dir

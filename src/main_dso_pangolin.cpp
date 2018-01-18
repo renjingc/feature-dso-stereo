@@ -29,8 +29,8 @@
 #include <unistd.h>
 #include <chrono>
 
-#include "IOWrapper/Output3DWrapper.h"
-#include "IOWrapper/ImageDisplay.h"
+#include "IOWrapper/OutputWrapper/Output3DWrapper.h"
+#include "IOWrapper/OpenCV/ImageDisplay.h"
 
 #include <boost/thread.hpp>
 #include "util/settings.h"
@@ -53,11 +53,13 @@ std::string vignette = "";
 std::string gammaCalib = "";
 std::string source = "";
 std::string calib = "";
+std::string vocPath = "./vocab/ORBvoc.bin";
+
 double rescale = 1;
-bool reverse = false;
+bool reversePlay = false;
 bool disableROS = false;
-int start = 0;
-int end = 100000;
+int startIdx = 0;
+int endIdx = 100000;
 bool prefetch = false;
 float playbackSpeed = 0; // 0 for linearize (play as fast as possible, while sequentializing tracking & mapping). otherwise, factor on timestamps.
 bool preload = false;
@@ -126,7 +128,7 @@ void settingsDefault(int preset)
            "- 1-4 LM iteration each KF\n"
            "- 424 x 320 image resolution\n", preset == 0 ? "no " : "5x");
 
-    playbackSpeed = (preset == 2 ? 0 :2);
+    playbackSpeed = (preset == 2 ? 0 :3);
     preload = preset == 3;
     setting_desiredImmatureDensity = 600;
     setting_desiredPointDensity = 800;
@@ -169,7 +171,11 @@ void parseArgument(char* arg)
     }
     return;
   }
-
+    if (1 == sscanf(arg, "vocab=%s", buf)) {
+        vocPath = buf;
+        printf("loading vocabulary from %s!\n", vocPath.c_str());
+        return;
+    }
   if (1 == sscanf(arg, "preset=%d", &option))
   {
     settingsDefault(option);
@@ -210,7 +216,7 @@ void parseArgument(char* arg)
   {
     if (option == 1)
     {
-      reverse = true;
+      reversePlay = true;
       printf("REVERSE!\n");
     }
     return;
@@ -244,14 +250,14 @@ void parseArgument(char* arg)
   }
   if (1 == sscanf(arg, "start=%d", &option))
   {
-    start = option;
-    printf("START AT %d!\n", start);
+    startIdx = option;
+    printf("START AT %d!\n", startIdx);
     return;
   }
   if (1 == sscanf(arg, "end=%d", &option))
   {
-    end = option;
-    printf("END AT %d!\n", start);
+    endIdx = option;
+    printf("END AT %d!\n", endIdx);
     return;
   }
 
@@ -360,11 +366,15 @@ int main( int argc, char** argv )
     exit(1);
   }
 
-  int lstart = start;
-  int lend = end;
+  int lstart = startIdx;
+  int lend = endIdx;
+
+  LOG(INFO) << "vocPath: " << vocPath << std::endl;
+  ORBVocabulary* voc=new ORBVocabulary();
+  voc->loadFromBinaryFile(vocPath);
 
   // build system
-  FullSystem* fullSystem = new FullSystem();
+  FullSystem* fullSystem = new FullSystem(voc);
   fullSystem->setGammaFunction(reader->getPhotometricGamma());
   fullSystem->linearizeOperation = (playbackSpeed == 0);
 
@@ -423,6 +433,7 @@ int main( int argc, char** argv )
     std::vector<ImageAndExposure*> preloadedImagesLeft;
     std::vector<ImageAndExposure*> preloadedImagesRight;
     preload = false;
+LOG(INFO)<<"start"<<std::endl;
     if (preload)
     {
       printf("LOADING ALL IMAGES!\n");
@@ -516,7 +527,7 @@ int main( int argc, char** argv )
 
           for (IOWrap::Output3DWrapper* ow : wraps) ow->reset();
 
-          fullSystem = new FullSystem();
+          fullSystem = new FullSystem(voc);
           fullSystem->setGammaFunction(reader->getPhotometricGamma());
           fullSystem->linearizeOperation = (playbackSpeed == 0);
 

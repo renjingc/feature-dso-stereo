@@ -25,11 +25,11 @@
 #pragma once
 #include "boost/thread.hpp"
 #include "util/MinimalImage.h"
-#include "IOWrapper/Output3DWrapper.h"
+#include "IOWrapper/OutputWrapper/Output3DWrapper.h"
 
-
-
-#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/FrameHessian.h"
+#include "FullSystem/PointHessian.h"
+#include "FullSystem/CalibHessian.h"
 #include "util/FrameShell.h"
 
 namespace fdso

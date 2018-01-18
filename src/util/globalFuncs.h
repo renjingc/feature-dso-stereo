@@ -26,7 +26,7 @@
 #pragma once
 #include "util/settings.h"
 #include "util/NumType.h"
-#include "IOWrapper/ImageDisplay.h"
+#include "IOWrapper/OpenCV/ImageDisplay.h"
 #include "fstream"
 #include <cmath>
 #include <cv.h>

@@ -31,11 +31,13 @@
 
 #include "FullSystem/CoarseTracker.h"
 #include "FullSystem/FullSystem.h"
-#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/FrameHessian.h"
+#include "FullSystem/PointHessian.h"
+#include "FullSystem/CalibHessian.h"
 #include "FullSystem/Residuals.h"
 #include "FullSystem/ImmaturePoint.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
-#include "IOWrapper/ImageRW.h"
+#include "IOWrapper/OpenCV/ImageRW.h"
 #include <algorithm>
 
 namespace fdso

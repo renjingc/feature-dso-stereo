@@ -33,17 +33,16 @@
 #include <fstream>
 #include "util/NumType.h"
 #include "FullSystem/Residuals.h"
-#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/FrameHessian.h"
+#include "FullSystem/PointHessian.h"
+#include "FullSystem/CalibHessian.h"
 #include "util/FrameShell.h"
 #include "util/IndexThreadReduce.h"
 #include "OptimizationBackend/EnergyFunctional.h"
 #include "FullSystem/PixelSelector2.h"
 
-#include "ORB/ORBextractor.h"
+#include "FullSystem/FeatureDetector.h"
 
-#include "ORB/FeatureDetector.h"
-
-#include "ORB/ORBmatcher.h"
 
 #include <math.h>
 #include <boost/timer.hpp>
@@ -136,7 +135,7 @@ inline bool eigenTestNan(MatXX m, std::string msg)
 class FullSystem {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-	FullSystem();
+	FullSystem(ORBVocabulary* voc);
 	virtual ~FullSystem();
 
 	// adds a new frame, and creates point & residual structs.
@@ -189,7 +188,7 @@ private:
 
 	// mainPipelineFunctions
 	//主跟踪函数
-    Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 initT);
+	Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 initT);
 	//关键帧的更新
 	void traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right);
 	//更新一个点
@@ -224,10 +223,10 @@ private:
 	void debugPlotTracking();
 
 	std::vector<VecX> getNullspaces(
-	    std::vector<VecX> &nullspaces_pose,
-	    std::vector<VecX> &nullspaces_scale,
-	    std::vector<VecX> &nullspaces_affA,
-	    std::vector<VecX> &nullspaces_affB);
+	  std::vector<VecX> &nullspaces_pose,
+	  std::vector<VecX> &nullspaces_scale,
+	  std::vector<VecX> &nullspaces_affA,
+	  std::vector<VecX> &nullspaces_affB);
 
 	void setNewFrameEnergyTH();
 
@@ -277,7 +276,7 @@ private:
 	boost::mutex mapMutex;
 	//全部的关键帧
 	std::vector<FrameShell*> allKeyFramesHistory;
-    std::vector<FrameHessian*> allKeyFramesHessianHistory;
+	std::vector<FrameHessian*> allKeyFramesHessianHistory;
 
 	//误差能量函数
 	EnergyFunctional* ef;
@@ -331,19 +330,15 @@ private:
 	//后端优化
 	void mappingLoop();
 
-	//闭环检测线程
-	void loopDetect();
 
 	// tracking / mapping synchronization. All protected by [trackMapSyncMutex].
 	//非同步的跟踪和后端优化的一些变量
 	//互斥锁
 	boost::mutex trackMapSyncMutex;
-	boost::mutex loopDetectSyncMutex;
 
 	//条件变量
 	boost::condition_variable trackedFrameSignal;
 	boost::condition_variable mappedFrameSignal;
-	boost::condition_variable loopDetectSignal;
 
 	//非同步优化的时候的队列
 	std::deque<FrameHessian*> unmappedTrackedFrames;
@@ -354,12 +349,9 @@ private:
 
 	//后端优化线程
 	boost::thread mappingThread;
-	boost::thread loopDetectThread;
 
 	//是否运行后端优化
 	bool runMapping;
-	//是否进行闭环检测
-	bool runLoopDetect;
 
 	bool needToKetchupMapping;
 
@@ -368,16 +360,10 @@ private:
 
 	/*---ORB---*/
 	FeatureDetector* detectorLeft, *detectorRight;
-	ORBextractor* mpORBextractorLeft, *mpORBextractorRight;
-
-
-	cv::FlannBasedMatcher matcher_flann_;
 
 	Matcher* matcher;
 
-	boost::thread threadLeft, threadRight;
-
-	static ORBVocabulary* _vocab;
+	ORBVocabulary* _vocab;
 
 	// void ExtractORB(int flag, const cv::Mat &im);
 	bool find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_);

@@ -33,7 +33,7 @@
 #include <algorithm>
 
 #include "util/Undistort.h"
-#include "IOWrapper/ImageRW.h"
+#include "IOWrapper/OpenCV/ImageRW.h"
 
 #if HAS_ZIPLIB
 	#include "zip.h"

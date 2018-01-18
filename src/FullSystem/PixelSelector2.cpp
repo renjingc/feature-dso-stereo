@@ -25,9 +25,11 @@
 #include "FullSystem/PixelSelector2.h"
 
 #include "util/NumType.h"
-#include "IOWrapper/ImageDisplay.h"
+#include "IOWrapper/OpenCV/ImageDisplay.h"
 #include "util/globalCalib.h"
-#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/FrameHessian.h"
+#include "FullSystem/PointHessian.h"
+#include "FullSystem/CalibHessian.h"
 #include "util/globalFuncs.h"
 
 namespace fdso

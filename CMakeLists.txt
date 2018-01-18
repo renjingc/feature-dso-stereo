@@ -4,7 +4,7 @@ PROJECT(${PROJECT_NAME})
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
-
+set(CMAKE_CXX_STANDARD 11)
 #set(BUILD_TYPE Release)
 set(BUILD_TYPE RelWithDebInfo)
 
@@ -52,9 +52,12 @@ set(dso_SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/FullSystem/CoarseTracker.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/CoarseInitializer.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/ImmaturePoint.cpp
-  ${PROJECT_SOURCE_DIR}/src/FullSystem/HessianBlocks.cpp
+
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/FrameHessian.cpp
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/PointHessian.cpp
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/CalibHessian.cpp
+
   ${PROJECT_SOURCE_DIR}/src/FullSystem/PixelSelector2.cpp
-#  ${PROJECT_SOURCE_DIR}/src/FullSystem/factor/projection_factor.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/utility/utility.cpp
   ${PROJECT_SOURCE_DIR}/src/OptimizationBackend/EnergyFunctional.cpp
   ${PROJECT_SOURCE_DIR}/src/OptimizationBackend/AccumulatedTopHessian.cpp
@@ -64,10 +67,8 @@ set(dso_SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/util/Undistort.cpp
   ${PROJECT_SOURCE_DIR}/src/util/globalCalib.cpp
 
-  ${PROJECT_SOURCE_DIR}/src/FullSystem/ORB/ORBextractor.cpp
-  ${PROJECT_SOURCE_DIR}/src/FullSystem/ORB/FeatureDetector.cpp
-  ${PROJECT_SOURCE_DIR}/src/FullSystem/ORB/ORBmatcher.cpp
-  ${PROJECT_SOURCE_DIR}/src/FullSystem/camera.cc
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/FeatureDetector.cpp
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/FeatureMatcher.cpp
 )
 
 
@@ -124,25 +125,42 @@ endif()
 
 
 # compile main library.
-include_directories( ${CSPARSE_INCLUDE_DIR} ${CHOLMOD_INCLUDE_DIR}) 
-add_library(dso ${dso_SOURCE_FILES} ${dso_opencv_SOURCE_FILES} ${dso_pangolin_SOURCE_FILES})
+include_directories(
+  ${CSPARSE_INCLUDE_DIR}
+  ${CHOLMOD_INCLUDE_DIR}
+  ${PROJECT_SOURCE_DIR}/src
+  ${PROJECT_SOURCE_DIR}/thirdparty/
+  ${PROJECT_SOURCE_DIR}/thirdparty/g2o/
+  ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/)
 
-include_directories( ${PROJECT_SOURCE_DIR}/thirdparty/DBoW3/src)
+add_library(dso ${dso_SOURCE_FILES} ${dso_opencv_SOURCE_FILES} ${dso_pangolin_SOURCE_FILES})
 
 #set_property( TARGET dso APPEND_STRING PROPERTY COMPILE_FLAGS -Wall )
 
+set( THIRD_PARTY_LIBS
+        boost_system
+        boost_thread
+        cxsparse
+        pthread
+        ${LIBZIP_LIBRARY}
+        ${Pangolin_LIBRARIES}
+        ${CERES_LIBRARIES}
+        ${OpenCV_LIBS}
+        ${GLOG_LIBRARY}
+        ${fast_LIBRARIES}
+        ${PROJECT_SOURCE_DIR}/thirdparty/g2o/lib/libg2o.so
+        ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/lib/libDBoW2.so
+)
 
 # build main executable (only if we have both OpenCV and Pangolin)
 if (OpenCV_FOUND AND Pangolin_FOUND)
 	message("--- compiling dso_dataset.")
 	add_executable(dso_dataset ${PROJECT_SOURCE_DIR}/src/main_dso_pangolin.cpp )
-       target_link_libraries(dso_dataset dso boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} pthread
-            ${GLOG_LIBRARY}
-            ${fast_LIBRARIES} ${PROJECT_SOURCE_DIR}/thirdparty/DBoW3/build/src/libDBoW3.so)
+       target_link_libraries(dso_dataset dso    ${THIRD_PARTY_LIBS})
 else()
 	message("--- not building dso_dataset, since either don't have openCV or Pangolin.")
 endif()
 
-add_executable(myTracking ${PROJECT_SOURCE_DIR}/src/test/myTracking.cpp
-    ${PROJECT_SOURCE_DIR}/src/test/pose_local_parameterization.cpp)
-target_link_libraries(myTracking boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} pthread)
+#add_executable(myTracking ${PROJECT_SOURCE_DIR}/src/test/myTracking.cpp
+#    ${PROJECT_SOURCE_DIR}/src/test/pose_local_parameterization.cpp)
+#target_link_libraries(myTracking boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} pthread)

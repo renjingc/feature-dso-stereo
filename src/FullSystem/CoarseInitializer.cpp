@@ -1,8 +1,9 @@
 #include "FullSystem/CoarseInitializer.h"
 #include "FullSystem/FullSystem.h"
-#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/FrameHessian.h"
+#include "FullSystem/PointHessian.h"
+#include "FullSystem/CalibHessian.h"
 #include "FullSystem/Residuals.h"
-#include "FullSystem/PixelSelector.h"
 #include "FullSystem/PixelSelector2.h"
 #include "FullSystem/ImmaturePoint.h"
 #include "util/nanoflann.h"
@@ -995,7 +996,7 @@ void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, FrameHessian* newFr
 		}
 		else
 		{
-			npts = makePixelStatus(firstFrame->dIp[lvl], statusMapB, w[lvl], h[lvl], densities[lvl] * w[0] * h[0]);
+            npts = makePixelStatus(firstFrame->dIp[lvl], statusMapB, w[lvl], h[lvl], densities[lvl] * w[0] * h[0]);
 		}
 
 		if (points[lvl] != 0) delete[] points[lvl];

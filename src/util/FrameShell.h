@@ -64,7 +64,9 @@ public:
 
 	// constantly adapted.
 	//相对于世界坐标系的变换
-	SE3 camToWorld;				// Write: TRACKING, while frame is still fresh; MAPPING: only when locked [shellPoseMutex].
+	SE3 camToWorld;
+	SE3 camToWorldOpti;
+	// Write: TRACKING, while frame is still fresh; MAPPING: only when locked [shellPoseMutex].
 	//a和ｂ
 	AffLight aff_g2l;
 	//位姿的有效性

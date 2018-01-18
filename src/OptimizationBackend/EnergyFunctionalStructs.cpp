@@ -25,7 +25,9 @@
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
 #include "OptimizationBackend/EnergyFunctional.h"
 #include "FullSystem/FullSystem.h"
-#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/FrameHessian.h"
+#include "FullSystem/PointHessian.h"
+#include "FullSystem/CalibHessian.h"
 #include "FullSystem/Residuals.h"
 
 

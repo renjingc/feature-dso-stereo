@@ -53,6 +53,9 @@ using cv::Mat;
 #include <unordered_map>
 #include <map>
 
+#include "DBoW2/FORB.h"
+#include "DBoW2/TemplatedVocabulary.h"
+
 
 namespace fdso
 {
@@ -203,6 +206,9 @@ struct AffLight
 		return Vec2(a,b);
 	}
 };
+
+// DBoW vocabulary
+typedef DBoW2::TemplatedVocabulary<DBoW2::FORB::TDescriptor, DBoW2::FORB> ORBVocabulary;
 
 }
 

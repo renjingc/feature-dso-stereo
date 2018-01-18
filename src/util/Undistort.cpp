@@ -32,8 +32,8 @@
 #include <iterator>
 #include "util/settings.h"
 #include "util/globalFuncs.h"
-#include "IOWrapper/ImageDisplay.h"
-#include "IOWrapper/ImageRW.h"
+#include "IOWrapper/OpenCV/ImageDisplay.h"
+#include "IOWrapper/OpenCV/ImageRW.h"
 #include "util/Undistort.h"
 
 

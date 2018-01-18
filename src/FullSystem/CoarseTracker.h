@@ -30,7 +30,7 @@
 #include <math.h>
 #include "util/settings.h"
 #include "OptimizationBackend/MatrixAccumulators.h"
-#include "IOWrapper/Output3DWrapper.h"
+#include "IOWrapper/OutputWrapper/Output3DWrapper.h"
 
 #include <string>
 #include <sstream>

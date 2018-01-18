@@ -26,7 +26,7 @@
 
 #include "util/NumType.h"
 #include "OptimizationBackend/MatrixAccumulators.h"
-#include "IOWrapper/Output3DWrapper.h"
+#include "IOWrapper/OutputWrapper/Output3DWrapper.h"
 #include "util/settings.h"
 #include "vector"
 #include <math.h>

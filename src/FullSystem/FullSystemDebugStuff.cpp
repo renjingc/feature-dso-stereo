@@ -35,8 +35,8 @@
 #include "util/globalFuncs.h"
 #include <Eigen/LU>
 #include <algorithm>
-#include "IOWrapper/ImageDisplay.h"
-#include "IOWrapper/ImageRW.h"
+#include "IOWrapper/OpenCV/ImageDisplay.h"
+#include "IOWrapper/OpenCV/ImageRW.h"
 #include "util/globalCalib.h"
 #include <Eigen/SVD>
 #include <Eigen/Eigenvalues>

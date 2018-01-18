@@ -35,11 +35,10 @@
 #include "util/globalFuncs.h"
 #include <Eigen/LU>
 #include <algorithm>
-#include "IOWrapper/ImageDisplay.h"
+#include "IOWrapper/OpenCV/ImageDisplay.h"
 #include "util/globalCalib.h"
 #include <Eigen/SVD>
 #include <Eigen/Eigenvalues>
-#include "FullSystem/PixelSelector.h"
 #include "FullSystem/PixelSelector2.h"
 #include "FullSystem/ResidualProjections.h"
 #include "FullSystem/ImmaturePoint.h"
@@ -50,11 +49,9 @@
 #include "OptimizationBackend/EnergyFunctional.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
 
-#include "IOWrapper/Output3DWrapper.h"
+#include "IOWrapper/OutputWrapper/Output3DWrapper.h"
 
 #include "util/ImageAndExposure.h"
-
-#include "ORB/ORBextractor.h"
 
 #include <cmath>
 #include <cv.h>
@@ -72,112 +69,13 @@ int FrameHessian::instanceCounter = 0;
 int PointHessian::instanceCounter = 0;
 int CalibHessian::instanceCounter = 0;
 
-ORBVocabulary* FullSystem::_vocab = nullptr;
-
-void setRef3DPoints(FrameHessian* fh, std::vector<cv::Point3f>& pts_3d_ref_)
-{
-	// pts_3d_ref_.clear();
-	// descriptors_ref_ = Mat();
-	// cv::Mat depth;
-	// _ref_frame->disparityPointer()->copyTo(depth);
-	// for ( size_t i=0; i<_ref_frame->keypoints.size(); i++ )
-	// {
-	//     double d = findDepth(depth,_ref_frame->keypoints[i]);
-	//     if (d > 0)
-	//     {
-	//         Eigen::Vector3d p_cam = camera_->pixel2camera(
-	//             Vector2d(_ref_frame->keypoints[i].pt.x, _ref_frame->keypoints[i].pt.y), d
-	//         );
-	//         pts_3d_ref_.push_back( cv::Point3f( p_cam(0,0), p_cam(1,0), p_cam(2,0) ));
-	//         descriptors_ref_.push_back(_ref_frame->descriptors.row(i));
-	//     }
-	// }
-}
-
-void poseEstimationPnP(const SE3& T_init,
-                       const std::vector<cv::Point3f>& pts_3d_ref_,
-                       const std::vector<Feature*>& points,
-                       const std::vector<cv::DMatch>& feature_matches_,
-                       const Eigen::Matrix3d _K,
-                       SE3& T_c_r_estimated_)
-{
-//	// construct the 3d 2d observations
-//	std::vector<cv::Point3d> pts3d;
-//	std::vector<cv::Point2d> pts2d;
-
-//	for ( cv::DMatch m : feature_matches_ )
-//	{
-//		pts3d.push_back( pts_3d_ref_[m.queryIdx] );
-//        pts2d.push_back( cv::Point2d(points[m.trainIdx]->_pixel[0],points[m.trainIdx]->_pixel[1]));
-//	}
-
-//	cv::Mat K;
-//	cv::eigen2cv(_K, K);
-
-//	Eigen::Matrix<double, 3, 3> r;
-//	Eigen::Vector3d t;
-//    r = T_init.rotation_matrix();
-//    t <<  T_init.translation().transpose();
-//    cv::Mat rvec, tvec, inliers;
-
-//	cv::eigen2cv(r, rvec);
-//	cv::eigen2cv(t, tvec);
-//	cv::solvePnPRansac( pts3d, pts2d, K, Mat(), rvec, tvec, true, 100, 4.0, 0.99, inliers, cv::SOLVEPNP_EPNP);
-//	int num_inliers_ = inliers.rows;
-
-////    int inlierCount=0;
-////    ransac_cc(pts2d,pts3d,K,Mat(),rvec,tvec,inlierCount);
-////    num_inliers_=inlierCount;
-
-//	std::cout << "pnp inliers: " << num_inliers_ << std::endl;
-//	T_c_r_estimated_ = SE3(
-//	                     SO3(rvec.at<double>(0, 0), rvec.at<double>(1, 0), rvec.at<double>(2, 0)),
-//	                     Vector3d( tvec.at<double>(0, 0), tvec.at<double>(1, 0), tvec.at<double>(2, 0))
-//	                   );
-
-//	// using bundle adjustment to optimize the pose
-//	typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 2>> Block;
-//	Block::LinearSolverType* linearSolver = new g2o::LinearSolverDense<Block::PoseMatrixType>();
-//	Block* solver_ptr = new Block( linearSolver );
-//	g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg ( solver_ptr );
-//	g2o::SparseOptimizer optimizer;
-//	optimizer.setAlgorithm ( solver );
-
-//	g2o::VertexSE3Expmap* pose = new g2o::VertexSE3Expmap();
-//	pose->setId ( 0 );
-//	pose->setEstimate ( g2o::SE3Quat (
-//	                      T_c_r_estimated_.rotation_matrix(), T_c_r_estimated_.translation()
-//	                    ) );
-//	optimizer.addVertex ( pose );
-
-//	// edges
-//	for ( int i = 0; i < inliers.rows; i++ )
-//	{
-//		int index = inliers.at<int>(i, 0);
-//		// 3D -> 2D projection
-//		EdgeProjectXYZ2UVPoseOnly* edge = new EdgeProjectXYZ2UVPoseOnly();
-//		edge->setId(i);
-//		edge->setVertex(0, pose);
-//		edge->camera_ = camera_.get();
-//		edge->point_ = Vector3d( pts3d[index].x, pts3d[index].y, pts3d[index].z );
-//		edge->setMeasurement( Vector2d(pts2d[index].x, pts2d[index].y) );
-//		edge->setInformation( Eigen::Matrix2d::Identity() );
-//		optimizer.addEdge( edge );
-//	}
-
-//	optimizer.initializeOptimization();
-//	optimizer.optimize(10);
-
-//	T_c_r_estimated_ = SE3 (
-//	                     pose->estimate().rotation(),
-//	                     pose->estimate().translation()
-//	                   );
-}
 /**
  *
  */
-FullSystem::FullSystem(): matcher_flann_(new cv::flann::LshIndexParams(5, 10, 2))
+FullSystem::FullSystem(ORBVocabulary* voc):
+    _vocab(voc)
 {
+    LOG(INFO)<<"FullSystem Init"<<std::endl;
 	int retstat = 0;
 	if (setting_logStuff)
 	{
@@ -271,7 +169,6 @@ FullSystem::FullSystem(): matcher_flann_(new cv::flann::LshIndexParams(5, 10, 2)
 	linearizeOperation = true;
 	runMapping = true;
 	mappingThread = boost::thread(&FullSystem::mappingLoop, this);
-	loopDetectThread = boost::thread(&FullSystem::loopDetect, this);
 	lastRefStopID = 0;
 
 	minIdJetVisDebug = -1;
@@ -279,16 +176,8 @@ FullSystem::FullSystem(): matcher_flann_(new cv::flann::LshIndexParams(5, 10, 2)
 	minIdJetVisTracker = -1;
 	maxIdJetVisTracker = -1;
 
-	mpORBextractorLeft = new ORBextractor(1000, 1.2, 5, 20, 8);
-	mpORBextractorRight = new ORBextractor(1000, 1.2, 5, 20, 8);
-
 	detectorLeft = new FeatureDetector(wG[0], hG[0], 10, 15.0);
 	detectorRight = new FeatureDetector(wG[0], hG[0], 10, 15.0);
-
-	_vocab = new ORBVocabulary();
-	_vocab->loadFromBinaryFile("/home/ren/work/fdso-build/bin/vocab/ORBvoc.bin");
-
-	matcher = new Matcher(65, 100, 30, 100, 0.7);
 }
 
 /**
@@ -435,7 +324,6 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 	assert(allFrameHistory.size() > 0);
 	// set pose initialization.
 
-//    printf("the size of allFrameHistory is %d \n", (int)allFrameHistory.size());
 
 	// show original images
 	for (IOWrap::Output3DWrapper* ow : outputWrapper)
@@ -459,6 +347,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 	// for first two frames process differently
 	if (allFrameHistory.size() == 2)
 	{
+        LOG(INFO)<<"init track"<<std::endl;
 		initializeFromInitializer(fh);
 
 //		lastF_2_fh_tries.push_back(init_Rt);
@@ -505,6 +394,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 	}
 	else
 	{
+        LOG(INFO)<<"track"<<std::endl;
 		//上一帧
 		FrameShell* slast = allFrameHistory[allFrameHistory.size() - 2];
 		//上上一帧
@@ -690,13 +580,12 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 
 	//平移
 	Eigen::Matrix<double, 3, 1> last_T = fh->shell->camToWorld.translation().transpose();
-	std::cout << "x:" << last_T(0, 0) << "y:" << last_T(1, 0) << "z:" << last_T(2, 0) << std::endl;
+    LOG(INFO) << "x:" << last_T(0, 0) << "y:" << last_T(1, 0) << "z:" << last_T(2, 0) << std::endl;
 
 	if (coarseTracker->firstCoarseRMSE < 0)
 		coarseTracker->firstCoarseRMSE = achievedRes[0];
 
-	if (!setting_debugout_runquiet)
-		printf("Coarse Tracker tracked ab = %f %f (exp %f). Res %f!\n", aff_g2l.a, aff_g2l.b, fh->ab_exposure, achievedRes[0]);
+    LOG(INFO)<<"Coarse Tracker tracked ab = "<<aff_g2l.a<<" "<<aff_g2l.b<<" "<<fh->ab_exposure<<" "<<achievedRes[0]<<std::endl;
 
 	if (setting_logStuff)
 	{
@@ -729,6 +618,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 void FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_right, int id, cv::Mat &idepthMap)
 {
 	// =========================== add into allFrameHistory =========================
+
 	FrameHessian* fh = new FrameHessian();
 	FrameHessian* fh_right = new FrameHessian();
 	FrameShell* shell = new FrameShell();
@@ -1395,60 +1285,6 @@ void FullSystem::flagPointsForRemoval()
 	}
 }
 
-
-// void FullSystem::ExtractORB(int flag, const cv::Mat &im)
-// {
-// 	if (flag == 0)
-// 		(*mpORBextractorLeft)(im, cv::Mat(), mvKeys, mDescriptors);
-// 	else
-// 		(*mpORBextractorRight)(im, cv::Mat(), mvKeysRight, mDescriptorsRight);
-// }
-bool FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv::Mat& descriptorsCur, std::vector<cv::DMatch>& feature_matches_)
-{
-	if (descriptorsLast.empty() || descriptorsCur.empty())
-	{
-		std::cout << "error" << std::endl;
-		return false;
-	}
-	std::vector<cv::DMatch> matches;
-	matcher_flann_.match( descriptorsLast, descriptorsCur, matches );
-	// // select the best matches
-	// float min_dis = std::min_element (
-	//                   matches.begin(), matches.end(),
-	//                   [] ( const cv::DMatch & m1, const cv::DMatch & m2 )
-	// {
-	// 	return m1.distance < m2.distance;
-	// } )->distance;
-
-	// feature_matches_.clear();
-	// for ( cv::DMatch& m : matches )
-	// {
-	// 	if ( m.distance < std::max<float> ( min_dis * 2.0, 30.0 ) )
-	// 	{
-	// 		feature_matches_.push_back(m);
-	// 	}
-	// }
-}
-
-// bool checkEstimatedPose(const cv::Mat& R,const cv::Mat& t,)
-// {
-//           // check if the estimated pose is good
-//           if ( num_inliers_ < min_inliers_ )
-//           {
-//               std::cout<<"reject because inlier is too small: "<<num_inliers_<<endl;
-//               return false;
-//           }
-//           // if the motion is too large, it is probably wrong
-//           Sophus::Vector6d d = T_c_r_estimated_.log();
-//           if ( d.norm() > 3.0 )
-//           {
-//               std::cout<<"reject because motion is too large: "<<d.norm()<<endl;
-//               return false;
-//           }
-//           return true;
-// }
-
-
 /**
  * [FullSystem::addActiveFrame description]
  * @param image       [description]
@@ -1458,11 +1294,11 @@ bool FullSystem::find_feature_matches (const cv::Mat& descriptorsLast, const cv:
 void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* image_right, int id )
 {
 	if (isLost) return;
-
 	//跟踪线程中互斥锁
 	boost::unique_lock<boost::mutex> lock(trackMutex);
 
 	// =========================== add into allFrameHistory =========================
+    LOG(INFO)<<"addActiveFrame: "<<id<<" "<<allFrameHistory.size()<<std::endl;
 	//新建一个帧Hessian类
 	FrameHessian* fh = new FrameHessian();
 	//新建一个帧的位姿信息
@@ -1574,41 +1410,41 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	}
 	else	// do front-end operation.
 	{
-		Eigen::Matrix3d initR;
-		SE3 initT;
-		if (allFrameHessianHistory.size() > 4)
-		{
-			std::vector<cv::DMatch> matches;
-			FrameHessian* kf1 = allKeyFramesHessianHistory[allKeyFramesHessianHistory.size() - 1];
-			FrameHessian* kf2 = fh;
-			if (matcher->SearchByBoW(kf1, kf2, matches))
-				LOG(INFO) << "search by bow matches: " << matches.size() << std::endl;
+        Eigen::Matrix3d initR;
+        SE3 initT;
+//		if (allFrameHessianHistory.size() > 4)
+//		{
+//			std::vector<cv::DMatch> matches;
+//			FrameHessian* kf1 = allKeyFramesHessianHistory[allKeyFramesHessianHistory.size() - 1];
+//			FrameHessian* kf2 = fh;
+//			if (matcher->SearchByBoW(kf1, kf2, matches))
+//				LOG(INFO) << "search by bow matches: " << matches.size() << std::endl;
 
 
-			//
-			if (matches.size() >= 5)
-			{
-				FrameShell* slast = allFrameHistory[allFrameHistory.size() - 2];
-				//上上一帧
-				FrameShell* sprelast = allFrameHistory[allFrameHistory.size() - 3];
-				SE3 slast_2_sprelast;
-				SE3 lastF_2_slast;
-				SE3 motionPose;
-				AffLight aff_last_2_l;
-				FrameHessian* lastF = coarseTracker->lastRef;
-				{	// lock on global pose consistency!
-					boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
-					//上上一帧相对与上一帧的相对位姿
-					slast_2_sprelast = sprelast->camToWorld.inverse() * slast->camToWorld;
-					//上一帧相对与参考帧的位姿的变换
-					lastF_2_slast = slast->camToWorld.inverse() * lastF->shell->camToWorld;
-					//上一帧的a和b变换
-					aff_last_2_l = slast->aff_g2l;
-					initT = motionPose = slast_2_sprelast.inverse() * lastF_2_slast;
-				}
-				// poseEstimationPnP(motionPose, fh->_features,K.cast<double>(),initT);
-			}
-		}
+//			//
+//			if (matches.size() >= 5)
+//			{
+//				FrameShell* slast = allFrameHistory[allFrameHistory.size() - 2];
+//				//上上一帧
+//				FrameShell* sprelast = allFrameHistory[allFrameHistory.size() - 3];
+//				SE3 slast_2_sprelast;
+//				SE3 lastF_2_slast;
+//				SE3 motionPose;
+//				AffLight aff_last_2_l;
+//				FrameHessian* lastF = coarseTracker->lastRef;
+//				{	// lock on global pose consistency!
+//					boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
+//					//上上一帧相对与上一帧的相对位姿
+//					slast_2_sprelast = sprelast->camToWorld.inverse() * slast->camToWorld;
+//					//上一帧相对与参考帧的位姿的变换
+//					lastF_2_slast = slast->camToWorld.inverse() * lastF->shell->camToWorld;
+//					//上一帧的a和b变换
+//					aff_last_2_l = slast->aff_g2l;
+//					initT = motionPose = slast_2_sprelast.inverse() * lastF_2_slast;
+//				}
+//				// poseEstimationPnP(motionPose, fh->_features,K.cast<double>(),initT);
+//			}
+//		}
 
 		// bool ok = find_feature_matches(allFrameHessianHistory[allFrameHessianHistory.size() - 2]->descriptors,
 		//                                allFrameHessianHistory[allFrameHessianHistory.size() - 1]->descriptors, matches);
@@ -1701,12 +1537,13 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 			              setting_kfGlobalWeight * setting_maxShiftWeightR *  sqrtf((double)tres[2]) / (wG[0] + hG[0]) +
 			              setting_kfGlobalWeight * setting_maxShiftWeightRT * sqrtf((double)tres[3]) / (wG[0] + hG[0]) +
 			              setting_kfGlobalWeight * setting_maxAffineWeight * fabs(logf((float)refToFh[0]));
-			printf(" delta is %f \n", delta);
+
 			// BRIGHTNESS CHECK
 			// 判断是否是关键帧
 			// 第一帧或者delta够大，或者误差残差大于了第一次的两倍
 			needToMakeKF = allFrameHistory.size() == 1 || delta > 1 || 2 * coarseTracker->firstCoarseRMSE < tres[0];
-		}
+            LOG(INFO)<<"needToMakeF "<<needToMakeKF<<" "<<delta<<" "<<std::endl;
+        }
 
 		//显示位姿
 		for (IOWrap::Output3DWrapper* ow : outputWrapper)
@@ -1899,24 +1736,17 @@ void FullSystem::blockUntilMappingIsFinished()
 {
 	//上锁trackMapSyncMutex
 	boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);
-	boost::unique_lock<boost::mutex> lock1(loopDetectSyncMutex);
 
 	//关闭mapping
 	runMapping = false;
-	//关闭闭环检测
-	runLoopDetect=false;
 
 	//唤醒所有正在等待该对象的线程
 	trackedFrameSignal.notify_all();
 	//解锁trackMapSyncMutex
 	lock.unlock();
 
-	loopDetectSignal.notify_all();
-	lock1.unlock();
-
 	//mapping线程阻塞
 	mappingThread.join();
-	loopDetectThread.join();
 }
 
 /**
@@ -2039,7 +1869,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//每一帧的误差阈值
 	fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;
 
-	LOG(INFO) << "point size1() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
+//	LOG(INFO) << "point size1() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 
 	//遍历这个关键帧中的每一个点
 	// for (ImmaturePoint* pt : fh->immaturePoints)
@@ -2061,21 +1891,10 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//每一帧的误差阈值
 	fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;
 
-	LOG(INFO) << "point size2() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
-	//for (FrameHessian* fh : frameHessians)
-	//{
-	// //遍历这个关键帧中的每一个点
-	// for (PointHessian* ph : fh->pointHessians)
-	// {
-	// 	LOG(INFO)<<"indepth2: "<<ph->idepth_scaled<<" "<<ph->idepth_zero_scaled<<" "<<ph->idepth_zero<<" "<<ph->idepth<<" "<<std::endl;
-	// }
-	//}
-
 	//优化
 	float rmse = optimize(setting_maxOptIterations);
 
-	//printf("allKeyFramesHistory size is %d \n", (int)allKeyFramesHistory.size());
-	printf("rmse is %f \n", rmse);
+    LOG(INFO)<<"rmse is"<<rmse<<std::endl;
 
 	// =========================== Figure Out if INITIALIZATION FAILED =========================
 	//判断初始化是否成功
@@ -2101,7 +1920,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	if (isLost)
 		return;
 
-	LOG(INFO) << "point size3() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
+//	LOG(INFO) << "point size3() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 
 	// =========================== REMOVE OUTLIER =========================
 	//移除外点，删除点和窗口中的帧之间都无残差，则加入pointHessiansOut，并从pointHessians，在ef中删除PS_DROP
@@ -2117,12 +1936,12 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 		coarseTracker_forNewKF->debugPlotIDepthMapFloat(outputWrapper);
 	}
 
-	LOG(INFO) << "point size4() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
+//	LOG(INFO) << "point size4() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 	//	debugPlot("post Optimize");
-	for (ImmaturePoint* pt : fh->immaturePoints)
-	{
-		LOG(INFO) << "indepth2: " << pt->idepth_stereo << " " << std::endl;
-	}
+//	for (ImmaturePoint* pt : fh->immaturePoints)
+//	{
+//		LOG(INFO) << "indepth2: " << pt->idepth_stereo << " " << std::endl;
+//	}
 	// =========================== (Activate-)Marginalize Points =========================
 	//边缘化点，删除点
 	flagPointsForRemoval();
@@ -2143,7 +1962,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	// =========================== add new Immature points & new residuals =========================
 	//获取当前新的关键帧的点,fh->immaturePoints
 	//makeNewTraces(fh, fh_right, 0);
-	LOG(INFO) << "point size5() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
+//	LOG(INFO) << "point size5() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 
 	//发布关键帧
 	for (IOWrap::Output3DWrapper* ow : outputWrapper)
@@ -2164,7 +1983,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 			i = 0;
 		}
 	}
-	LOG(INFO) << "point size6() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
+//	LOG(INFO) << "point size6() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 
 	delete fh_right;
 
@@ -2357,6 +2176,8 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 				newFrame->immaturePoints.push_back(impt);
 
 				Feature* fea = new Feature(Eigen::Vector2d(x, y), 0, 0);
+                fea->mImP=impt;
+                impt->mF=fea;
 				fea->_frame = newFrame;
 				detectorLeft->ComputeDescriptorAndAngle(fea);
 				newFrame->_features.push_back(fea);
@@ -2402,9 +2223,8 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 	// 		newFrame->immaturePoints.push_back(impt);
 	// }
 
-	std::cout << "t: " << t.elapsed() << std::endl;
-	// std::cout << "numPointsTotal*1.2: " << numPointsTotal * 1.2 << std::endl;
-	printf("MADE %d IMMATURE POINTS!\n", (int)newFrame->immaturePoints.size());
+//	std::cout << "t: " << t.elapsed() << std::endl;
+    LOG(INFO)<<"MADE %d IMMATURE POINTS!"<<(int)newFrame->immaturePoints.size()<<endl;
 }
 
 /**
@@ -2423,17 +2243,6 @@ void FullSystem::setPrecalcValues()
 
 	//设置
 	ef->setDeltaF(&Hcalib);
-}
-
-
-void FullSystem::loopDetect()
-{
-	boost::unique_lock<boost::mutex> lock(loopDetectSyncMutex);
-
-	while (runLoopDetect)
-	{
-
-	}
 }
 
 /**

@@ -23,7 +23,7 @@
 
 
 
-#include "IOWrapper/ImageDisplay.h"
+#include "IOWrapper/OpenCV/ImageDisplay.h"
 
 #include <opencv2/highgui/highgui.hpp>
 
