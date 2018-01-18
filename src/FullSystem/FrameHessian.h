@@ -31,9 +31,12 @@
 
 #include <iostream>
 #include <fstream>
+#include <mutex>
+#include <map>
 #include "util/NumType.h"
 #include "util/settings.h"
 #include "FullSystem/Residuals.h"
+#include "FullSystem/FrameShell.h"
 #include "util/ImageAndExposure.h"
 
 #include <opencv2/core/core.hpp>
@@ -154,6 +157,11 @@ struct FrameHessian
 
 	DBoW2::BowVector _bow_vec;
 	DBoW2::FeatureVector _feature_vec;
+
+        // pose relative to keyframes in the window, stored as T_cur_ref
+        // this will be changed by full system and loop closing, so we need a mutex
+        std::map<FrameHessian*, SE3, std::less<FrameHessian*>, Eigen::aligned_allocator<SE3>> mPoseRel;
+        std::mutex mMutexPoseRel;
 
 	//零空间位姿
 	Mat66 nullspaces_pose;

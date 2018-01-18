@@ -56,4 +56,28 @@ void PointHessian::release()
   for (unsigned int i = 0; i < residuals.size(); i++) delete residuals[i];
   residuals.clear();
 }
+
+void PointHessian::ComputeWorldPos(CalibHessian* HCalib)
+{
+  if (!host)
+    return;
+  SE3 Twc = host->shell->camToWorldOpti;
+  Vec3 Kip = 1.0 / this->idepth * Vec3(
+               HCalib->fxli() * this->u + HCalib->cxli(),
+             HCalib->fyli() * this->v + HCalib->cyli(),
+             1);
+  mWorldPos = Twc * Kip;
+}
+
+void PointHessian::save(ofstream &fout) {
+  fout.write((char *) &this->idx, sizeof(this->idx));
+  fout.write((char *) &this->status, sizeof(this->status));
+}
+
+void PointHessian::load(ifstream &fin, vector<FrameHessian*> &allKFs) 
+{
+  fin.read((char *) &this->idx, sizeof(this->idx));
+  fin.read((char *) &this->status, sizeof(this->status));
+}
+
 }

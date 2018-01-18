@@ -1,0 +1,354 @@
+Scanning dependencies of target dso
+[  3%] [  7%] [ 10%] [ 14%] [ 17%] [ 21%] [ 25%] [ 28%] Building CXX object CMakeFiles/dso.dir/src/FullSystem/FullSystemOptimize.cpp.o
+Building CXX object CMakeFiles/dso.dir/src/FullSystem/FullSystem.cpp.o
+Building CXX object CMakeFiles/dso.dir/src/FullSystem/FullSystemOptPoint.cpp.o
+Building CXX object CMakeFiles/dso.dir/src/FullSystem/FullSystemMarginalize.cpp.o
+Building CXX object CMakeFiles/dso.dir/src/FullSystem/FullSystemDebugStuff.cpp.o
+Building CXX object CMakeFiles/dso.dir/src/FullSystem/Residuals.cpp.o
+Building CXX object CMakeFiles/dso.dir/src/FullSystem/CoarseInitializer.cpp.o
+Building CXX object CMakeFiles/dso.dir/src/FullSystem/CoarseTracker.cpp.o
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemMarginalize.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemMarginalize.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemMarginalize.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/CoarseTracker.cpp:33:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/CoarseTracker.cpp:33:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/CoarseTracker.cpp:33:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemDebugStuff.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemDebugStuff.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemDebugStuff.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemOptPoint.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemOptPoint.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemOptPoint.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/Residuals.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/Residuals.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/Residuals.cpp:32:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/CoarseInitializer.cpp:2:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/CoarseInitializer.cpp:2:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/CoarseInitializer.cpp:2:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemOptimize.cpp:26:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemOptimize.cpp:26:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystemOptimize.cpp:26:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+[ 32%] Building CXX object CMakeFiles/dso.dir/src/FullSystem/ImmaturePoint.cpp.o
+[ 35%] Building CXX object CMakeFiles/dso.dir/src/FullSystem/FrameHessian.cpp.o
+[ 39%] Building CXX object CMakeFiles/dso.dir/src/FullSystem/PointHessian.cpp.o
+[ 42%] Building CXX object CMakeFiles/dso.dir/src/FullSystem/PixelSelector2.cpp.o
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.cpp:1:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.cpp:1:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.cpp:1:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/PointHessian.h:13:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/PointHessian.cpp:1:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/PointHessian.h:13:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/PointHessian.cpp:1:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/PointHessian.h:13:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/PointHessian.cpp:1:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/PixelSelector2.cpp:30:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/PixelSelector2.cpp:30:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/PixelSelector2.cpp:30:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/ImmaturePoint.h:30:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/ImmaturePoint.cpp:26:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/ImmaturePoint.h:30:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/ImmaturePoint.cpp:26:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/ImmaturePoint.h:30:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/ImmaturePoint.cpp:26:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+[ 46%] Building CXX object CMakeFiles/dso.dir/src/OptimizationBackend/EnergyFunctional.cpp.o
+[ 50%] Building CXX object CMakeFiles/dso.dir/src/OptimizationBackend/AccumulatedSCHessian.cpp.o
+[ 53%] Building CXX object CMakeFiles/dso.dir/src/OptimizationBackend/EnergyFunctionalStructs.cpp.o
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/OptimizationBackend/EnergyFunctional.cpp:27:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/OptimizationBackend/EnergyFunctional.cpp:27:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/OptimizationBackend/EnergyFunctional.cpp:27:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+[ 57%] Building CXX object CMakeFiles/dso.dir/src/FullSystem/FeatureDetector.cpp.o
+In file included from /home/ren/work/fdso0117/fdso/src/OptimizationBackend/AccumulatedSCHessian.cpp:29:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/OptimizationBackend/AccumulatedSCHessian.cpp:29:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/OptimizationBackend/AccumulatedSCHessian.cpp:29:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/OptimizationBackend/EnergyFunctionalStructs.cpp:27:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/OptimizationBackend/EnergyFunctionalStructs.cpp:27:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/OptimizationBackend/EnergyFunctionalStructs.cpp:27:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+[ 60%] Building CXX object CMakeFiles/dso.dir/src/FullSystem/FeatureMatcher.cpp.o
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/PointHessian.h:13:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureDetector.h:32,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureDetector.cpp:30:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/PointHessian.h:13:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureDetector.h:32,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureDetector.cpp:30:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/PointHessian.h:13:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureDetector.h:32,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureDetector.cpp:30:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureMatcher.h:23:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureMatcher.cpp:2:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureMatcher.h:23:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureMatcher.cpp:2:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureMatcher.h:23:0,
+                 from /home/ren/work/fdso0117/fdso/src/FullSystem/FeatureMatcher.cpp:2:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+[ 64%] Building CXX object CMakeFiles/dso.dir/src/IOWrapper/Pangolin/KeyFrameDisplay.cpp.o
+[ 67%] Building CXX object CMakeFiles/dso.dir/src/IOWrapper/Pangolin/PangolinDSOViewer.cpp.o
+In file included from /home/ren/work/fdso0117/fdso/src/IOWrapper/Pangolin/KeyFrameDisplay.cpp:35:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/IOWrapper/Pangolin/KeyFrameDisplay.cpp:35:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/IOWrapper/Pangolin/KeyFrameDisplay.cpp:35:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+In file included from /home/ren/work/fdso0117/fdso/src/IOWrapper/Pangolin/PangolinDSOViewer.cpp:32:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/IOWrapper/Pangolin/PangolinDSOViewer.cpp:32:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/IOWrapper/Pangolin/PangolinDSOViewer.cpp:32:0:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+Linking CXX static library lib/libdso.a
+[ 96%] Built target dso
+Scanning dependencies of target dso_dataset
+[100%] Building CXX object CMakeFiles/dso_dataset.dir/src/main_dso_pangolin.cpp.o
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/main_dso_pangolin.cpp:42:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h: In member function ‘void fdso::FrameHessian::CleanAllFeatures()’:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: possible problem detected in invocation of delete operator: [-Wdelete-incomplete]
+    delete _features[i];
+                      ^
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: warning: invalid use of incomplete type ‘class fdso::Feature’
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/main_dso_pangolin.cpp:42:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:67:7: warning: forward declaration of ‘class fdso::Feature’
+ class Feature;
+       ^
+In file included from /home/ren/work/fdso0117/fdso/src/FullSystem/FullSystem.h:36:0,
+                 from /home/ren/work/fdso0117/fdso/src/main_dso_pangolin.cpp:42:
+/home/ren/work/fdso0117/fdso/src/FullSystem/FrameHessian.h:339:22: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined
+    delete _features[i];
+                      ^
+Linking CXX executable bin/dso_dataset
+[100%] Built target dso_dataset

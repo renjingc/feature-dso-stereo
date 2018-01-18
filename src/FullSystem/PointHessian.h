@@ -9,6 +9,9 @@
 #include <fstream>
 #include "util/NumType.h"
 #include "util/settings.h"
+
+#include "FullSystem/FrameHessian.h"
+#include "FullSystem/FrameShell.h"
 #include "FullSystem/Residuals.h"
 #include "FullSystem/ImmaturePoint.h"
 #include "util/ImageAndExposure.h"
@@ -71,10 +74,13 @@ struct PointHessian
   //类型
   float my_type;
 
+  Vec3 mWorldPos;
+
   //逆深度
   float idepth_scaled;
   float idepth_zero_scaled;
   float idepth_zero;
+
   float idepth;
   float step;
   float step_backup;
@@ -174,6 +180,11 @@ struct PointHessian
     return (int)residuals.size() >= setting_minGoodActiveResForMarg
            && numGoodResiduals >= setting_minGoodResForMarg;
   }
+
+  inline void save(ofstream &fout);
+  inline void load(ifstream &fin, vector<FrameHessian*> &allKFs);
+
+  inline void ComputeWorldPos(CalibHessian* HCalib);
 
 };
 
