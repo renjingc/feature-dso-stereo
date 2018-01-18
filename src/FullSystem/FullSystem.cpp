@@ -181,6 +181,7 @@ FullSystem::FullSystem(ORBVocabulary* voc):
 
 	matcher = new FeatureMatcher(65, 100, 30, 100, 0.7);
 	globalMap = new Map();
+	loopClosing = new LoopClosing(this);
 }
 
 /**
@@ -518,20 +519,18 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 
 		if (i != 0)
 		{
-			printf("RE-TRACK ATTEMPT %d with initOption %d and start-lvl %d (ab %f %f): %f %f %f %f %f -> %f %f %f %f %f \n",
-			       i,
-			       i, pyrLevelsUsed - 1,
-			       aff_g2l_this.a, aff_g2l_this.b,
-			       achievedRes[0],
-			       achievedRes[1],
-			       achievedRes[2],
-			       achievedRes[3],
-			       achievedRes[4],
-			       coarseTracker->lastResiduals[0],
-			       coarseTracker->lastResiduals[1],
-			       coarseTracker->lastResiduals[2],
-			       coarseTracker->lastResiduals[3],
-			       coarseTracker->lastResiduals[4]);
+			LOG(INFO)<<"RE-TRACK ATTEMPT "<<i<<" with initOption "<<i<<" and  start-lvl "<<pyrLevelsUsed - 1
+				<<"ab: "<< aff_g2l_this.a<<" "<<aff_g2l_this.b<<" "<<
+				achievedRes[0]<<" "<<
+			       achievedRes[1]<<" "<<
+			       achievedRes[2]<<" "<<
+			       achievedRes[3]<<" "<<
+			       achievedRes[4]<<" -> "<<
+			       coarseTracker->lastResiduals[0]<<" "<<
+			       coarseTracker->lastResiduals[1]<<" "<<
+			       coarseTracker->lastResiduals[2]<<" "<<
+			       coarseTracker->lastResiduals[3]<<" "<<
+			       coarseTracker->lastResiduals[4]<<std::endl;
 		}
 
 		// do we have a new winner?
@@ -566,7 +565,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 	//不成功，则跟踪失败
 	if (!haveOneGood)
 	{
-		printf("BIG ERROR! tracking failed entirely. Take predictred pose and hope we may somehow recover.\n");
+		LOG(INFO)<<"BIG ERROR! tracking failed entirely. Take predictred pose and hope we may somehow recover"<<std::endl;;
 		flowVecs = Vec3(0, 0, 0);
 		aff_g2l = aff_last_2_l;
 		lastF_2_fh = lastF_2_fh_tries[0];
@@ -723,7 +722,7 @@ void FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_r
 //    for(int i = 0; i < error.size(); i++)
 //        std::cout << error[i].first << " " << error[i].second.first << " " << error[i].second.second << std::endl;
 
-	std::cout << " frameID " << id << " got good matches " << counter << std::endl;
+	LOG(INFO)<< " frameID " << id << " got good matches " << counter << std::endl;
 
 	delete fh;
 	delete fh_right;
@@ -1694,6 +1693,8 @@ void FullSystem::blockUntilMappingIsFinished()
 
 	//mapping线程阻塞
 	mappingThread.join();
+
+	loopClosing->setFinish(true);
 }
 
 /**
@@ -1850,17 +1851,17 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	{
 		if (allKeyFramesHistory.size() == 2 && rmse > 20 * benchmark_initializerSlackFactor)
 		{
-			printf("I THINK INITIALIZATINO FAILED! Resetting.\n");
+			LOG(INFO)<<"I THINK INITIALIZATINO FAILED! Resetting."<<std::endl;
 			initFailed = true;
 		}
 		if (allKeyFramesHistory.size() == 3 && rmse > 13 * benchmark_initializerSlackFactor)
 		{
-			printf("I THINK INITIALIZATINO FAILED! Resetting.\n");
+			LOG(INFO)<<"I THINK INITIALIZATINO FAILED! Resetting."<<std::endl;
 			initFailed = true;
 		}
 		if (allKeyFramesHistory.size() == 4 && rmse > 9 * benchmark_initializerSlackFactor)
 		{
-			printf("I THINK INITIALIZATINO FAILED! Resetting.\n");
+			LOG(INFO)<<"I THINK INITIALIZATINO FAILED! Resetting."<<std::endl;
 			initFailed = true;
 		}
 	}
@@ -2027,9 +2028,8 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 	// 随机采样
 	float keepPercentage = setting_desiredPointDensity / coarseInitializer->numPoints[0];
 
-	if (!setting_debugout_runquiet)
-		printf("Initialization: keep %.1f%% (need %d, have %d)!\n", 100 * keepPercentage,
-		       (int)(setting_desiredPointDensity), coarseInitializer->numPoints[0] );
+	LOG(INFO)<<"Initialization: keep "<<100 * keepPercentage<< "(need "<<(int)(setting_desiredPointDensity)
+		<<" have "<<coarseInitializer->numPoints[0]<<std::endl;
 
 	// initialize first frame by idepth computed by static stereo matching
 	// 遍历每一个点
@@ -2118,7 +2118,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 
 	//初始化成功
 	initialized = true;
-	printf("INITIALIZE FROM INITIALIZER (%d pts)!\n", (int)firstFrame->pointHessians.size());
+	LOG(INFO)<<"INITIALIZE FROM INITIALIZER ("<<(int)firstFrame->pointHessians.size()<<" pts)!"<<std::endl;
 }
 
 /**

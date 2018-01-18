@@ -37,6 +37,7 @@
 #include "FullSystem/PointHessian.h"
 #include "FullSystem/CalibHessian.h"
 #include "FullSystem/FrameShell.h"
+#include "FullSystem/LoopClosing.h"
 #include "util/IndexThreadReduce.h"
 #include "OptimizationBackend/EnergyFunctional.h"
 
@@ -70,6 +71,7 @@ class CoarseDistanceMap;
 class EnergyFunctional;
 
 class FeatureMatcher;
+class LoopClosing;
 
 template<typename T> inline void deleteOut(std::vector<T*> &v, const int i)
 {
@@ -173,6 +175,9 @@ public:
 
 	//全部的关键帧
        Map* globalMap=nullptr;
+
+        //闭环检测类
+        LoopClosing* loopClosing =nullptr;
 
 	void setGammaFunction(float* BInv);
 	void setOriginalCalib(VecXf originalCalib, int originalW, int originalH);

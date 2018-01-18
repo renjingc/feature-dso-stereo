@@ -87,7 +87,8 @@ namespace fdso {
          * set main loop to finish
          * @param finish
          */
-        void setFinish(bool finish = true) {
+        void setFinish(bool finish = true)
+        {
             mbNeedFinish = finish;
         }
 
