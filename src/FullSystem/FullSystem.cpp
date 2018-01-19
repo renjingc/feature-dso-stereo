@@ -399,7 +399,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 	}
 	else
 	{
-		LOG(INFO) << "track" << std::endl;
+		LOG(INFO) << "tracking" << std::endl;
 		//上一帧
 		FrameShell* slast = allFrameHistory[allFrameHistory.size() - 2];
 		//上上一帧
@@ -583,7 +583,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 
 	//平移
 	Eigen::Matrix<double, 3, 1> last_T = fh->shell->camToWorld.translation().transpose();
-	LOG(INFO) << "x:" << last_T(0, 0) << "y:" << last_T(1, 0) << "z:" << last_T(2, 0) << std::endl;
+	LOG(INFO) << "pose  x:" << last_T(0, 0) << "y:" << last_T(1, 0) << "z:" << last_T(2, 0) << std::endl;
 
 	if (coarseTracker->firstCoarseRMSE < 0)
 		coarseTracker->firstCoarseRMSE = achievedRes[0];
@@ -1011,6 +1011,9 @@ void FullSystem::activatePointsMT()
 	{
 		if (host == newestHs) continue;
 
+		LOG(INFO)<<"activatePointsMT before: "<<host->frameID<<" "<<host->pointHessians.size()<<" "<<host->pointHessiansOut.size()<<" "<<host->pointHessiansMarginalized.size()
+			<<" "<<host->immaturePoints.size()<<" "<<host->_features.size()<<std::endl;
+
 		//最新关键帧与主导帧的相对坐标
 		SE3 fhToNew = newestHs->PRE_worldToCam * host->PRE_camToWorld;
 
@@ -1029,7 +1032,8 @@ void FullSystem::activatePointsMT()
 			ph->idxInImmaturePoints = i;
 
 			// delete points that have never been traced successfully, or that are outlier on the last trace.
-			//判断点的状态，删除未成功跟踪的点，或删除最后一个跟踪点上的离群点。
+			//判断点的状态，删除未成功跟踪的点，或删除最后一个跟踪点上的离群点
+			//idepth_max初始为NAN,idepth_MIN初始为0
 			if (!std::isfinite(ph->idepth_max) || ph->lastTraceStatus == IPS_OUTLIER)
 			{
 //				immature_invalid_deleted++;
@@ -1041,7 +1045,11 @@ void FullSystem::activatePointsMT()
 			}
 
 			// can activate only if this is true.
-			// 这个点是否能激活
+			// 这个点是否能激活,outlier和IPS_UNINITIALIZED不进行激活
+			// ImmaturePoint初始为IPS_UNINITIALIZED
+			// quality>3
+			// lastTracePixelInterval<8
+			// idepth_max和idepth_min有值了且和大于0
 			bool canActivate = (ph->lastTraceStatus == IPS_GOOD
 			                    || ph->lastTraceStatus == IPS_SKIPPED
 			                    || ph->lastTraceStatus == IPS_BADCONDITION
@@ -1163,6 +1171,9 @@ void FullSystem::activatePointsMT()
 	//遍历每一个主导帧
 	for (FrameHessian* host : frameHessians)
 	{
+
+		LOG(INFO)<<"activatePointsMT after1: "<<host->frameID<<" "<<host->pointHessians.size()<<" "<<host->pointHessiansOut.size()<<" "<<host->pointHessiansMarginalized.size()
+			<<" "<<host->immaturePoints.size()<<" "<<host->_features.size()<<std::endl;
 		//遍历每一个主导帧的点
 		for (int i = 0; i < (int)host->immaturePoints.size(); i++)
 		{
@@ -1175,6 +1186,8 @@ void FullSystem::activatePointsMT()
 				i--;
 			}
 		}
+		LOG(INFO)<<"activatePointsMT after2: "<<host->frameID<<" "<<host->pointHessians.size()<<" "<<host->pointHessiansOut.size()<<" "<<host->pointHessiansMarginalized.size()
+			<<" "<<host->immaturePoints.size()<<" "<<host->_features.size()<<std::endl;
 	}
 }
 
@@ -1217,6 +1230,8 @@ void FullSystem::flagPointsForRemoval()
 	//遍历每一个关键帧
 	for (FrameHessian* host : frameHessians)		// go through all active frames
 	{
+		LOG(INFO)<<"flagPointsForRemoval before: "<<host->frameID<<" "<<host->pointHessians.size()<<" "<<host->pointHessiansOut.size()<<" "<<host->pointHessiansMarginalized.size()
+			<<" "<<host->immaturePoints.size()<<" "<<host->_features.size()<<std::endl;
 		//遍历每一个点
 		for (unsigned int i = 0; i < host->pointHessians.size(); i++)
 		{
@@ -1293,7 +1308,11 @@ void FullSystem::flagPointsForRemoval()
 				i--;
 			}
 		}
+		LOG(INFO)<<"flagPointsForRemoval after: "<<host->frameID<<" "<<host->pointHessians.size()<<" "<<host->pointHessiansOut.size()<<" "<<host->pointHessiansMarginalized.size()
+					<<" "<<host->immaturePoints.size()<<" "<<host->_features.size()<<std::endl;
 	}
+
+	LOG(INFO) << "Flag: nores: " << flag_nores << ", oob: " << flag_oob << ", marged: " << flag_inin << endl;
 }
 
 /**
@@ -1309,6 +1328,8 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	boost::unique_lock<boost::mutex> lock(trackMutex);
 
 	// =========================== add into allFrameHistory =========================
+	// std::cout<<std::endl;
+	LOG(INFO)<<std::endl;
 	LOG(INFO) << "addActiveFrame: " << id << " " << allFrameHistory.size() << std::endl;
 	//新建一个帧Hessian类
 	FrameHessian* fh = new FrameHessian();
@@ -1337,20 +1358,6 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	fh_right->ab_exposure = image_right->exposure_time;
 	//得到当前帧的每一层的灰度图像和xy方向梯度值和xy梯度平方和，用于跟踪和初始化
 	fh_right->makeImages(image_right, &Hcalib);
-
-	//提取特征点
-	// ORB extraction
-	// 同时对左右目提特征
-	// (*mpORBextractorLeft)(fh->image, cv::Mat(), fh->keypoints, fh->descriptors);
-	// (*mpORBextractorRight)(fh_right->image, cv::Mat(), fh_right->keypoints, fh_right->descriptors);
-
-//    cv::Mat show = fh->image.clone();
-//    for (Feature* fea : fh->_features )
-//    {
-//        cv::circle( show, cv::Point2f(fea->_pixel[0], fea->_pixel[1]), 2, cv::Scalar(255, 250, 255), 2);
-//    }
-//    cv::imshow("Features", show );
-//    cv::waitKey(1);
 
 	makeNewTraces(fh, fh_right, 0);
 	fh->ComputeBoW(_vocab);
@@ -1741,8 +1748,7 @@ void FullSystem::makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
  */
 void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 {
-	// needs to be set by mapping thread
-	LOG(INFO)<<"makeKeyFrame "<<fh->shell->id<<" "<<fh->idx<<" "<<fh->frameID<<std::endl;
+	 LOG(INFO) << "frame " << fh->shell->id << " is marked as key frame" << endl;
 	{
 		boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
 		assert(fh->shell->trackingRef != 0);
@@ -1777,8 +1783,11 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//插入关键帧
 	allKeyFramesHistory.push_back(fh->shell);
 
+	// needs to be set by mapping thread
+	LOG(INFO)<<"makeKeyFrame "<<fh->shell->id<<" "<<fh->idx<<" "<<fh->frameID<<std::endl;
+
 	//插入当前关键帧
-	//globalMap->addKeyFrame(fh);
+	globalMap->addKeyFrame(fh);
 
 
 	//误差能量函数插入该帧的Hessian
@@ -1818,8 +1827,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//每一帧的误差阈值
 	fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;
 
-//	LOG(INFO) << "point size1() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
-
 	//遍历这个关键帧中的每一个点
 	// for (ImmaturePoint* pt : fh->immaturePoints)
 	// {
@@ -1843,7 +1850,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//优化
 	float rmse = optimize(setting_maxOptIterations);
 
-	LOG(INFO) << "rmse is" << rmse << std::endl;
+	LOG(INFO) << "rmse is " << rmse << std::endl;
 
 	// =========================== Figure Out if INITIALIZATION FAILED =========================
 	//判断初始化是否成功
@@ -1869,8 +1876,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	if (isLost)
 		return;
 
-//	LOG(INFO) << "point size3() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
-
 	// =========================== REMOVE OUTLIER =========================
 	//移除外点，删除点和窗口中的帧之间都无残差，则加入pointHessiansOut，并从pointHessians，在ef中删除PS_DROP
 	removeOutliers();
@@ -1885,7 +1890,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 		coarseTracker_forNewKF->debugPlotIDepthMapFloat(outputWrapper);
 	}
 
-//	LOG(INFO) << "point size4() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 	//	debugPlot("post Optimize");
 //	for (ImmaturePoint* pt : fh->immaturePoints)
 //	{
@@ -1964,7 +1968,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 
 //	printLogLine();
 //    printEigenValLine();
-
 }
 
 // insert the first Frame into FrameHessians
@@ -2211,7 +2214,7 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 	// }
 
 //	std::cout << "t: " << t.elapsed() << std::endl;
-	LOG(INFO) << "MADE %d IMMATURE POINTS!" << (int)newFrame->immaturePoints.size() << endl;
+	LOG(INFO) << "new features features created: " << (int)newFrame->immaturePoints.size()<<" "<<(int)newFrame->_features.size() << endl;
 }
 
 /**

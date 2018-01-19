@@ -348,7 +348,9 @@ void parseArgument(char* arg)
 int main( int argc, char** argv )
 {
   //setlocale(LC_ALL, "");
-
+  google::InitGoogleLogging((const char *)argv[0]);
+  google::SetLogDestination(google::GLOG_INFO, "./fdso");
+  
   for (int i = 1; i < argc; i++)
     parseArgument(argv[i]);
 

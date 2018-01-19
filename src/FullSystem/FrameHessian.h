@@ -303,6 +303,8 @@ struct FrameHessian
 	 */
 	inline ~FrameHessian()
 	{
+		LOG(INFO)<<"FrameHessian release "<<this->idx<<" "<<this->frameID<<" "<<this->shell->id<<" "<<this->pointHessians.size()<<" "
+		<<this->pointHessiansMarginalized.size()<<" "<<this->pointHessiansOut.size()<<" "<<_features.size()<<std::endl;
 		assert(efFrame == 0);
 		release(); instanceCounter--;
 		for (int i = 0; i < pyrLevelsUsed; i++)
@@ -324,6 +326,7 @@ struct FrameHessian
 		instanceCounter++;
 		flaggedForMarginalization = false;
 		frameID = -1;
+		idx=-1;
 		efFrame = 0;
 		frameEnergyTH = 8 * 8 * patternNum;
 		debugImage = 0;

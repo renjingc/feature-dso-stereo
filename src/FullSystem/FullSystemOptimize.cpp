@@ -632,7 +632,7 @@ float FullSystem::optimize(int mnumOptIts)
 
 	if (!std::isfinite((double)lastEnergy[0]) || !std::isfinite((double)lastEnergy[1]) || !std::isfinite((double)lastEnergy[2]))
 	{
-		printf("KF Tracking failed: LOST!\n");
+    		LOG(WARNING) << "KF Tracking failed: LOST!";
 		isLost = true;
 	}
 
@@ -705,6 +705,8 @@ void FullSystem::removeOutliers()
 	//遍历每一个关键帧
 	for (FrameHessian* fh : frameHessians)
 	{
+		LOG(INFO)<<"removeOutliers before: "<<fh->frameID<<" "<<fh->pointHessians.size()<<" "<<fh->pointHessiansOut.size()<<" "<<fh->pointHessiansMarginalized.size()
+					<<" "<<fh->immaturePoints.size()<<" "<<fh->_features.size()<<std::endl;
 		//遍历每一个点
 		for (unsigned int i = 0; i < fh->pointHessians.size(); i++)
 		{
@@ -722,6 +724,8 @@ void FullSystem::removeOutliers()
 				numPointsDropped++;
 			}
 		}
+		LOG(INFO)<<"removeOutliers after: "<<fh->frameID<<" "<<fh->pointHessians.size()<<" "<<fh->pointHessiansOut.size()<<" "<<fh->pointHessiansMarginalized.size()
+					<<" "<<fh->immaturePoints.size()<<" "<<fh->_features.size()<<std::endl;
 	}
 	//在ef误差函数中移除被边缘化的点，删除PS_DROP的点，即删除pointHessiansOut的点
 	ef->dropPointsF();

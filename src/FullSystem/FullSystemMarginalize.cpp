@@ -68,6 +68,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 		for (int i = setting_maxFrames; i < (int)frameHessians.size(); i++)
 		{
 			FrameHessian* fh = frameHessians[i - setting_maxFrames];
+            		LOG(INFO) << "frame " << fh->frameID << " is set as marged" << endl;
 			fh->flaggedForMarginalization = true;
 		}
 		return;
@@ -101,6 +102,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 //					visInLast, outInLast,
 //					fh->statistics_tracesCreatedForThisFrame, fh->statistics_pointsActivatedForThisFrame);
 			//这一帧设为被边缘化
+			LOG(INFO) << "frame " << fh->frameID << " is set as marged" << endl;
 			fh->flaggedForMarginalization = true;
 			flagged++;
 		}
@@ -153,6 +155,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 //		printf("MARGINALIZE frame %d, as it is the closest (score %.2f)!\n",
 //				toMarginalize->frameID, smallestScore);
 		//
+		LOG(INFO) << "frame " << toMarginalize->frameID << " is set as marged" << endl;
 		toMarginalize->flaggedForMarginalization = true;
 		flagged++;
 	}
@@ -180,12 +183,15 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 
 	// drop all observations of existing points in that frame.
 
+	//遍历每一帧
 	for (FrameHessian* fh : frameHessians)
 	{
 		if (fh == frame) continue;
 
+		//遍历每一个点
 		for (PointHessian* ph : fh->pointHessians)
 		{
+			//遍历每个残差
 			for (unsigned int i = 0; i < ph->residuals.size(); i++)
 			{
 				PointFrameResidual* r = ph->residuals[i];
@@ -197,7 +203,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 					else if (ph->lastResiduals[1].first == r)
 						ph->lastResiduals[1].first = 0;
 
-					//
+					//debug
 					if (r->host->frameID < r->target->frameID)
 						statistics_numForceDroppedResFwd++;
 					else
@@ -224,7 +230,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 	frame->shell->marginalizedAt = frameHessians.back()->shell->id;
 	frame->shell->movedByOpt = frame->w2c_leftEps().norm();
 
-	//删除该帧
+	//从队列中删除该帧
 	deleteOutOrder<FrameHessian>(frameHessians, frame);
 
 	//重置每一帧的idx
