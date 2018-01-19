@@ -155,12 +155,15 @@ ImmaturePointStatus ImmaturePoint::traceStereo(FrameHessian* frame, Mat33f K, bo
 	// baseline * fx
 	float bf = -K(0, 0) * bl[0];
 
+	//重投影
 	Vec3f pr = KRKi * Vec3f(u_stereo, v_stereo, 1);
 	Vec3f ptpMin = pr + Kt * idepth_min_stereo;
 
+	//投影后的像素坐标
 	float uMin = ptpMin[0] / ptpMin[2];
 	float vMin = ptpMin[1] / ptpMin[2];
 
+	//投影后的像素坐标是否在图像内,不在则是OOB
 	if (!(uMin > 4 && vMin > 4 && uMin < wG[0] - 5 && vMin < hG[0] - 5))
 	{
 		lastTraceUV = Vec2f(-1, -1);
@@ -172,10 +175,15 @@ ImmaturePointStatus ImmaturePoint::traceStereo(FrameHessian* frame, Mat33f K, bo
 	float uMax;
 	float vMax;
 	Vec3f ptpMax;
+
+	//一开始最大像素搜索图像长宽和的0.027,这为20.088
 	float maxPixSearch = (wG[0] + hG[0]) * setting_maxPixSearch;
 
+	//判断该当前idepth_max_stereo是否是NAN,一开始idepth_max_stereo是NAN,不是NAN,则投影,根据最小和最大的像素欧式距离判断是否小于阈值,
+	//小于阈值1.5,说明,范围太小IPS_SKIPPED
 	if (std::isfinite(idepth_max_stereo))
 	{
+		//按最大的投影
 		ptpMax = pr + Kt * idepth_max_stereo;
 		uMax = ptpMax[0] / ptpMax[2];
 		vMax = ptpMax[1] / ptpMax[2];
@@ -188,6 +196,7 @@ ImmaturePointStatus ImmaturePoint::traceStereo(FrameHessian* frame, Mat33f K, bo
 		}
 
 		// ============== check their distance. everything below 2px is OK (-> skip). ===================
+		//判断距离
 		dist = (uMin - uMax) * (uMin - uMax) + (vMin - vMax) * (vMin - vMax);
 		dist = sqrtf(dist);
 		if (dist < setting_trace_slackInterval)
@@ -206,20 +215,25 @@ ImmaturePointStatus ImmaturePoint::traceStereo(FrameHessian* frame, Mat33f K, bo
 		dist = maxPixSearch;
 
 		// project to arbitrary depth to get direction.
+		//一开始最大的设为0.01投影
 		ptpMax = pr + Kt * 0.01;
 		uMax = ptpMax[0] / ptpMax[2];
 		vMax = ptpMax[1] / ptpMax[2];
 
 		// direction.
+		//最大逆深度和最小逆距离方向
 		float dx = uMax - uMin;
 		float dy = vMax - vMin;
+		//欧式距离的逆
 		float d = 1.0f / sqrtf(dx * dx + dy * dy);
 
 		// set to [setting_maxPixSearch].
+		//设置新的,以20个像素的步进
 		uMax = uMin + dist * dx * d;
 		vMax = vMin + dist * dy * d;
 
 		// may still be out!
+		//判断是否在图像内
 		if (!(uMax > 4 && vMax > 4 && uMax < wG[0] - 5 && vMax < hG[0] - 5))
 		{
 			lastTraceUV = Vec2f(-1, -1);
@@ -230,6 +244,7 @@ ImmaturePointStatus ImmaturePoint::traceStereo(FrameHessian* frame, Mat33f K, bo
 	}
 
 	//set OOB if scale change too big.
+	//最小逆深度小于0或者
 	if (!(idepth_min < 0 || (ptpMin[2] > 0.75 && ptpMin[2] < 1.5)))
 	{
 		lastTraceUV = Vec2f(-1, -1);
