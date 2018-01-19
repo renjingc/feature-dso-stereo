@@ -42,7 +42,7 @@ namespace fdso
  * my_type要么是1，要么是0，好像一直没用到
  */
 ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, CalibHessian* HCalib)
-	: u(u_), v(v_), host(host_), my_type(type), idepth_min(0), idepth_max(NAN), lastTraceStatus(IPS_UNINITIALIZED)
+	: u(u_), v(v_), host(host_), my_type(type), idepth_min(0), idepth_max(NAN), idepth_min_stereo(0),idepth_max_stereo(NAN),lastTraceStatus(IPS_UNINITIALIZED)
 {
 	//梯度设为0
 	gradH.setZero();  //Mat22f gradH
@@ -85,7 +85,7 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, Ca
  * @param      HCalib  The h calib
  */
 ImmaturePoint::ImmaturePoint(float u_, float v_, FrameHessian* host_, CalibHessian* HCalib)
-	: u(u_), v(v_), host(host_), idepth_min(0), idepth_max(NAN), lastTraceStatus(IPS_UNINITIALIZED)
+	: u(u_), v(v_), host(host_), idepth_min(0), idepth_max(NAN), idepth_min_stereo(0),idepth_max_stereo(NAN),lastTraceStatus(IPS_UNINITIALIZED)
 {
 	//梯度设为0
 	gradH.setZero();  //Mat22f gradH

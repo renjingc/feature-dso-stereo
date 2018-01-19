@@ -1786,8 +1786,8 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	// needs to be set by mapping thread
 	LOG(INFO)<<"makeKeyFrame "<<fh->shell->id<<" "<<fh->idx<<" "<<fh->frameID<<std::endl;
 
-	//插入当前关键帧
-	globalMap->addKeyFrame(fh);
+	//插入当前关键帧,这句有问题,怀疑是指针被删了
+	//globalMap->addKeyFrame(fh);
 
 
 	//误差能量函数插入该帧的Hessian
