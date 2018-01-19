@@ -59,8 +59,8 @@ void EnergyFunctional::setAdjointsF(CalibHessian* Hcalib)
 	for (int h = 0; h < nFrames; h++)
 		for (int t = 0; t < nFrames; t++)
 		{
-			FrameHessian* host = frames[h]->data;
-			FrameHessian* target = frames[t]->data;
+			std::shared_ptr<FrameHessian> host = frames[h]->data;
+			std::shared_ptr<FrameHessian> target = frames[t]->data;
 
 			SE3 hostToTarget = target->get_worldToCam_evalPT() * host->get_worldToCam_evalPT().inverse();
 
@@ -485,7 +485,7 @@ EFResidual* EnergyFunctional::insertResidual(PointFrameResidual* r)
  *
  * @return     { description_of_the_return_value }
  */
-EFFrame* EnergyFunctional::insertFrame(FrameHessian* fh, CalibHessian* Hcalib)
+EFFrame* EnergyFunctional::insertFrame(std::shared_ptr<FrameHessian> fh, CalibHessian* Hcalib)
 {
 	EFFrame* eff = new EFFrame(fh);
 	eff->idx = frames.size();

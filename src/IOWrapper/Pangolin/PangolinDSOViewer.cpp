@@ -509,7 +509,7 @@ void PangolinDSOViewer::publishGraph(const std::map<long, Eigen::Vector2i> &conn
 
 
 void PangolinDSOViewer::publishKeyframes(
-  std::vector<FrameHessian*> &frames,
+  std::vector<std::shared_ptr<FrameHessian>> &frames,
   bool final,
   CalibHessian* HCalib)
 {
@@ -517,7 +517,7 @@ void PangolinDSOViewer::publishKeyframes(
 	if (disableAllDisplay) return;
 
 	boost::unique_lock<boost::mutex> lk(model3DMutex);
-	for (FrameHessian* fh : frames)
+	for (std::shared_ptr<FrameHessian> fh : frames)
 	{
 		if (keyframesByKFID.find(fh->frameID) == keyframesByKFID.end())
 		{
@@ -550,7 +550,7 @@ void PangolinDSOViewer::publishCamPose(FrameShell* frame,
 }
 
 
-void PangolinDSOViewer::pushLiveFrame(FrameHessian* image)
+void PangolinDSOViewer::pushLiveFrame(std::shared_ptr<FrameHessian> image)
 {
 	if (!setting_render_displayVideo) return;
 	if (disableAllDisplay) return;
@@ -571,7 +571,7 @@ void PangolinDSOViewer::pushLiveFrame(FrameHessian* image)
 	videoImgChanged = true;
 }
 
-void PangolinDSOViewer::pushStereoLiveFrame(FrameHessian* image, FrameHessian* image_right)
+void PangolinDSOViewer::pushStereoLiveFrame(std::shared_ptr<FrameHessian> image, std::shared_ptr<FrameHessian> image_right)
 {
 	if (!setting_render_displayVideo) return;
 	if (disableAllDisplay) return;

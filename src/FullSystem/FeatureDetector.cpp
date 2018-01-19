@@ -326,13 +326,13 @@ FeatureDetector::FeatureDetector()
     _old_features = std::vector<Feature*>( _option._grid_cols * _option._grid_rows, nullptr );
 }
 
-FeatureDetector::FeatureDetector(int _image_width,int _image_height,
-    int _cell_size,double _detection_threshold)
+FeatureDetector::FeatureDetector(int _image_width, int _image_height,
+                                 int _cell_size, double _detection_threshold)
 {
     _option._image_width = _image_width;
     _option._image_height = _image_height;
-    _option._cell_size=_cell_size;
-    _option._detection_threshold=_detection_threshold;
+    _option._cell_size = _cell_size;
+    _option._detection_threshold = _detection_threshold;
     _option._grid_rows = ceil ( double ( _option._image_height ) / _option._cell_size );
     _option._grid_cols = ceil ( double ( _option._image_width ) / _option._cell_size );
 
@@ -384,7 +384,7 @@ void FeatureDetector::LoadParams()
 
 // 提取算法
 // 用变阈值可能更好一些
-void FeatureDetector::Detect(FrameHessian* frame, bool overwrite_existing_features)
+void FeatureDetector::Detect(std::shared_ptr<FrameHessian> frame, bool overwrite_existing_features)
 {
     _new_features = std::vector<Feature*> ( _option._grid_cols * _option._grid_rows, nullptr );
 
@@ -491,7 +491,7 @@ void FeatureDetector::Detect(FrameHessian* frame, bool overwrite_existing_featur
  *
  * @param      frame  The frame
  */
-void FeatureDetector::SetExistingFeatures ( FrameHessian* frame )
+void FeatureDetector::SetExistingFeatures ( std::shared_ptr<FrameHessian> frame )
 {
     for ( Feature*& fea : _old_features )
         fea = nullptr;
@@ -591,7 +591,12 @@ float FeatureDetector::IC_Angle(
         int d = u_max[v];
         for (int u = -d; u <= d; ++u)
         {
-            int val_plus = center[u + v * step], val_minus = center[u - v * step];
+            // int val_plus = center[u + v * step], val_minus = center[u - v * step];
+            int val_plus = 0, val_minus = 0;
+            if (pt[1] + v < hG[0] && pt[0] + u < wG[0] && pt[0] + u >= 0)
+                val_plus = center[u + v * step];
+            if (pt[1] - v >= 0 && pt[0] + u < wG[0] && pt[0] + u >= 0)
+                val_minus = center[u - v * step];
             v_sum += (val_plus - val_minus);
             m_10 += u * (val_plus + val_minus);
         }
@@ -617,19 +622,19 @@ void FeatureDetector::ComputeOrbDescriptor(
     float a = (float)cos(angle), b = (float)sin(angle);
     int scale = 1 << feature->_level;
 
-    float vl=feature->_pixel[1] / scale;
-    float ul=feature->_pixel[0] / scale;
+    float vl = feature->_pixel[1] / scale;
+    float ul = feature->_pixel[0] / scale;
     const uchar* center = &img.at<uchar>(cvRound(feature->_pixel[1] / scale), cvRound(feature->_pixel[0] / scale));
     const int step = (int)img.step;
 
-#define GET_VALUE(idx) \
-        center[cvRound(pattern[idx].x*b + pattern[idx].y*a)*step + \
-               cvRound(pattern[idx].x*a - pattern[idx].y*b)];
+// #define GET_VALUE(idx) \
+//         center[cvRound(pattern[idx].x*b + pattern[idx].y*a)*step + \
+//                cvRound(pattern[idx].x*a - pattern[idx].y*b)];
 
-//#define GET_VALUE(idx) \
-//            ((cvRound(vl) +cvRound(pattern[idx].x*b + pattern[idx].y*a)<hG[feat->mLevel] && cvRound(vl) +cvRound(pattern[idx].x*b + pattern[idx].y*a)>=0 \
-//    && cvRound(ul) + cvRound(pattern[idx].x*a - pattern[idx].y*b) < wG[feat->mLevel] && cvRound(ul) + cvRound(pattern[idx].x*a - pattern[idx].y*b) >= 0) ? \
-//    center[cvRound(pattern[idx].x*b + pattern[idx].y*a)*step + cvRound(pattern[idx].x*a - pattern[idx].y*b)] : 0)
+#define GET_VALUE(idx) \
+           ((cvRound(vl) +cvRound(pattern[idx].x*b + pattern[idx].y*a)<hG[feature->_level] && cvRound(vl) +cvRound(pattern[idx].x*b + pattern[idx].y*a)>=0 \
+   && cvRound(ul) + cvRound(pattern[idx].x*a - pattern[idx].y*b) < wG[feature->_level] && cvRound(ul) + cvRound(pattern[idx].x*a - pattern[idx].y*b) >= 0) ? \
+   center[cvRound(pattern[idx].x*b + pattern[idx].y*a)*step + cvRound(pattern[idx].x*a - pattern[idx].y*b)] : 0)
 
     for (int i = 0; i < 32; ++i, pattern += 16)
     {
@@ -657,7 +662,7 @@ void FeatureDetector::ComputeOrbDescriptor(
 #undef GET_VALUE
 }
 
-void FeatureDetector::ComputeAngleAndDescriptor(FrameHessian* frame)
+void FeatureDetector::ComputeAngleAndDescriptor(std::shared_ptr<FrameHessian> frame)
 {
     for ( Feature* fea : frame->_features )
     {
@@ -669,15 +674,15 @@ void FeatureDetector::ComputeAngleAndDescriptor(FrameHessian* frame)
 
 void FeatureDetector::ComputeDescriptorAndAngle( Feature* fea)
 {
-        fea->_angle = IC_Angle( fea->_frame->_pyramid[fea->_level], fea->_pixel / (1 << fea->_level), _umax );
-        ComputeOrbDescriptor( fea, fea->_frame->_pyramid[fea->_level], &_pattern[0], fea->_desc.data );
+    fea->_angle = IC_Angle( fea->_frame->_pyramid[fea->_level], fea->_pixel / (1 << fea->_level), _umax );
+    ComputeOrbDescriptor( fea, fea->_frame->_pyramid[fea->_level], &_pattern[0], fea->_desc.data );
 }
 
 /**
  * @brief      Calculates the descriptor.
  *
  * @param      fea   The fea
- * 
+ *
  */
 void FeatureDetector::ComputeDescriptor( Feature* fea )
 {

@@ -61,13 +61,13 @@ namespace fdso
  * １. 前帧的点个数过小，则该帧被边缘化或者该帧与最新的帧的光度变化较大，且剩下的帧数大于最小帧数
  *  2. 帧数大于最大帧数，则移除与其它帧距离和最大的一帧
  */
-void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
+void FullSystem::flagFramesForMarginalization(std::shared_ptr<FrameHessian> newFH)
 {
 	if (setting_minFrameAge > setting_maxFrames)
 	{
 		for (int i = setting_maxFrames; i < (int)frameHessians.size(); i++)
 		{
-			FrameHessian* fh = frameHessians[i - setting_maxFrames];
+			std::shared_ptr<FrameHessian> fh = frameHessians[i - setting_maxFrames];
             		LOG(INFO) << "frame " << fh->frameID << " is set as marged" << endl;
 			fh->flaggedForMarginalization = true;
 		}
@@ -80,7 +80,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 	//遍历每一帧，当前帧的点个数过小，则该帧被边缘化
 	for (int i = 0; i < (int)frameHessians.size(); i++)
 	{
-		FrameHessian* fh = frameHessians[i];
+		std::shared_ptr<FrameHessian> fh = frameHessians[i];
 		//内点个数
 		int in = fh->pointHessians.size() + fh->immaturePoints.size();
 		//out点个数
@@ -122,12 +122,12 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 	if ((int)frameHessians.size() - flagged >= setting_maxFrames)
 	{
 		double smallestScore = 1;
-		FrameHessian* toMarginalize = 0;
+		std::shared_ptr<FrameHessian> toMarginalize = 0;
 		//最新的帧
-		FrameHessian* latest = frameHessians.back();
+		std::shared_ptr<FrameHessian> latest = frameHessians.back();
 
 		//遍历每一帧
-		for (FrameHessian* fh : frameHessians)
+		for (std::shared_ptr<FrameHessian> fh : frameHessians)
 		{
 			//最新帧跳过
 			if (fh->frameID > latest->frameID - setting_minFrameAge || fh->frameID == 0) continue;
@@ -161,7 +161,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 	}
 
 //	printf("FRAMES LEFT: ");
-//	for(FrameHessian* fh : frameHessians)
+//	for(std::shared_ptr<FrameHessian> fh : frameHessians)
 //		printf("%d ", fh->frameID);
 //	printf("\n");
 }
@@ -172,7 +172,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
  * @param      frame  The frame
  * 进行边缘化
  */
-void FullSystem::marginalizeFrame(FrameHessian* frame)
+void FullSystem::marginalizeFrame(std::shared_ptr<FrameHessian> frame)
 {
 	// marginalize or remove all this frames points.
 
@@ -184,7 +184,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 	// drop all observations of existing points in that frame.
 
 	//遍历每一帧
-	for (FrameHessian* fh : frameHessians)
+	for (std::shared_ptr<FrameHessian> fh : frameHessians)
 	{
 		if (fh == frame) continue;
 
@@ -220,7 +220,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 
 
 	{
-		std::vector<FrameHessian*> v;
+		std::vector<std::shared_ptr<FrameHessian>> v;
 		v.push_back(frame);
 		for (IOWrap::Output3DWrapper* ow : outputWrapper)
 			ow->publishKeyframes(v, true, &Hcalib);
@@ -231,7 +231,10 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 	frame->shell->movedByOpt = frame->w2c_leftEps().norm();
 
 	//从队列中删除该帧
-	deleteOutOrder<FrameHessian>(frameHessians, frame);
+	// deleteOutOrder<FrameHessian>(frameHessians, frame);
+	// 
+	// frame->release();
+	deleteOutOrder<shared_ptr<FrameHessian>>(frameHessians,frame);
 
 	//重置每一帧的idx
 	for (unsigned int i = 0; i < frameHessians.size(); i++)

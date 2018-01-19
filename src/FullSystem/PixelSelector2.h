@@ -40,7 +40,7 @@ class PixelSelector
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 	int makeMaps(
-			const FrameHessian* const fh,
+			const std::shared_ptr<FrameHessian> fh,
 			float* map_out, float density, int recursionsLeft=1, bool plot=false, float thFactor=1);
 
 	PixelSelector(int w, int h);
@@ -49,10 +49,12 @@ public:
 
 
 	bool allowFast;
-	void makeHists(const FrameHessian* const fh);
+	void makeHists(const std::shared_ptr<FrameHessian> fh);
+
+             std::shared_ptr<FrameHessian> gradHistFrame = nullptr;
 private:
 
-	Eigen::Vector3i select(const FrameHessian* const fh,
+	Eigen::Vector3i select(const std::shared_ptr<FrameHessian> fh,
 			float* map_out, int pot, float thFactor=1);
 
 
@@ -62,7 +64,7 @@ private:
 	float* ths;
 	float* thsSmoothed;
 	int thsStep;
-	const FrameHessian* gradHistFrame;
+
 };
 
 // from pixel selector.h

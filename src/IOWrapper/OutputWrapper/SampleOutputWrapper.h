@@ -74,9 +74,9 @@ public:
 
 
 
-        virtual void publishKeyframes( std::vector<FrameHessian*> &frames, bool final, CalibHessian* HCalib)
+        virtual void publishKeyframes( std::vector<std::shared_ptr<FrameHessian>> &frames, bool final, CalibHessian* HCalib)
         {
-            for(FrameHessian* f : frames)
+            for(std::shared_ptr<FrameHessian> f : frames)
             {
                 printf("OUT: KF %d (%s) (id %d, tme %f): %d active, %d marginalized, %d immature points. CameraToWorld:\n",
                        f->frameID,
@@ -108,7 +108,7 @@ public:
         }
 
 
-        virtual void pushLiveFrame(FrameHessian* image)
+        virtual void pushLiveFrame(std::shared_ptr<FrameHessian> image)
         {
             // can be used to get the raw image / intensity pyramid.
         }
@@ -122,7 +122,7 @@ public:
             return false;
         }
 
-        virtual void pushDepthImageFloat(MinimalImageF* image, FrameHessian* KF )
+        virtual void pushDepthImageFloat(MinimalImageF* image, std::shared_ptr<FrameHessian> KF )
         {
             printf("OUT: Predicted depth for KF %d (id %d, time %f, internal frame-ID %d). CameraToWorld:\n",
                    KF->frameID,

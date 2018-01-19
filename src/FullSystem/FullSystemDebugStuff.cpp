@@ -54,15 +54,15 @@ namespace fdso
 		int wh = hG[0]*wG[0];
 
 		int idx=0;
-		for(FrameHessian* f : frameHessians)
+		for(std::shared_ptr<FrameHessian> f : frameHessians)
 		{
 			std::vector<MinimalImageB3* > images;
 
 			// make images for all frames. will be deleted by the FrameHessian's destructor.
-			for(FrameHessian* f2 : frameHessians)
+			for(std::shared_ptr<FrameHessian> f2 : frameHessians)
 				if(f2->debugImage == 0) f2->debugImage = new MinimalImageB3(wG[0], hG[0]);
 
-			for(FrameHessian* f2 : frameHessians)
+			for(std::shared_ptr<FrameHessian> f2 : frameHessians)
 			{
 				MinimalImageB3* debugImage=f2->debugImage;
 				images.push_back(debugImage);

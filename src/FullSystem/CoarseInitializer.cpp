@@ -77,7 +77,7 @@ CoarseInitializer::~CoarseInitializer()
  * @param  wraps                 [description]
  * @return                       [description]
  */
-bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian, FrameHessian* newFrameHessian_Right, std::vector<IOWrap::Output3DWrapper*> &wraps)
+bool CoarseInitializer::trackFrame(std::shared_ptr<FrameHessian> newFrameHessian, std::shared_ptr<FrameHessian> newFrameHessian_Right, std::vector<IOWrap::Output3DWrapper*> &wraps)
 {
 	//新一帧的Hessian
 	newFrame = newFrameHessian;
@@ -960,7 +960,7 @@ void CoarseInitializer::makeGradients(Eigen::Vector3f** data)
  * @param newFrameHessian       [description]
  * @param newFrameHessian_Right [description]
  */
-void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, FrameHessian* newFrameHessian, FrameHessian* newFrameHessian_Right)
+void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, std::shared_ptr<FrameHessian> newFrameHessian, std::shared_ptr<FrameHessian> newFrameHessian_Right)
 {
 	//设置内参
 	makeK(HCalib);
@@ -1157,7 +1157,7 @@ void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, FrameHessian* newFr
  * @param HCalib          [description]
  * @param newFrameHessian [description]
  */
-void CoarseInitializer::setFirst(	CalibHessian* HCalib, FrameHessian* newFrameHessian)
+void CoarseInitializer::setFirst(	CalibHessian* HCalib, std::shared_ptr<FrameHessian> newFrameHessian)
 {
 
 	makeK(HCalib);

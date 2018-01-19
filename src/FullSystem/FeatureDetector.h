@@ -57,7 +57,7 @@ public:
     int      _level = -1;                                                    // 特征点所属金字塔层数
     double   _angle = 0;                                                // 旋转角（2D图像中使用）
     cv::Mat   _desc = cv::Mat(1, 32, CV_8UC1);            // ORB 描述子
-    FrameHessian*   _frame = nullptr;                        // 所属的帧，一个特征只属于一个帧
+    std::shared_ptr<FrameHessian>   _frame = nullptr;                        // 所属的帧，一个特征只属于一个帧
     // 一个特征只能对应到一个地图点，但一个地图点可对应多个帧
 
     bool     _bad = false;                                               // bad flag
@@ -97,19 +97,19 @@ public:
     void LoadParams();
 
     // 提取一个帧中的特征点，记录于 frame->_features 中,同时会计算描述
-    void Detect ( FrameHessian* frame, bool overwrite_existing_features = true );
+    void Detect ( std::shared_ptr<FrameHessian> frame, bool overwrite_existing_features = true );
 
     // 计算frame中关键点的旋转和描述子
     // 这种情况出现在初始化追踪完成时。由于光流只能追踪特征点的图像坐标，所以从初始化的第一个帧到第二个帧时，需要把
     // 第二个帧的像素点转化为带有特征描述的特征点
-    void ComputeAngleAndDescriptor( FrameHessian* frame );
+    void ComputeAngleAndDescriptor( std::shared_ptr<FrameHessian> frame );
     void ComputeDescriptorAndAngle(Feature* fea);
 
     void ComputeDescriptor( Feature* fea );
 
 private:
     // 设置已有特征的网格
-    void SetExistingFeatures ( FrameHessian* frame );
+    void SetExistingFeatures ( std::shared_ptr<FrameHessian> frame );
 
     // 计算 FAST 角度
     float IC_Angle(

@@ -65,7 +65,7 @@ struct PointHessian
   //点的能量阈值
   float energyTH;
   //点对应的主导帧
-  FrameHessian* host;
+  std::shared_ptr<FrameHessian> host;
   //是否有先验的深度值
   bool hasDepthPrior;
 
@@ -147,14 +147,14 @@ struct PointHessian
    * @return        [description]
    * 是否是外点
    */
-  inline bool isOOB(const std::vector<FrameHessian*>& toKeep, const std::vector<FrameHessian*>& toMarg) const
+  inline bool isOOB(const std::vector<std::shared_ptr<FrameHessian>>& toKeep, const std::vector<std::shared_ptr<FrameHessian>>& toMarg) const
   {
     int visInToMarg = 0;
     //该点有目标帧被边缘化，visInToMarg个数++
     for (PointFrameResidual* r : residuals)
     {
       if (r->state_state != ResState::IN) continue;
-      for (FrameHessian* k : toMarg)
+      for (std::shared_ptr<FrameHessian> k : toMarg)
         if (r->target == k)
           visInToMarg++;
     }
@@ -184,7 +184,7 @@ struct PointHessian
   }
 
   void save(ofstream &fout);
-  void load(ifstream &fin, vector<FrameHessian*> &allKFs);
+  void load(ifstream &fin, vector<std::shared_ptr<FrameHessian>> &allKFs);
 
   void ComputeWorldPos();
 

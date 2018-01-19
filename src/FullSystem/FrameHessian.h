@@ -76,9 +76,9 @@ struct FrameFramePrecalc
 	// 状态量
 	static int instanceCounter;
 	//主导帧
-	FrameHessian* host; // defines row
+	std::shared_ptr<FrameHessian> host; // defines row
 	//目标帧
-	FrameHessian* target; // defines column
+	std::shared_ptr<FrameHessian> target; // defines column
 
 	// precalc values
 	// 预计算的值
@@ -99,7 +99,7 @@ struct FrameFramePrecalc
 
 	inline ~FrameFramePrecalc() {}
 	inline FrameFramePrecalc() {host = target = 0;}
-	void set(FrameHessian* host, FrameHessian* target, CalibHessian* HCalib);
+	void set(std::shared_ptr<FrameHessian> host, std::shared_ptr<FrameHessian> target, CalibHessian* HCalib);
 };
 
 /**
@@ -109,12 +109,12 @@ struct FrameHessian
 {
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 	//帧的能量函数
-	EFFrame* efFrame;
+	EFFrame* efFrame=nullptr;
 
 	// constant info & pre-calculated values
 	//DepthImageWrap* frame;
 	//每一帧的信息
-	FrameShell* shell;
+	FrameShell* shell=nullptr;
 
 	//梯度
 	Eigen::Vector3f* dI;         // trace, fine tracking. Used for direction select (not for gradient histograms etc.)
@@ -169,7 +169,7 @@ struct FrameHessian
 
 	// pose relative to keyframes in the window, stored as T_cur_ref
 	// this will be changed by full system and loop closing, so we need a mutex
-	std::map<FrameHessian*, SE3, std::less<FrameHessian*>, Eigen::aligned_allocator<SE3>> mPoseRel;
+	std::map<std::shared_ptr<FrameHessian>, SE3, std::less<std::shared_ptr<FrameHessian>>, Eigen::aligned_allocator<SE3>> mPoseRel;
 	std::mutex mMutexPoseRel;
 
 	//零空间位姿
@@ -344,7 +344,7 @@ struct FrameHessian
 	// 将备选点的描述转换成 bow
 	void ComputeBoW(ORBVocabulary* _vocab);
 
-	set<FrameHessian*> GetConnectedKeyFrames();
+	set<std::shared_ptr<FrameHessian>> GetConnectedKeyFrames();
 
 	void CleanAllFeatures()
 	{
@@ -431,7 +431,7 @@ struct FrameHessian
  */
 class CmpFrameID {
 public:
-	inline bool operator()(const FrameHessian* f1, const FrameHessian* f2) {
+	inline bool operator()(const std::shared_ptr<FrameHessian> f1, const std::shared_ptr<FrameHessian> f2) {
 		return f1->shell->id < f2->shell->id;
 	}
 };
@@ -442,7 +442,7 @@ public:
  */
 class CmpFrameKFID {
 public:
-	inline bool operator()(const FrameHessian* f1, const FrameHessian* f2) {
+	inline bool operator()(const std::shared_ptr<FrameHessian> f1, const std::shared_ptr<FrameHessian> f2) {
 		return f1->frameID < f2->frameID;
 	}
 };

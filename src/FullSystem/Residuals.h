@@ -84,9 +84,9 @@ public:
 	//点的Hessian矩阵
 	PointHessian* point;
 	//主导帧
-	FrameHessian* host;
+	std::shared_ptr<FrameHessian> host;
 	//参考帧
-	FrameHessian* target;
+	std::shared_ptr<FrameHessian> target;
 
 	//原始的残差雅克比
 	RawResidualJacobian* J;
@@ -101,7 +101,7 @@ public:
 
 	~PointFrameResidual();
 	PointFrameResidual();
-	PointFrameResidual(PointHessian* point_, FrameHessian* host_, FrameHessian* target_);
+	PointFrameResidual(PointHessian* point_, std::shared_ptr<FrameHessian> host_, std::shared_ptr<FrameHessian> target_);
 	double linearize(CalibHessian* HCalib);
 
 	//重置

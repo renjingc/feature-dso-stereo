@@ -19,7 +19,7 @@ using namespace fdso;
 namespace fdso {
 
 //增加关键帧
-void Map::addKeyFrame(FrameHessian* kf)
+void Map::addKeyFrame(std::shared_ptr<FrameHessian> kf)
 {
     std::unique_lock<std::mutex> mapLock(mapMutex);
     if (frames.find(kf) == frames.end())
@@ -72,7 +72,7 @@ void Map::runPoseGraphOptimization()
     int maxKFid = 0;
     int cntEdgePR = 0;
 
-    for (FrameHessian* fh : framesOpti)
+    for (std::shared_ptr<FrameHessian> fh : framesOpti)
     {
         // 每个KF只有P+R
         int idKF = fh->frameID;
@@ -95,7 +95,7 @@ void Map::runPoseGraphOptimization()
     }
 
     // edges
-    for (FrameHessian* fh : framesOpti)
+    for (std::shared_ptr<FrameHessian> fh : framesOpti)
     {
         unique_lock<mutex> lock(fh->mMutexPoseRel);
         for (auto &rel : fh->mPoseRel)
@@ -119,7 +119,7 @@ void Map::runPoseGraphOptimization()
     optimizer.optimize(20);
 
     // recover the pose and points estimation
-    for (FrameHessian* frame : framesOpti)
+    for (std::shared_ptr<FrameHessian> frame : framesOpti)
     {
         VertexPR *vPR = (VertexPR *) optimizer.vertex(frame->frameID);
         SE3 Tcw = vPR->estimate();

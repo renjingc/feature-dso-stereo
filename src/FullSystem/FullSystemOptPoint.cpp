@@ -65,7 +65,7 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 	int nres = 0;
 
 	//遍历窗口中的每一帧
-	for(FrameHessian* fh : frameHessians)
+	for(std::shared_ptr<FrameHessian> fh : frameHessians)
 	{
 		//该点的主导帧不是该帧
 		if(fh != point->host)

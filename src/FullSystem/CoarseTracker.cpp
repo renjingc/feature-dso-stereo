@@ -157,7 +157,7 @@ void CoarseTracker::makeK(CalibHessian* HCalib)
  * [CoarseTracker::makeCoarseDepthForFirstFrame description]
  * @param fh [description]
  */
-void CoarseTracker::makeCoarseDepthForFirstFrame(FrameHessian* fh)
+void CoarseTracker::makeCoarseDepthForFirstFrame(std::shared_ptr<FrameHessian> fh)
 {
     // make coarse tracking templates for latstRef.
     // 分配逆深度图和权重
@@ -342,14 +342,14 @@ void CoarseTracker::makeCoarseDepthForFirstFrame(FrameHessian* fh)
  * @param Hcalib        [description]
  * 从每个关键帧中拿出点
  */
-void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, FrameHessian* fh_right, CalibHessian Hcalib)
+void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>> frameHessians, std::shared_ptr<FrameHessian> fh_right, CalibHessian Hcalib)
 {
     // make coarse tracking templates for latstRef.
     memset(idepth[0], 0, sizeof(float)*w[0]*h[0]);
     memset(weightSums[0], 0, sizeof(float)*w[0]*h[0]);
 
     //目标帧,fh_target就是lastRef
-    FrameHessian* fh_target = frameHessians.back();
+    std::shared_ptr<FrameHessian> fh_target = frameHessians.back();
     //内参
     Mat33f K1 = Mat33f::Identity();
     K1(0, 0) = Hcalib.fxl();
@@ -360,7 +360,7 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, 
     //遍历每一个关键帧,将之前全部的关键帧的点全投影到最新的关键帧上
 
     // LOG(INFO)<< "fh_target frameID: " << fh_target->frameID << std::endl;
-    for (FrameHessian* fh : frameHessians)
+    for (std::shared_ptr<FrameHessian> fh : frameHessians)
     {
         //遍历这个关键帧中的每一个点
         for (PointHessian* ph : fh->pointHessians)
@@ -901,7 +901,7 @@ Vec6 CoarseTracker::calcRes(int lvl, SE3 refToNew, AffLight aff_g2l, float cutof
  * [CoarseTracker::setCTRefForFirstFrame description]
  * @param frameHessians [description]
  */
-void CoarseTracker::setCTRefForFirstFrame(std::vector<FrameHessian *> frameHessians)
+void CoarseTracker::setCTRefForFirstFrame(std::vector<std::shared_ptr<FrameHessian>> frameHessians)
 {
     assert(frameHessians.size() > 0);
     //获取参考帧
@@ -926,7 +926,7 @@ void CoarseTracker::setCTRefForFirstFrame(std::vector<FrameHessian *> frameHessi
  * @param Hcalib        [description]
  */
 void CoarseTracker::setCoarseTrackingRef(
-    std::vector<FrameHessian*> frameHessians, FrameHessian* fh_right, CalibHessian Hcalib)
+    std::vector<std::shared_ptr<FrameHessian>> frameHessians, std::shared_ptr<FrameHessian> fh_right, CalibHessian Hcalib)
 {
     assert(frameHessians.size() > 0);
     //参考帧
@@ -954,7 +954,7 @@ void CoarseTracker::setCoarseTrackingRef(
  * @return                 [description]
  */
 bool CoarseTracker::trackNewestCoarse(
-    FrameHessian* newFrameHessian,
+    std::shared_ptr<FrameHessian> newFrameHessian,
     SE3 &lastToNew_out, AffLight &aff_g2l_out,
     int coarsestLvl,
     Vec5 minResForAbort,
@@ -1466,8 +1466,8 @@ CoarseDistanceMap::~CoarseDistanceMap()
  * 创建距离图
  */
 void CoarseDistanceMap::makeDistanceMap(
-    std::vector<FrameHessian*> frameHessians,
-    FrameHessian* frame)
+    std::vector<std::shared_ptr<FrameHessian>> frameHessians,
+    std::shared_ptr<FrameHessian> frame)
 {
     //第二层的图像大小
     int w1 = w[1];
@@ -1482,7 +1482,7 @@ void CoarseDistanceMap::makeDistanceMap(
     int numItems = 0;
 
     //遍历窗口中每一个关键帧
-    for (FrameHessian* fh : frameHessians)
+    for (std::shared_ptr<FrameHessian> fh : frameHessians)
     {
         if (frame == fh) continue;
 
@@ -1521,7 +1521,7 @@ void CoarseDistanceMap::makeDistanceMap(
  * @param frameHessians [description]
  * ？？？无实现
  */
-void CoarseDistanceMap::makeInlierVotes(std::vector<FrameHessian*> frameHessians)
+void CoarseDistanceMap::makeInlierVotes(std::vector<std::shared_ptr<FrameHessian>> frameHessians)
 {
 
 }

@@ -173,7 +173,7 @@ class EFFrame
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-	EFFrame(FrameHessian* d) : data(d)
+	EFFrame(std::shared_ptr<FrameHessian> d) : data(d)
 	{
 		takeData();
 	}
@@ -190,7 +190,7 @@ public:
 	std::vector<EFPoint*> points;
 
 	//帧Hessian
-	FrameHessian* data;
+	std::shared_ptr<FrameHessian> data;
 
 	//窗口中帧idx
 	int idx;	// idx in frames.

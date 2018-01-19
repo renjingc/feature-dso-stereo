@@ -53,7 +53,11 @@ PointHessian::PointHessian(const ImmaturePoint* const rawPoint, CalibHessian* Hc
  */
 void PointHessian::release()
 {
-  for (unsigned int i = 0; i < residuals.size(); i++) delete residuals[i];
+  if(mF)
+    mF=nullptr;
+  for (unsigned int i = 0; i < residuals.size(); i++)
+    delete residuals[i];
+
   residuals.clear();
 }
 
@@ -74,7 +78,7 @@ void PointHessian::save(ofstream &fout) {
   fout.write((char *) &this->status, sizeof(this->status));
 }
 
-void PointHessian::load(ifstream &fin, vector<FrameHessian*> &allKFs) 
+void PointHessian::load(ifstream &fin, vector<std::shared_ptr<FrameHessian>> &allKFs) 
 {
   fin.read((char *) &this->idx, sizeof(this->idx));
   fin.read((char *) &this->status, sizeof(this->status));

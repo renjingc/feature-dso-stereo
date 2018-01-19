@@ -73,6 +73,72 @@ class EnergyFunctional;
 class FeatureMatcher;
 class LoopClosing;
 
+
+template<typename T> inline void deleteOut(std::vector<std::shared_ptr<T>> &v, const int i)
+{
+	// delete v[i];
+
+	v[i] = v.back();
+	v.pop_back();
+}
+template<typename T> inline void deleteOutPt(std::vector<std::shared_ptr<T>> &v, const std::shared_ptr<T> i)
+{
+	// delete i;
+
+	for (unsigned int k = 0; k < v.size(); k++)
+		if (v[k] == i)
+		{
+			v[k] = v.back();
+			v.pop_back();
+		}
+}
+template<typename T> inline void deleteOutOrder(std::vector<std::shared_ptr<T>> &v, const int i)
+{
+	// delete v[i];
+	for (unsigned int k = i + 1; k < v.size(); k++)
+		v[k - 1] = v[k];
+	v.pop_back();
+}
+template<typename T> inline void deleteOutOrder(std::vector<std::shared_ptr<T>> &v, const std::shared_ptr<T> element)
+{
+	int i = -1;
+	for (unsigned int k = 0; k < v.size(); k++)
+	{
+		if (v[k] == element)
+		{
+			i = k;
+			break;
+		}
+	}
+	assert(i != -1);
+
+	for (unsigned int k = i + 1; k < v.size(); k++)
+		v[k - 1] = v[k];
+	v.pop_back();
+
+	// delete element;
+}
+
+// delete an element from a vector and keep its order
+template<typename T>
+inline void deleteOutOrder(std::vector<T> &v, const T element)
+{
+	int i = -1;
+	for (unsigned int k = 0; k < v.size(); k++)
+	{
+		if (v[k] == element) {
+			i = k;
+			break;
+		}
+	}
+	assert(i != -1);
+
+	for (unsigned int k = i + 1; k < v.size(); k++)
+		v[k - 1] = v[k];
+	v.pop_back();
+}
+
+
 template<typename T> inline void deleteOut(std::vector<T*> &v, const int i)
 {
 	delete v[i];
@@ -147,7 +213,7 @@ public:
 	void addActiveFrame(ImageAndExposure* image, ImageAndExposure* image_right, int id);
 
 	// marginalizes a frame. drops / marginalizes points & residuals.
-	void marginalizeFrame(FrameHessian* frame);
+	void marginalizeFrame(std::shared_ptr<FrameHessian> frame);
 	void blockUntilMappingIsFinished();
 
 	float optimize(int mnumOptIts);
@@ -174,10 +240,10 @@ public:
 	CalibHessian Hcalib;
 
 	//全部的关键帧
-       Map* globalMap=nullptr;
+	Map* globalMap = nullptr;
 
-        //闭环检测类
-        LoopClosing* loopClosing =nullptr;
+	//闭环检测类
+	LoopClosing* loopClosing = nullptr;
 
 	void setGammaFunction(float* BInv);
 	void setOriginalCalib(VecXf originalCalib, int originalW, int originalH);
@@ -195,22 +261,22 @@ private:
 	double linAllPointSinle(PointHessian* point, float outlierTHSlack, bool plot);
 
 	//非关键帧的跟踪
-	void traceNewCoarseNonKey(FrameHessian* fh, FrameHessian* fh_right);
+	void traceNewCoarseNonKey(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
 
 	// mainPipelineFunctions
 	//主跟踪函数
-	Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 initT);
+	Vec4 trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right, SE3 initT);
 	//关键帧的更新
-	void traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right);
+	void traceNewCoarseKey(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
 	//更新一个点
 	void activatePoints();
 	void activatePointsMT();
 	void activatePointsOldFirst();
 	void flagPointsForRemoval();
-	void makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRight, float* gtDepth);
-	void initializeFromInitializer(FrameHessian* newFrame);
-	void initializeFromInitializer(FrameHessian* newFrame, FrameHessian* newFrame_right);
-	void flagFramesForMarginalization(FrameHessian* newFH);
+	void makeNewTraces(std::shared_ptr<FrameHessian> newFrame, std::shared_ptr<FrameHessian> newFrameRight, float* gtDepth);
+	void initializeFromInitializer(std::shared_ptr<FrameHessian> newFrame);
+	void initializeFromInitializer(std::shared_ptr<FrameHessian> newFrame, std::shared_ptr<FrameHessian> newFrame_right);
+	void flagFramesForMarginalization(std::shared_ptr<FrameHessian> newFH);
 
 	void removeOutliers();
 
@@ -300,13 +366,13 @@ private:
 	CoarseDistanceMap* coarseDistanceMap;
 
 	//窗口中的每一帧的Hessian信息
-	std::vector<FrameHessian*> frameHessians;	// ONLY changed in marginalizeFrame and addFrame.
+	std::vector<std::shared_ptr<FrameHessian>> frameHessians;	// ONLY changed in marginalizeFrame and addFrame.
 	//点和帧的残差
 	std::vector<PointFrameResidual*> activeResiduals;
 	float currentMinActDist;
 
 	// //右图的
-	// std::vector<FrameHessian*> frameHessiansRight;
+	// std::vector<std::shared_ptr<FrameHessian>> frameHessiansRight;
 
 	//全部的残差
 	std::vector<float> allResVec;
@@ -329,12 +395,12 @@ private:
 	 *
 	 */
 	//创建关键帧
-	void makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right);
+	void makeKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
 	//创建非关键帧
-	void makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right);
+	void makeNonKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
 
 	//跟踪和后端优化的连接传递函数
-	void deliverTrackedFrame(FrameHessian* fh, FrameHessian* fh_right, bool needKF);
+	void deliverTrackedFrame(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right, bool needKF);
 
 	//后端优化
 	void mappingLoop();
@@ -350,8 +416,8 @@ private:
 	boost::condition_variable mappedFrameSignal;
 
 	//非同步优化的时候的队列
-	std::deque<FrameHessian*> unmappedTrackedFrames;
-	std::deque<FrameHessian*> unmappedTrackedFrames_right;
+	std::deque<std::shared_ptr<FrameHessian>> unmappedTrackedFrames;
+	std::deque<std::shared_ptr<FrameHessian>> unmappedTrackedFrames_right;
 
 	//是否是关键帧
 	int needNewKFAfter;	// Otherwise, a new KF is *needed that has ID bigger than [needNewKFAfter]*.

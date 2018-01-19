@@ -209,8 +209,22 @@ FullSystem::~FullSystem()
 
 	for (FrameShell* s : allFrameHistory)
 		delete s;
-	for (FrameHessian* fh : unmappedTrackedFrames)
-		delete fh;
+	for (std::shared_ptr<FrameHessian> fh : unmappedTrackedFrames)
+	{
+		//释放该指针的所有计数,即释放了该指针
+		// while (fh.use_count())
+		// {
+		// 	fh.reset();
+		// }
+	}
+	for (std::shared_ptr<FrameHessian> fh : unmappedTrackedFrames_right)
+	{
+		//释放该指针的所有计数,即释放了该指针
+		// while (fh.use_count())
+		// {
+		// 	fh.reset();
+		// }
+	}
 
 	delete coarseDistanceMap;
 	delete coarseTracker;
@@ -323,7 +337,7 @@ void FullSystem::printResult(std::string file)
  * @param  fh_right [description]
  * @return          [description]
  */
-Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 initT)
+Vec4 FullSystem::trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right, SE3 initT)
 {
 
 	assert(allFrameHistory.size() > 0);
@@ -341,7 +355,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 	// Sophus::SE3 init_Rt(R, t); //
 
 	//参考帧
-	FrameHessian* lastF = coarseTracker->lastRef;
+	std::shared_ptr<FrameHessian> lastF = coarseTracker->lastRef;
 
 	//a和b
 	AffLight aff_last_2_l = AffLight(0, 0);
@@ -519,18 +533,18 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 
 		if (i != 0)
 		{
-			LOG(INFO)<<"RE-TRACK ATTEMPT "<<i<<" with initOption "<<i<<" and  start-lvl "<<pyrLevelsUsed - 1
-				<<"ab: "<< aff_g2l_this.a<<" "<<aff_g2l_this.b<<" "<<
-				achievedRes[0]<<" "<<
-			       achievedRes[1]<<" "<<
-			       achievedRes[2]<<" "<<
-			       achievedRes[3]<<" "<<
-			       achievedRes[4]<<" -> "<<
-			       coarseTracker->lastResiduals[0]<<" "<<
-			       coarseTracker->lastResiduals[1]<<" "<<
-			       coarseTracker->lastResiduals[2]<<" "<<
-			       coarseTracker->lastResiduals[3]<<" "<<
-			       coarseTracker->lastResiduals[4]<<std::endl;
+			LOG(INFO) << "RE-TRACK ATTEMPT " << i << " with initOption " << i << " and  start-lvl " << pyrLevelsUsed - 1
+			          << "ab: " << aff_g2l_this.a << " " << aff_g2l_this.b << " " <<
+			          achievedRes[0] << " " <<
+			          achievedRes[1] << " " <<
+			          achievedRes[2] << " " <<
+			          achievedRes[3] << " " <<
+			          achievedRes[4] << " -> " <<
+			          coarseTracker->lastResiduals[0] << " " <<
+			          coarseTracker->lastResiduals[1] << " " <<
+			          coarseTracker->lastResiduals[2] << " " <<
+			          coarseTracker->lastResiduals[3] << " " <<
+			          coarseTracker->lastResiduals[4] << std::endl;
 		}
 
 		// do we have a new winner?
@@ -565,7 +579,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh, FrameHessian* fh_right, SE3 in
 	//不成功，则跟踪失败
 	if (!haveOneGood)
 	{
-		LOG(INFO)<<"BIG ERROR! tracking failed entirely. Take predictred pose and hope we may somehow recover"<<std::endl;;
+		LOG(INFO) << "BIG ERROR! tracking failed entirely. Take predictred pose and hope we may somehow recover" << std::endl;;
 		flowVecs = Vec3(0, 0, 0);
 		aff_g2l = aff_last_2_l;
 		lastF_2_fh = lastF_2_fh_tries[0];
@@ -622,8 +636,8 @@ void FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_r
 {
 	// =========================== add into allFrameHistory =========================
 
-	FrameHessian* fh = new FrameHessian();
-	FrameHessian* fh_right = new FrameHessian();
+	std::shared_ptr<FrameHessian> fh(new FrameHessian());
+	std::shared_ptr<FrameHessian> fh_right(new FrameHessian());
 	FrameShell* shell = new FrameShell();
 	shell->camToWorld = SE3(); 		// no lock required, as fh is not used anywhere yet.
 	shell->aff_g2l = AffLight(0, 0);
@@ -722,11 +736,10 @@ void FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_r
 //    for(int i = 0; i < error.size(); i++)
 //        std::cout << error[i].first << " " << error[i].second.first << " " << error[i].second.second << std::endl;
 
-	LOG(INFO)<< " frameID " << id << " got good matches " << counter << std::endl;
+	LOG(INFO) << " frameID " << id << " got good matches " << counter << std::endl;
 
-	delete fh;
-	delete fh_right;
-
+	// delete fh;
+	// delete fh_right;
 	return;
 }
 
@@ -737,7 +750,7 @@ void FullSystem::stereoMatch( ImageAndExposure* image, ImageAndExposure* image_r
  * @param fh_right [description]
  * 非关键帧时,将前面的关键帧的点都投影到当前帧,进行traceOn,进行点逆深度滤波,并使用两次traceStereo,跟新这个点的最小和最大逆深度
  */
-void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)
+void FullSystem::traceNewCoarseNonKey(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right)
 {
 	boost::unique_lock<boost::mutex> lock(mapMutex);
 
@@ -757,7 +770,7 @@ void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)
 	Mat33f Ki = K.inverse();
 
 	//遍历每一个关键帧
-	for (FrameHessian *host : frameHessians)        // go through all active frames
+	for (std::shared_ptr<FrameHessian> host : frameHessians)        // go through all active frames
 	{
 		//个数
 		// number++;
@@ -842,6 +855,10 @@ void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)
 					{
 						//跟新这个点的状态
 						ph->lastTraceStatus = ImmaturePointStatus :: IPS_OUTLIER;
+
+						delete phNonKey;
+						delete phNonKeyRight;
+
 						continue;
 					}
 					else
@@ -889,7 +906,7 @@ void FullSystem::traceNewCoarseNonKey(FrameHessian *fh, FrameHessian *fh_right)
  * @param fh_right [description]
  * 遍历每一个关键帧的中的点,将关键帧的点投影到当前帧,使用traceOn,更新逆深度
  */
-void FullSystem::traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right)
+void FullSystem::traceNewCoarseKey(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right)
 {
 	boost::unique_lock<boost::mutex> lock(mapMutex);
 
@@ -903,7 +920,7 @@ void FullSystem::traceNewCoarseKey(FrameHessian* fh, FrameHessian* fh_right)
 	K(1, 2) = Hcalib.cyl();
 
 	//遍历每一个关键帧的中的点,将关键帧的点投影到当前帧,进行traceOn,更新逆深度
-	for (FrameHessian* host : frameHessians)		// go through all active frames
+	for (std::shared_ptr<FrameHessian> host : frameHessians)		// go through all active frames
 	{
 		// trans from reference key frame to the newest one
 		SE3 hostToNew = fh->PRE_worldToCam * host->PRE_camToWorld;
@@ -991,7 +1008,7 @@ void FullSystem::activatePointsMT()
 		       currentMinActDist, (int)(setting_desiredPointDensity), ef->nPoints);
 
 	//最新的一关键帧
-	FrameHessian* newestHs = frameHessians.back();
+	std::shared_ptr<FrameHessian> newestHs = frameHessians.back();
 
 	// make dist map.
 	//设置内参
@@ -1007,12 +1024,12 @@ void FullSystem::activatePointsMT()
 	toOptimize.reserve(20000);
 
 	//遍历窗口中的每一帧，选择待优化的点toOptimize
-	for (FrameHessian* host : frameHessians)		// go through all active frames
+	for (std::shared_ptr<FrameHessian> host : frameHessians)		// go through all active frames
 	{
 		if (host == newestHs) continue;
 
-		LOG(INFO)<<"activatePointsMT before: "<<host->frameID<<" "<<host->pointHessians.size()<<" "<<host->pointHessiansOut.size()<<" "<<host->pointHessiansMarginalized.size()
-			<<" "<<host->immaturePoints.size()<<" "<<host->_features.size()<<std::endl;
+		LOG(INFO) << "activatePointsMT before: " << host->frameID << " " << host->pointHessians.size() << " " << host->pointHessiansOut.size() << " " << host->pointHessiansMarginalized.size()
+		          << " " << host->immaturePoints.size() << " " << host->_features.size() << std::endl;
 
 		//最新关键帧与主导帧的相对坐标
 		SE3 fhToNew = newestHs->PRE_worldToCam * host->PRE_camToWorld;
@@ -1169,11 +1186,11 @@ void FullSystem::activatePointsMT()
 	}
 
 	//遍历每一个主导帧
-	for (FrameHessian* host : frameHessians)
+	for (std::shared_ptr<FrameHessian> host : frameHessians)
 	{
 
-		LOG(INFO)<<"activatePointsMT after1: "<<host->frameID<<" "<<host->pointHessians.size()<<" "<<host->pointHessiansOut.size()<<" "<<host->pointHessiansMarginalized.size()
-			<<" "<<host->immaturePoints.size()<<" "<<host->_features.size()<<std::endl;
+		LOG(INFO) << "activatePointsMT after1: " << host->frameID << " " << host->pointHessians.size() << " " << host->pointHessiansOut.size() << " " << host->pointHessiansMarginalized.size()
+		          << " " << host->immaturePoints.size() << " " << host->_features.size() << std::endl;
 		//遍历每一个主导帧的点
 		for (int i = 0; i < (int)host->immaturePoints.size(); i++)
 		{
@@ -1186,8 +1203,8 @@ void FullSystem::activatePointsMT()
 				i--;
 			}
 		}
-		LOG(INFO)<<"activatePointsMT after2: "<<host->frameID<<" "<<host->pointHessians.size()<<" "<<host->pointHessiansOut.size()<<" "<<host->pointHessiansMarginalized.size()
-			<<" "<<host->immaturePoints.size()<<" "<<host->_features.size()<<std::endl;
+		LOG(INFO) << "activatePointsMT after2: " << host->frameID << " " << host->pointHessians.size() << " " << host->pointHessiansOut.size() << " " << host->pointHessiansMarginalized.size()
+		          << " " << host->immaturePoints.size() << " " << host->_features.size() << std::endl;
 	}
 }
 
@@ -1211,8 +1228,8 @@ void FullSystem::flagPointsForRemoval()
 	assert(EFIndicesValid);
 
 	//保持的帧和边缘化的帧
-	std::vector<FrameHessian*> fhsToKeepPoints;
-	std::vector<FrameHessian*> fhsToMargPoints;
+	std::vector<std::shared_ptr<FrameHessian>> fhsToKeepPoints;
+	std::vector<std::shared_ptr<FrameHessian>> fhsToMargPoints;
 
 	//if(setting_margPointVisWindow>0)
 	{
@@ -1228,10 +1245,10 @@ void FullSystem::flagPointsForRemoval()
 	int flag_oob = 0, flag_in = 0, flag_inin = 0, flag_nores = 0;
 
 	//遍历每一个关键帧
-	for (FrameHessian* host : frameHessians)		// go through all active frames
+	for (std::shared_ptr<FrameHessian> host : frameHessians)		// go through all active frames
 	{
-		LOG(INFO)<<"flagPointsForRemoval before: "<<host->frameID<<" "<<host->pointHessians.size()<<" "<<host->pointHessiansOut.size()<<" "<<host->pointHessiansMarginalized.size()
-			<<" "<<host->immaturePoints.size()<<" "<<host->_features.size()<<std::endl;
+		LOG(INFO) << "flagPointsForRemoval before: " << host->frameID << " " << host->pointHessians.size() << " " << host->pointHessiansOut.size() << " " << host->pointHessiansMarginalized.size()
+		          << " " << host->immaturePoints.size() << " " << host->_features.size() << std::endl;
 		//遍历每一个点
 		for (unsigned int i = 0; i < host->pointHessians.size(); i++)
 		{
@@ -1308,8 +1325,8 @@ void FullSystem::flagPointsForRemoval()
 				i--;
 			}
 		}
-		LOG(INFO)<<"flagPointsForRemoval after: "<<host->frameID<<" "<<host->pointHessians.size()<<" "<<host->pointHessiansOut.size()<<" "<<host->pointHessiansMarginalized.size()
-					<<" "<<host->immaturePoints.size()<<" "<<host->_features.size()<<std::endl;
+		LOG(INFO) << "flagPointsForRemoval after: " << host->frameID << " " << host->pointHessians.size() << " " << host->pointHessiansOut.size() << " " << host->pointHessiansMarginalized.size()
+		          << " " << host->immaturePoints.size() << " " << host->_features.size() << std::endl;
 	}
 
 	LOG(INFO) << "Flag: nores: " << flag_nores << ", oob: " << flag_oob << ", marged: " << flag_inin << endl;
@@ -1329,12 +1346,13 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 
 	// =========================== add into allFrameHistory =========================
 	// std::cout<<std::endl;
-	LOG(INFO)<<std::endl;
+	LOG(INFO) << std::endl;
 	LOG(INFO) << "addActiveFrame: " << id << " " << allFrameHistory.size() << std::endl;
 	//新建一个帧Hessian类
-	FrameHessian* fh = new FrameHessian();
+	std::shared_ptr<FrameHessian> fh(new FrameHessian());
 	//新建一个帧的位姿信息
-	FrameHessian* fh_right = new FrameHessian();
+	std::shared_ptr<FrameHessian> fh_right(new FrameHessian());
+
 	FrameShell* shell = new FrameShell();
 	//相机坐标系到世界坐标系的变换矩阵，单位矩阵
 	shell->camToWorld = SE3(); 		// no lock required, as fh is not used anywhere yet.
@@ -1354,12 +1372,14 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	fh->ab_exposure = image->exposure_time;
 	//得到当前帧的每一层的灰度图像和xy方向梯度值和xy梯度平方和，用于跟踪和初始化
 	fh->makeImages(image, &Hcalib);
+
 	//曝光时间
 	fh_right->ab_exposure = image_right->exposure_time;
 	//得到当前帧的每一层的灰度图像和xy方向梯度值和xy梯度平方和，用于跟踪和初始化
 	fh_right->makeImages(image_right, &Hcalib);
 
 	makeNewTraces(fh, fh_right, 0);
+
 	fh->ComputeBoW(_vocab);
 
 	Mat33f K = Mat33f::Identity();
@@ -1495,7 +1515,6 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 			// 判断是否是关键帧
 			// 第一帧或者delta够大，或者误差残差大于了第一次的两倍
 			needToMakeKF = allFrameHistory.size() == 1 || delta > 1 || 2 * coarseTracker->firstCoarseRMSE < tres[0];
-			LOG(INFO) << "needToMakeF " << needToMakeKF << " " << delta << " " << std::endl;
 		}
 
 		//显示位姿
@@ -1516,7 +1535,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
  * @param fh_right [description]
  * @param needKF   [description]
  */
-void FullSystem::deliverTrackedFrame(FrameHessian* fh, FrameHessian* fh_right, bool needKF)
+void FullSystem::deliverTrackedFrame(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right, bool needKF)
 {
 	if (linearizeOperation)
 	{
@@ -1595,12 +1614,12 @@ void FullSystem::mappingLoop()
 
 		//则此时unmappedTrackedFrames大小肯定大于0
 		//获取最前面的一帧
-		FrameHessian* fh = unmappedTrackedFrames.front();
+		std::shared_ptr<FrameHessian> fh = unmappedTrackedFrames.front();
 		//弹出
 		unmappedTrackedFrames.pop_front();
 
 		//获取最前面的右图像的帧
-		FrameHessian* fh_right = unmappedTrackedFrames_right.front();
+		std::shared_ptr<FrameHessian> fh_right = unmappedTrackedFrames_right.front();
 		//弹出
 		unmappedTrackedFrames_right.pop_front();
 
@@ -1639,7 +1658,7 @@ void FullSystem::mappingLoop()
 			if (needToKetchupMapping && unmappedTrackedFrames.size() > 0)
 			{
 				//弹出最前面的一帧
-				FrameHessian* fh = unmappedTrackedFrames.front();
+				std::shared_ptr<FrameHessian> fh = unmappedTrackedFrames.front();
 				unmappedTrackedFrames.pop_front();
 				{
 					//位姿锁
@@ -1651,8 +1670,8 @@ void FullSystem::mappingLoop()
 					fh->setEvalPT_scaled(fh->shell->camToWorld.inverse(), fh->shell->aff_g2l);
 				}
 				//删除当前帧
-				delete fh;
-				delete fh_right;
+				// delete fh;
+				// delete fh_right;
 			}
 		}
 		else
@@ -1710,9 +1729,11 @@ void FullSystem::blockUntilMappingIsFinished()
  * @param fh_right [description]
  * 不将当前帧作为关键帧
  */
-void FullSystem::makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
+void FullSystem::makeNonKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right)
 {
 	// needs to be set by mapping thread. no lock required since we are in mapping thread.
+	LOG(INFO) << "makeNonKeyFrame: " << fh->shell->id << std::endl;
+
 	{
 		boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
 		assert(fh->shell->trackingRef != 0);
@@ -1726,8 +1747,15 @@ void FullSystem::makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	traceNewCoarseNonKey(fh, fh_right);
 
 	//删除当前帧
-	delete fh;
-	delete fh_right;
+	// delete fh;
+	// delete fh_right;
+	// 
+	pixelSelector->gradHistFrame=nullptr;
+	coarseTracker->newFrame=nullptr;
+	coarseTracker_forNewKF->newFrame=nullptr;
+
+	fh->release();
+	fh_right->release();
 }
 
 /**
@@ -1746,9 +1774,9 @@ void FullSystem::makeNonKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
  * 8.设置新的跟踪器coarseTracker_forNewKF
  * 9.删除点，并在ef中删除点和并跟新ef中的H和b
  */
-void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
+void FullSystem::makeKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right)
 {
-	 LOG(INFO) << "frame " << fh->shell->id << " is marked as key frame" << endl;
+	LOG(INFO) << "frame " << fh->shell->id << " is marked as key frame" << endl;
 	{
 		boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
 		assert(fh->shell->trackingRef != 0);
@@ -1784,10 +1812,10 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	allKeyFramesHistory.push_back(fh->shell);
 
 	// needs to be set by mapping thread
-	LOG(INFO)<<"makeKeyFrame "<<fh->shell->id<<" "<<fh->idx<<" "<<fh->frameID<<std::endl;
+	LOG(INFO) << "makeKeyFrame " << fh->shell->id << " " << fh->idx << " " << fh->frameID << std::endl;
 
 	//插入当前关键帧,这句有问题,怀疑是指针被删了
-	//globalMap->addKeyFrame(fh);
+	globalMap->addKeyFrame(fh);
 
 
 	//误差能量函数插入该帧的Hessian
@@ -1800,7 +1828,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//对于每一个旧点增加残差
 	int numFwdResAdde = 0;
 	//遍历每一个关键帧很
-	for (FrameHessian* fh1 : frameHessians)		// go through all active frames
+	for (std::shared_ptr<FrameHessian> fh1 : frameHessians)		// go through all active frames
 	{
 		if (fh1 == fh)
 			continue;
@@ -1858,17 +1886,17 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	{
 		if (allKeyFramesHistory.size() == 2 && rmse > 20 * benchmark_initializerSlackFactor)
 		{
-			LOG(INFO)<<"I THINK INITIALIZATINO FAILED! Resetting."<<std::endl;
+			LOG(INFO) << "I THINK INITIALIZATINO FAILED! Resetting." << std::endl;
 			initFailed = true;
 		}
 		if (allKeyFramesHistory.size() == 3 && rmse > 13 * benchmark_initializerSlackFactor)
 		{
-			LOG(INFO)<<"I THINK INITIALIZATINO FAILED! Resetting."<<std::endl;
+			LOG(INFO) << "I THINK INITIALIZATINO FAILED! Resetting." << std::endl;
 			initFailed = true;
 		}
 		if (allKeyFramesHistory.size() == 4 && rmse > 9 * benchmark_initializerSlackFactor)
 		{
-			LOG(INFO)<<"I THINK INITIALIZATINO FAILED! Resetting."<<std::endl;
+			LOG(INFO) << "I THINK INITIALIZATINO FAILED! Resetting." << std::endl;
 			initFailed = true;
 		}
 	}
@@ -1917,32 +1945,32 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 	//makeNewTraces(fh, fh_right, 0);
 //	LOG(INFO) << "point size5() : " << fh->immaturePoints.size() << " " << fh->pointHessians.size() << std::endl;
 
-	// //record the relative poses, note we are building a covisibility graph in fact
-	// //获取窗口中最大和最小的关键帧id
-	// auto minandmax = std::minmax_element(frameHessians.begin(), frameHessians.end(), CmpFrameKFID());
-	// unsigned long minKFId = (*minandmax.first)->frameID;
-	// unsigned long maxKFId = (*minandmax.second)->frameID;
+	//record the relative poses, note we are building a covisibility graph in fact
+	//获取窗口中最大和最小的关键帧id
+	auto minandmax = std::minmax_element(frameHessians.begin(), frameHessians.end(), CmpFrameKFID());
+	unsigned long minKFId = (*minandmax.first)->frameID;
+	unsigned long maxKFId = (*minandmax.second)->frameID;
 
-	// //输出最大和最小的关键帧id
-	// LOG(INFO) << "min max KFId = " << minKFId << ", " << maxKFId << endl;
+	//输出最大和最小的关键帧id
+	LOG(INFO) << "min max KFId = " << minKFId << ", " << maxKFId << endl;
 
-	// //b遍历窗口中所有关键帧
-	// for (auto &fh : frameHessians)
-	// {
-	// 	//获取所有关键帧
-	// 	auto allKFs = globalMap->getAllKFs();
-	// 	//遍历所有关键帧
-	// 	for (auto &f2 : allKFs)
-	// 	{
-	// 		//在窗口中id范围内全部的关键帧,且不等于当前窗口中的关键帧,进行关联,获取这两个关键帧的相对位姿
-	// 		if (f2->frameID > minKFId && f2->frameID < maxKFId && f2 != fh)
-	// 		{
-	// 			std::unique_lock<std::mutex> lock(fh->mMutexPoseRel);
-	// 			fh->mPoseRel[f2] = fh->shell->camToWorld.inverse() * f2->shell->camToWorld;
-	// 			f2->mPoseRel[fh] = f2->shell->camToWorld.inverse() * fh->shell->camToWorld;
-	// 		}
-	// 	}
-	// }
+	//b遍历窗口中所有关键帧
+	for (auto &fh : frameHessians)
+	{
+		//获取所有关键帧
+		auto allKFs = globalMap->getAllKFs();
+		//遍历所有关键帧
+		for (auto &f2 : allKFs)
+		{
+			//在窗口中id范围内全部的关键帧,且不等于当前窗口中的关键帧,进行关联,获取这两个关键帧的相对位姿
+			if (f2->frameID > minKFId && f2->frameID < maxKFId && f2 != fh)
+			{
+				std::unique_lock<std::mutex> lock(fh->mMutexPoseRel);
+				fh->mPoseRel[f2] = fh->shell->camToWorld.inverse() * f2->shell->camToWorld;
+				f2->mPoseRel[fh] = f2->shell->camToWorld.inverse() * fh->shell->camToWorld;
+			}
+		}
+	}
 
 	//发布关键帧
 	for (IOWrap::Output3DWrapper* ow : outputWrapper)
@@ -1953,6 +1981,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 
 	// =========================== Marginalize Frames =========================
 	//边缘化帧
+	LOG(INFO) << "Marginalize frame" << std::endl;
 	for (unsigned int i = 0; i < frameHessians.size(); i++)
 	{
 		//该帧需要边缘化
@@ -1960,12 +1989,13 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
 		{
 			//边缘化这一帧
 			marginalizeFrame(frameHessians[i]);
+			LOG(INFO)<<"marginalizeFrame use count: "<<frameHessians[i].use_count()<<std::endl;
 			i = 0;
 		}
 	}
 
-	delete fh_right;
-
+	LOG(INFO) << "delete right frame" << std::endl;
+	// delete fh_right;
 //	printLogLine();
 //    printEigenValLine();
 }
@@ -1975,7 +2005,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh, FrameHessian* fh_right)
  * [FullSystem::initializeFromInitializer description]
  * @param newFrame [description]
  */
-void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
+void FullSystem::initializeFromInitializer(std::shared_ptr<FrameHessian> newFrame)
 {
 	//地图上锁
 	boost::unique_lock<boost::mutex> lock(mapMutex);
@@ -1989,7 +2019,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 
 	// add firstframe.
 	// 第一帧
-	FrameHessian* firstFrame = coarseInitializer->firstFrame;
+	std::shared_ptr<FrameHessian> firstFrame = coarseInitializer->firstFrame;
 	//关键帧id
 	firstFrame->idx = frameHessians.size();
 	//插入这一帧,
@@ -2008,7 +2038,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 	setPrecalcValues();
 
 	//第一帧的右帧
-	FrameHessian* firstFrameRight = coarseInitializer->firstRightFrame;
+	std::shared_ptr<FrameHessian> firstFrameRight = coarseInitializer->firstRightFrame;
 	// //
 	// frameHessiansRight.push_back(firstFrameRight);
 
@@ -2031,8 +2061,8 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 	// 随机采样
 	float keepPercentage = setting_desiredPointDensity / coarseInitializer->numPoints[0];
 
-	LOG(INFO)<<"Initialization: keep "<<100 * keepPercentage<< "(need "<<(int)(setting_desiredPointDensity)
-		<<" have "<<coarseInitializer->numPoints[0]<<std::endl;
+	LOG(INFO) << "Initialization: keep " << 100 * keepPercentage << "(need " << (int)(setting_desiredPointDensity)
+	          << " have " << coarseInitializer->numPoints[0] << std::endl;
 
 	// initialize first frame by idepth computed by static stereo matching
 	// 遍历每一个点
@@ -2121,7 +2151,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 
 	//初始化成功
 	initialized = true;
-	LOG(INFO)<<"INITIALIZE FROM INITIALIZER ("<<(int)firstFrame->pointHessians.size()<<" pts)!"<<std::endl;
+	LOG(INFO) << "INITIALIZE FROM INITIALIZER (" << (int)firstFrame->pointHessians.size() << " pts)!" << std::endl;
 }
 
 /**
@@ -2131,7 +2161,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
  * @param gtDepth       [description]
  * 选取新关键帧的点,创建ImmaturePoint
  */
-void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRight, float* gtDepth)
+void FullSystem::makeNewTraces(std::shared_ptr<FrameHessian> newFrame, std::shared_ptr<FrameHessian> newFrameRight, float* gtDepth)
 {
 	boost::timer t;
 
@@ -2161,8 +2191,6 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 				delete impt;
 			else
 			{
-				newFrame->immaturePoints.push_back(impt);
-
 				Feature* fea = new Feature(Eigen::Vector2d(x, y), 0, 0);
 				fea->mImP = impt;
 				impt->mF = fea;
@@ -2170,6 +2198,8 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 
 				fea->_frame = newFrame;
 				detectorLeft->ComputeDescriptorAndAngle(fea);
+
+				newFrame->immaturePoints.push_back(impt);
 				newFrame->_features.push_back(fea);
 			}
 		}
@@ -2214,7 +2244,7 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
 	// }
 
 //	std::cout << "t: " << t.elapsed() << std::endl;
-	LOG(INFO) << "new features features created: " << (int)newFrame->immaturePoints.size()<<" "<<(int)newFrame->_features.size() << endl;
+	LOG(INFO) << "new features features created: " << (int)newFrame->immaturePoints.size() << " " << (int)newFrame->_features.size() << endl;
 }
 
 /**
@@ -2222,7 +2252,7 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRig
  */
 void FullSystem::setPrecalcValues()
 {
-	for (FrameHessian* fh : frameHessians)
+	for (std::shared_ptr<FrameHessian> fh : frameHessians)
 	{
 		//每一帧的目标帧大小设为当前帧的大小
 		fh->targetPrecalc.resize(frameHessians.size());

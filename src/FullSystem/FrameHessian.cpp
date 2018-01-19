@@ -55,15 +55,37 @@ void FrameHessian::release()
 {
   // DELETE POINT
   // DELETE RESIDUAL
+  //这里释放有技巧
+
+  // delete efFrame;
+  // efFrame=nullptr;
+
+  for (unsigned int i = 0; i < _features.size(); i++)
+  {
+    if (_features[i]->mImP)
+    {
+      _features[i]->mImP->mF = nullptr;
+      _features[i]->mImP = nullptr;
+    }
+    if (_features[i]->mPH)
+    {
+      _features[i]->mPH->mF = nullptr;
+      _features[i]->mPH = nullptr;
+    }
+  }
+
   for (unsigned int i = 0; i < pointHessians.size(); i++) delete pointHessians[i];
   for (unsigned int i = 0; i < pointHessiansMarginalized.size(); i++) delete pointHessiansMarginalized[i];
   for (unsigned int i = 0; i < pointHessiansOut.size(); i++) delete pointHessiansOut[i];
   for (unsigned int i = 0; i < immaturePoints.size(); i++) delete immaturePoints[i];
+  for (unsigned int i = 0; i < _features.size(); i++) delete _features[i];
+
 
   pointHessians.clear();
   pointHessiansMarginalized.clear();
   pointHessiansOut.clear();
   immaturePoints.clear();
+  _features.clear();
 }
 
 void FrameHessian::ComputeBoW(ORBVocabulary* _vocab)
@@ -183,7 +205,7 @@ void FrameHessian::makeImages(ImageAndExposure* imageE, CalibHessian* HCalib)
  * @param HCalib [description]
  * 设置主导帧，目标帧，内参
  */
-void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target, CalibHessian* HCalib )
+void FrameFramePrecalc::set(std::shared_ptr<FrameHessian> host, std::shared_ptr<FrameHessian> target, CalibHessian* HCalib )
 {
   // printf("whether this->host is NULL: yes is 1, no is 0. Answer: %x\n", this);
   //设置主导帧
@@ -229,9 +251,9 @@ void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target, CalibHessi
  * { item_description }
  * 获取当前帧的连接
  */
-set<FrameHessian*> FrameHessian::GetConnectedKeyFrames()
+set<std::shared_ptr<FrameHessian>> FrameHessian::GetConnectedKeyFrames()
 {
-  set<FrameHessian*> connectedFrames;
+  set<std::shared_ptr<FrameHessian>> connectedFrames;
   for (auto &rel : mPoseRel)
     connectedFrames.insert(rel.first);
   return connectedFrames;

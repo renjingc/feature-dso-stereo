@@ -84,7 +84,7 @@ void KeyFrameDisplay::setFromF(FrameShell* frame, CalibHessian* HCalib)
 	needRefresh=true;
 }
 
-void KeyFrameDisplay::setFromKF(FrameHessian* fh, CalibHessian* HCalib)
+void KeyFrameDisplay::setFromKF(std::shared_ptr<FrameHessian> fh, CalibHessian* HCalib)
 {
 	setFromF(fh->shell, HCalib);
 

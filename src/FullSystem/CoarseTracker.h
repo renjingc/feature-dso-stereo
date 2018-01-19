@@ -63,21 +63,21 @@ public:
 
 	//跟踪新一帧
 	bool trackNewestCoarse(
-			FrameHessian* newFrameHessian,
+			std::shared_ptr<FrameHessian> newFrameHessian,
 			SE3 &lastToNew_out, AffLight &aff_g2l_out,
 			int coarsestLvl, Vec5 minResForAbort,
 			IOWrap::Output3DWrapper* wrap=0);
 
 	//设置第一帧的参考帧
 	void setCTRefForFirstFrame(
-			std::vector<FrameHessian*> frameHessians);
+			std::vector<std::shared_ptr<FrameHessian>> frameHessians);
 
 	//设置跟踪的参考帧
 	void setCoarseTrackingRef(
-			std::vector<FrameHessian*> frameHessians, FrameHessian* fh_right, CalibHessian Hcalib);
+			std::vector<std::shared_ptr<FrameHessian>> frameHessians, std::shared_ptr<FrameHessian> fh_right, CalibHessian Hcalib);
 
 	//得到第一帧的深度图
-	void makeCoarseDepthForFirstFrame(FrameHessian* fh);
+	void makeCoarseDepthForFirstFrame(std::shared_ptr<FrameHessian> fh);
 
 	//设置内参
 	void makeK(
@@ -103,11 +103,11 @@ public:
     	void debugPlotIDepthMapFloat(std::vector<IOWrap::Output3DWrapper*> &wraps);
 
     	//最新跟踪的参考帧的Hessian矩阵
-	FrameHessian* lastRef;
+	std::shared_ptr<FrameHessian> lastRef;
 	//当前帧与参考帧的光度线性变换
 	AffLight lastRef_aff_g2l;
 	//新的一帧
-	FrameHessian* newFrame;
+	std::shared_ptr<FrameHessian> newFrame;
 	//参考帧的ID
 	int refFrameID;
 
@@ -120,7 +120,7 @@ public:
 	double firstCoarseRMSE;
 private:
 
-	void makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, FrameHessian* fh_right, CalibHessian Hcalib);
+	void makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>> frameHessians, std::shared_ptr<FrameHessian> fh_right, CalibHessian Hcalib);
 
 	//按图的坐标来
 	//逆深度图,
@@ -185,12 +185,12 @@ public:
 
 	//创建距离图，一堆关键帧，和当前关键帧
 	void makeDistanceMap(
-			std::vector<FrameHessian*> frameHessians,
-			FrameHessian* frame);
+			std::vector<std::shared_ptr<FrameHessian>> frameHessians,
+			std::shared_ptr<FrameHessian> frame);
 
 	//内点投票
 	void makeInlierVotes(
-			std::vector<FrameHessian*> frameHessians);
+			std::vector<std::shared_ptr<FrameHessian>> frameHessians);
 
 	void makeK( CalibHessian* HCalib);
 

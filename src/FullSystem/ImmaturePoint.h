@@ -49,7 +49,7 @@ public:
 	double state_NewEnergy;
 
 	//主导帧
-	FrameHessian* target;
+	std::shared_ptr<FrameHessian> target;
 };
 
 /**
@@ -94,7 +94,7 @@ public:
 	float u, v;
 	float u_stereo, v_stereo;  // u, v used to do static stereo matching
 	//主导帧的Hessian矩阵
-	FrameHessian* host;
+	std::shared_ptr<FrameHessian> host;
 	//在未成熟的点中的id
 	int idxInImmaturePoints;
 
@@ -116,14 +116,14 @@ public:
 	int feaMode=0;
 
 	//初始化
-	ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, CalibHessian* HCalib);
-	ImmaturePoint(float u_, float v_, FrameHessian* host_, CalibHessian* HCalib);
+	ImmaturePoint(int u_, int v_, std::shared_ptr<FrameHessian> host_, float type, CalibHessian* HCalib);
+	ImmaturePoint(float u_, float v_, std::shared_ptr<FrameHessian> host_, CalibHessian* HCalib);
 	~ImmaturePoint();
 
 	//双目静态匹配
-	ImmaturePointStatus traceStereo(FrameHessian* frame, Mat33f K, bool mode_right);
+	ImmaturePointStatus traceStereo(std::shared_ptr<FrameHessian> frame, Mat33f K, bool mode_right);
 	//深度跟踪
-	ImmaturePointStatus traceOn(FrameHessian* frame, Mat33f hostToFrame_KRKi, Vec3f hostToFrame_Kt, Vec2f hostToFrame_affine, CalibHessian* HCalib, bool debugPrint = false);
+	ImmaturePointStatus traceOn(std::shared_ptr<FrameHessian> frame, Mat33f hostToFrame_KRKi, Vec3f hostToFrame_Kt, Vec2f hostToFrame_affine, CalibHessian* HCalib, bool debugPrint = false);
 
 	//最新的跟踪状态
 	ImmaturePointStatus lastTraceStatus;

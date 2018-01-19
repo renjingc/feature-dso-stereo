@@ -77,7 +77,7 @@ public:
    * @param th 窗口大小
    * @return 匹配数量
    */
-  // int SearchByProjection(FrameHessian* CurrentFrame, FrameHessian* LastFrame, const float th,CalibHessian* HCalib);
+  // int SearchByProjection(std::shared_ptr<FrameHessian> CurrentFrame, std::shared_ptr<FrameHessian> LastFrame, const float th,CalibHessian* HCalib);
 
   // Search matches between Frame keypoints and projected MapPoints. Returns number of matches
   // Used to track the local map (Tracking)
@@ -88,7 +88,7 @@ public:
    * @param th 搜索窗口倍率
    * @return 匹配点数量
    */
-  //int SearchByProjection(FrameHessian* F, const std::set<shared_ptr<MapPoint>> &vpMapPoints, const float th = 3);
+  //int SearchByProjection(std::shared_ptr<FrameHessian> F, const std::set<shared_ptr<MapPoint>> &vpMapPoints, const float th = 3);
 
   /**
   * Search by direct project, use image alignment to estimate the pixel location instread of feature matching, can be faster
@@ -97,19 +97,19 @@ public:
   * @param th
   * @return
   */
-  //int SearchByDirectProjection(FrameHessian* F, const std::set<shared_ptr<MapPoint>> &vpMapPoints);
+  //int SearchByDirectProjection(std::shared_ptr<FrameHessian> F, const std::set<shared_ptr<MapPoint>> &vpMapPoints);
 
   // // 计算一个帧左右的图像匹配
   // enum StereoMethod {
   //   ORB_BASED, OPTIFLOW_BASED, OPTIFLOW_CV
   // }; // 计算双目匹配的方法，分为基于ORB匹配的和基于双目光流的
-  // void ComputeStereoMatches(FrameHessian* f, StereoMethod method = ORB_BASED);
+  // void ComputeStereoMatches(std::shared_ptr<FrameHessian> f, StereoMethod method = ORB_BASED);
 
-  // void ComputeStereoMatchesORB(FrameHessian* f);
+  // void ComputeStereoMatchesORB(std::shared_ptr<FrameHessian> f);
 
-  // void ComputeStereoMatchesOptiFlow(FrameHessian* f, bool only2Dpoints = false);
+  // void ComputeStereoMatchesOptiFlow(std::shared_ptr<FrameHessian> f, bool only2Dpoints = false);
 
-  // void ComputeStereoMatchesOptiFlowCV(FrameHessian* f);
+  // void ComputeStereoMatchesOptiFlowCV(std::shared_ptr<FrameHessian> f);
 
   // 特征点法的匹配
   // Computes the Hamming distance between two ORB descriptors
@@ -120,16 +120,16 @@ public:
   // 给定两帧之间的 Essential，计算 matched points
   // 结果中的 kf1 关键点状态必须没有三角化，kf2中则无所谓
   int SearchForTriangulation(
-    FrameHessian* kf1, FrameHessian* kf2, const Eigen::Matrix3d& E12,
+    std::shared_ptr<FrameHessian> kf1, std::shared_ptr<FrameHessian> kf2, const Eigen::Matrix3d& E12,
     std::vector< std::pair<int, int> >& matched_points,
     CalibHessian* HCalib,
     const bool& onlyStereo = false
   );
-  int SearchBruteForce(FrameHessian* frame1, FrameHessian* frame2, std::vector<cv::DMatch> &matches);
+  int SearchBruteForce(std::shared_ptr<FrameHessian> frame1, std::shared_ptr<FrameHessian> frame2, std::vector<cv::DMatch> &matches);
   // 在Keyframe之间搜索匹配情况，利用BoW加速
-  int SearchByBoW( FrameHessian * kf1, FrameHessian* kf2, std::vector<cv::DMatch> &matches );
+  int SearchByBoW( std::shared_ptr<FrameHessian> kf1, std::shared_ptr<FrameHessian> kf2, std::vector<cv::DMatch> &matches );
 
-  void showMatch(FrameHessian * kf1, FrameHessian* kf2, std::vector<cv::DMatch>& matches);
+  void showMatch(std::shared_ptr<FrameHessian> kf1, std::shared_ptr<FrameHessian> kf2, std::vector<cv::DMatch>& matches);
 
   // 在KeyFrame和地图之间搜索匹配情况
   // int SearchByProjection(Frame *F, const std::vector<MapPoint*> &vpMapPoints, const float th=3);
@@ -137,20 +137,20 @@ public:
   // 计算两个帧之间的特征描述是否一致
   // 这是在初始化里用的。初始化使用了光流跟踪了一些点，但我们没法保证跟踪成功，所以需要再检查一遍它们的描述量
   // 第三个参数内指定了光流追踪的match，如果描述不符合，就会从里面剔除
-  int CheckFrameDescriptors( FrameHessian* frame1, FrameHessian* frame2, std::list<std::pair<int, int>>& matches );
+  int CheckFrameDescriptors( std::shared_ptr<FrameHessian> frame1, std::shared_ptr<FrameHessian> frame2, std::list<std::pair<int, int>>& matches );
 
 
   // ****************************************************************************************************
   // 直接法的匹配
 
   // 用直接法判断能否从在当前图像上找到某地图点的投影
-  //bool FindDirectProjection( FrameHessian* ref, FrameHessian* curr, MapPoint* mp, Vector2d& px_curr, int& search_level );
+  //bool FindDirectProjection( std::shared_ptr<FrameHessian> ref, std::shared_ptr<FrameHessian> curr, MapPoint* mp, Vector2d& px_curr, int& search_level );
   // 重载: 已知feature的情况（尚未建立地图点时）
-  //bool FindDirectProjection( FrameHessian* ref, FrameHessian* curr, Feature* fea_ref, Vector2d& px_curr, int& search_level );
+  //bool FindDirectProjection( std::shared_ptr<FrameHessian> ref, std::shared_ptr<FrameHessian> curr, Feature* fea_ref, Vector2d& px_curr, int& search_level );
 
   // model based sparse image alignment
   // 通过参照帧中观测到的3D点，预测当前帧的pose，稀疏直接法
-  // bool SparseImageAlignment( FrameHessian* ref, FrameHessian* current );
+  // bool SparseImageAlignment( std::shared_ptr<FrameHessian> ref, std::shared_ptr<FrameHessian> current );
 
   SE3 GetTCR() const
   {
@@ -177,12 +177,12 @@ private:
   bool CheckDistEpipolarLine( const Eigen::Vector3d& pt1, const Eigen::Vector3d& pt2, const Eigen::Matrix3d& E12 );
 
   // // 对每层金字塔计算的 image alignment
-  // bool SparseImageAlignmentInPyramid( FrameHessian* ref, FrameHessian* current, int pyramid );
+  // bool SparseImageAlignmentInPyramid( std::shared_ptr<FrameHessian> ref, std::shared_ptr<FrameHessian> current, int pyramid );
 
 
   // void GetWarpAffineMatrix (
-  //   const FrameHessian* ref,
-  //   const FrameHessian* curr,
+  //   const std::shared_ptr<FrameHessian> ref,
+  //   const std::shared_ptr<FrameHessian> curr,
   //   const Eigen::Vector2d& px_ref,
   //   const Eigen::Vector3d& pt_ref,
   //   const int & level,
@@ -217,7 +217,7 @@ private:
   }
 
   // // 计算参照帧中的图像块
-  // void PrecomputeReferencePatches( FrameHessian* ref, int level );
+  // void PrecomputeReferencePatches( std::shared_ptr<FrameHessian> ref, int level );
 
 private:
   // Data

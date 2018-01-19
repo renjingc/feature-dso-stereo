@@ -142,7 +142,7 @@ public:
          * Calling:
          * Always called, negligible overhead if not used.
          */
-        virtual void publishKeyframes(std::vector<FrameHessian*> &frames, bool final, CalibHessian* HCalib) {}
+        virtual void publishKeyframes(std::vector<std::shared_ptr<FrameHessian>> &frames, bool final, CalibHessian* HCalib) {}
 
         /* Usage:
          * Called once for each tracked frame, with the real-time, low-delay frame pose.
@@ -158,8 +158,8 @@ public:
          * Calling:
          * Always called, no overhead if not used.
          */
-        virtual void pushLiveFrame(FrameHessian* image) {}
-        virtual void pushStereoLiveFrame(FrameHessian* image,FrameHessian* image_right){}
+        virtual void pushLiveFrame(std::shared_ptr<FrameHessian> image) {}
+        virtual void pushStereoLiveFrame(std::shared_ptr<FrameHessian> image,std::shared_ptr<FrameHessian> image_right){}
 
 
         /* called once after a new keyframe is created, with the color-coded, forward-warped inverse depthmap for that keyframe,
@@ -179,7 +179,7 @@ public:
          * Calling:
          * Always called, almost no overhead if not used.
          */
-        virtual void pushDepthImageFloat(MinimalImageF* image, FrameHessian* KF ) {}
+        virtual void pushDepthImageFloat(MinimalImageF* image, std::shared_ptr<FrameHessian> KF ) {}
 
 
 

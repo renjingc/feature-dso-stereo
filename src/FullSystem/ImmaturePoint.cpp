@@ -41,7 +41,7 @@ namespace fdso
  * 初始化一个点
  * my_type要么是1，要么是0，好像一直没用到
  */
-ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, CalibHessian* HCalib)
+ImmaturePoint::ImmaturePoint(int u_, int v_, std::shared_ptr<FrameHessian> host_, float type, CalibHessian* HCalib)
 	: u(u_), v(v_), host(host_), my_type(type), idepth_min(0), idepth_max(NAN), idepth_min_stereo(0),idepth_max_stereo(NAN),lastTraceStatus(IPS_UNINITIALIZED)
 {
 	//梯度设为0
@@ -84,7 +84,7 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, Ca
  * @param      host_   The host
  * @param      HCalib  The h calib
  */
-ImmaturePoint::ImmaturePoint(float u_, float v_, FrameHessian* host_, CalibHessian* HCalib)
+ImmaturePoint::ImmaturePoint(float u_, float v_, std::shared_ptr<FrameHessian> host_, CalibHessian* HCalib)
 	: u(u_), v(v_), host(host_), idepth_min(0), idepth_max(NAN), idepth_min_stereo(0),idepth_max_stereo(NAN),lastTraceStatus(IPS_UNINITIALIZED)
 {
 	//梯度设为0
@@ -117,8 +117,9 @@ ImmaturePoint::ImmaturePoint(float u_, float v_, FrameHessian* host_, CalibHessi
 
 ImmaturePoint::~ImmaturePoint()
 {
+  if(mF)
+    mF=nullptr;
 }
-
 // do static stereo match. if mode_right = true, it matches from left to right. otherwise do it from right to left.
 
 /**
@@ -131,7 +132,7 @@ ImmaturePoint::~ImmaturePoint()
  * @return     { description_of_the_return_value }
  * 静态双目匹配，mode_right = true，左图与右图进行匹配，否则为右图与作图匹配,j计算得到idepth_stereo和idepth_stereo_min和idepth_stereo_max
  */
-ImmaturePointStatus ImmaturePoint::traceStereo(FrameHessian* frame, Mat33f K, bool mode_right)
+ImmaturePointStatus ImmaturePoint::traceStereo(std::shared_ptr<FrameHessian> frame, Mat33f K, bool mode_right)
 {
 	// KRKi
 	Mat33f KRKi = Mat33f::Identity().cast<float>();
@@ -451,7 +452,7 @@ ImmaturePointStatus ImmaturePoint::traceStereo(FrameHessian* frame, Mat33f K, bo
  * * SKIP -> point has not been updated.
  * 更新了lastTraceUV和idepth_min和idepth_max
  */
-ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame, Mat33f hostToFrame_KRKi, Vec3f hostToFrame_Kt, Vec2f hostToFrame_affine, CalibHessian* HCalib, bool debugPrint)
+ImmaturePointStatus ImmaturePoint::traceOn(std::shared_ptr<FrameHessian> frame, Mat33f hostToFrame_KRKi, Vec3f hostToFrame_Kt, Vec2f hostToFrame_affine, CalibHessian* HCalib, bool debugPrint)
 {
 	//判断点最新的状态
 	if (lastTraceStatus == ImmaturePointStatus::IPS_OOB) return lastTraceStatus;

@@ -32,19 +32,19 @@ namespace fdso {
 
         KeyFrameDatabase(ORBVocabulary* voc);
 
-        void add(FrameHessian* pKF);
+        void add(std::shared_ptr<FrameHessian> pKF);
 
-        void erase(FrameHessian* pKF);
+        void erase(std::shared_ptr<FrameHessian> pKF);
 
         void clear();
 
         // Loop Detection
-        std::vector<FrameHessian*> DetectLoopCandidates(FrameHessian* pKF, float minScore);
+        std::vector<std::shared_ptr<FrameHessian>> DetectLoopCandidates(std::shared_ptr<FrameHessian> pKF, float minScore);
 
     private:
         ORBVocabulary* mpVoc;
 
-        std::vector<list<FrameHessian*>> mvInvertedFile; ///< 倒排索引，mvInvertedFile[i]表示包含了第i个word id的所有关键帧
+        std::vector<list<std::shared_ptr<FrameHessian>>> mvInvertedFile; ///< 倒排索引，mvInvertedFile[i]表示包含了第i个word id的所有关键帧
 
         // Mutex
         std::mutex mMutex;
@@ -61,18 +61,18 @@ namespace fdso {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
         // Consistent group, the first is a group of keyframes that are considered as consistent, and the second is how many times they are detected
-        typedef pair<set<FrameHessian*>, int> ConsistentGroup;
+        typedef pair<set<std::shared_ptr<FrameHessian>>, int> ConsistentGroup;
 
         LoopClosing(FullSystem* fullSystem);
 
-        void insertKeyFrame(FrameHessian* frame);
+        void insertKeyFrame(std::shared_ptr<FrameHessian> frame);
 
         /**
          * detect loop candidates from the keyframe database
          * @param frame
          * @return true if there is at least one loop candidate
          */
-        bool DetectLoop(FrameHessian* frame);
+        bool DetectLoop(std::shared_ptr<FrameHessian> frame);
 
         /**
          * compute RANSAC pnp in loop frames
@@ -100,13 +100,13 @@ namespace fdso {
         ORBVocabulary* mpVoc;
 
         std::vector<ConsistentGroup> mvConsistentGroups;    // many groups
-        std::vector<FrameHessian*> mvpEnoughConsistentCandidates;  // loop candidate frames compared with the newest one.
+        std::vector<std::shared_ptr<FrameHessian>> mvpEnoughConsistentCandidates;  // loop candidate frames compared with the newest one.
 
-        vector<FrameHessian*> mvAllKF;
-        FrameHessian* mpCurrentKF = nullptr;
+        vector<std::shared_ptr<FrameHessian>> mvAllKF;
+        std::shared_ptr<FrameHessian> mpCurrentKF = nullptr;
 
         // loop kf queue
-        deque<FrameHessian*> mvKFQueue;
+        deque<std::shared_ptr<FrameHessian>> mvKFQueue;
         mutex mutexKFQueue;
 
         bool mbFinished = false;
