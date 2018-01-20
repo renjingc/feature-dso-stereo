@@ -69,6 +69,10 @@ set(dso_SOURCE_FILES
 
   ${PROJECT_SOURCE_DIR}/src/FullSystem/FeatureDetector.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/FeatureMatcher.cpp
+
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/PR.cpp
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/Map.cpp
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/LoopClosing.cc
 )
 
 
