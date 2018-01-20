@@ -336,7 +336,7 @@ void FullSystem::printResult(std::string file)
  * @param  fh_right [description]
  * @return          [description]
  */
-Vec4 FullSystem::trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right, SE3 initT)
+Vec4 FullSystem::trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right, SE3 initT,bool usePnP)
 {
 
 	assert(allFrameHistory.size() > 0);
@@ -436,6 +436,15 @@ Vec4 FullSystem::trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_pt
 		// get last delta-movement.
 		//lastF_2_fh_tries.push_back(init_Rt.inverse()*lastF_2_slast);
 		//匀速模型，上一次的位移*上一帧相对参考帧的位姿
+		if(usePnP)
+		{
+			SE3 T_tmp = lastF->shell->camToWorld * initT.inverse();
+			//平移
+			Eigen::Matrix<double, 3, 1> last_T = T_tmp.translation().transpose();
+			// std::cout << "pnp pose  x:" << last_T(0, 0) << "y:" << last_T(1, 0) << "z:" << last_T(2, 0) << std::endl;
+			lastF_2_fh_tries.push_back(initT);
+		}
+
 		lastF_2_fh_tries.push_back(fh_2_slast.inverse() * lastF_2_slast);	// assume constant motion.
 		//两次运动
 		lastF_2_fh_tries.push_back(fh_2_slast.inverse() * fh_2_slast.inverse() * lastF_2_slast);	// assume double motion (frame skipped)
@@ -522,11 +531,17 @@ Vec4 FullSystem::trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_pt
 		SE3 lastF_2_fh_this = lastF_2_fh_tries[i];
 
 		//是否跟踪成功
-		bool trackingIsGood = coarseTracker->trackNewestCoarse(
+		bool trackingIsGood;
+		if(usePnP && i==0)
+ 			trackingIsGood = coarseTracker->trackNewestCoarse(
+		                        fh, lastF_2_fh_this, aff_g2l_this,
+		                        pyrLevelsUsed - 2,
+		                        achievedRes);	// in each level has to be at least as good as the last try.
+ 		else
+ 			trackingIsGood = coarseTracker->trackNewestCoarse(
 		                        fh, lastF_2_fh_this, aff_g2l_this,
 		                        pyrLevelsUsed - 1,
 		                        achievedRes);	// in each level has to be at least as good as the last try.
-
 		//尝试次数++
 		tryIterations++;
 
@@ -581,7 +596,11 @@ Vec4 FullSystem::trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_pt
 		LOG(INFO) << "BIG ERROR! tracking failed entirely. Take predictred pose and hope we may somehow recover" << std::endl;;
 		flowVecs = Vec3(0, 0, 0);
 		aff_g2l = aff_last_2_l;
-		lastF_2_fh = lastF_2_fh_tries[0];
+
+		if(usePnP)
+			lastF_2_fh=initT;
+		else
+			lastF_2_fh = lastF_2_fh_tries[0];
 	}
 
 	//每一层的残差，即记录上一次的残差
@@ -596,6 +615,7 @@ Vec4 FullSystem::trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_pt
 
 	//平移
 	Eigen::Matrix<double, 3, 1> last_T = fh->shell->camToWorld.translation().transpose();
+	// std::cout << "dso pose  x:" << last_T(0, 0) << "y:" << last_T(1, 0) << "z:" << last_T(2, 0) << std::endl;
 	LOG(INFO) << "pose  x:" << last_T(0, 0) << "y:" << last_T(1, 0) << "z:" << last_T(2, 0) << std::endl;
 
 	if (coarseTracker->firstCoarseRMSE < 0)
@@ -1172,8 +1192,8 @@ void FullSystem::activatePointsMT()
 			assert(newpoint->efPoint != 0);
 			// delete ph;
 		}
-		else if (newpoint == nullptr //(std::shared_ptr<PointHessian>)((long)(-1)) 
-			|| ph->lastTraceStatus == IPS_OOB)
+		else if (newpoint == nullptr //(std::shared_ptr<PointHessian>)((long)(-1))
+		         || ph->lastTraceStatus == IPS_OOB)
 		{
 			//删除该点
 			// delete ph;
@@ -1380,55 +1400,15 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	fh_right->makeImages(image_right, &Hcalib);
 
 	makeNewTraces(fh, fh_right, 0);
-
 	fh->ComputeBoW(_vocab);
 
-	Mat33f K = Mat33f::Identity();
-	K(0, 0) = Hcalib.fxl();
-	K(1, 1) = Hcalib.fyl();
-	K(0, 2) = Hcalib.cxl();
-	K(1, 2) = Hcalib.cyl();
-//    for (std::shared_ptr<ImmaturePoint> ph : fh->immaturePoints)
-//    {
-//        //坐标
-//        ph->u_stereo = ph->u;
-//        ph->v_stereo = ph->v;
-//        ph->idepth_min_stereo = ph->idepth_min = 0;
-//        ph->idepth_max_stereo = ph->idepth_max = NAN;
+	makeCurrentDepth(fh, fh_right);
 
-//        //左图与右图进行双目匹配，获取静态深度
-//        ImmaturePointStatus phTraceRightStatus = ph->traceStereo(fh_right, K, 1);
-
-//        //判断当前点的深度值是否好
-//        if (phTraceRightStatus == ImmaturePointStatus::IPS_GOOD)
-//        {
-//            //获取右图中的这个点
-//            std::shared_ptr<ImmaturePoint> phRight = new ImmaturePoint(ph->lastTraceUV(0), ph->lastTraceUV(1), fh_right, &Hcalib );
-
-//            //获取右图中的像素坐标
-//            phRight->u_stereo = phRight->u;
-//            phRight->v_stereo = phRight->v;
-//            phRight->idepth_min_stereo = ph->idepth_min = 0;
-//            phRight->idepth_max_stereo = ph->idepth_max = NAN;
-
-//            //右图与左图进行双目匹配，获取静态深度
-//            ImmaturePointStatus  phTraceLeftStatus = phRight->traceStereo(fh, K, 0);
-
-//            //两张图中的ｕ坐标差
-//            float u_stereo_delta = abs(ph->u_stereo - phRight->lastTraceUV(0));
-
-//            //左图中这个点的深度
-//            float depth = 1.0f / ph->idepth_stereo;
-
-//            //判断这个点的状态，这个点左图ｕ坐标小于１，深度在０-70之间
-//            if (phTraceLeftStatus == ImmaturePointStatus::IPS_GOOD && u_stereo_delta < 1 && depth > 0 && depth < 70)   //original u_stereo_delta 1 depth < 70
-//            {
-//                //更新该点的最小和最大的深度
-//                ph->idepth_min = ph->idepth_min_stereo;
-//                ph->idepth_max = ph->idepth_max_stereo;
-//            }
-//        }
-//    }
+	cv::Mat K = cv::Mat::eye(3, 3, CV_32F);
+	K.at<float>(0, 0) = Hcalib.fxl();
+	K.at<float>(1, 1) = Hcalib.fyl();
+	K.at<float>(0, 2) = Hcalib.cxl();
+	K.at<float>(1, 2) = Hcalib.cyl();
 
 	//将当前帧增加到历史记录中
 	allFrameHistory.push_back(shell);
@@ -1447,16 +1427,52 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 	}
 	else	// do front-end operation.
 	{
-		if(frameHessians.size()>3)
+		bool usePnP=false;;
+		int cntInliers=0;
+		SE3 initT1,initT;
+		std::vector<bool> mvbOutlier;
+		if (frameHessians.size() > 3)
 		{
-			std::vector<cv::DMatch> matches;
-			shared_ptr<FrameHessian> pKF=frameHessians[frameHessians.size()-1];
-       		int nmatches = matcher->SearchByBoW(fh, pKF, matches);
-       		matcher->showMatch(fh,pKF,matches);
-       	}
+			TicToc t;
+			boost::timer bt;
+			std::vector<cv::DMatch> matches, goofMatches;
+			shared_ptr<FrameHessian> pKF = frameHessians[frameHessians.size() - 1];
+			int nmatches = matcher->SearchByBoW(fh, pKF, matches);
+			matcher->checkUVDistance(fh, pKF, matches, goofMatches);
+			LOG(INFO) << "matche time size: " << t.toc() << "ms " << goofMatches.size() << std::endl;
+			//matcher->showMatch(fh,pKF,goofMatches);
 
-		Eigen::Matrix3d initR;
-		SE3 initT;
+			vector<cv::Point3f> p3d;
+			vector<cv::Point2f> p2d;
+			vector<int> matchIdx;
+			for (size_t k = 0; k < goofMatches.size(); k++)
+			{
+				auto &m = goofMatches[k];
+
+				std::shared_ptr<Feature> featKF = pKF->_features[m.trainIdx];
+				std::shared_ptr<Feature> featCurrent = fh->_features[m.queryIdx];
+
+				if (featKF->mImP && featKF->mImP->lastTraceStatus == ImmaturePointStatus::IPS_GOOD)
+				{
+					// there should be a 3d point
+					std::shared_ptr<ImmaturePoint> pt = featKF->mImP;
+					Vec3 pose;
+					pt->ComputePos(pose);
+					LOG(INFO) << "pKF pt3d: " << " " << pose[0] << " " << pose[1] << " " << pose[2] << std::endl;
+					cv::Point3f pt3d(pose[0], pose[1], pose[2]);
+					p3d.push_back(pt3d);
+					LOG(INFO) << "mpCurrentKF p2d: " << " " << featCurrent->_pixel[0] << " " << featCurrent->_pixel[1] << std::endl;
+					p2d.push_back(cv::Point2f(featCurrent->_pixel[0], featCurrent->_pixel[1]));
+					matchIdx.push_back(k);
+				}
+			}
+
+			if(pnpCv(initT1,p2d,p3d,K,cntInliers,mvbOutlier,initT))
+			{
+				if(checkEstimatedPose(cntInliers,initT))
+					usePnP=true;
+			}
+		}
 
 		// =========================== SWAP tracking reference?. =========================
 		//如果当前关键帧的参考帧ID大于当前跟踪的参考帧ID
@@ -1470,7 +1486,7 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, ImageAndExposure* imag
 		}
 
 		//进行跟踪
-		Vec4 tres = trackNewCoarse(fh, fh_right, initT);
+		Vec4 tres = trackNewCoarse(fh, fh_right, initT,usePnP);
 		if (!std::isfinite((double)tres[0]) || !std::isfinite((double)tres[1]) || !std::isfinite((double)tres[2]) || !std::isfinite((double)tres[3]))
 		{
 			printf("Initial Tracking failed: LOST!\n");
@@ -1758,18 +1774,75 @@ void FullSystem::makeNonKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_
 	//删除当前帧
 	// delete fh;
 	// delete fh_right;
-	// 
-	pixelSelector->gradHistFrame=nullptr;
-	coarseTracker->newFrame=nullptr;
-	coarseTracker_forNewKF->newFrame=nullptr;
+	//
+	pixelSelector->gradHistFrame = nullptr;
+	coarseTracker->newFrame = nullptr;
+	coarseTracker_forNewKF->newFrame = nullptr;
 
-	LOG(INFO)<<"makeNonKeyFrame0: "<<fh.use_count()<<endl;
+	LOG(INFO) << "makeNonKeyFrame0: " << fh.use_count() << endl;
 
 	fh->release();
 	fh_right->release();
 
 
-	LOG(INFO)<<"makeNonKeyFrame1: "<<fh.use_count()<<endl;
+	LOG(INFO) << "makeNonKeyFrame1: " << fh.use_count() << endl;
+}
+
+void FullSystem::makeCurrentDepth(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right)
+{
+//内参
+	Mat33f K = Mat33f::Identity();
+	K(0, 0) = Hcalib.fxl();
+	K(1, 1) = Hcalib.fyl();
+	K(0, 2) = Hcalib.cxl();
+	K(1, 2) = Hcalib.cyl();
+
+	//计数
+	int counter = 0;
+
+	//遍历每一个点
+	for (std::shared_ptr<ImmaturePoint> ph : fh->immaturePoints)
+	{
+		//坐标
+		ph->u_stereo = ph->u;
+		ph->v_stereo = ph->v;
+		ph->idepth_min_stereo = ph->idepth_min = 0;
+		ph->idepth_max_stereo = ph->idepth_max = NAN;
+
+		//左图与右图进行双目匹配，获取静态深度
+		ImmaturePointStatus phTraceRightStatus = ph->traceStereo(fh_right, K, 1);
+
+		//判断当前点的深度值是否好
+		if (phTraceRightStatus == ImmaturePointStatus::IPS_GOOD)
+		{
+			//获取右图中的这个点
+			std::shared_ptr<ImmaturePoint> phRight(new ImmaturePoint(ph->lastTraceUV(0), ph->lastTraceUV(1), fh_right, &Hcalib ));
+
+			//获取右图中的像素坐标
+			phRight->u_stereo = phRight->u;
+			phRight->v_stereo = phRight->v;
+			phRight->idepth_min_stereo = ph->idepth_min = 0;
+			phRight->idepth_max_stereo = ph->idepth_max = NAN;
+
+			//右图与左图进行双目匹配，获取静态深度
+			ImmaturePointStatus  phTraceLeftStatus = phRight->traceStereo(fh, K, 0);
+
+			//两张图中的ｕ坐标差
+			float u_stereo_delta = abs(ph->u_stereo - phRight->lastTraceUV(0));
+
+			//左图中这个点的深度
+			float depth = 1.0f / ph->idepth_stereo;
+
+			//判断这个点的状态，这个点左图ｕ坐标小于１，深度在０-70之间
+			if (phTraceLeftStatus == ImmaturePointStatus::IPS_GOOD && u_stereo_delta < 1 && depth > 0 && depth < 70)   //original u_stereo_delta 1 depth < 70
+			{
+				//更新该点的最小和最大的深度
+				ph->idepth_min = ph->idepth_min_stereo;
+				ph->idepth_max = ph->idepth_max_stereo;
+				ph->lastTraceStatus = ImmaturePointStatus :: IPS_GOOD;
+			}
+		}
+	}
 }
 
 /**
@@ -1830,8 +1903,7 @@ void FullSystem::makeKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr
 	LOG(INFO) << "makeKeyFrame " << fh->shell->id << " " << fh->idx << " " << fh->frameID << std::endl;
 
 	//插入当前关键帧,这句有问题,怀疑是指针被删了
-	globalMap->addKeyFrame(fh);
-
+	//globalMap->addKeyFrame(fh);
 
 	//误差能量函数插入该帧的Hessian
 	ef->insertFrame(fh, &Hcalib);
@@ -2004,13 +2076,13 @@ void FullSystem::makeKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr
 		{
 			//边缘化这一帧
 			marginalizeFrame(frameHessians[i]);
-			LOG(INFO)<<"marginalizeFrame use count: "<<frameHessians[i].use_count()<<std::endl;
+			LOG(INFO) << "marginalizeFrame use count: " << frameHessians[i].use_count() << std::endl;
 			i = 0;
 		}
 	}
 
 	//闭环检测插入当前关键帧
-    	//loopClosing->insertKeyFrame(fh);
+	//loopClosing->insertKeyFrame(fh);
 
 	LOG(INFO) << "delete right frame" << std::endl;
 	// delete fh_right;
@@ -2127,9 +2199,9 @@ void FullSystem::initializeFromInitializer(std::shared_ptr<FrameHessian> newFram
 		}
 
 		// delete pt;
-		if (!std::isfinite(ph->energyTH)) 
+		if (!std::isfinite(ph->energyTH))
 		{
-			//delete ph; 
+			//delete ph;
 			continue;
 		}
 

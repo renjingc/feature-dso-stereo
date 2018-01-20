@@ -1,5 +1,5 @@
 #include "PR.h"
-#include "FullSystem/GlobalCalib.h"
+#include "util/globalCalib.h"
 #include "FullSystem/ResidualProjections.h"
 
 using namespace fdso;

@@ -1,5 +1,6 @@
 #include <boost/timer.hpp>
 #include "FeatureMatcher.h"
+#include "FullSystem/vfc.h"
 
 namespace fdso {
 
@@ -56,7 +57,7 @@ void FeatureMatcher::showMatch(std::shared_ptr<FrameHessian> kf1, std::shared_pt
                 );
     }
     cv::imshow("match", img_show);
-    cv::waitKey(0);
+    cv::waitKey(1);
 }
 
 int FeatureMatcher::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
@@ -374,6 +375,59 @@ int FeatureMatcher::SearchByBoW(
 //        }
 
     return cnt_matches;
+}
+
+void FeatureMatcher::checkUVDistance(
+    std::shared_ptr<FrameHessian> kf1,
+    std::shared_ptr<FrameHessian> kf2,
+    std::vector<cv::DMatch> &matches,
+    std::vector<cv::DMatch> &goodMatches)
+{
+    goodMatches.clear();
+    // for ( cv::DMatch& m : matches )
+    // {
+    //     cv::circle( img_show,
+    //                 cv::Point2f(kf1->_features[m.queryIdx]->_pixel[0], kf1->_features[m.queryIdx]->_pixel[1]),
+    //                 2, cv::Scalar(255, 250, 255), 2 );
+    //     cv::circle( img_show,
+    //                 cv::Point2f(kf1->image.cols + kf2->_features[m.trainIdx]->_pixel[0], kf2->_features[m.trainIdx]->_pixel[1]),
+    //                 2, cv::Scalar(255, 250, 255), 2 );
+    //     cv::line( img_show,
+    //               cv::Point2f(kf1->_features[m.queryIdx]->_pixel[0], kf1->_features[m.queryIdx]->_pixel[1]),
+    //               cv::Point2f(kf2->image.cols + kf2->_features[m.trainIdx]->_pixel[0], kf2->_features[m.trainIdx]->_pixel[1]),
+    //               cv::Scalar(255, 250, 255), 1
+    //             );
+    // }
+    // Filter Matches with Vector Field consensus (VFC)
+  // a - preprocess data format
+    vector<cv::Point2f> X;
+    vector<cv::Point2f> Y;
+    X.clear();
+    Y.clear();
+    for (unsigned int i = 0; i < matches.size(); i++)
+    {
+        int idx1 = matches[i].queryIdx;
+        int idx2 = matches[i].trainIdx;
+        X.push_back(cv::Point2f(kf1->_features[idx1]->_pixel[0],kf1->_features[idx1]->_pixel[1]));
+        Y.push_back(cv::Point2f(kf2->_features[idx2]->_pixel[0],kf2->_features[idx2]->_pixel[1]));
+    }
+
+  // b - main - vfc
+
+    VFC myvfc;
+    myvfc.setData(X, Y);
+    myvfc.optimize();
+    vector<int> matchIdx = myvfc.obtainCorrectMatch();
+
+  // c - post process
+  std::vector<cv::DMatch > correctMatches;
+  correctMatches.clear();
+  for (unsigned int i = 0; i < matchIdx.size(); i++)
+  {
+    int idx = matchIdx[i];
+    correctMatches.push_back(matches[idx]);
+    goodMatches.push_back(matches[idx]);
+  }
 }
 
 void FeatureMatcher::ComputeThreeMaxima(

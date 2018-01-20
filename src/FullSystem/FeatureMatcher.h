@@ -131,6 +131,12 @@ public:
 
   void showMatch(std::shared_ptr<FrameHessian> kf1, std::shared_ptr<FrameHessian> kf2, std::vector<cv::DMatch>& matches);
 
+  void checkUVDistance(
+    std::shared_ptr<FrameHessian> kf1,
+    std::shared_ptr<FrameHessian> kf2,
+    std::vector<cv::DMatch> &matches,
+    std::vector<cv::DMatch> &goodMatches);
+
   // 在KeyFrame和地图之间搜索匹配情况
   // int SearchByProjection(Frame *F, const std::vector<MapPoint*> &vpMapPoints, const float th=3);
 

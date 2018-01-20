@@ -352,9 +352,9 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
         LOG(INFO) << "try " << mpCurrentKF->frameID << " with " << pKF->frameID << endl;
 
         auto connectedKFs = pKF->GetConnectedKeyFrames();
-        vector<cv::DMatch> matches;
+        vector<cv::DMatch> matches,goofMatches;
         int nmatches = matcher.SearchByBoW(mpCurrentKF, pKF, matches);
-
+        matcher.checkUVDistance(mpCurrentKF, pKF, matches, goofMatches);
 
         if (nmatches < 10)
         {
@@ -364,7 +364,7 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
         }
         else
         {
-            matcher.showMatch(mpCurrentKF,pKF,matches);
+            matcher.showMatch(mpCurrentKF,pKF,goofMatches);
             LOG(INFO) << "let's try opencv's solve pnp ransac first " << std::endl;
             // well let's try opencv's solve pnp ransac first
             // TODO sim3 maybe better, but DSO's scale is not likely to drift?
@@ -373,10 +373,10 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
             cv::Mat inliers;
             vector<int> matchIdx;
 
-            LOG(INFO)<<"matches size(): "<<matches.size()<<std::endl;
-            for (size_t k = 0; k < matches.size(); k++)
+            LOG(INFO)<<"goofMatches size(): "<<goofMatches.size()<<std::endl;
+            for (size_t k = 0; k < goofMatches.size(); k++)
             {
-                auto &m = matches[k];
+                auto &m = goofMatches[k];
 
                 std::shared_ptr<Feature> featKF = pKF->_features[m.trainIdx];
                 std::shared_ptr<Feature> featCurrent = mpCurrentKF->_features[m.queryIdx];
@@ -406,7 +406,8 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
 
             LOG(INFO)<<"solvePnPRansac size(): "<<p3d.size()<<" "<<p2d.size()<<std::endl;
             cv::Mat R, t;
-            cv::solvePnPRansac(p3d, p2d, K, cv::Mat(), R, t, false, 100, 8.0, 100, inliers);
+            //cv::solvePnPRansac(p3d, p2d, K, cv::Mat(), R, t, false, 100, 8.0, 100, inliers);
+            cv::solvePnPRansac(p3d, p2d, K, cv::Mat(), R, t, false, 100, 8.0, 0.99, inliers);
 
             int cntInliers = 0;
 

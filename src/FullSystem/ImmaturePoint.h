@@ -151,6 +151,8 @@ public:
 	  ImmaturePointTemporaryResidual* tmpRes,
 	  float idepth);
 
+	bool ComputePos(Vec3& pose);
+
 private:
 };
 

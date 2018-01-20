@@ -27,6 +27,7 @@
 
 #include "util/NumType.h"
 #include "util/globalCalib.h"
+#include "util/tic_toc.h"
 #include "vector"
 
 #include <iostream>
@@ -45,6 +46,8 @@
 
 #include "FullSystem/FeatureDetector.h"
 #include "FullSystem/FeatureMatcher.h"
+
+#include "FullSystem/OptimizerPnP.h"
 
 #include "FullSystem/Map.h"
 
@@ -218,6 +221,8 @@ public:
 
 	float optimize(int mnumOptIts);
 
+	void makeCurrentDepth(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
+
 	//compute stereo idepth
 	void stereoMatch(ImageAndExposure* image, ImageAndExposure* image_right, int id, cv::Mat &idepthMap);
 
@@ -265,7 +270,7 @@ private:
 
 	// mainPipelineFunctions
 	//主跟踪函数
-	Vec4 trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right, SE3 initT);
+	Vec4 trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right, SE3 initT,bool usePnP);
 	//关键帧的更新
 	void traceNewCoarseKey(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
 	//更新一个点

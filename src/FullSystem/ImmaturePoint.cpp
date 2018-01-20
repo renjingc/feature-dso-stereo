@@ -1043,4 +1043,29 @@ double ImmaturePoint::linearizeResidual(
 	return energyLeft;
 }
 
+// void ImmaturePoint::ComputeWorldPos()
+// {
+//   if (!host)
+//     return;
+//   SE3 Twc = host->shell->camToWorldOpti;
+//   Vec3 Kip = 1.0 / this->idepth * Vec3(
+//                fxiG[0]  * this->u + cxiG[0],
+//              fyiG[0]  * this->v + cyiG[0],
+//              1);
+//   mWorldPos = Twc * Kip;
+// }
+
+bool ImmaturePoint::ComputePos(Vec3& pose)
+{
+	if(!std::isfinite(idepth_stereo))
+		return false;
+
+  	pose = 1.0 / this->idepth_stereo * Vec3(
+               fxiG[0]  * this->u + cxiG[0],
+             fyiG[0]  * this->v + cyiG[0],
+             1);
+
+  	return true;
+}
+
 }
