@@ -70,7 +70,7 @@ struct PointHessian
   bool hasDepthPrior;
 
   //对应的特帧点
-  Feature* mF=nullptr;
+  std::shared_ptr<Feature> mF=nullptr;
   int feaMode=0;
 
   //类型
@@ -136,7 +136,7 @@ struct PointHessian
 
 
   void release();
-  PointHessian(const ImmaturePoint* const rawPoint, CalibHessian* Hcalib);
+  PointHessian(const std::shared_ptr<ImmaturePoint> rawPoint, CalibHessian* Hcalib);
   inline ~PointHessian() {assert(efPoint == 0); release(); instanceCounter--;}
 
 

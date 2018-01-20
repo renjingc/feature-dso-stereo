@@ -30,7 +30,7 @@ namespace fdso {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-        KeyFrameDatabase(ORBVocabulary* voc);
+        KeyFrameDatabase(std::shared_ptr<ORBVocabulary> voc);
 
         void add(std::shared_ptr<FrameHessian> pKF);
 
@@ -42,7 +42,7 @@ namespace fdso {
         std::vector<std::shared_ptr<FrameHessian>> DetectLoopCandidates(std::shared_ptr<FrameHessian> pKF, float minScore);
 
     private:
-        ORBVocabulary* mpVoc;
+        std::shared_ptr<ORBVocabulary> mpVoc;
 
         std::vector<list<std::shared_ptr<FrameHessian>>> mvInvertedFile; ///< 倒排索引，mvInvertedFile[i]表示包含了第i个word id的所有关键帧
 
@@ -97,7 +97,7 @@ namespace fdso {
         // data
         shared_ptr<Map> mpGlobalMap = nullptr;  // global map
         KeyFrameDatabase* mpKeyFrameDB = nullptr;
-        ORBVocabulary* mpVoc;
+        std::shared_ptr<ORBVocabulary> mpVoc;
 
         std::vector<ConsistentGroup> mvConsistentGroups;    // many groups
         std::vector<std::shared_ptr<FrameHessian>> mvpEnoughConsistentCandidates;  // loop candidate frames compared with the newest one.

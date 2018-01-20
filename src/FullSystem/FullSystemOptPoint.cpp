@@ -58,8 +58,8 @@ namespace fdso
  * 优化每一个点，将这个点与窗口中的每一个非主导帧的关键帧进行误差迭代，获取该点最新的逆深度
  * 从ImmaturePoint生成PointHessian
  */
-PointHessian* FullSystem::optimizeImmaturePoint(
-		ImmaturePoint* point, int minObs,
+std::shared_ptr<PointHessian> FullSystem::optimizeImmaturePoint(
+		std::shared_ptr<ImmaturePoint> point, int minObs,
 		ImmaturePointTemporaryResidual* residuals)
 {
 	int nres = 0;
@@ -183,7 +183,7 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 	if(!std::isfinite(currentIdepth))
 	{
 		printf("MAJOR ERROR! point idepth is nan after initialization (%f).\n", currentIdepth);
-		return (PointHessian*)((long)(-1));		// yeah I'm like 99% sure this is OK on 32bit systems.
+		return nullptr;//(std::shared_ptr<PointHessian>)((long)(-1));		// yeah I'm like 99% sure this is OK on 32bit systems.
 	}
 
 	//当前点与这一帧有好的残差
@@ -195,12 +195,16 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 	if(numGoodRes < minObs)
 	{
 		if(print) printf("OptPoint: OUTLIER!\n");
-		return (PointHessian*)((long)(-1));		// yeah I'm like 99% sure this is OK on 32bit systems.
+		return nullptr;//(std::shared_ptr<PointHessian>)((long)(-1));		// yeah I'm like 99% sure this is OK on 32bit systems.
 	}
 
 	//新建该点Hessian
-	PointHessian* p = new PointHessian(point, &Hcalib);
-	if(!std::isfinite(p->energyTH)) {delete p; return (PointHessian*)((long)(-1));}
+	std::shared_ptr<PointHessian> p(new PointHessian(point, &Hcalib));
+	if(!std::isfinite(p->energyTH)) 
+	{
+		//delete p;
+		return nullptr;
+	}//(std::shared_ptr<PointHessian>)((long)(-1));}
 
 	//设置该点的逆深度和状态
 	p->lastResiduals[0].first = 0;

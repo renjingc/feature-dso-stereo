@@ -206,7 +206,7 @@ inline bool eigenTestNan(MatXX m, std::string msg)
 class FullSystem {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-	FullSystem(ORBVocabulary* voc);
+	FullSystem(std::shared_ptr<ORBVocabulary> voc);
 	virtual ~FullSystem();
 
 	// adds a new frame, and creates point & residual structs.
@@ -235,7 +235,7 @@ public:
 	bool initialized;
 	bool linearizeOperation;
 
-	ORBVocabulary* _vocab;
+	std::shared_ptr<ORBVocabulary> _vocab;
 	//矫正类
 	CalibHessian Hcalib;
 
@@ -252,13 +252,13 @@ private:
 
 	// opt single point
 	//　优化一个点
-	int optimizePoint(PointHessian* point, int minObs, bool flagOOB);
+	int optimizePoint(std::shared_ptr<PointHessian> point, int minObs, bool flagOOB);
 
 	//优化一个未成熟点
-	PointHessian* optimizeImmaturePoint(ImmaturePoint* point, int minObs, ImmaturePointTemporaryResidual* residuals);
+	std::shared_ptr<PointHessian> optimizeImmaturePoint(std::shared_ptr<ImmaturePoint> point, int minObs, ImmaturePointTemporaryResidual* residuals);
 
 	//
-	double linAllPointSinle(PointHessian* point, float outlierTHSlack, bool plot);
+	double linAllPointSinle(std::shared_ptr<PointHessian> point, float outlierTHSlack, bool plot);
 
 	//非关键帧的跟踪
 	void traceNewCoarseNonKey(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
@@ -292,7 +292,7 @@ private:
 	double calcLEnergy();
 	double calcMEnergy();
 	void linearizeAll_Reductor(bool fixLinearization, std::vector<PointFrameResidual*>* toRemove, int min, int max, Vec10* stats, int tid);
-	void activatePointsMT_Reductor(std::vector<PointHessian*>* optimized, std::vector<ImmaturePoint*>* toOptimize, int min, int max, Vec10* stats, int tid);
+	void activatePointsMT_Reductor(std::vector<std::shared_ptr<PointHessian>>* optimized, std::vector<std::shared_ptr<ImmaturePoint>>* toOptimize, int min, int max, Vec10* stats, int tid);
 	void applyRes_Reductor(bool copyJacobians, int min, int max, Vec10* stats, int tid);
 
 	void printOptRes(Vec3 res, double resL, double resM, double resPrior, double LExact, float a, float b);

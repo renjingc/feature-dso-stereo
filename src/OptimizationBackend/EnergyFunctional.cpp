@@ -526,7 +526,7 @@ EFFrame* EnergyFunctional::insertFrame(std::shared_ptr<FrameHessian> fh, CalibHe
  *
  * @return     { description_of_the_return_value }
  */
-EFPoint* EnergyFunctional::insertPoint(PointHessian* ph)
+EFPoint* EnergyFunctional::insertPoint(std::shared_ptr<PointHessian> ph)
 {
 	EFPoint* efp = new EFPoint(ph, ph->host->efFrame);
 	efp->idxInPoints = ph->host->efFrame->points.size();

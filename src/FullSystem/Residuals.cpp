@@ -62,7 +62,7 @@ PointFrameResidual::~PointFrameResidual(){assert(efResidual==0); instanceCounter
 /**
  * 初始化点与帧的残差
  */
-PointFrameResidual::PointFrameResidual(PointHessian* point_, std::shared_ptr<FrameHessian> host_, std::shared_ptr<FrameHessian> target_) :
+PointFrameResidual::PointFrameResidual(std::shared_ptr<PointHessian> point_, std::shared_ptr<FrameHessian> host_, std::shared_ptr<FrameHessian> target_) :
 	point(point_),
 	host(host_),
 	target(target_)

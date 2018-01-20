@@ -82,7 +82,7 @@ public:
 	void setState(ResState s) {state_state = s;}
 
 	//点的Hessian矩阵
-	PointHessian* point;
+	std::shared_ptr<PointHessian> point;
 	//主导帧
 	std::shared_ptr<FrameHessian> host;
 	//参考帧
@@ -101,7 +101,7 @@ public:
 
 	~PointFrameResidual();
 	PointFrameResidual();
-	PointFrameResidual(PointHessian* point_, std::shared_ptr<FrameHessian> host_, std::shared_ptr<FrameHessian> target_);
+	PointFrameResidual(std::shared_ptr<PointHessian> point_, std::shared_ptr<FrameHessian> host_, std::shared_ptr<FrameHessian> target_);
 	double linearize(CalibHessian* HCalib);
 
 	//重置

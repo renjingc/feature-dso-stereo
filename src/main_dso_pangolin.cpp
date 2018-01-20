@@ -372,7 +372,7 @@ int main( int argc, char** argv )
   int lend = endIdx;
 
   LOG(INFO) << "vocPath: " << vocPath << std::endl;
-  ORBVocabulary* voc=new ORBVocabulary();
+  std::shared_ptr<ORBVocabulary> voc(new ORBVocabulary());
   voc->loadFromBinaryFile(vocPath);
 
   // build system

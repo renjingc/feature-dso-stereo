@@ -76,7 +76,7 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization, std::vector<PointF
 			{
 				if (r->isNew)
 				{
-					PointHessian* p = r->point;
+					std::shared_ptr<PointHessian> p = r->point;
 					Vec3f ptp_inf = r->host->targetPrecalc[r->target->idx].PRE_KRKiTll * Vec3f(p->u, p->v, 1);	// projected point assuming infinite depth.
 					Vec3f ptp = ptp_inf + r->host->targetPrecalc[r->target->idx].PRE_KtTll * p->idepth_scaled;	// projected point with real depth.
 					float relBS = 0.01 * ((ptp_inf.head<2>() / ptp_inf[2]) - (ptp.head<2>() / ptp[2])).norm();	// 0.01 = one pixel.
@@ -201,7 +201,7 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
 		//遍历每一个残差
 		for (PointFrameResidual* r : activeResiduals)
 		{
-			PointHessian* ph = r->point;
+			std::shared_ptr<PointHessian> ph = r->point;
 			if (ph->lastResiduals[0].first == r)
 				ph->lastResiduals[0].second = r->state_state;
 			else if (ph->lastResiduals[1].first == r)
@@ -213,7 +213,7 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
 		{
 			for (PointFrameResidual* r : toRemove[i])
 			{
-				PointHessian* ph = r->point;
+				std::shared_ptr<PointHessian> ph = r->point;
 
 				if (ph->lastResiduals[0].first == r)
 					ph->lastResiduals[0].first = 0;
@@ -278,7 +278,7 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 			sumT += step.segment<3>(0).squaredNorm();
 			sumR += step.segment<3>(3).squaredNorm();
 
-			for (PointHessian* ph : fh->pointHessians)
+			for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
 			{
 				float step = ph->step + 0.5f * (ph->step_backup);
 				ph->setIdepth(ph->idepth_backup + step);
@@ -301,7 +301,7 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 			sumT += fh->step.segment<3>(0).squaredNorm();
 			sumR += fh->step.segment<3>(3).squaredNorm();
 
-			for (PointHessian* ph : fh->pointHessians)
+			for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
 			{
 				ph->setIdepth(ph->idepth_backup + stepfacD * ph->step);
 				sumID += ph->step * ph->step;
@@ -360,7 +360,7 @@ void FullSystem::backupState(bool backupLastStep)
 			{
 				fh->step_backup = fh->step;
 				fh->state_backup = fh->get_state();
-				for (PointHessian* ph : fh->pointHessians)
+				for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
 				{
 					ph->idepth_backup = ph->idepth;
 					ph->step_backup = ph->step;
@@ -375,7 +375,7 @@ void FullSystem::backupState(bool backupLastStep)
 			{
 				fh->step_backup.setZero();
 				fh->state_backup = fh->get_state();
-				for (PointHessian* ph : fh->pointHessians)
+				for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
 				{
 					ph->idepth_backup = ph->idepth;
 					ph->step_backup = 0;
@@ -389,7 +389,7 @@ void FullSystem::backupState(bool backupLastStep)
 		for (std::shared_ptr<FrameHessian> fh : frameHessians)
 		{
 			fh->state_backup = fh->get_state();
-			for (PointHessian* ph : fh->pointHessians)
+			for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
 				ph->idepth_backup = ph->idepth;
 		}
 	}
@@ -411,7 +411,7 @@ void FullSystem::loadSateBackup()
 		fh->setState(fh->state_backup);
 
 		//遍历每一个点，设置每一个的逆深度和零状态逆深度
-		for (PointHessian* ph : fh->pointHessians)
+		for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
 		{
 			ph->setIdepth(ph->idepth_backup);
 			ph->setIdepthZero(ph->idepth_backup);
@@ -487,7 +487,7 @@ float FullSystem::optimize(int mnumOptIts)
 
 	//遍历，加入全部的残差
 	for (std::shared_ptr<FrameHessian> fh : frameHessians)
-		for (PointHessian* ph : fh->pointHessians)
+		for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
 		{
 			for (PointFrameResidual* r : ph->residuals)
 			{
@@ -705,18 +705,19 @@ void FullSystem::removeOutliers()
 	//遍历每一个关键帧
 	for (std::shared_ptr<FrameHessian> fh : frameHessians)
 	{
-		LOG(INFO)<<"removeOutliers before: "<<fh->frameID<<" "<<fh->pointHessians.size()<<" "<<fh->pointHessiansOut.size()<<" "<<fh->pointHessiansMarginalized.size()
-					<<" "<<fh->immaturePoints.size()<<" "<<fh->_features.size()<<std::endl;
+		// LOG(INFO)<<"removeOutliers before: "<<fh->frameID<<" "<<fh->pointHessians.size()<<" "<<fh->pointHessiansOut.size()<<" "<<fh->pointHessiansMarginalized.size()
+		// 			<<" "<<fh->immaturePoints.size()<<" "<<fh->_features.size()<<std::endl;
 		//遍历每一个点
 		for (unsigned int i = 0; i < fh->pointHessians.size(); i++)
 		{
-			PointHessian* ph = fh->pointHessians[i];
+			std::shared_ptr<PointHessian> ph = fh->pointHessians[i];
 			if (ph == 0) continue;
 
 			//点的残差为0，则说明这个点与其它关键帧没有连接约束，说明该点可以踢了
 			if (ph->residuals.size() == 0)
 			{
 				fh->pointHessiansOut.push_back(ph);
+				ph->setPointStatus(PointHessian::OUTLIER);
 				ph->efPoint->stateFlag = EFPointStatus::PS_DROP;
 				fh->pointHessians[i] = fh->pointHessians.back();
 				fh->pointHessians.pop_back();
@@ -724,8 +725,8 @@ void FullSystem::removeOutliers()
 				numPointsDropped++;
 			}
 		}
-		LOG(INFO)<<"removeOutliers after: "<<fh->frameID<<" "<<fh->pointHessians.size()<<" "<<fh->pointHessiansOut.size()<<" "<<fh->pointHessiansMarginalized.size()
-					<<" "<<fh->immaturePoints.size()<<" "<<fh->_features.size()<<std::endl;
+		// LOG(INFO)<<"removeOutliers after: "<<fh->frameID<<" "<<fh->pointHessians.size()<<" "<<fh->pointHessiansOut.size()<<" "<<fh->pointHessiansMarginalized.size()
+		// 			<<" "<<fh->immaturePoints.size()<<" "<<fh->_features.size()<<std::endl;
 	}
 	//在ef误差函数中移除被边缘化的点，删除PS_DROP的点，即删除pointHessiansOut的点
 	ef->dropPointsF();

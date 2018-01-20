@@ -63,8 +63,8 @@ public:
     bool     _bad = false;                                               // bad flag
     double   _score = 0;                                                // 分数
 
-    ImmaturePoint* mImP=nullptr;
-    PointHessian* mPH=nullptr;
+    std::shared_ptr<ImmaturePoint> mImP=nullptr;
+    std::shared_ptr<PointHessian> mPH=nullptr;
 };
 
 
@@ -103,9 +103,9 @@ public:
     // 这种情况出现在初始化追踪完成时。由于光流只能追踪特征点的图像坐标，所以从初始化的第一个帧到第二个帧时，需要把
     // 第二个帧的像素点转化为带有特征描述的特征点
     void ComputeAngleAndDescriptor( std::shared_ptr<FrameHessian> frame );
-    void ComputeDescriptorAndAngle(Feature* fea);
+    void ComputeDescriptorAndAngle(std::shared_ptr<Feature> fea);
 
-    void ComputeDescriptor( Feature* fea );
+    void ComputeDescriptor( std::shared_ptr<Feature> fea );
 
 private:
     // 设置已有特征的网格
@@ -119,7 +119,7 @@ private:
     );
 
     void ComputeOrbDescriptor(
-        const Feature* feature,
+        const std::shared_ptr<Feature> feature,
         const cv::Mat& img,
         const cv::Point* pattern,
         uchar* desc
@@ -128,8 +128,8 @@ private:
     // Shi-Tomasi 分数，这个分数越高则特征越优先
     float ShiTomasiScore ( const cv::Mat& img, const int& u, const int& v ) const ;
 
-    std::vector<Feature*> _old_features;
-    std::vector<Feature*> _new_features;
+    std::vector<std::shared_ptr<Feature>> _old_features;
+    std::vector<std::shared_ptr<Feature>> _new_features;
 
     // 计算ORB 描述时需要用的常量
     std::vector<int>    _umax;

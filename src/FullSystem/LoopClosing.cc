@@ -8,7 +8,7 @@
 
 namespace fdso {
 
-KeyFrameDatabase::KeyFrameDatabase(ORBVocabulary* voc)
+KeyFrameDatabase::KeyFrameDatabase(std::shared_ptr<ORBVocabulary> voc)
 {
     mpVoc = voc;
     mvInvertedFile.resize(voc->size());
@@ -355,6 +355,7 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
         vector<cv::DMatch> matches;
         int nmatches = matcher.SearchByBoW(mpCurrentKF, pKF, matches);
 
+
         if (nmatches < 10)
         {
             LOG(INFO) << "no enough matches: " << nmatches << endl;
@@ -363,6 +364,7 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
         }
         else
         {
+            matcher.showMatch(mpCurrentKF,pKF,matches);
             LOG(INFO) << "let's try opencv's solve pnp ransac first " << std::endl;
             // well let's try opencv's solve pnp ransac first
             // TODO sim3 maybe better, but DSO's scale is not likely to drift?
@@ -371,22 +373,26 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
             cv::Mat inliers;
             vector<int> matchIdx;
 
+            LOG(INFO)<<"matches size(): "<<matches.size()<<std::endl;
             for (size_t k = 0; k < matches.size(); k++)
             {
                 auto &m = matches[k];
 
-                Feature* featKF = pKF->_features[m.trainIdx];
-                Feature* featCurrent = mpCurrentKF->_features[m.queryIdx];
+                std::shared_ptr<Feature> featKF = pKF->_features[m.trainIdx];
+                std::shared_ptr<Feature> featCurrent = mpCurrentKF->_features[m.queryIdx];
 
-                if (featKF->mPH !=nullptr &&
-                        featKF->mPH->status != PointHessian::ACTIVE)
+                if (featKF->mPH !=nullptr
+                    && featKF->mPH->status != PointHessian::OUTLIER
+                    && featKF->mPH->status != PointHessian::INACTIVE)
                 {
                     // there should be a 3d point
-                    PointHessian* pt = featKF->mPH;
+                    std::shared_ptr<PointHessian> pt = featKF->mPH;
+                    LOG(INFO) << "pKF pt3d (u,v,iepth): "<<" "<<pt->u<<" "<<pt->v<<" "<<pt->idepth << std::endl;
                     pt->ComputeWorldPos();
+                    LOG(INFO) << "pKF pt3d: "<<" "<<pt->mWorldPos[0]<<" "<<pt->mWorldPos[1]<<" "<<pt->mWorldPos[2] << std::endl;
                     cv::Point3f pt3d(pt->mWorldPos[0], pt->mWorldPos[1], pt->mWorldPos[2]);
                     p3d.push_back(pt3d);
-
+                    LOG(INFO) << "mpCurrentKF p2d: "<<" "<<featCurrent->_pixel[0]<<" "<<featCurrent->_pixel[1]<< std::endl;
                     p2d.push_back(cv::Point2f(featCurrent->_pixel[0], featCurrent->_pixel[1]));
                     matchIdx.push_back(k);
                 }
@@ -394,9 +400,11 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
 
             if (p3d.size() < 10)
             {
+                LOG(INFO) << "pKF p3d size() < 10 " << std::endl;
                 continue;   // inlier not enough, abort it
             }
 
+            LOG(INFO)<<"solvePnPRansac size(): "<<p3d.size()<<" "<<p2d.size()<<std::endl;
             cv::Mat R, t;
             cv::solvePnPRansac(p3d, p2d, K, cv::Mat(), R, t, false, 100, 8.0, 100, inliers);
 

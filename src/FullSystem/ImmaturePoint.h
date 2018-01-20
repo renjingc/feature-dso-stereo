@@ -112,7 +112,7 @@ public:
 	//双目得到的逆深度
 	float idepth_stereo;
 
-	Feature* mF=nullptr;
+	std::shared_ptr<Feature> mF=nullptr;
 	int feaMode=0;
 
 	//初始化

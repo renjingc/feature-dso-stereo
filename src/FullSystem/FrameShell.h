@@ -91,6 +91,7 @@ public:
 		id=0;
 		poseValid=true;
 		camToWorld = SE3();
+		camToWorldOpti = SE3();
 		timestamp=0;
 		marginalizedAt=-1;
 		movedByOpt=0;

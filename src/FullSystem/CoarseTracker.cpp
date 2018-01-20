@@ -165,7 +165,7 @@ void CoarseTracker::makeCoarseDepthForFirstFrame(std::shared_ptr<FrameHessian> f
     memset(weightSums[0], 0, sizeof(float)*w[0]*h[0]);
 
     //遍历每一个点
-    for (PointHessian* ph : fh->pointHessians)
+    for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
     {
         //获取每一个点的坐标
         int u = ph->u + 0.5f;
@@ -363,7 +363,7 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>>
     for (std::shared_ptr<FrameHessian> fh : frameHessians)
     {
         //遍历这个关键帧中的每一个点
-        for (PointHessian* ph : fh->pointHessians)
+        for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
         {
             //判断点的残差状态
             if (ph->lastResiduals[0].first != 0 && ph->lastResiduals[0].second == ResState::IN) //contains information about residuals to the last two (!) frames. ([0] = latest, [1] = the one before).
@@ -378,7 +378,7 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>>
                 int v = r->centerProjectedTo[1] + 0.5f;
 
                 //初始化
-                ImmaturePoint* pt_track = new ImmaturePoint((float)u, (float)v, fh_target, &Hcalib);
+                std::shared_ptr<ImmaturePoint> pt_track(new ImmaturePoint((float)u, (float)v, fh_target, &Hcalib));
 
                 //坐标
                 pt_track->u_stereo = pt_track->u;
@@ -402,7 +402,7 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>>
                 if (pt_track_right == ImmaturePointStatus::IPS_GOOD)
                 {
                     //新的点
-                    ImmaturePoint* pt_track_back = new ImmaturePoint(pt_track->lastTraceUV(0), pt_track->lastTraceUV(1), fh_right, &Hcalib);
+                    std::shared_ptr<ImmaturePoint> pt_track_back(new ImmaturePoint(pt_track->lastTraceUV(0), pt_track->lastTraceUV(1), fh_right, &Hcalib));
                     pt_track_back->u_stereo = pt_track_back->u;
                     pt_track_back->v_stereo = pt_track_back->v;
 
@@ -422,19 +422,19 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>>
                     if (u_delta < 1 && depth > 0 && depth < 50)
                     {
                         new_idepth = pt_track->idepth_stereo;
-                        delete pt_track;
-                        delete pt_track_back;
+                        // delete pt_track;
+                        // delete pt_track_back;
                     }
                     else
                     {
                         new_idepth = r->centerProjectedTo[2];
-                        delete pt_track;
-                        delete pt_track_back;
+                        // delete pt_track;
+                        // delete pt_track_back;
                     }
                 }
                 else {
                     new_idepth = r->centerProjectedTo[2];
-                    delete pt_track;
+                    // delete pt_track;
                 }
 
                 //点权重
@@ -1492,7 +1492,7 @@ void CoarseDistanceMap::makeDistanceMap(
         Vec3f Kt = (K[1] * fhToNew.translation().cast<float>());
 
         //遍历每一个激活的点
-        for (PointHessian* ph : fh->pointHessians)
+        for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
         {
             assert(ph->status == PointHessian::ACTIVE);
 

@@ -1012,7 +1012,7 @@ void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, std::shared_ptr<Fra
 			{
 				if (lvl == 0 && statusMap[x + y * wl] != 0)
 				{
-					ImmaturePoint* pt = new ImmaturePoint(x, y, firstFrame, statusMap[x + y * wl], HCalib);
+					std::shared_ptr<ImmaturePoint> pt(new ImmaturePoint(x, y, firstFrame, statusMap[x + y * wl], HCalib));
 
 					pt->u_stereo = pt->u;
 					pt->v_stereo = pt->v;
@@ -1089,7 +1089,7 @@ void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, std::shared_ptr<Fra
 						assert(nl <= npts);
 					}
 
-					delete pt;
+					// delete pt;
 				}
 
 				//后面层的点

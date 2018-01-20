@@ -189,7 +189,7 @@ void FullSystem::marginalizeFrame(std::shared_ptr<FrameHessian> frame)
 		if (fh == frame) continue;
 
 		//遍历每一个点
-		for (PointHessian* ph : fh->pointHessians)
+		for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
 		{
 			//遍历每个残差
 			for (unsigned int i = 0; i < ph->residuals.size(); i++)

@@ -81,7 +81,7 @@ namespace fdso
 			}
 
 
-			for(PointHessian* ph : f->pointHessians)
+			for(std::shared_ptr<PointHessian> ph : f->pointHessians)
 			{
 				assert(ph->status == PointHessian::ACTIVE);
 				if(ph->status == PointHessian::ACTIVE || ph->status == PointHessian::MARGINALIZED)
@@ -119,13 +119,13 @@ namespace fdso
 			std::vector<float> allID;
 			for(unsigned int f=0;f<frameHessians.size();f++)
 			{
-				for(PointHessian* ph : frameHessians[f]->pointHessians)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessians)
 					if(ph!=0) allID.push_back(ph->idepth_scaled);
 
-				for(PointHessian* ph : frameHessians[f]->pointHessiansMarginalized)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessiansMarginalized)
 					if(ph!=0) allID.push_back(ph->idepth_scaled);
 
-				for(PointHessian* ph : frameHessians[f]->pointHessiansOut)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessiansOut)
 					if(ph!=0) allID.push_back(ph->idepth_scaled);
 			}
 			std::sort(allID.begin(), allID.end());
@@ -174,32 +174,32 @@ namespace fdso
 
 			if((int)(freeDebugParam5+0.5f) == 0)
 			{
-				for(PointHessian* ph : frameHessians[f]->pointHessians)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessians)
 				{
 					if(ph==0) continue;
 
 					img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, makeRainbow3B(ph->idepth_scaled));
 				}
-				for(PointHessian* ph : frameHessians[f]->pointHessiansMarginalized)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessiansMarginalized)
 				{
 					if(ph==0) continue;
 					img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, makeRainbow3B(ph->idepth_scaled));
 				}
-				for(PointHessian* ph : frameHessians[f]->pointHessiansOut)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessiansOut)
 					img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, Vec3b(255,255,255));
 			}
 			else if((int)(freeDebugParam5+0.5f) == 1)
 			{
-				for(PointHessian* ph : frameHessians[f]->pointHessians)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessians)
 				{
 					if(ph==0) continue;
 					img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, makeRainbow3B(ph->idepth_scaled));
 				}
 
-				for(PointHessian* ph : frameHessians[f]->pointHessiansMarginalized)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessiansMarginalized)
 					img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, Vec3b(0,0,0));
 
-				for(PointHessian* ph : frameHessians[f]->pointHessiansOut)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessiansOut)
 					img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, Vec3b(255,255,255));
 			}
 			else if((int)(freeDebugParam5+0.5f) == 2)
@@ -208,7 +208,7 @@ namespace fdso
 			}
 			else if((int)(freeDebugParam5+0.5f) == 3)
 			{
-				for(ImmaturePoint* ph : frameHessians[f]->immaturePoints)
+				for(std::shared_ptr<ImmaturePoint> ph : frameHessians[f]->immaturePoints)
 				{
 					if(ph==0) continue;
 					if(ph->lastTraceStatus==ImmaturePointStatus::IPS_GOOD ||
@@ -226,7 +226,7 @@ namespace fdso
 			}
 			else if((int)(freeDebugParam5+0.5f) == 4)
 			{
-				for(ImmaturePoint* ph : frameHessians[f]->immaturePoints)
+				for(std::shared_ptr<ImmaturePoint> ph : frameHessians[f]->immaturePoints)
 				{
 					if(ph==0) continue;
 
@@ -246,7 +246,7 @@ namespace fdso
 			}
 			else if((int)(freeDebugParam5+0.5f) == 5)
 			{
-				for(ImmaturePoint* ph : frameHessians[f]->immaturePoints)
+				for(std::shared_ptr<ImmaturePoint> ph : frameHessians[f]->immaturePoints)
 				{
 					if(ph==0) continue;
 
@@ -260,7 +260,7 @@ namespace fdso
 			}
 			else if((int)(freeDebugParam5+0.5f) == 6)
 			{
-				for(PointHessian* ph : frameHessians[f]->pointHessians)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessians)
 				{
 					if(ph==0) continue;
 					if(ph->my_type==0)
@@ -272,7 +272,7 @@ namespace fdso
 					if(ph->my_type==3)
 						img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, Vec3b(0,255,255));
 				}
-				for(PointHessian* ph : frameHessians[f]->pointHessiansMarginalized)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessiansMarginalized)
 				{
 					if(ph==0) continue;
 					if(ph->my_type==0)
@@ -288,11 +288,11 @@ namespace fdso
 			}
 			if((int)(freeDebugParam5+0.5f) == 7)
 			{
-				for(PointHessian* ph : frameHessians[f]->pointHessians)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessians)
 				{
 					img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, makeJet3B((ph->idepth_scaled-minID) / ((maxID-minID))));
 				}
-				for(PointHessian* ph : frameHessians[f]->pointHessiansMarginalized)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessiansMarginalized)
 				{
 					if(ph==0) continue;
 					img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, Vec3b(0,0,0));
@@ -321,11 +321,11 @@ namespace fdso
 					img->at(i) = Vec3b(c,c,c);
 				}
 
-				for(PointHessian* ph : frameHessians[f]->pointHessians)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessians)
 				{
 					img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, makeJet3B((ph->idepth_scaled-minID) / ((maxID-minID))));
 				}
-				for(PointHessian* ph : frameHessians[f]->pointHessiansMarginalized)
+				for(std::shared_ptr<PointHessian> ph : frameHessians[f]->pointHessiansMarginalized)
 				{
 					if(ph==0) continue;
 					img->setPixelCirc(ph->u+0.5f, ph->v+0.5f, Vec3b(0,0,0));

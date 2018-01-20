@@ -6,7 +6,7 @@ namespace fdso
 /**
  * 点初始化状态为INACTIVE
  */
-PointHessian::PointHessian(const ImmaturePoint* const rawPoint, CalibHessian* Hcalib)
+PointHessian::PointHessian(const std::shared_ptr<ImmaturePoint> rawPoint, CalibHessian* Hcalib)
 {
   //count++
   instanceCounter++;

@@ -139,21 +139,21 @@ struct FrameHessian
 	bool flaggedForMarginalization;
 
 	//有效点
-	std::vector<PointHessian*> pointHessians;       // contains all ACTIVE points.
+	std::vector<std::shared_ptr<PointHessian>> pointHessians;       // contains all ACTIVE points.
 	//已边缘化的点,在flagPointsForRemoval中根据点的逆深度状态，插入
-	std::vector<PointHessian*> pointHessiansMarginalized; // contains all MARGINALIZED points (= fully marginalized, usually because point went OOB.)
+	std::vector<std::shared_ptr<PointHessian>> pointHessiansMarginalized; // contains all MARGINALIZED points (= fully marginalized, usually because point went OOB.)
 	//出界点/外点,在flagPointsForRemoval中插入
-	std::vector<PointHessian*> pointHessiansOut;    // contains all OUTLIER points (= discarded.).
+	std::vector<std::shared_ptr<PointHessian>> pointHessiansOut;    // contains all OUTLIER points (= discarded.).
 
 	//当前帧生成的点
-	std::vector<ImmaturePoint*> immaturePoints;   // contains all OUTLIER points (= discarded.).
+	std::vector<std::shared_ptr<ImmaturePoint>> immaturePoints;   // contains all OUTLIER points (= discarded.).
 
 	cv::Mat image;
 	// 金字塔，越往上越小，默认缩放倍数是2，因为2可以用SSE优化...虽然目前还没有用SSE
 	std::vector<cv::Mat>  _pyramid;      // gray image pyramid, it must be CV_8U
 
 	//特征点
-	std::vector<Feature*> _features;
+	std::vector<std::shared_ptr<Feature>> _features;
 
 	DBoW2::BowVector _bow_vec;
 	DBoW2::FeatureVector _feature_vec;
@@ -342,16 +342,16 @@ struct FrameHessian
 	void makeImages(ImageAndExposure* imageE, CalibHessian* HCalib);
 
 	// 将备选点的描述转换成 bow
-	void ComputeBoW(ORBVocabulary* _vocab);
+	void ComputeBoW(std::shared_ptr<ORBVocabulary> _vocab);
 
 	set<std::shared_ptr<FrameHessian>> GetConnectedKeyFrames();
 
 	void CleanAllFeatures()
 	{
-		for ( size_t i = 0; i < _features.size(); i++ )
-		{
-			delete _features[i];
-		}
+		// for ( size_t i = 0; i < _features.size(); i++ )
+		// {
+		// 	delete _features[i];
+		// }
 		_features.clear();
 	}
 

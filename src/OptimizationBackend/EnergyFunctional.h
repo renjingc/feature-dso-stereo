@@ -79,7 +79,7 @@ public:
 	//插入帧的残差
 	EFFrame* insertFrame(std::shared_ptr<FrameHessian> fh, CalibHessian* Hcalib);
 	//插入点的残差
-	EFPoint* insertPoint(PointHessian* ph);
+	EFPoint* insertPoint(std::shared_ptr<PointHessian> ph);
 
 	//移除残差
 	void dropResidual(EFResidual* r);

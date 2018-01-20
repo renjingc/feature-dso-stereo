@@ -127,7 +127,7 @@ class EFPoint
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-	EFPoint(PointHessian* d, EFFrame* host_) : data(d),host(host_)
+	EFPoint(std::shared_ptr<PointHessian> d, EFFrame* host_) : data(d),host(host_)
 	{
 		takeData();
 		stateFlag=EFPointStatus::PS_GOOD;
@@ -135,7 +135,7 @@ public:
 	void takeData();
 
 	//点Hessian
-	PointHessian* data;
+	std::shared_ptr<PointHessian> data;
 
 	//先验priorF
 	float priorF;

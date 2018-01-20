@@ -88,7 +88,7 @@ public:
 
 
                 int maxWrite = 5;
-                for(PointHessian* p : f->pointHessians)
+                for(std::shared_ptr<PointHessian> p : f->pointHessians)
                 {
                     printf("OUT: Example Point x=%.1f, y=%.1f, idepth=%f, idepth std.dev. %f, %d inlier-residuals\n",
                            p->u, p->v, p->idepth_scaled, sqrt(1.0f / p->idepth_hessian), p->numGoodResiduals );

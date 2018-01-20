@@ -57,9 +57,6 @@ void FrameHessian::release()
   // DELETE RESIDUAL
   //这里释放有技巧
 
-  // delete efFrame;
-  // efFrame=nullptr;
-
   for (unsigned int i = 0; i < _features.size(); i++)
   {
     if (_features[i]->mImP)
@@ -73,29 +70,28 @@ void FrameHessian::release()
       _features[i]->mPH = nullptr;
     }
   }
+  // for (unsigned int i = 0; i < pointHessians.size(); i++) delete pointHessians[i];
+  // for (unsigned int i = 0; i < pointHessiansMarginalized.size(); i++) delete pointHessiansMarginalized[i];
+  // for (unsigned int i = 0; i < pointHessiansOut.size(); i++) delete pointHessiansOut[i];
+  // for (unsigned int i = 0; i < immaturePoints.size(); i++) delete immaturePoints[i];
+  // for (unsigned int i = 0; i < _features.size(); i++) delete _features[i];
 
-  for (unsigned int i = 0; i < pointHessians.size(); i++) delete pointHessians[i];
-  for (unsigned int i = 0; i < pointHessiansMarginalized.size(); i++) delete pointHessiansMarginalized[i];
-  for (unsigned int i = 0; i < pointHessiansOut.size(); i++) delete pointHessiansOut[i];
-  for (unsigned int i = 0; i < immaturePoints.size(); i++) delete immaturePoints[i];
-  for (unsigned int i = 0; i < _features.size(); i++) delete _features[i];
 
-
-  pointHessians.clear();
-  pointHessiansMarginalized.clear();
-  pointHessiansOut.clear();
-  immaturePoints.clear();
-  _features.clear();
+  // pointHessians.clear();
+  // pointHessiansMarginalized.clear();
+  // pointHessiansOut.clear();
+  // immaturePoints.clear();
+  // _features.clear();
 }
 
-void FrameHessian::ComputeBoW(ORBVocabulary* _vocab)
+void FrameHessian::ComputeBoW(std::shared_ptr<ORBVocabulary> _vocab)
 {
   if ( _vocab != nullptr && _bow_vec.empty() )
   {
 //        _bow_vec =new DBoW3::BowVector();
 //        _feature_vec = new DBoW3::FeatureVector();
     std::vector<cv::Mat> alldesp;
-    for ( Feature* fea : _features )
+    for ( std::shared_ptr<Feature> fea : _features )
     {
       alldesp.push_back(fea->_desc);
     }

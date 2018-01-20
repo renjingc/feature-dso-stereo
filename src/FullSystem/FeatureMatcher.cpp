@@ -56,7 +56,7 @@ void FeatureMatcher::showMatch(std::shared_ptr<FrameHessian> kf1, std::shared_pt
                 );
     }
     cv::imshow("match", img_show);
-    cv::waitKey(1);
+    cv::waitKey(0);
 }
 
 int FeatureMatcher::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
@@ -85,12 +85,12 @@ int FeatureMatcher::SearchBruteForce(std::shared_ptr<FrameHessian> frame1, std::
     matches.reserve(frame1->_features.size());
 
     for (size_t i = 0; i < frame1->_features.size(); i++) {
-        Feature* f1 = frame1->_features[i];
+        std::shared_ptr<Feature> f1 = frame1->_features[i];
         int min_dist = 9999;
         int min_dist_index = -1;
 
         for (size_t j = 0; j < frame2->_features.size(); j++) {
-            Feature* f2 = frame2->_features[j];
+            std::shared_ptr<Feature> f2 = frame2->_features[j];
             int dist = FeatureMatcher::DescriptorDistance(f1->_desc, f2->_desc);
             if (dist < min_dist) {
                 min_dist = dist;
@@ -442,7 +442,7 @@ bool FeatureMatcher::CheckDistEpipolarLine(
 //     std::shared_ptr<FrameHessian> ref, std::shared_ptr<FrameHessian> curr, MapPoint* mp, Vector2d& px_curr, int& search_level)
 // {
 //     Eigen::Matrix2d ACR;
-//     Feature* fea = mp->_obs[ref->_keyframe_id];
+//     std::shared_ptr<Feature> fea = mp->_obs[ref->_keyframe_id];
 //     Eigen::Vector2d& px_ref = fea->_pixel;
 //     double depth = ref->_camera->World2Camera( mp->_pos_world, ref->_TCW )[2];
 //     Eigen::Vector3d pt_ref = ref->_camera->Pixel2Camera( px_ref, depth );
@@ -472,7 +472,7 @@ bool FeatureMatcher::CheckDistEpipolarLine(
 // }
 
 // bool FeatureMatcher::FindDirectProjection(
-//     Frame* ref, Frame* curr, Feature* fea_ref, Vector2d& px_curr, int& search_level )
+//     Frame* ref, Frame* curr, std::shared_ptr<Feature> fea_ref, Vector2d& px_curr, int& search_level )
 // {
 //     if ( fea_ref->_depth < 0 )
 //     {
@@ -591,7 +591,7 @@ bool FeatureMatcher::CheckDistEpipolarLine(
 //     // LOG(INFO)<<"start from "<<pose_curr.transpose()<<endl;
 
 //     int index = 0;
-//     for ( Feature* fea : ref->_features )
+//     for ( std::shared_ptr<Feature> fea : ref->_features )
 //     {
 //         if ( !fea->_bad && fea->_depth > 0 )
 //         {
@@ -651,7 +651,7 @@ bool FeatureMatcher::CheckDistEpipolarLine(
 //     boost::timer timer;
 //     Mat& img = ref->_pyramid[level];
 //     int scale = 1 << level;
-//     for ( Feature* fea : ref->_features )
+//     for ( std::shared_ptr<Feature> fea : ref->_features )
 //     {
 //         if ( fea->_mappoint && !fea->_mappoint->_bad )
 //         {
