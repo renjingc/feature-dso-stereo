@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -62,7 +62,7 @@ class PangolinDSOViewer : public Output3DWrapper
 {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    PangolinDSOViewer(int w, int h, bool startRunThread=true);
+	PangolinDSOViewer(int w, int h, std::string _gtPath, bool startRunThread = true);
 	virtual ~PangolinDSOViewer();
 
 	void run();
@@ -73,15 +73,15 @@ public:
 
 
 	// ==================== Output3DWrapper Functionality ======================
-	virtual void publishGraph(const std::map<long,Eigen::Vector2i> &connectivity);
-    virtual void publishKeyframes( std::vector<std::shared_ptr<FrameHessian>> &frames, bool final, CalibHessian* HCalib);
-    virtual void publishCamPose(FrameShell* frame, CalibHessian* HCalib);
+	virtual void publishGraph(const std::map<long, Eigen::Vector2i> &connectivity);
+	virtual void publishKeyframes( std::vector<std::shared_ptr<FrameHessian>> &frames, bool final, CalibHessian* HCalib);
+	virtual void publishCamPose(FrameShell* frame, CalibHessian* HCalib);
 
 
 	virtual void pushLiveFrame(std::shared_ptr<FrameHessian> image);
-	virtual void pushStereoLiveFrame(std::shared_ptr<FrameHessian> image,std::shared_ptr<FrameHessian> image_right);
+	virtual void pushStereoLiveFrame(std::shared_ptr<FrameHessian> image, std::shared_ptr<FrameHessian> image_right);
 	virtual void pushDepthImage(MinimalImageB3* image);
-    virtual bool needPushDepthImage();
+	virtual bool needPushDepthImage();
 
 	virtual void join();
 
@@ -94,7 +94,7 @@ private:
 
 	boost::thread runThread;
 	bool running;
-	int w,h;
+	int w, h;
 
 
 
@@ -112,16 +112,16 @@ private:
 	boost::mutex model3DMutex;
 	KeyFrameDisplay* currentCam;
 	std::vector<KeyFrameDisplay*> keyframes;
-	std::vector<Vec3f,Eigen::aligned_allocator<Vec3f>> allFramePoses;
+	std::vector<Vec3f, Eigen::aligned_allocator<Vec3f>> allFramePoses;
 	std::map<int, KeyFrameDisplay*> keyframesByKFID;
-	std::vector<GraphConnection,Eigen::aligned_allocator<GraphConnection>> connections;
+	std::vector<GraphConnection, Eigen::aligned_allocator<GraphConnection>> connections;
 
 
 
 	// render settings
 	bool settings_showKFCameras;
 	bool settings_showCurrentCamera;
-	bool settings_showTrajectory;
+	bool settings_showGroundTrajectory;
 	bool settings_showFullTrajectory;
 	bool settings_showActiveConstraints;
 	bool settings_showAllConstraints;
@@ -140,6 +140,8 @@ private:
 
 	std::deque<float> lastNTrackingMs;
 	std::deque<float> lastNMappingMs;
+
+	 std::string gtPath;
 };
 
 

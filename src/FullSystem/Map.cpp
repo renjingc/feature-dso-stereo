@@ -124,6 +124,7 @@ void Map::runPoseGraphOptimization()
         VertexPR *vPR = (VertexPR *) optimizer.vertex(frame->frameID);
         SE3 Tcw = vPR->estimate();
         frame->shell->camToWorldOpti = Tcw.inverse();
+        // frame->shell->camToWorld = Tcw.inverse();
 
         // reset the map point world position because we've changed the keyframe pose
         for (auto &point : frame->pointHessians)

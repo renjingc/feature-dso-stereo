@@ -44,7 +44,8 @@ namespace fdso
 namespace IOWrap
 {
 
-PangolinDSOViewer::PangolinDSOViewer(int w, int h, bool startRunThread)
+PangolinDSOViewer::PangolinDSOViewer(int w, int h, std::string _gtPath,bool startRunThread):
+	gtPath(_gtPath)
 {
 	//图像搜小后大小
 	this->w = w;
@@ -163,7 +164,7 @@ void PangolinDSOViewer::run()
 	//显示当前相机位姿
 	pangolin::Var<bool> settings_showCurrentCamera("ui.CurrCam", true, true);
 	//显示关键路径
-	pangolin::Var<bool> settings_showTrajectory("ui.Trajectory", false, true);
+	pangolin::Var<bool> settings_showGroundTrajectory("ui.GroundTrajectory", false, true);
 	//显示全部路径
 	pangolin::Var<bool> settings_showFullTrajectory("ui.FullTrajectory", false, true);
 	//显示连接
@@ -178,7 +179,7 @@ void PangolinDSOViewer::run()
 	//显示视频
 	pangolin::Var<bool> settings_showLiveVideo("ui.showVideo", true, true);
 	//显示残差
-	pangolin::Var<bool> settings_showLiveResidual("ui.showResidual", true, true);
+	pangolin::Var<bool> settings_showLiveResidual("ui.showResidual", false, true);
 
 	//显示滑动窗口
 	pangolin::Var<bool> settings_showFramesWindow("ui.showFramesWindow", false, true);
@@ -209,7 +210,7 @@ void PangolinDSOViewer::run()
 
 	// show ground truth
 	//实际路线
-	std::string gtPath = "/home/ren/project/fdso/gt/05.txt";
+
 	std::ifstream ReadFile(gtPath.c_str());
 	std::string temp;
 	std::string delim (" ");
@@ -261,9 +262,10 @@ void PangolinDSOViewer::run()
 			{
 				float blue[3] = {0, 0, 1};
 				float red[3] = {1, 0, 0};
+				float yellow[3] = {0, 1, 0};
 				//是否显示关键帧
 				if (this->settings_showKFCameras)
-					fh->drawCam(1, red, 0.1,false);
+					fh->drawCam(1, red, 0.1, false);
 
 				refreshed = + (int)(fh->refreshPC(refreshed < 10, this->settings_scaledVarTH, this->settings_absVarTH,
 				                                  this->settings_pointCloudMode, this->settings_minRelBS, this->settings_sparsity));
@@ -272,16 +274,19 @@ void PangolinDSOViewer::run()
 			}
 
 			//画真值路径
-			for (int i = 0; i < matrix_result.size(); i++)
+			if (this->settings_showGroundTrajectory && keyframes.size()>1)
 			{
-				KeyFrameDisplay* fh = new KeyFrameDisplay;
-				fh->drawGTCam(matrix_result[i], 5, yellow, 0.1);
-				delete(fh);
+				for (int i = 0; i < matrix_result.size(); i++)
+				{
+					// KeyFrameDisplay* fh = new KeyFrameDisplay;
+					keyframes[0]->drawGTCam(matrix_result[i], 3, yellow, 0.1);
+					// delete(fh);
+				}
 			}
 
 			//显示当前相机位姿
-			if (this->settings_showCurrentCamera)
-				currentCam->drawCam(2, 0, 0.2,true);
+			if (this->settings_showCurrentCamera && currentCam && keyframes.size() > 1)
+				currentCam->drawCam(2, 0, 0.2, true);
 
 			//画连接
 			drawConstraints();
@@ -354,7 +359,7 @@ void PangolinDSOViewer::run()
 		this->settings_showAllConstraints = settings_showAllConstraints.Get();
 		this->settings_showCurrentCamera = settings_showCurrentCamera.Get();
 		this->settings_showKFCameras = settings_showKFCameras.Get();
-		this->settings_showTrajectory = settings_showTrajectory.Get();
+		this->settings_showGroundTrajectory = settings_showGroundTrajectory.Get();
 		this->settings_showFullTrajectory = settings_showFullTrajectory.Get();
 
 		setting_render_display3D = settings_show3D.Get();

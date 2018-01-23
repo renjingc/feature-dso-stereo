@@ -105,7 +105,8 @@ std::vector<std::shared_ptr<FrameHessian>> KeyFrameDatabase::DetectLoopCandidate
             lit != lend; lit++) {
         auto pKFi = *lit;
 
-        if (pKFi->mnLoopWords > minCommonWords) {
+        if (pKFi->mnLoopWords > minCommonWords)
+        {
             nscores++;
             float si = mpVoc->score(pKF->_bow_vec, pKFi->_bow_vec);
             pKFi->mLoopScore = si;
@@ -121,7 +122,8 @@ std::vector<std::shared_ptr<FrameHessian>> KeyFrameDatabase::DetectLoopCandidate
     float bestAccScore = minScore;
 
     // Lets now accumulate score by covisibility
-    for (auto it = lScoreAndMatch.begin(), itend = lScoreAndMatch.end(); it != itend; it++) {
+    for (auto it = lScoreAndMatch.begin(), itend = lScoreAndMatch.end(); it != itend; it++)
+    {
         std::shared_ptr<FrameHessian> pKFi = it->second;
         set<std::shared_ptr<FrameHessian>> vpNeighs = pKFi->GetConnectedKeyFrames();
 
@@ -147,7 +149,7 @@ std::vector<std::shared_ptr<FrameHessian>> KeyFrameDatabase::DetectLoopCandidate
     }
 
     // Return all those keyframes with a score higher than 0.75*bestScore
-    float minScoreToRetain = 0.75f * bestAccScore;
+    float minScoreToRetain = 0.80f * bestAccScore;
 
     set<std::shared_ptr<FrameHessian>> spAlreadyAddedKF;
     vector<std::shared_ptr<FrameHessian>> vpLoopCandidates;
@@ -155,15 +157,18 @@ std::vector<std::shared_ptr<FrameHessian>> KeyFrameDatabase::DetectLoopCandidate
 
     for (auto it = lAccScoreAndMatch.begin(), itend = lAccScoreAndMatch.end();
             it != itend; it++) {
-        if (it->first > minScoreToRetain) {
+        if (it->first > minScoreToRetain)
+        {
             std::shared_ptr<FrameHessian> pKFi = it->second;
-            if (!spAlreadyAddedKF.count(pKFi)) {
+            if (!spAlreadyAddedKF.count(pKFi))
+            {
                 // LOG(INFO) << "add candidate " << pKFi->frameID << ", sim score: " << it->first << endl;
                 vpLoopCandidates.push_back(pKFi);
                 spAlreadyAddedKF.insert(pKFi);
             }
         }
     }
+
     return vpLoopCandidates;
 }
 
@@ -228,16 +233,21 @@ bool LoopClosing::DetectLoop(std::shared_ptr<FrameHessian> frame)
     auto connectKFs = frame->GetConnectedKeyFrames();
     //最小得分
     float minScore = 1.0;
+    //所有的连接
     for (auto &fr : connectKFs)
     {
+        //不是当前帧
         if (fr == frame)
             continue;
+        //得到两帧的词包得分
         float score = mpVoc->score(fr->_bow_vec, frame->_bow_vec);
+        //获取最低得分
         if (score > 0 && score < minScore)
             minScore = score;
     }
 
     // query the database imposing the minimum score
+    //在数据库里
     vector<std::shared_ptr<FrameHessian>> vpCandidateKFs = mpKeyFrameDB->DetectLoopCandidates(frame, minScore);
 
     if (vpCandidateKFs.empty())
@@ -422,11 +432,8 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
                 cntInliers++;
             }
 
-            if (cntInliers < 5)
+            if (cntInliers < 10)
                 return false;
-
-            std::cout<< "Loop detected from kf " << mpCurrentKF->frameID << " to " << pKF->frameID
-                      << ", inlier matches: " << cntInliers << endl;
 
             // and then test with the estimated Tcw
             SE3 TcwEsti(
@@ -452,8 +459,13 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
 
             if (dd > 0.1 && abs(mpCurrentKF->frameID-pKF->frameID)>50)   // if we find a large error, start a pose graph optimization
             {
+
+                std::cout<< "Loop detected from kf " << mpCurrentKF->frameID << " to " << pKF->frameID
+                      << ", inlier matches: " << cntInliers << endl;
+
                 success = true;
-                matcher.showMatch(mpCurrentKF,pKF,goofMatches);
+
+                //matcher.showMatch(mpCurrentKF,pKF,goofMatches);
             }
         }
         nCandidates++;

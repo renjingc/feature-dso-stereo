@@ -54,6 +54,7 @@ std::string gammaCalib = "";
 std::string source = "";
 std::string calib = "";
 std::string vocPath = "./vocab/ORBvoc.bin";
+std::string gtPath = "/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/dataset/poses/00.txt";
 
 double rescale = 1;
 bool reversePlay = false;
@@ -128,10 +129,10 @@ void settingsDefault(int preset)
            "- 1-4 LM iteration each KF\n"
            "- 424 x 320 image resolution\n", preset == 0 ? "no " : "5x");
 
-    playbackSpeed = (preset == 2 ? 0 :3);
+    playbackSpeed = (preset == 2 ? 0 : 3);
     preload = preset == 3;
-    setting_desiredImmatureDensity = 600;
-    setting_desiredPointDensity = 800;
+    setting_desiredImmatureDensity = 1200;
+    setting_desiredPointDensity = 1600;
     setting_minFrames = 4;
     setting_maxFrames = 6;
     setting_maxOptIterations = 4;
@@ -171,11 +172,16 @@ void parseArgument(char* arg)
     }
     return;
   }
-    if (1 == sscanf(arg, "vocab=%s", buf)) {
-        vocPath = buf;
-        printf("loading vocabulary from %s!\n", vocPath.c_str());
-        return;
-    }
+  if (1 == sscanf(arg, "vocab=%s", buf)) {
+    vocPath = buf;
+    printf("loading vocabulary from %s!\n", vocPath.c_str());
+    return;
+  }
+  if (1 == sscanf(arg, "gtPath=%s", buf)) {
+    gtPath = buf;
+    printf("loading gtPath from %s!\n", gtPath.c_str());
+    return;
+  }
   if (1 == sscanf(arg, "preset=%d", &option))
   {
     settingsDefault(option);
@@ -350,7 +356,7 @@ int main( int argc, char** argv )
   //setlocale(LC_ALL, "");
   google::InitGoogleLogging((const char *)argv[0]);
   google::SetLogDestination(google::GLOG_INFO, "./fdso");
-  
+
   for (int i = 1; i < argc; i++)
     parseArgument(argv[i]);
 
@@ -380,11 +386,10 @@ int main( int argc, char** argv )
   fullSystem->setGammaFunction(reader->getPhotometricGamma());
   fullSystem->linearizeOperation = (playbackSpeed == 0);
 
-
   IOWrap::PangolinDSOViewer* viewer = 0;
   if (!disableAllDisplay)
   {
-    viewer = new IOWrap::PangolinDSOViewer(wG[0], hG[0], false);
+    viewer = new IOWrap::PangolinDSOViewer(wG[0], hG[0], gtPath, false);
     fullSystem->outputWrapper.push_back(viewer);
   }
 
@@ -435,7 +440,7 @@ int main( int argc, char** argv )
     std::vector<ImageAndExposure*> preloadedImagesLeft;
     std::vector<ImageAndExposure*> preloadedImagesRight;
     preload = false;
-LOG(INFO)<<"start"<<std::endl;
+    LOG(INFO) << "start" << std::endl;
     if (preload)
     {
       printf("LOADING ALL IMAGES!\n");
