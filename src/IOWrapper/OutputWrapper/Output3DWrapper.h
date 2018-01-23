@@ -122,6 +122,7 @@ public:
          *
          *  Calling:
          *  Always called, no overhead if not used.
+         *  插入关联
          */
         virtual void publishGraph(const std::map<long,Eigen::Vector2i> &connectivity) {}
 
@@ -141,6 +142,7 @@ public:
          *
          * Calling:
          * Always called, negligible overhead if not used.
+         * 显示中插入关键帧
          */
         virtual void publishKeyframes(std::vector<std::shared_ptr<FrameHessian>> &frames, bool final, CalibHessian* HCalib) {}
 
@@ -149,6 +151,7 @@ public:
          *
          * Calling:
          * Always called, no overhead if not used.
+         * 显示中插入当前相机位姿
          */
         virtual void publishCamPose(FrameShell* frame, CalibHessian* HCalib) {}
 
@@ -157,8 +160,17 @@ public:
          *
          * Calling:
          * Always called, no overhead if not used.
+         * 插入当前图像
          */
         virtual void pushLiveFrame(std::shared_ptr<FrameHessian> image) {}
+
+        /**
+         * @brief      Pushes a stereo live frame.
+         *
+         * @param[in]  image        The image
+         * @param[in]  image_right  The image right
+         * 插入当前双目的图像
+         */
         virtual void pushStereoLiveFrame(std::shared_ptr<FrameHessian> image,std::shared_ptr<FrameHessian> image_right){}
 
 
@@ -167,8 +179,11 @@ public:
          *
          * Calling:
          * Needs to prepare the depth image, so it is only called if [needPushDepthImage()] returned true.
+         * 插入深度图
          */
         virtual void pushDepthImage(MinimalImageB3* image) {}
+
+        //是否插入深度图
         virtual bool needPushDepthImage() {return false;}
 
 

@@ -44,6 +44,10 @@ namespace IOWrap
 
 class KeyFrameDisplay;
 
+/**
+ * @brief      { struct_description }
+ * 连接
+ */
 struct GraphConnection
 {
 	KeyFrameDisplay* from;
@@ -51,7 +55,9 @@ struct GraphConnection
 	int fwdMarg, bwdMarg, fwdAct, bwdAct;
 };
 
-
+/**
+ * @brief      Class for pangolin dso viewer.
+ */
 class PangolinDSOViewer : public Output3DWrapper
 {
 public:

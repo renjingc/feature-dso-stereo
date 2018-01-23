@@ -50,13 +50,17 @@ void KeyFrameDatabase::clear()
 
 std::vector<std::shared_ptr<FrameHessian>> KeyFrameDatabase::DetectLoopCandidates(std::shared_ptr<FrameHessian> pKF, float minScore)
 {
+    //获取关联的帧
     set<std::shared_ptr<FrameHessian>> spConnectedKeyFrames = pKF->GetConnectedKeyFrames(); // connected kfs
 
     // find keyframes sharing same words
+    //发现相似的帧
     list<std::shared_ptr<FrameHessian>> lKFsSharingWords;
 
     // Search all keyframes that share a word with current keyframes
     // Discard keyframes connected to the query keyframe
+    // 搜索所有关键帧与当前帧的词包，分享
+    // 丢弃连接到查询关键帧关键帧
     {
         std::unique_lock<std::mutex> lock(mMutex);
 
@@ -198,7 +202,7 @@ void LoopClosing::run()
             //mvAllKF.push_back(mpCurrentKF);
         }
 
-        mpCurrentKF->ComputeBoW(mpVoc);
+        //mpCurrentKF->ComputeBoW(mpVoc);
         if (DetectLoop(mpCurrentKF))
         {
             if (mpGlobalMap->idle() && CorrectLoop(mpHcalib))
@@ -220,7 +224,9 @@ void LoopClosing::run()
 bool LoopClosing::DetectLoop(std::shared_ptr<FrameHessian> frame)
 {
     // compute minimum similarity score
+    //获取当前帧所有关联的帧
     auto connectKFs = frame->GetConnectedKeyFrames();
+    //最小得分
     float minScore = 1.0;
     for (auto &fr : connectKFs)
     {
@@ -356,15 +362,15 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
         int nmatches = matcher.SearchByBoW(mpCurrentKF, pKF, matches);
         matcher.checkUVDistance(mpCurrentKF, pKF, matches, goofMatches);
 
-        if (nmatches < 10)
+        if (goofMatches.size() < 10)
         {
-            LOG(INFO) << "no enough matches: " << nmatches << endl;
+            LOG(INFO) << "no enough matches: " << goofMatches.size() << endl;
             vbDiscarded[i] = true;
             continue;
         }
         else
         {
-            matcher.showMatch(mpCurrentKF,pKF,goofMatches);
+            //matcher.showMatch(mpCurrentKF,pKF,goofMatches);
             LOG(INFO) << "let's try opencv's solve pnp ransac first " << std::endl;
             // well let's try opencv's solve pnp ransac first
             // TODO sim3 maybe better, but DSO's scale is not likely to drift?
@@ -373,7 +379,7 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
             cv::Mat inliers;
             vector<int> matchIdx;
 
-            LOG(INFO)<<"goofMatches size(): "<<goofMatches.size()<<std::endl;
+            // LOG(INFO)<<"goofMatches size(): "<<goofMatches.size()<<std::endl;
             for (size_t k = 0; k < goofMatches.size(); k++)
             {
                 auto &m = goofMatches[k];
@@ -387,12 +393,12 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
                 {
                     // there should be a 3d point
                     std::shared_ptr<PointHessian> pt = featKF->mPH;
-                    LOG(INFO) << "pKF pt3d (u,v,iepth): "<<" "<<pt->u<<" "<<pt->v<<" "<<pt->idepth << std::endl;
+                    //LOG(INFO) << "pKF pt3d (u,v,iepth): "<<" "<<pt->u<<" "<<pt->v<<" "<<pt->idepth << std::endl;
                     pt->ComputeWorldPos();
-                    LOG(INFO) << "pKF pt3d: "<<" "<<pt->mWorldPos[0]<<" "<<pt->mWorldPos[1]<<" "<<pt->mWorldPos[2] << std::endl;
+                    //LOG(INFO) << "pKF pt3d: "<<" "<<pt->mWorldPos[0]<<" "<<pt->mWorldPos[1]<<" "<<pt->mWorldPos[2] << std::endl;
                     cv::Point3f pt3d(pt->mWorldPos[0], pt->mWorldPos[1], pt->mWorldPos[2]);
                     p3d.push_back(pt3d);
-                    LOG(INFO) << "mpCurrentKF p2d: "<<" "<<featCurrent->_pixel[0]<<" "<<featCurrent->_pixel[1]<< std::endl;
+                    //LOG(INFO) << "mpCurrentKF p2d: "<<" "<<featCurrent->_pixel[0]<<" "<<featCurrent->_pixel[1]<< std::endl;
                     p2d.push_back(cv::Point2f(featCurrent->_pixel[0], featCurrent->_pixel[1]));
                     matchIdx.push_back(k);
                 }
@@ -407,7 +413,7 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
             LOG(INFO)<<"solvePnPRansac size(): "<<p3d.size()<<" "<<p2d.size()<<std::endl;
             cv::Mat R, t;
             //cv::solvePnPRansac(p3d, p2d, K, cv::Mat(), R, t, false, 100, 8.0, 100, inliers);
-            cv::solvePnPRansac(p3d, p2d, K, cv::Mat(), R, t, false, 100, 8.0, 0.99, inliers);
+            cv::solvePnPRansac(p3d, p2d, K, cv::Mat(), R, t, false, 100, 4.0, 0.99, inliers);
 
             int cntInliers = 0;
 
@@ -419,7 +425,7 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
             if (cntInliers < 5)
                 return false;
 
-            LOG(INFO) << "Loop detected from kf " << mpCurrentKF->frameID << " to " << pKF->frameID
+            std::cout<< "Loop detected from kf " << mpCurrentKF->frameID << " to " << pKF->frameID
                       << ", inlier matches: " << cntInliers << endl;
 
             // and then test with the estimated Tcw
@@ -444,8 +450,11 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
             SE3 delta = TcwEsti * mpCurrentKF->shell->camToWorldOpti;
             double dd = delta.log().norm();
 
-            if (dd > 0.05)   // if we find a large error, start a pose graph optimization
+            if (dd > 0.1 && abs(mpCurrentKF->frameID-pKF->frameID)>50)   // if we find a large error, start a pose graph optimization
+            {
                 success = true;
+                matcher.showMatch(mpCurrentKF,pKF,goofMatches);
+            }
         }
         nCandidates++;
     }

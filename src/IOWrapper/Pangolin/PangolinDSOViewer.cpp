@@ -46,12 +46,14 @@ namespace IOWrap
 
 PangolinDSOViewer::PangolinDSOViewer(int w, int h, bool startRunThread)
 {
+	//图像搜小后大小
 	this->w = w;
 	this->h = h;
+	//运行
 	running = true;
 
-
 	{
+		//图像上锁
 		boost::unique_lock<boost::mutex> lk(openImagesMutex);
 		internalVideoImg = new MinimalImageB3(w, h);
 		internalKFImg = new MinimalImageB3(w, h);
@@ -60,63 +62,78 @@ PangolinDSOViewer::PangolinDSOViewer(int w, int h, bool startRunThread)
 
 		videoImgChanged = kfImgChanged = resImgChanged = true;
 
+		//初始化大小
 		internalVideoImg->setBlack();
 		internalVideoImg_Right->setBlack();
 		internalKFImg->setBlack();
 		internalResImg->setBlack();
 	}
 
-
 	{
+		//当前相机
 		currentCam = new KeyFrameDisplay();
 	}
 
+	//是否重置
 	needReset = false;
 
-
+	//显示线程
 	if (startRunThread)
 		runThread = boost::thread(&PangolinDSOViewer::run, this);
-
 }
 
-
+/**
+ * @brief      Destroys the object.
+ */
 PangolinDSOViewer::~PangolinDSOViewer()
 {
 	close();
 	runThread.join();
 }
 
-
+/**
+ * @brief      { function_description }
+ * 显示的住函数
+ */
 void PangolinDSOViewer::run()
 {
 	printf("START PANGOLIN!\n");
 
+	//创建一个窗口,2倍的图像大小
 	pangolin::CreateWindowAndBind("Main", 2 * w, 2 * h);
 	const int UI_WIDTH = 180;
-
+	//启动深度测试
 	glEnable(GL_DEPTH_TEST);
 
 	// 3D visualization
+	//Define Projection and initial ModelView matrix
 	pangolin::OpenGlRenderState Visualization3D_camera(
 	  pangolin::ProjectionMatrix(w, h, 400, 400, w / 2, h / 2, 0.1, 1000),
+	  //对应的是gluLookAt,摄像机位置,参考点位置,up vector(上向量)
 	  pangolin::ModelViewLookAt(-0, -5, -10, 0, 0, 0, pangolin::AxisNegY)
 	);
 
+	// Create Interactive View in window
+	//3d显示
 	pangolin::View& Visualization3D_display = pangolin::CreateDisplay()
 	    .SetBounds(0.0, 1.0, pangolin::Attach::Pix(UI_WIDTH), 1.0, -w / (float)h)
 	    .SetHandler(new pangolin::Handler3D(Visualization3D_camera));
 
 
 	// 4 images
+	//显示深度图
 	pangolin::View& d_kfDepth = pangolin::Display("imgKFDepth")
 	                            .SetAspect(w / (float)h);
 
+	//显示右图的深度图
 	pangolin::View& d_video_Right = pangolin::Display("imgKFDepth_Right")
 	                                .SetAspect(w / (float)h);
 
+	//显示视频
 	pangolin::View& d_video = pangolin::Display("imgVideo")
 	                          .SetAspect(w / (float)h);
 
+	//显示残差
 	pangolin::View& d_residual = pangolin::Display("imgResidual")
 	                             .SetAspect(w / (float)h);
 
@@ -125,6 +142,7 @@ void PangolinDSOViewer::run()
 	pangolin::GlTexture texVideo_Right(w, h, GL_RGB, false, 0, GL_RGB, GL_UNSIGNED_BYTE);
 	pangolin::GlTexture texResidual(w, h, GL_RGB, false, 0, GL_RGB, GL_UNSIGNED_BYTE);
 
+	//创建显示
 	pangolin::CreateDisplay()
 	.SetBounds(0.0, 0.3, pangolin::Attach::Pix(UI_WIDTH), 1.0)
 	.SetLayout(pangolin::LayoutEqual)
@@ -134,31 +152,48 @@ void PangolinDSOViewer::run()
 	.AddDisplay(d_residual);
 
 	// parameter reconfigure gui
+	//创建参数调整器界面
 	pangolin::CreatePanel("ui").SetBounds(0.0, 1.0, 0.0, pangolin::Attach::Pix(UI_WIDTH));
 
+	//模式
 	pangolin::Var<int> settings_pointCloudMode("ui.PC_mode", 1, 1, 4, false);
 
-	pangolin::Var<bool> settings_showKFCameras("ui.KFCam", false, true);
+	//是否显示关键帧
+	pangolin::Var<bool> settings_showKFCameras("ui.KFCam", true, true);
+	//显示当前相机位姿
 	pangolin::Var<bool> settings_showCurrentCamera("ui.CurrCam", true, true);
-	pangolin::Var<bool> settings_showTrajectory("ui.Trajectory", true, true);
+	//显示关键路径
+	pangolin::Var<bool> settings_showTrajectory("ui.Trajectory", false, true);
+	//显示全部路径
 	pangolin::Var<bool> settings_showFullTrajectory("ui.FullTrajectory", false, true);
+	//显示连接
 	pangolin::Var<bool> settings_showActiveConstraints("ui.ActiveConst", true, true);
+	//显示所有的约束
 	pangolin::Var<bool> settings_showAllConstraints("ui.AllConst", false, true);
 
+	//3d显示
 	pangolin::Var<bool> settings_show3D("ui.show3D", true, true);
+	//深度图显示
 	pangolin::Var<bool> settings_showLiveDepth("ui.showDepth", true, true);
+	//显示视频
 	pangolin::Var<bool> settings_showLiveVideo("ui.showVideo", true, true);
+	//显示残差
 	pangolin::Var<bool> settings_showLiveResidual("ui.showResidual", true, true);
 
+	//显示滑动窗口
 	pangolin::Var<bool> settings_showFramesWindow("ui.showFramesWindow", false, true);
+	//显示所有的tracking
 	pangolin::Var<bool> settings_showFullTracking("ui.showFullTracking", false, true);
+	//显示粗跟踪
 	pangolin::Var<bool> settings_showCoarseTracking("ui.showCoarseTracking", false, true);
 
+	//参数
 	pangolin::Var<int> settings_sparsity("ui.sparsity", 1, 1, 20, false);
 	pangolin::Var<double> settings_scaledVarTH("ui.relVarTH", 0.001, 1e-10, 1e10, true);
 	pangolin::Var<double> settings_absVarTH("ui.absVarTH", 0.001, 1e-10, 1e10, true);
 	pangolin::Var<double> settings_minRelBS("ui.minRelativeBS", 0.1, 0, 1, false);
 
+	//是否重置
 	pangolin::Var<bool> settings_resetButton("ui.Reset", false, false);
 
 	pangolin::Var<int> settings_nPts("ui.activePoints", setting_desiredPointDensity, 50, 5000, false);
@@ -167,18 +202,23 @@ void PangolinDSOViewer::run()
 	pangolin::Var<double> settings_kfFrequency("ui.kfFrequency", setting_kfGlobalWeight, 0.1, 3, false);
 	pangolin::Var<double> settings_gradHistAdd("ui.minGradAdd", setting_minGradHistAdd, 0, 15, false);
 
+	//跟踪帧率
 	pangolin::Var<double> settings_trackFps("ui.Track fps", 0, 0, 0, false);
+	//关键帧率
 	pangolin::Var<double> settings_mapFps("ui.KF fps", 0, 0, 0, false);
 
 	// show ground truth
+	//实际路线
 	std::string gtPath = "/home/ren/project/fdso/gt/05.txt";
 	std::ifstream ReadFile(gtPath.c_str());
 	std::string temp;
 	std::string delim (" ");
 	std::vector<std::string> results;
 	Sophus::Matrix4f gtCam;
+	//实际值
 	std::vector<Sophus::Matrix4f> matrix_result;
 
+	//读取实际路线
 	while (std::getline(ReadFile, temp))
 	{
 		split(temp, delim, results);
@@ -194,18 +234,21 @@ void PangolinDSOViewer::run()
 
 		results.clear();
 		matrix_result.push_back(gtCam);
-
 	}
+
 	ReadFile.close();
 
+	//黄色
 	float yellow[3] = {1, 1, 0};
 
 	// Default hooks for exiting (Esc) and fullscreen (tab).
 	while ( !pangolin::ShouldQuit() && running )
 	{
 		// Clear entire screen
+		//清空窗口
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//显示3d画面
 		if (setting_render_display3D)
 		{
 			// Activate efficiently by object
@@ -213,16 +256,22 @@ void PangolinDSOViewer::run()
 			boost::unique_lock<boost::mutex> lk3d(model3DMutex);
 			//pangolin::glDrawColouredCube();
 			int refreshed = 0;
+			//遍历全部关键帧
 			for (KeyFrameDisplay* fh : keyframes)
 			{
 				float blue[3] = {0, 0, 1};
-				if (this->settings_showKFCameras) fh->drawCam(1, blue, 0.1);
+				float red[3] = {1, 0, 0};
+				//是否显示关键帧
+				if (this->settings_showKFCameras)
+					fh->drawCam(1, red, 0.1,false);
 
 				refreshed = + (int)(fh->refreshPC(refreshed < 10, this->settings_scaledVarTH, this->settings_absVarTH,
 				                                  this->settings_pointCloudMode, this->settings_minRelBS, this->settings_sparsity));
+				//画每个点
 				fh->drawPC(1);
 			}
 
+			//画真值路径
 			for (int i = 0; i < matrix_result.size(); i++)
 			{
 				KeyFrameDisplay* fh = new KeyFrameDisplay;
@@ -230,21 +279,29 @@ void PangolinDSOViewer::run()
 				delete(fh);
 			}
 
-			if (this->settings_showCurrentCamera) currentCam->drawCam(2, 0, 0.2);
+			//显示当前相机位姿
+			if (this->settings_showCurrentCamera)
+				currentCam->drawCam(2, 0, 0.2,true);
+
+			//画连接
 			drawConstraints();
 			lk3d.unlock();
 		}
 
 
 		openImagesMutex.lock();
+		//加载图像
 		if (videoImgChanged) {
 			texVideo.Upload(internalVideoImg->data, GL_BGR, GL_UNSIGNED_BYTE);
 			texVideo_Right.Upload(internalVideoImg_Right->data, GL_BGR, GL_UNSIGNED_BYTE);
 		}
+		//加载深度图
 		if (kfImgChanged) {
 			texKFDepth.Upload(internalKFImg->data, GL_BGR, GL_UNSIGNED_BYTE);
 		}
-		if (resImgChanged) 		texResidual.Upload(internalResImg->data, GL_BGR, GL_UNSIGNED_BYTE);
+		//加载改变的残差图
+		if (resImgChanged)
+			texResidual.Upload(internalResImg->data, GL_BGR, GL_UNSIGNED_BYTE);
 		videoImgChanged = kfImgChanged = resImgChanged = false;
 		openImagesMutex.unlock();
 
@@ -290,6 +347,7 @@ void PangolinDSOViewer::run()
 		}
 
 		// update parameters
+		//更新参数
 		this->settings_pointCloudMode = settings_pointCloudMode.Get();
 
 		this->settings_showActiveConstraints = settings_showActiveConstraints.Get();
@@ -380,9 +438,12 @@ void PangolinDSOViewer::reset_internal()
 	needReset = false;
 }
 
-
+/**
+ * @brief      Draws constraints.
+ */
 void PangolinDSOViewer::drawConstraints()
 {
+	//显示所有连接
 	if (settings_showAllConstraints)
 	{
 		// draw constraints
@@ -407,6 +468,7 @@ void PangolinDSOViewer::drawConstraints()
 		glEnd();
 	}
 
+	//显示激活的连接
 	if (settings_showActiveConstraints)
 	{
 		glLineWidth(3);
@@ -428,22 +490,24 @@ void PangolinDSOViewer::drawConstraints()
 		glEnd();
 	}
 
-	if (settings_showTrajectory)
-	{
-		float colorRed[3] = {1, 0, 0};
-		glColor3f(colorRed[0], colorRed[1], colorRed[2]);
-		glLineWidth(3);
+	// //显示关键帧路径
+	// if (settings_showTrajectory)
+	// {
+	// 	float colorRed[3] = {1, 0, 0};
+	// 	glColor3f(colorRed[0], colorRed[1], colorRed[2]);
+	// 	glLineWidth(3);
 
-		glBegin(GL_LINE_STRIP);
-		for (unsigned int i = 0; i < keyframes.size(); i++)
-		{
-			glVertex3f((float)keyframes[i]->camToWorld.translation()[0],
-			           (float)keyframes[i]->camToWorld.translation()[1],
-			           (float)keyframes[i]->camToWorld.translation()[2]);
-		}
-		glEnd();
-	}
+	// 	glBegin(GL_LINE_STRIP);
+	// 	for (unsigned int i = 0; i < keyframes.size(); i++)
+	// 	{
+	// 		glVertex3f((float)keyframes[i]->camToWorld.translation()[0],
+	// 		           (float)keyframes[i]->camToWorld.translation()[1],
+	// 		           (float)keyframes[i]->camToWorld.translation()[2]);
+	// 	}
+	// 	glEnd();
+	// }
 
+	//显示所有路径
 	if (settings_showFullTrajectory)
 	{
 		float colorGreen[3] = {0, 1, 0};
@@ -461,7 +525,11 @@ void PangolinDSOViewer::drawConstraints()
 	}
 }
 
-
+/**
+ * @brief      { function_description }
+ *
+ * @param[in]  connectivity  The connectivity
+ */
 void PangolinDSOViewer::publishGraph(const std::map<long, Eigen::Vector2i> &connectivity)
 {
 	if (!setting_render_display3D) return;
@@ -508,6 +576,13 @@ void PangolinDSOViewer::publishGraph(const std::map<long, Eigen::Vector2i> &conn
 }
 
 
+/**
+ * @brief      { function_description }
+ *
+ * @param      frames     The frames
+ * @param[in]  <unnamed>  { parameter_description }
+ * @param      HCalib     The h calib
+ */
 void PangolinDSOViewer::publishKeyframes(
   std::vector<std::shared_ptr<FrameHessian>> &frames,
   bool final,
@@ -529,7 +604,12 @@ void PangolinDSOViewer::publishKeyframes(
 	}
 }
 
-
+/**
+ * @brief      { function_description }
+ *
+ * @param      frame   The frame
+ * @param      HCalib  The h calib
+ */
 void PangolinDSOViewer::publishCamPose(FrameShell* frame,
                                        CalibHessian* HCalib)
 {
@@ -549,7 +629,11 @@ void PangolinDSOViewer::publishCamPose(FrameShell* frame,
 	allFramePoses.push_back(frame->camToWorld.translation().cast<float>());
 }
 
-
+/**
+ * @brief      Pushes a live frame.
+ *
+ * @param[in]  image  The image
+ */
 void PangolinDSOViewer::pushLiveFrame(std::shared_ptr<FrameHessian> image)
 {
 	if (!setting_render_displayVideo) return;
@@ -571,6 +655,12 @@ void PangolinDSOViewer::pushLiveFrame(std::shared_ptr<FrameHessian> image)
 	videoImgChanged = true;
 }
 
+/**
+ * @brief      Pushes a stereo live frame.
+ *
+ * @param[in]  image        The image
+ * @param[in]  image_right  The image right
+ */
 void PangolinDSOViewer::pushStereoLiveFrame(std::shared_ptr<FrameHessian> image, std::shared_ptr<FrameHessian> image_right)
 {
 	if (!setting_render_displayVideo) return;
@@ -591,14 +681,23 @@ void PangolinDSOViewer::pushStereoLiveFrame(std::shared_ptr<FrameHessian> image,
 	videoImgChanged = true;
 }
 
+/**
+ * @brief      { function_description }
+ *
+ * @return     { description_of_the_return_value }
+ */
 bool PangolinDSOViewer::needPushDepthImage()
 {
 	return setting_render_displayDepth;
 }
 
+/**
+ * @brief      Pushes a depth image.
+ *
+ * @param      image  The image
+ */
 void PangolinDSOViewer::pushDepthImage(MinimalImageB3* image)
 {
-
 	if (!setting_render_displayDepth) return;
 	if (disableAllDisplay) return;
 

@@ -342,8 +342,8 @@ Vec4 FullSystem::trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_pt
 	assert(allFrameHistory.size() > 0);
 	// set pose initialization.
 
-
 	// show original images
+	//发布双目原始图
 	for (IOWrap::Output3DWrapper* ow : outputWrapper)
 	{
 		ow->pushStereoLiveFrame(fh, fh_right);
@@ -1903,7 +1903,7 @@ void FullSystem::makeKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr
 	LOG(INFO) << "makeKeyFrame " << fh->shell->id << " " << fh->idx << " " << fh->frameID << std::endl;
 
 	//插入当前关键帧,这句有问题,怀疑是指针被删了
-	//globalMap->addKeyFrame(fh);
+	globalMap->addKeyFrame(fh);
 
 	//误差能量函数插入该帧的Hessian
 	ef->insertFrame(fh, &Hcalib);
@@ -2059,7 +2059,7 @@ void FullSystem::makeKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr
 		}
 	}
 
-	//发布关键帧
+	//发布关键帧和当前窗口中帧的关联
 	for (IOWrap::Output3DWrapper* ow : outputWrapper)
 	{
 		ow->publishGraph(ef->connectivityMap);
@@ -2082,7 +2082,7 @@ void FullSystem::makeKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr
 	}
 
 	//闭环检测插入当前关键帧
-	//loopClosing->insertKeyFrame(fh);
+	loopClosing->insertKeyFrame(fh);
 
 	LOG(INFO) << "delete right frame" << std::endl;
 	// delete fh_right;

@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -27,6 +27,7 @@
 #undef Success
 #include <Eigen/Core>
 #include "util/NumType.h"
+#include "FullSystem/FrameShell.h"
 #include <pangolin/pangolin.h>
 
 #include <sstream>
@@ -81,26 +82,28 @@ public:
 	bool refreshPC(bool canRefresh, float scaledTH, float absTH, int mode, float minBS, int sparsity);
 
 	// renders cam & pointcloud.
-	void drawCam(float lineWidth = 1, float* color = 0, float sizeFactor=1);
+	void drawCam(float lineWidth = 1, float* color = 0, float sizeFactor = 1,bool drawOrig=true);
 	void drawPC(float pointSize);
 
-    // render ground truth
-    void drawGTCam(Sophus::Matrix4f m, float lineWidth, float* color, float sizeFactor);
+	// render ground truth
+	void drawGTCam(Sophus::Matrix4f m, float lineWidth, float* color, float sizeFactor);
 
 	int id;
 	bool active;
 	SE3 camToWorld;
 
-    inline bool operator < (const KeyFrameDisplay& other) const
-    {
-        return (id < other.id);
-    }
+	inline bool operator < (const KeyFrameDisplay& other) const
+	{
+		return (id < other.id);
+	}
 
 
 private:
-	float fx,fy,cx,cy;
-	float fxi,fyi,cxi,cyi;
+	float fx, fy, cx, cy;
+	float fxi, fyi, cxi, cyi;
 	int width, height;
+
+	FrameShell* originFrame;
 
 	float my_scaledTH, my_absTH, my_scale;
 	int my_sparsifyFactor;
@@ -111,7 +114,7 @@ private:
 
 	int numSparsePoints;
 	int numSparseBufferSize;
-    InputPointSparse<MAX_RES_PER_POINT>* originalInputSparse;
+	InputPointSparse<MAX_RES_PER_POINT>* originalInputSparse;
 
 
 	bool bufferValid;
