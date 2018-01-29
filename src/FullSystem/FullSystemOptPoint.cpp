@@ -58,14 +58,14 @@ namespace fdso
  * 优化每一个点，将这个点与窗口中的每一个非主导帧的关键帧进行误差迭代，获取该点最新的逆深度
  * 从ImmaturePoint生成PointHessian
  */
-std::shared_ptr<PointHessian> FullSystem::optimizeImmaturePoint(
-		std::shared_ptr<ImmaturePoint> point, int minObs,
+PointHessian* FullSystem::optimizeImmaturePoint(
+		ImmaturePoint* point, int minObs,
 		ImmaturePointTemporaryResidual* residuals)
 {
 	int nres = 0;
 
 	//遍历窗口中的每一帧
-	for(std::shared_ptr<FrameHessian> fh : frameHessians)
+	for(FrameHessian* fh : frameHessians)
 	{
 		//该点的主导帧不是该帧
 		if(fh != point->host)
@@ -183,7 +183,7 @@ std::shared_ptr<PointHessian> FullSystem::optimizeImmaturePoint(
 	if(!std::isfinite(currentIdepth))
 	{
 		printf("MAJOR ERROR! point idepth is nan after initialization (%f).\n", currentIdepth);
-		return nullptr;//(std::shared_ptr<PointHessian>)((long)(-1));		// yeah I'm like 99% sure this is OK on 32bit systems.
+		return nullptr;//(PointHessian*)((long)(-1));		// yeah I'm like 99% sure this is OK on 32bit systems.
 	}
 
 	//当前点与这一帧有好的残差
@@ -195,22 +195,24 @@ std::shared_ptr<PointHessian> FullSystem::optimizeImmaturePoint(
 	if(numGoodRes < minObs)
 	{
 		if(print) printf("OptPoint: OUTLIER!\n");
-		return nullptr;//(std::shared_ptr<PointHessian>)((long)(-1));		// yeah I'm like 99% sure this is OK on 32bit systems.
+		return nullptr;//(PointHessian*)((long)(-1));		// yeah I'm like 99% sure this is OK on 32bit systems.
 	}
 
 	//新建该点Hessian
-	std::shared_ptr<PointHessian> p(new PointHessian(point, &Hcalib));
+	PointHessian* p(new PointHessian(point, &Hcalib));
 	if(!std::isfinite(p->energyTH)) 
 	{
-		//delete p;
+		delete p;
 		return nullptr;
-	}//(std::shared_ptr<PointHessian>)((long)(-1));}
+	}//(PointHessian*)((long)(-1));}
 
 	//设置该点的逆深度和状态
 	p->lastResiduals[0].first = 0;
 	p->lastResiduals[0].second = ResState::OOB;
 	p->lastResiduals[1].first = 0;
 	p->lastResiduals[1].second = ResState::OOB;
+
+	//设置逆深度
 	p->setIdepthZero(currentIdepth);
 	p->setIdepth(currentIdepth);
 	p->setPointStatus(PointHessian::ACTIVE);
@@ -243,7 +245,56 @@ std::shared_ptr<PointHessian> FullSystem::optimizeImmaturePoint(
 			}
 		}
 
+   //- Also add static stereo residual.
+    //- Should check out first if the right Frame can see this point.
+    //- And if previous do not add a residual, static stereo residual will not be added.
+
+// #if STEREO_MODE
+    if (!p->residuals.empty())
+    {
+      Mat33f K = Mat33f::Identity();
+      K(0, 0) = Hcalib.fxl();
+      K(1, 1) = Hcalib.fyl();
+      K(0, 2) = Hcalib.cxl();
+      K(1, 2) = Hcalib.cyl();
+
+      point->u_stereo = point->u;
+      point->v_stereo = point->v;
+      point->idepth_min_stereo = 0;
+      point->idepth_max_stereo = NAN;
+
+      ImmaturePointStatus traceLeft2RightStatus = point->traceStereo(point->host->rightFrame, K, 1);
+      if (traceLeft2RightStatus == ImmaturePointStatus::IPS_GOOD) {
+        ImmaturePoint *ipRight = new ImmaturePoint(point->lastTraceUV(0), point->lastTraceUV(1),
+                                                   point->host->rightFrame,
+                                                   point->my_type, &Hcalib);
+
+        ipRight->u_stereo = ipRight->u;
+        ipRight->v_stereo = ipRight->v;
+        ipRight->idepth_min_stereo = point->idepth_min = 0;
+        ipRight->idepth_max_stereo = point->idepth_max = NAN;
+
+        ImmaturePointStatus traceRigh2LeftStatus = ipRight->traceStereo(point->host, K, 0);
+
+        float u_stereo_delta = abs(point->u_stereo - ipRight->lastTraceUV(0));
+        float depth = 1.0f / point->idepth_stereo;
+        if (traceRigh2LeftStatus == ImmaturePointStatus::IPS_GOOD && u_stereo_delta < 1 && depth > 0 &&
+            depth < 70) {
+          PointFrameResidual *r = new PointFrameResidual(p, p->host, p->host->rightFrame);
+          r->staticStereo = true;
+          r->state_NewEnergy = r->state_energy = 0;
+          r->state_NewState = ResState::OUTLIER;
+          r->setState(ResState::IN);
+          p->residuals.push_back(r);
+        }
+        delete ipRight;
+      }
+    }
+// #endif
+
 	if(print) printf("point activated!\n");
+
+
 
 	//激活的点个数++
 	statistics_numActivatedPoints++;

@@ -19,7 +19,7 @@ using namespace fdso;
 namespace fdso {
 
 //增加关键帧
-void Map::addKeyFrame(std::shared_ptr<FrameHessian> kf)
+void Map::addKeyFrame(FrameHessian* kf)
 {
     std::unique_lock<std::mutex> mapLock(mapMutex);
     if (frames.find(kf) == frames.end())
@@ -72,72 +72,84 @@ void Map::runPoseGraphOptimization()
     int maxKFid = 0;
     int cntEdgePR = 0;
 
-    for (std::shared_ptr<FrameHessian> fh : framesOpti)
+    for (FrameHessian* fh : framesOpti)
     {
         // 每个KF只有P+R
-        int idKF = fh->frameID;
-        if (idKF > maxKFid)
+        if (fh->frameID >= min_id && fh->frameID <= max_id)
         {
-            maxKFid = idKF;
-        }
+            int idKF = fh->frameID;
+            if (idKF > maxKFid)
+            {
+                maxKFid = idKF;
+            }
 
-        // P+R
-        VertexPR *vPR = new VertexPR();
-        vPR->setEstimate(fh->shell->camToWorldOpti.inverse());
-        vPR->setId(idKF);
-        optimizer.addVertex(vPR);
+            // P+R
+            VertexPR *vPR = new VertexPR();
+            vPR->setEstimate(fh->shell->camToWorldOpti.inverse());
+            vPR->setId(idKF);
+            optimizer.addVertex(vPR);
 
-        // fix the last one since we don't want to affect the frames in window
-        if (fh == currentKF)
-        {
-            vPR->setFixed(true);
+            // fix the last one since we don't want to affect the frames in window
+            //if (fh == currentKF)
+            if (fh->frameID == min_id)
+            {
+                vPR->setFixed(true);
+            }
         }
     }
 
     // edges
-    for (std::shared_ptr<FrameHessian> fh : framesOpti)
+    for (FrameHessian* fh : framesOpti)
     {
         unique_lock<mutex> lock(fh->mMutexPoseRel);
-        for (auto &rel : fh->mPoseRel)
+        if (fh->frameID >= min_id && fh->frameID <= max_id)
         {
-            VertexPR *vPR1 = (VertexPR *) optimizer.vertex(fh->frameID);
-            VertexPR *vPR2 = (VertexPR *) optimizer.vertex(rel.first->frameID);
+            for (auto &rel : fh->mPoseRel)
+            {
+                VertexPR *vPR1 = (VertexPR *) optimizer.vertex(fh->frameID);
+                VertexPR *vPR2 = (VertexPR *) optimizer.vertex(rel.first->frameID);
 
-            EdgePR *edgePR = new EdgePR();
-            if (vPR1 == nullptr || vPR2 == nullptr)
-                continue;
-            edgePR->setVertex(0, vPR1);
-            edgePR->setVertex(1, vPR2);
-            edgePR->setMeasurement(rel.second);
-            edgePR->setInformation(Mat66::Identity());
-            optimizer.addEdge(edgePR);
-            cntEdgePR++;
+                EdgePR *edgePR = new EdgePR();
+                if (vPR1 == nullptr || vPR2 == nullptr)
+                    continue;
+                edgePR->setVertex(0, vPR1);
+                edgePR->setVertex(1, vPR2);
+                edgePR->setMeasurement(rel.second);
+                edgePR->setInformation(Mat66::Identity());
+                optimizer.addEdge(edgePR);
+                cntEdgePR++;
+            }
         }
     }
 
     optimizer.initializeOptimization();
     optimizer.optimize(20);
 
-    // recover the pose and points estimation
-    for (std::shared_ptr<FrameHessian> frame : framesOpti)
-    {
-        VertexPR *vPR = (VertexPR *) optimizer.vertex(frame->frameID);
-        SE3 Tcw = vPR->estimate();
-        frame->shell->camToWorldOpti = Tcw.inverse();
-        // frame->shell->camToWorld = Tcw.inverse();
+    std::cout<<"optimize finish"<<std::endl;
 
-        // reset the map point world position because we've changed the keyframe pose
-        for (auto &point : frame->pointHessians)
+    // recover the pose and points estimation
+    for (FrameHessian* frame : framesOpti)
+    {
+        if (frame->frameID >= min_id && frame->frameID <= max_id)
         {
-            point->ComputeWorldPos();
-        }
-        for (auto &point : frame->pointHessiansOut)
-        {
-            point->ComputeWorldPos();
-        }
-        for (auto &point : frame->pointHessiansMarginalized)
-        {
-            point->ComputeWorldPos();
+            VertexPR *vPR = (VertexPR *) optimizer.vertex(frame->frameID);
+            SE3 Tcw = vPR->estimate();
+            frame->shell->camToWorldOpti = Tcw.inverse();
+            frame->shell->camToWorld = Tcw.inverse();
+
+            // reset the map point world position because we've changed the keyframe pose
+            for (auto &point : frame->pointHessians)
+            {
+                point->ComputeWorldPos();
+            }
+            for (auto &point : frame->pointHessiansOut)
+            {
+                point->ComputeWorldPos();
+            }
+            for (auto &point : frame->pointHessiansMarginalized)
+            {
+                point->ComputeWorldPos();
+            }
         }
     }
 

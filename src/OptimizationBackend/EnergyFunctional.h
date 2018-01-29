@@ -36,18 +36,28 @@ namespace fdso
 {
 
 class PointFrameResidual;
+
 class CalibHessian;
+
 class FrameHessian;
+
 class PointHessian;
 
 
 class EFResidual;
+
 class EFPoint;
+
 class EFFrame;
+
 class EnergyFunctional;
+
 class AccumulatedTopHessian;
+
 class AccumulatedTopHessianSSE;
+
 class AccumulatedSCHessian;
+
 class AccumulatedSCHessianSSE;
 
 
@@ -56,115 +66,125 @@ extern bool EFIndicesValid;
 extern bool EFDeltaValid;
 
 
-/**
- * @brief      Class for energy functional.
- * 后端优化类
- */
 class EnergyFunctional {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
 	friend class EFFrame;
+
 	friend class EFPoint;
+
 	friend class EFResidual;
+
 	friend class AccumulatedTopHessian;
+
 	friend class AccumulatedTopHessianSSE;
+
 	friend class AccumulatedSCHessian;
+
 	friend class AccumulatedSCHessianSSE;
 
 	EnergyFunctional();
+
 	~EnergyFunctional();
 
-	//插入点和帧之间的残差
-	EFResidual* insertResidual(PointFrameResidual* r);
-	//插入帧的残差
-	EFFrame* insertFrame(std::shared_ptr<FrameHessian> fh, CalibHessian* Hcalib);
-	//插入点的残差
-	EFPoint* insertPoint(std::shared_ptr<PointHessian> ph);
 
-	//移除残差
-	void dropResidual(EFResidual* r);
-	//移除帧
-	void marginalizeFrame(EFFrame* fh);
-	//移除点
-	void removePoint(EFPoint* ph);
+	EFResidual *insertResidual(PointFrameResidual *r);
 
-	//
+	EFResidual *insertStaticResidual(PointFrameResidual *r);
+
+	EFFrame *insertFrame(FrameHessian* fh, CalibHessian *Hcalib);
+
+	EFPoint *insertPoint(PointHessian* ph);
+
+	void dropResidual(EFResidual *r);
+
+	void marginalizeFrame(EFFrame *efF);
+
+	void removePoint(EFPoint *ph);
+
+
 	void marginalizePointsF();
+
 	void dropPointsF();
 
-	//计算
-	void solveSystemF(int iteration, double lambda, CalibHessian* HCalib);
+	void solveSystemF(int iteration, double lambda, CalibHessian *HCalib);
+
 	double calcMEnergyF();
+
 	double calcLEnergyF_MT();
 
-	//重新设置点和帧的id
+
 	void makeIDX();
 
-	void setDeltaF(CalibHessian* HCalib);
+	void setDeltaF(CalibHessian *HCalib);
 
-	void setAdjointsF(CalibHessian* Hcalib);
+	void setAdjointsF(CalibHessian *Hcalib);
 
-	//每一帧数据队列
-	std::vector<EFFrame*> frames;
+	std::vector<EFFrame *> frames;
 	int nPoints, nFrames, nResiduals;
 
-	//Hessian矩阵
 	MatXX HM;
-	//b矩阵
 	VecX bM;
 
-	//残差
 	int resInA, resInL, resInM;
 	MatXX lastHS;
 	VecX lastbS;
 	VecX lastX;
-
-	//上一时刻的
 	std::vector<VecX> lastNullspaces_forLogging;
 	std::vector<VecX> lastNullspaces_pose;
 	std::vector<VecX> lastNullspaces_scale;
 	std::vector<VecX> lastNullspaces_affA;
 	std::vector<VecX> lastNullspaces_affB;
 
-	IndexThreadReduce<Vec10>* red;
+	IndexThreadReduce<Vec10> *red;
 
 
-	std::map<long, Eigen::Vector2i> connectivityMap;
+	std::map<uint64_t,
+	    Eigen::Vector2i,
+	    std::less<uint64_t>,
+	    Eigen::aligned_allocator<std::pair<const uint64_t, Eigen::Vector2i>>
+	    > connectivityMap;
 
 private:
 
 	VecX getStitchedDeltaF() const;
 
-	void resubstituteF_MT(VecX x, CalibHessian* HCalib, bool MT);
-	void resubstituteFPt(const VecCf &xc, Mat18f* xAd, int min, int max, Vec10* stats, int tid);
+	void resubstituteF_MT(VecX x, CalibHessian *HCalib, bool MT);
+
+	void resubstituteFPt(const VecCf &xc, Mat18f *xAd, int min, int max, Vec10 *stats, int tid);
 
 	void accumulateAF_MT(MatXX &H, VecX &b, bool MT);
+
 	void accumulateLF_MT(MatXX &H, VecX &b, bool MT);
+
 	void accumulateSCF_MT(MatXX &H, VecX &b, bool MT);
 
-	void calcLEnergyPt(int min, int max, Vec10* stats, int tid);
+	void calcLEnergyPt(int min, int max, Vec10 *stats, int tid);
 
-	void orthogonalize(VecX* b, MatXX* H);
-	Mat18f* adHTdeltaF;
+	void orthogonalize(VecX *b, MatXX *H);
 
-	Mat88* adHost;
-	Mat88* adTarget;
+	Mat18f *adHTdeltaF;
 
-	Mat88f* adHostF;
-	Mat88f* adTargetF;
+	Mat88 *adHost;
+	Mat88 *adTarget;
+
+	Mat88f *adHostF;
+	Mat88f *adTargetF;
+
 
 	VecC cPrior;
 	VecCf cDeltaF;
 	VecCf cPriorF;
 
-	AccumulatedTopHessianSSE* accSSE_top_L;
-	AccumulatedTopHessianSSE* accSSE_top_A;
+	AccumulatedTopHessianSSE *accSSE_top_L;
+	AccumulatedTopHessianSSE *accSSE_top_A;
 
 
-	AccumulatedSCHessianSSE* accSSE_bot;
+	AccumulatedSCHessianSSE *accSSE_bot;
 
-	std::vector<EFPoint*> allPoints;
-	std::vector<EFPoint*> allPointsToMarg;
+	std::vector<EFPoint *> allPoints;
+	std::vector<EFPoint *> allPointsToMarg;
 
 	float currentLambda;
 };

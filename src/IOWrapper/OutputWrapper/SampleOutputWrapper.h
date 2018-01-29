@@ -56,7 +56,22 @@ public:
             printf("OUT: Destroyed SampleOutputWrapper\n");
         }
 
-        virtual void publishGraph(const std::map<long,Eigen::Vector2i> &connectivity)
+        // virtual void publishGraph(const std::map<long,Eigen::Vector2i> &connectivity)
+        // {
+        //     printf("OUT: got graph with %d edges\n", (int)connectivity.size());
+
+        //     int maxWrite = 5;
+
+        //     for(const std::pair<long,Eigen::Vector2i> &p : connectivity)
+        //     {
+        //         int idHost = p.first>>32;
+        //         int idTarget = p.first & 0xFFFFFFFF;
+        //         printf("OUT: Example Edge %d -> %d has %d active and %d marg residuals\n", idHost, idTarget, p.second[0], p.second[1]);
+        //         maxWrite--;
+        //         if(maxWrite==0) break;
+        //     }
+        // }
+        virtual void publishGraph( const std::map<uint64_t, Eigen::Vector2i, std::less<uint64_t>, Eigen::aligned_allocator<std::pair<const uint64_t, Eigen::Vector2i> > > &connectivity)
         {
             printf("OUT: got graph with %d edges\n", (int)connectivity.size());
 
@@ -73,10 +88,9 @@ public:
         }
 
 
-
-        virtual void publishKeyframes( std::vector<std::shared_ptr<FrameHessian>> &frames, bool final, CalibHessian* HCalib)
+        virtual void publishKeyframes( std::vector<FrameHessian*> &frames, bool final, CalibHessian* HCalib)
         {
-            for(std::shared_ptr<FrameHessian> f : frames)
+            for(FrameHessian* f : frames)
             {
                 printf("OUT: KF %d (%s) (id %d, tme %f): %d active, %d marginalized, %d immature points. CameraToWorld:\n",
                        f->frameID,
@@ -88,7 +102,7 @@ public:
 
 
                 int maxWrite = 5;
-                for(std::shared_ptr<PointHessian> p : f->pointHessians)
+                for(PointHessian* p : f->pointHessians)
                 {
                     printf("OUT: Example Point x=%.1f, y=%.1f, idepth=%f, idepth std.dev. %f, %d inlier-residuals\n",
                            p->u, p->v, p->idepth_scaled, sqrt(1.0f / p->idepth_hessian), p->numGoodResiduals );
@@ -108,7 +122,7 @@ public:
         }
 
 
-        virtual void pushLiveFrame(std::shared_ptr<FrameHessian> image)
+        virtual void pushLiveFrame(FrameHessian* image)
         {
             // can be used to get the raw image / intensity pyramid.
         }
@@ -122,7 +136,7 @@ public:
             return false;
         }
 
-        virtual void pushDepthImageFloat(MinimalImageF* image, std::shared_ptr<FrameHessian> KF )
+        virtual void pushDepthImageFloat(MinimalImageF* image, FrameHessian* KF )
         {
             printf("OUT: Predicted depth for KF %d (id %d, time %f, internal frame-ID %d). CameraToWorld:\n",
                    KF->frameID,

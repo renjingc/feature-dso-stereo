@@ -6,7 +6,7 @@ namespace fdso
 /**
  * 点初始化状态为INACTIVE
  */
-PointHessian::PointHessian(const std::shared_ptr<ImmaturePoint> rawPoint, CalibHessian* Hcalib)
+PointHessian::PointHessian(const ImmaturePoint* rawPoint, CalibHessian* Hcalib)
 {
   //count++
   instanceCounter++;
@@ -55,9 +55,7 @@ void PointHessian::release()
 {
   if(mF)
     mF=nullptr;
-  for (unsigned int i = 0; i < residuals.size(); i++)
-    delete residuals[i];
-
+  for (unsigned int i = 0; i < residuals.size(); i++) delete residuals[i];
   residuals.clear();
 }
 
@@ -78,7 +76,7 @@ void PointHessian::save(ofstream &fout) {
   fout.write((char *) &this->status, sizeof(this->status));
 }
 
-void PointHessian::load(ifstream &fin, vector<std::shared_ptr<FrameHessian>> &allKFs) 
+void PointHessian::load(ifstream &fin, vector<FrameHessian*> &allKFs) 
 {
   fin.read((char *) &this->idx, sizeof(this->idx));
   fin.read((char *) &this->status, sizeof(this->status));

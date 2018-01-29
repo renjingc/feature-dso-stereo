@@ -49,22 +49,30 @@ public:
         const Eigen::Vector2d& pixel,
         const int& level = 0,
         const double& score = 0
-    ) : _pixel(pixel), _level(level), _score(score) {}
+    ) : _pixel(pixel), _level(level), _score(score) {_status=Feature::ACTIVE_IMP;}
 
-    Eigen::Vector2d _pixel = Vector2d(0, 0);                // 图像位置
-    double   idepth = -1;                                               //逆深度
-    Eigen::Vector3d _normal = Vector3d(0, 0, 0);       // 归一化坐标
-    int      _level = -1;                                                    // 特征点所属金字塔层数
-    double   _angle = 0;                                                // 旋转角（2D图像中使用）
-    cv::Mat   _desc = cv::Mat(1, 32, CV_8UC1);            // ORB 描述子
-    std::shared_ptr<FrameHessian>   _frame = nullptr;                        // 所属的帧，一个特征只属于一个帧
+    enum FeaStatus {ACTIVE_IMP= 0, ACTIVE_PH, OUTLIER};
+    FeaStatus _status;
+    int status=0;
+    Eigen::Vector2d _pixel = Vector2d(0, 0);                  // 图像位置
+    double   idepth = -1;                                                   //逆深度
+    Eigen::Vector3d _normal = Vector3d(0, 0, 0);         // 归一化坐标
+    int      _level = -1;                                                          // 特征点所属金字塔层数
+    double   _angle = 0;                                                     // 旋转角（2D图像中使用）
+    cv::Mat   _desc = cv::Mat(1, 32, CV_8UC1);               // ORB 描述子
+    FrameHessian*   _frame = nullptr;                           // 所属的帧，一个特征只属于一个帧
     // 一个特征只能对应到一个地图点，但一个地图点可对应多个帧
 
-    bool     _bad = false;                                               // bad flag
-    double   _score = 0;                                                // 分数
+    bool     _bad = false;                                                    // bad flag
+    double   _score = 0;                                                     // 分数
 
-    std::shared_ptr<ImmaturePoint> mImP=nullptr;
-    std::shared_ptr<PointHessian> mPH=nullptr;
+    ImmaturePoint* mImP=nullptr;
+    PointHessian* mPH=nullptr;
+
+    void ComputeWorldPos()
+    {
+
+    }
 };
 
 
@@ -97,19 +105,19 @@ public:
     void LoadParams();
 
     // 提取一个帧中的特征点，记录于 frame->_features 中,同时会计算描述
-    void Detect ( std::shared_ptr<FrameHessian> frame, bool overwrite_existing_features = true );
+    void Detect ( FrameHessian* frame, bool overwrite_existing_features = true );
 
     // 计算frame中关键点的旋转和描述子
     // 这种情况出现在初始化追踪完成时。由于光流只能追踪特征点的图像坐标，所以从初始化的第一个帧到第二个帧时，需要把
     // 第二个帧的像素点转化为带有特征描述的特征点
-    void ComputeAngleAndDescriptor( std::shared_ptr<FrameHessian> frame );
-    void ComputeDescriptorAndAngle(std::shared_ptr<Feature> fea);
+    void ComputeAngleAndDescriptor( FrameHessian* frame );
+    void ComputeDescriptorAndAngle(Feature* fea);
 
-    void ComputeDescriptor( std::shared_ptr<Feature> fea );
+    void ComputeDescriptor( Feature* fea );
 
 private:
     // 设置已有特征的网格
-    void SetExistingFeatures ( std::shared_ptr<FrameHessian> frame );
+    void SetExistingFeatures ( FrameHessian* frame );
 
     // 计算 FAST 角度
     float IC_Angle(
@@ -119,7 +127,7 @@ private:
     );
 
     void ComputeOrbDescriptor(
-        const std::shared_ptr<Feature> feature,
+        const Feature* feature,
         const cv::Mat& img,
         const cv::Point* pattern,
         uchar* desc
@@ -128,8 +136,8 @@ private:
     // Shi-Tomasi 分数，这个分数越高则特征越优先
     float ShiTomasiScore ( const cv::Mat& img, const int& u, const int& v ) const ;
 
-    std::vector<std::shared_ptr<Feature>> _old_features;
-    std::vector<std::shared_ptr<Feature>> _new_features;
+    std::vector<Feature*> _old_features;
+    std::vector<Feature*> _new_features;
 
     // 计算ORB 描述时需要用的常量
     std::vector<int>    _umax;

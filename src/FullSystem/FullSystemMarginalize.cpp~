@@ -232,17 +232,18 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 
 	LOG(INFO) << "frame " << frame->frameID << " frame marged" << endl;
 	//从队列中删除该帧
+	// deleteOutOrder<FrameHessian>(frameHessians, frame);
+	// frame->rightFrame->release();
+	frame->release();
 
-	deleteOutOrder<FrameHessian>(frameHessians,frame);
-    	deleteOutOrder<FrameHessian>(frameHessiansRight, frame->rightFrame);
+	deleteOutOrder<FrameHessian*>(frameHessians,frame);
+
+	//std::cout<<frame->rightFrame.use_count()<<" "<<frame.use_count()<<std::endl;
 	// deleteOutOrder<FrameHessian>(frameHessiansRight, frame->rightFrame);
 
 	//重置每一帧的idx
 	for (unsigned int i = 0; i < frameHessians.size(); i++)
 		frameHessians[i]->idx = i;
-
-	for (unsigned int i = 0; i < frameHessiansRight.size(); i++)
-      		frameHessiansRight[i]->idx = i;
 
 	//重新设置每一帧之间的关系
 	setPrecalcValues();

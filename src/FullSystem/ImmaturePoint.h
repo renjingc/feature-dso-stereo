@@ -24,6 +24,7 @@
 
 #pragma once
 
+#define USE_NCC 1
 
 #include "util/NumType.h"
 
@@ -49,7 +50,7 @@ public:
 	double state_NewEnergy;
 
 	//主导帧
-	std::shared_ptr<FrameHessian> target;
+	FrameHessian* target;
 };
 
 /**
@@ -81,6 +82,10 @@ public:
 	//每个点每个模式的权重
 	float weights[MAX_RES_PER_POINT];
 
+#if USE_NCC
+    Vec15f patternNCCHostNormalized; // for NCC use
+#endif
+
 	//该点的xy方向的梯度
 	Mat22f gradH;
 	//???没用到
@@ -94,7 +99,7 @@ public:
 	float u, v;
 	float u_stereo, v_stereo;  // u, v used to do static stereo matching
 	//主导帧的Hessian矩阵
-	std::shared_ptr<FrameHessian> host;
+	FrameHessian* host;
 	//在未成熟的点中的id
 	int idxInImmaturePoints;
 
@@ -112,18 +117,18 @@ public:
 	//双目得到的逆深度
 	float idepth_stereo;
 
-	std::shared_ptr<Feature> mF=nullptr;
+	Feature* mF=nullptr;
 	int feaMode=0;
 
 	//初始化
-	ImmaturePoint(int u_, int v_, std::shared_ptr<FrameHessian> host_, float type, CalibHessian* HCalib);
-	ImmaturePoint(float u_, float v_, std::shared_ptr<FrameHessian> host_, CalibHessian* HCalib);
+	ImmaturePoint(int u_, int v_, FrameHessian* host_, float type, CalibHessian* HCalib);
+	ImmaturePoint(float u_, float v_, FrameHessian* host_, CalibHessian* HCalib);
 	~ImmaturePoint();
 
 	//双目静态匹配
-	ImmaturePointStatus traceStereo(std::shared_ptr<FrameHessian> frame, Mat33f K, bool mode_right);
+	ImmaturePointStatus traceStereo(FrameHessian* frame, Mat33f K, bool mode_right);
 	//深度跟踪
-	ImmaturePointStatus traceOn(std::shared_ptr<FrameHessian> frame, Mat33f hostToFrame_KRKi, Vec3f hostToFrame_Kt, Vec2f hostToFrame_affine, CalibHessian* HCalib, bool debugPrint = false);
+	ImmaturePointStatus traceOn(FrameHessian* frame, Mat33f hostToFrame_KRKi, Vec3f hostToFrame_Kt, Vec2f hostToFrame_affine, CalibHessian* HCalib, bool debugPrint = false);
 
 	//最新的跟踪状态
 	ImmaturePointStatus lastTraceStatus;

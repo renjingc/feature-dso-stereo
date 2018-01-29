@@ -75,8 +75,8 @@ extern float setting_minIdepthH_marg;
 
 extern float setting_maxIdepth;
 extern float setting_maxPixSearch;
-extern float setting_desiredImmatureDensity;			// done
-extern float setting_desiredPointDensity;			// done
+extern float setting_desiredImmatureDensity;      // done
+extern float setting_desiredPointDensity;     // done
 extern float setting_minPointsRemaining;
 extern float setting_maxLogAffFacInWindow;
 extern int setting_minFrames;
@@ -197,7 +197,7 @@ void handleKey(char k);
 extern int staticPattern[10][40][2];
 extern int staticPatternNum[10];
 extern int staticPatternPadding[10];
-
+extern int staticNCCPattern35[15][2];
 
 //#define patternNum staticPatternNum[setting_pattern]
 //#define patternP staticPattern[setting_pattern]
@@ -207,6 +207,10 @@ extern int staticPatternPadding[10];
 #define patternNum 8
 #define patternP staticPattern[8]
 #define patternPadding 2
+
+#define patternNumNCC 15
+#define patternPNCC staticNCCPattern35
+#define patternPaddingNCC 2
 
 extern int sparsityFactor;
 

@@ -31,7 +31,7 @@ public:
      * @param kf
      * 插入关键帧
      */
-    void addKeyFrame(std::shared_ptr<FrameHessian> kf);
+    void addKeyFrame(FrameHessian* kf);
 
     /**
      * optimize pose graph of all kfs
@@ -59,7 +59,11 @@ public:
     }
 
     //全部的关键帧
-    std::set<std::shared_ptr<FrameHessian>, CmpFrameID> getAllKFs() { return frames; }
+    std::set<FrameHessian*, CmpFrameID> getAllKFs() { return frames; }
+
+    
+    int min_id;
+    int max_id;
 
 private:
     // the pose graph optimization thread
@@ -70,17 +74,18 @@ private:
     std::mutex mapMutex; // map mutex to protect its data
 
     //全部的关键帧包括ID
-    std::set<std::shared_ptr<FrameHessian>, CmpFrameID> frames;  // all KFs by ID
+    std::set<FrameHessian*, CmpFrameID> frames;  // all KFs by ID
     //关键帧被优化
-    std::set<std::shared_ptr<FrameHessian>, CmpFrameID> framesOpti;  // KFs to be optimized
+    std::set<FrameHessian*, CmpFrameID> framesOpti;  // KFs to be optimized
     //当前关键帧
-    std::shared_ptr<FrameHessian> currentKF = nullptr;
+    FrameHessian* currentKF = nullptr;
 
     //是否在运行位姿图优化
     bool poseGraphRunning = false;  // is pose graph running?
 
     //位姿图互斥锁
     std::mutex mutexPoseGraph;
+
 };
 
 }

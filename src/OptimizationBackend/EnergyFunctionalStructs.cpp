@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -35,32 +35,24 @@
 namespace fdso
 {
 
-/**
- * @brief      { function_description }
- */
-void EFResidual::takeDataF()
-{
-	//从data中获取雅克比
-	std::swap<RawResidualJacobian*>(J, data->J);
+void EFResidual::takeDataF() {
+	std::swap<RawResidualJacobian *>(J, data->J);
 
 	Vec2f JI_JI_Jd = J->JIdx2 * J->Jpdd;
 
-	for(int i=0;i<6;i++)
-		JpJdF[i] = J->Jpdxi[0][i]*JI_JI_Jd[0] + J->Jpdxi[1][i] * JI_JI_Jd[1];
+	for (int i = 0; i < 6; i++)
+		JpJdF[i] = J->Jpdxi[0][i] * JI_JI_Jd[0] + J->Jpdxi[1][i] * JI_JI_Jd[1];
 
-	JpJdF.segment<2>(6) = J->JabJIdx*J->Jpdd;
+	JpJdF.segment<2>(6) = J->JabJIdx * J->Jpdd;
 }
 
-/**
- * @brief      { function_description }
- * 获取帧的信息
- */
-void EFFrame::takeData()
-{
-	//初始值
+
+void EFFrame::takeData() {
 	prior = data->getPrior().head<8>();
 	delta = data->get_state_minus_stateZero().head<8>();
-	delta_prior =  (data->get_state() - data->getPriorZero()).head<8>();
+	delta_prior = (data->get_state() - data->getPriorZero()).head<8>();
+
+
 
 //	Vec10 state_zero =  data->get_state_zero();
 //	state_zero.segment<3>(0) = SCALE_XI_TRANS * state_zero.segment<3>(0);
@@ -72,57 +64,50 @@ void EFFrame::takeData()
 //
 //	std::cout << "state_zero: " << state_zero.transpose() << "\n";
 
+
 	assert(data->frameID != -1);
 
-	//获取帧的关键帧id
 	frameID = data->frameID;
 }
 
-/**
- * @brief      { function_description }
- */
-void EFPoint::takeData()
-{
-	//点是否有先验的逆深度，
-	priorF = data->hasDepthPrior ? setting_idepthFixPrior*SCALE_IDEPTH*SCALE_IDEPTH : 0;
-	if(setting_solverMode & SOLVER_REMOVE_POSEPRIOR)
-		priorF=0;
 
-	//逆深度的偏差
-	deltaF = data->idepth-data->idepth_zero;
+void EFPoint::takeData() {
+	priorF = data->hasDepthPrior ? setting_idepthFixPrior * SCALE_IDEPTH * SCALE_IDEPTH : 0;
+	if (setting_solverMode & SOLVER_REMOVE_POSEPRIOR) priorF = 0;
+
+	deltaF = data->idepth - data->idepth_zero;
 }
 
-/**
- * @brief      { function_description }
- *
- * @param      ef    { parameter_description }
- */
-void EFResidual::fixLinearizationF(EnergyFunctional* ef)
-{
-	Vec8f dp = ef->adHTdeltaF[hostIDX+ef->nFrames*targetIDX];
+
+void EFResidual::fixLinearizationF(EnergyFunctional *ef) {
+	Vec8f dp;
+	if (targetIDX == -1) { //- static stereo residual
+		dp = ef->adHTdeltaF[hostIDX + ef->nFrames * hostIDX];
+	}
+	else { //- temporal stereo residual
+		dp = ef->adHTdeltaF[hostIDX + ef->nFrames * targetIDX];
+	}
 
 	// compute Jp*delta
 	__m128 Jp_delta_x = _mm_set1_ps(J->Jpdxi[0].dot(dp.head<6>())
-								   +J->Jpdc[0].dot(ef->cDeltaF)
-								   +J->Jpdd[0]*point->deltaF);
+	                                + J->Jpdc[0].dot(ef->cDeltaF)
+	                                + J->Jpdd[0] * point->deltaF);
 	__m128 Jp_delta_y = _mm_set1_ps(J->Jpdxi[1].dot(dp.head<6>())
-								   +J->Jpdc[1].dot(ef->cDeltaF)
-								   +J->Jpdd[1]*point->deltaF);
-	__m128 delta_a = _mm_set1_ps((float)(dp[6]));
-	__m128 delta_b = _mm_set1_ps((float)(dp[7]));
+	                                + J->Jpdc[1].dot(ef->cDeltaF)
+	                                + J->Jpdd[1] * point->deltaF);
+	__m128 delta_a = _mm_set1_ps((float) (dp[6]));
+	__m128 delta_b = _mm_set1_ps((float) (dp[7]));
 
-	for(int i=0;i<patternNum;i+=4)
-	{
+	for (int i = 0; i < patternNum; i += 4) {
 		// PATTERN: rtz = resF - [JI*Jp Ja]*delta.
-		__m128 rtz = _mm_load_ps(((float*)&J->resF)+i);
-		rtz = _mm_sub_ps(rtz,_mm_mul_ps(_mm_load_ps(((float*)(J->JIdx))+i),Jp_delta_x));
-		rtz = _mm_sub_ps(rtz,_mm_mul_ps(_mm_load_ps(((float*)(J->JIdx+1))+i),Jp_delta_y));
-		rtz = _mm_sub_ps(rtz,_mm_mul_ps(_mm_load_ps(((float*)(J->JabF))+i),delta_a));
-		rtz = _mm_sub_ps(rtz,_mm_mul_ps(_mm_load_ps(((float*)(J->JabF+1))+i),delta_b));
-		_mm_store_ps(((float*)&res_toZeroF)+i, rtz);
+		__m128 rtz = _mm_load_ps(((float *) &J->resF) + i);
+		rtz = _mm_sub_ps(rtz, _mm_mul_ps(_mm_load_ps(((float *) (J->JIdx)) + i), Jp_delta_x));
+		rtz = _mm_sub_ps(rtz, _mm_mul_ps(_mm_load_ps(((float *) (J->JIdx + 1)) + i), Jp_delta_y));
+		rtz = _mm_sub_ps(rtz, _mm_mul_ps(_mm_load_ps(((float *) (J->JabF)) + i), delta_a));
+		rtz = _mm_sub_ps(rtz, _mm_mul_ps(_mm_load_ps(((float *) (J->JabF + 1)) + i), delta_b));
+		_mm_store_ps(((float *) &res_toZeroF) + i, rtz);
 	}
 
 	isLinearized = true;
 }
-
 }

@@ -77,69 +77,69 @@ class FeatureMatcher;
 class LoopClosing;
 
 
-template<typename T> inline void deleteOut(std::vector<std::shared_ptr<T>> &v, const int i)
-{
-	// delete v[i];
+// template<typename T> inline void deleteOut(std::vector<std::shared_ptr<T>> &v, const int i)
+// {
+// 	// delete v[i];
 
-	v[i] = v.back();
-	v.pop_back();
-}
-template<typename T> inline void deleteOutPt(std::vector<std::shared_ptr<T>> &v, const std::shared_ptr<T> i)
-{
-	// delete i;
+// 	v[i] = v.back();
+// 	v.pop_back();
+// }
+// template<typename T> inline void deleteOutPt(std::vector<std::shared_ptr<T>> &v, const std::shared_ptr<T> i)
+// {
+// 	// delete i;
 
-	for (unsigned int k = 0; k < v.size(); k++)
-		if (v[k] == i)
-		{
-			v[k] = v.back();
-			v.pop_back();
-		}
-}
-template<typename T> inline void deleteOutOrder(std::vector<std::shared_ptr<T>> &v, const int i)
-{
-	// delete v[i];
-	for (unsigned int k = i + 1; k < v.size(); k++)
-		v[k - 1] = v[k];
-	v.pop_back();
-}
-template<typename T> inline void deleteOutOrder(std::vector<std::shared_ptr<T>> &v, const std::shared_ptr<T> element)
-{
-	int i = -1;
-	for (unsigned int k = 0; k < v.size(); k++)
-	{
-		if (v[k] == element)
-		{
-			i = k;
-			break;
-		}
-	}
-	assert(i != -1);
+// 	for (unsigned int k = 0; k < v.size(); k++)
+// 		if (v[k] == i)
+// 		{
+// 			v[k] = v.back();
+// 			v.pop_back();
+// 		}
+// }
+// template<typename T> inline void deleteOutOrder(std::vector<std::shared_ptr<T>> &v, const int i)
+// {
+// 	// delete v[i];
+// 	for (unsigned int k = i + 1; k < v.size(); k++)
+// 		v[k - 1] = v[k];
+// 	v.pop_back();
+// }
+// template<typename T> inline void deleteOutOrder(std::vector<std::shared_ptr<T>> &v, const std::shared_ptr<T> element)
+// {
+// 	int i = -1;
+// 	for (unsigned int k = 0; k < v.size(); k++)
+// 	{
+// 		if (v[k] == element)
+// 		{
+// 			i = k;
+// 			break;
+// 		}
+// 	}
+// 	assert(i != -1);
 
-	for (unsigned int k = i + 1; k < v.size(); k++)
-		v[k - 1] = v[k];
-	v.pop_back();
+// 	for (unsigned int k = i + 1; k < v.size(); k++)
+// 		v[k - 1] = v[k];
+// 	v.pop_back();
 
-	// delete element;
-}
+// 	// delete element;
+// }
 
-// delete an element from a vector and keep its order
-template<typename T>
-inline void deleteOutOrder(std::vector<T> &v, const T element)
-{
-	int i = -1;
-	for (unsigned int k = 0; k < v.size(); k++)
-	{
-		if (v[k] == element) {
-			i = k;
-			break;
-		}
-	}
-	assert(i != -1);
+// // delete an element from a vector and keep its order
+// template<typename T>
+// inline void deleteOutOrder(std::vector<T> &v, const T element)
+// {
+// 	int i = -1;
+// 	for (unsigned int k = 0; k < v.size(); k++)
+// 	{
+// 		if (v[k] == element) {
+// 			i = k;
+// 			break;
+// 		}
+// 	}
+// 	assert(i != -1);
 
-	for (unsigned int k = i + 1; k < v.size(); k++)
-		v[k - 1] = v[k];
-	v.pop_back();
-}
+// 	for (unsigned int k = i + 1; k < v.size(); k++)
+// 		v[k - 1] = v[k];
+// 	v.pop_back();
+// }
 
 
 template<typename T> inline void deleteOut(std::vector<T*> &v, const int i)
@@ -216,15 +216,16 @@ public:
 	void addActiveFrame(ImageAndExposure* image, ImageAndExposure* image_right, int id);
 
 	// marginalizes a frame. drops / marginalizes points & residuals.
-	void marginalizeFrame(std::shared_ptr<FrameHessian> frame);
+	void marginalizeFrame(FrameHessian* frame);
 	void blockUntilMappingIsFinished();
 
 	float optimize(int mnumOptIts);
 
-	void makeCurrentDepth(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
+	void makeCurrentDepth(FrameHessian* fh, FrameHessian* fhRight);
 
 	//compute stereo idepth
 	void stereoMatch(ImageAndExposure* image, ImageAndExposure* image_right, int id, cv::Mat &idepthMap);
+	void stereoMatch(FrameHessian* fh, FrameHessian* fhRight);
 
 	void printResult(std::string file);
 
@@ -257,31 +258,34 @@ private:
 
 	// opt single point
 	//　优化一个点
-	int optimizePoint(std::shared_ptr<PointHessian> point, int minObs, bool flagOOB);
+	int optimizePoint(PointHessian* point, int minObs, bool flagOOB);
 
 	//优化一个未成熟点
-	std::shared_ptr<PointHessian> optimizeImmaturePoint(std::shared_ptr<ImmaturePoint> point, int minObs, ImmaturePointTemporaryResidual* residuals);
+	PointHessian* optimizeImmaturePoint(ImmaturePoint* point, int minObs, ImmaturePointTemporaryResidual* residuals);
 
 	//
-	double linAllPointSinle(std::shared_ptr<PointHessian> point, float outlierTHSlack, bool plot);
+	double linAllPointSinle(PointHessian* point, float outlierTHSlack, bool plot);
 
 	//非关键帧的跟踪
-	void traceNewCoarseNonKey(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
+	void traceNewCoarseNonKey(FrameHessian* fh, FrameHessian* fhRight);
+
 
 	// mainPipelineFunctions
 	//主跟踪函数
-	Vec4 trackNewCoarse(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right, SE3 initT,bool usePnP);
+	Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fhRight, SE3 initT,bool usePnP);
 	//关键帧的更新
-	void traceNewCoarseKey(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
+	void traceNewCoarseKey(FrameHessian* fh, FrameHessian* fhRight);
 	//更新一个点
 	void activatePoints();
 	void activatePointsMT();
 	void activatePointsOldFirst();
 	void flagPointsForRemoval();
-	void makeNewTraces(std::shared_ptr<FrameHessian> newFrame, std::shared_ptr<FrameHessian> newFrameRight, float* gtDepth);
-	void initializeFromInitializer(std::shared_ptr<FrameHessian> newFrame);
-	void initializeFromInitializer(std::shared_ptr<FrameHessian> newFrame, std::shared_ptr<FrameHessian> newFrame_right);
-	void flagFramesForMarginalization(std::shared_ptr<FrameHessian> newFH);
+	void makeNewTraces(FrameHessian* newFrame, FrameHessian* newFrameRight, float* gtDepth);
+	void initializeFromInitializer(FrameHessian* newFrame);
+	// void initializeFromInitializer(FrameHessian* newFrame, FrameHessian* newFrame_right);
+
+	void initializeFromInitializerStereo(FrameHessian* newFrame);
+	void flagFramesForMarginalization(FrameHessian* newFH);
 
 	void removeOutliers();
 
@@ -297,7 +301,7 @@ private:
 	double calcLEnergy();
 	double calcMEnergy();
 	void linearizeAll_Reductor(bool fixLinearization, std::vector<PointFrameResidual*>* toRemove, int min, int max, Vec10* stats, int tid);
-	void activatePointsMT_Reductor(std::vector<std::shared_ptr<PointHessian>>* optimized, std::vector<std::shared_ptr<ImmaturePoint>>* toOptimize, int min, int max, Vec10* stats, int tid);
+	void activatePointsMT_Reductor(std::vector<PointHessian*>* optimized, std::vector<ImmaturePoint*>* toOptimize, int min, int max, Vec10* stats, int tid);
 	void applyRes_Reductor(bool copyJacobians, int min, int max, Vec10* stats, int tid);
 
 	void printOptRes(Vec3 res, double resL, double resM, double resPrior, double LExact, float a, float b);
@@ -371,13 +375,15 @@ private:
 	CoarseDistanceMap* coarseDistanceMap;
 
 	//窗口中的每一帧的Hessian信息
-	std::vector<std::shared_ptr<FrameHessian>> frameHessians;	// ONLY changed in marginalizeFrame and addFrame.
+	std::vector<FrameHessian*> frameHessians;	// ONLY changed in marginalizeFrame and addFrame.
+	std::vector<FrameHessian *> frameHessiansRight;
+
 	//点和帧的残差
 	std::vector<PointFrameResidual*> activeResiduals;
 	float currentMinActDist;
 
 	// //右图的
-	// std::vector<std::shared_ptr<FrameHessian>> frameHessiansRight;
+	// std::vector<FrameHessian*> frameHessiansRight;
 
 	//全部的残差
 	std::vector<float> allResVec;
@@ -400,12 +406,12 @@ private:
 	 *
 	 */
 	//创建关键帧
-	void makeKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
+	void makeKeyFrame( FrameHessian* fh, FrameHessian* fhRight);
 	//创建非关键帧
-	void makeNonKeyFrame( std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right);
+	void makeNonKeyFrame( FrameHessian* fh, FrameHessian* fhRight);
 
 	//跟踪和后端优化的连接传递函数
-	void deliverTrackedFrame(std::shared_ptr<FrameHessian> fh, std::shared_ptr<FrameHessian> fh_right, bool needKF);
+	void deliverTrackedFrame(FrameHessian* fh, FrameHessian* fhRight, bool needKF);
 
 	//后端优化
 	void mappingLoop();
@@ -421,8 +427,8 @@ private:
 	boost::condition_variable mappedFrameSignal;
 
 	//非同步优化的时候的队列
-	std::deque<std::shared_ptr<FrameHessian>> unmappedTrackedFrames;
-	std::deque<std::shared_ptr<FrameHessian>> unmappedTrackedFrames_right;
+	std::deque<FrameHessian*> unmappedTrackedFrames;
+	std::deque<FrameHessian*> unmappedTrackedFrames_right;
 
 	//是否是关键帧
 	int needNewKFAfter;	// Otherwise, a new KF is *needed that has ID bigger than [needNewKFAfter]*.

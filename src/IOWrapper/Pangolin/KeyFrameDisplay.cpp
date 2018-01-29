@@ -86,7 +86,7 @@ void KeyFrameDisplay::setFromF(FrameShell* frame, CalibHessian* HCalib)
 	originFrame = frame;
 }
 
-void KeyFrameDisplay::setFromKF(std::shared_ptr<FrameHessian> fh, CalibHessian* HCalib)
+void KeyFrameDisplay::setFromKF(FrameHessian* fh, CalibHessian* HCalib)
 {
 	setFromF(fh->shell, HCalib);
 
@@ -105,7 +105,7 @@ void KeyFrameDisplay::setFromKF(std::shared_ptr<FrameHessian> fh, CalibHessian* 
 
 	InputPointSparse<MAX_RES_PER_POINT>* pc = originalInputSparse;
 	numSparsePoints = 0;
-	for (std::shared_ptr<ImmaturePoint> p : fh->immaturePoints)
+	for (ImmaturePoint* p : fh->immaturePoints)
 	{
 		for (int i = 0; i < patternNum; i++)
 			pc[numSparsePoints].color[i] = p->color[i];
@@ -120,7 +120,7 @@ void KeyFrameDisplay::setFromKF(std::shared_ptr<FrameHessian> fh, CalibHessian* 
 		numSparsePoints++;
 	}
 
-	for (std::shared_ptr<PointHessian> p : fh->pointHessians)
+	for (PointHessian* p : fh->pointHessians)
 	{
 		for (int i = 0; i < patternNum; i++)
 			pc[numSparsePoints].color[i] = p->color[i];
@@ -135,7 +135,7 @@ void KeyFrameDisplay::setFromKF(std::shared_ptr<FrameHessian> fh, CalibHessian* 
 		numSparsePoints++;
 	}
 
-	for (std::shared_ptr<PointHessian> p : fh->pointHessiansMarginalized)
+	for (PointHessian* p : fh->pointHessiansMarginalized)
 	{
 		for (int i = 0; i < patternNum; i++)
 			pc[numSparsePoints].color[i] = p->color[i];
@@ -149,7 +149,7 @@ void KeyFrameDisplay::setFromKF(std::shared_ptr<FrameHessian> fh, CalibHessian* 
 		numSparsePoints++;
 	}
 
-	for (std::shared_ptr<PointHessian> p : fh->pointHessiansOut)
+	for (PointHessian* p : fh->pointHessiansOut)
 	{
 		for (int i = 0; i < patternNum; i++)
 			pc[numSparsePoints].color[i] = p->color[i];

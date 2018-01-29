@@ -74,7 +74,7 @@ int computeHistQuantil(int* hist, float below)
 
 
 //
-void PixelSelector::makeHists(const std::shared_ptr<FrameHessian> fh)
+void PixelSelector::makeHists(const FrameHessian* const fh)
 {
 	gradHistFrame = fh;
 	float * mapmax0 = fh->absSquaredGrad[0];
@@ -135,7 +135,7 @@ void PixelSelector::makeHists(const std::shared_ptr<FrameHessian> fh)
 }
 
 int PixelSelector::makeMaps(
-		const std::shared_ptr<FrameHessian> fh,
+		const FrameHessian* const fh,
 		float* map_out, float density, int recursionsLeft, bool plot, float thFactor)  //thFactor = settingImaturePointDensity
 {
 	float numHave=0;
@@ -278,7 +278,7 @@ int PixelSelector::makeMaps(
 	return numHaveSub;
 }
 
-Eigen::Vector3i PixelSelector::select(const std::shared_ptr<FrameHessian> fh,
+Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
 		float* map_out, int pot, float thFactor)
 {
 	Eigen::Vector3f const * const map0 = fh->dI;

@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -24,7 +24,7 @@
 
 #pragma once
 
- 
+
 #include "util/NumType.h"
 #include "vector"
 #include <math.h>
@@ -35,7 +35,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-#include <sys/stat.h> 
+#include <sys/stat.h>
 
 namespace fdso
 {
@@ -44,7 +44,7 @@ struct FrameHessian;
 struct PointFrameResidual;
 
 /**
- * 
+ *
  */
 class CoarseTracker {
 public:
@@ -54,34 +54,36 @@ public:
 	~CoarseTracker();
 
 	void saveResult(
-    		SE3 lastToNew_In, AffLight aff_g2l_In,
-    		SE3 lastToNew_out, AffLight aff_g2l_out,
-    		int coarsestLvl,
-    		Vec5 minResForAbort);
+	  SE3 lastToNew_In, AffLight aff_g2l_In,
+	  SE3 lastToNew_out, AffLight aff_g2l_out,
+	  int coarsestLvl,
+	  Vec5 minResForAbort);
 
-    void saveK();
+	void saveK();
 
 	//跟踪新一帧
 	bool trackNewestCoarse(
-			std::shared_ptr<FrameHessian> newFrameHessian,
-			SE3 &lastToNew_out, AffLight &aff_g2l_out,
-			int coarsestLvl, Vec5 minResForAbort,
-			IOWrap::Output3DWrapper* wrap=0);
+	  FrameHessian* newFrameHessian,
+	  SE3 &lastToNew_out, AffLight &aff_g2l_out,
+	  int coarsestLvl, Vec5 minResForAbort,
+	  IOWrap::Output3DWrapper* wrap = 0);
 
 	//设置第一帧的参考帧
 	void setCTRefForFirstFrame(
-			std::vector<std::shared_ptr<FrameHessian>> frameHessians);
+	  std::vector<FrameHessian*> frameHessians);
 
 	//设置跟踪的参考帧
 	void setCoarseTrackingRef(
-			std::vector<std::shared_ptr<FrameHessian>> frameHessians, std::shared_ptr<FrameHessian> fh_right, CalibHessian Hcalib);
+	  std::vector<FrameHessian*> frameHessians, FrameHessian* fhRight, CalibHessian Hcalib);
+
+	void setCoarseTrackingRef(std::vector<FrameHessian*> frameHessians, CalibHessian Hcalib);
 
 	//得到第一帧的深度图
-	void makeCoarseDepthForFirstFrame(std::shared_ptr<FrameHessian> fh);
+	void makeCoarseDepthForFirstFrame(FrameHessian* fh);
 
 	//设置内参
 	void makeK(
-			CalibHessian* HCalib);
+	  CalibHessian* HCalib);
 
 	bool debugPrint, debugPlot;
 
@@ -99,15 +101,15 @@ public:
 	int w[PYR_LEVELS];
 	int h[PYR_LEVELS];
 
-   	void debugPlotIDepthMap(float* minID, float* maxID, std::vector<IOWrap::Output3DWrapper*> &wraps);
-    	void debugPlotIDepthMapFloat(std::vector<IOWrap::Output3DWrapper*> &wraps);
+	void debugPlotIDepthMap(float* minID, float* maxID, std::vector<IOWrap::Output3DWrapper*> &wraps);
+	void debugPlotIDepthMapFloat(std::vector<IOWrap::Output3DWrapper*> &wraps);
 
-    	//最新跟踪的参考帧的Hessian矩阵
-	std::shared_ptr<FrameHessian> lastRef;
+	//最新跟踪的参考帧的Hessian矩阵
+	FrameHessian* lastRef;
 	//当前帧与参考帧的光度线性变换
 	AffLight lastRef_aff_g2l;
 	//新的一帧
-	std::shared_ptr<FrameHessian> newFrame;
+	FrameHessian* newFrame;
 	//参考帧的ID
 	int refFrameID;
 
@@ -120,7 +122,9 @@ public:
 	double firstCoarseRMSE;
 private:
 
-	void makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>> frameHessians, std::shared_ptr<FrameHessian> fh_right, CalibHessian Hcalib);
+	void makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, FrameHessian* fhRight, CalibHessian Hcalib);
+	void makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, CalibHessian Hcalib);
+
 
 	//按图的坐标来
 	//逆深度图,
@@ -169,6 +173,9 @@ private:
 	//变换后的
 	int buf_warped_n;
 
+
+	std::vector<float *> ptrToDelete;
+
 	//Hessian矩阵
 	Accumulator9 acc;
 };
@@ -185,12 +192,12 @@ public:
 
 	//创建距离图，一堆关键帧，和当前关键帧
 	void makeDistanceMap(
-			std::vector<std::shared_ptr<FrameHessian>> frameHessians,
-			std::shared_ptr<FrameHessian> frame);
+	  std::vector<FrameHessian*> frameHessians,
+	  FrameHessian* frame);
 
 	//内点投票
 	void makeInlierVotes(
-			std::vector<std::shared_ptr<FrameHessian>> frameHessians);
+	  std::vector<FrameHessian*> frameHessians);
 
 	void makeK( CalibHessian* HCalib);
 

@@ -82,17 +82,20 @@ public:
 	void setState(ResState s) {state_state = s;}
 
 	//点的Hessian矩阵
-	std::shared_ptr<PointHessian> point;
+	PointHessian* point;
 	//主导帧
-	std::shared_ptr<FrameHessian> host;
+	FrameHessian* host;
 	//参考帧
-	std::shared_ptr<FrameHessian> target;
+	FrameHessian* target;
 
 	//原始的残差雅克比
 	RawResidualJacobian* J;
 
 	//是否是新的
 	bool isNew;
+	bool staticStereo; //- indicate if this residual is the static stereo residual instead of temperal stereo residual
+
+
 	//重投影
 	Eigen::Vector2f projectedTo[MAX_RES_PER_POINT];
 
@@ -101,8 +104,9 @@ public:
 
 	~PointFrameResidual();
 	PointFrameResidual();
-	PointFrameResidual(std::shared_ptr<PointHessian> point_, std::shared_ptr<FrameHessian> host_, std::shared_ptr<FrameHessian> target_);
+	PointFrameResidual(PointHessian* point_, FrameHessian* host_, FrameHessian* target_);
 	double linearize(CalibHessian* HCalib);
+	double linearizeStatic(CalibHessian *HCalib);
 
 	//重置
 	void resetOOB()

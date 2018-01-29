@@ -36,7 +36,7 @@ FeatureMatcher::~FeatureMatcher()
 //    }
 }
 
-void FeatureMatcher::showMatch(std::shared_ptr<FrameHessian> kf1, std::shared_ptr<FrameHessian> kf2, std::vector<cv::DMatch>& matches)
+void FeatureMatcher::showMatch(FrameHessian* kf1, FrameHessian* kf2, std::vector<cv::DMatch>& matches)
 {
     cv::Mat img_show(kf1->image.rows, 2 * kf1->image.cols, CV_8UC1);
     kf1->image.copyTo( img_show(cv::Rect(0, 0, kf1->image.cols, kf1->image.rows)) );
@@ -80,18 +80,18 @@ int FeatureMatcher::DescriptorDistance ( const cv::Mat& a, const cv::Mat& b )
     return dist;
 }
 
-int FeatureMatcher::SearchBruteForce(std::shared_ptr<FrameHessian> frame1, std::shared_ptr<FrameHessian> frame2, std::vector<cv::DMatch> &matches)
+int FeatureMatcher::SearchBruteForce(FrameHessian* frame1, FrameHessian* frame2, std::vector<cv::DMatch> &matches)
 {
     assert (matches.empty());
     matches.reserve(frame1->_features.size());
 
     for (size_t i = 0; i < frame1->_features.size(); i++) {
-        std::shared_ptr<Feature> f1 = frame1->_features[i];
+        Feature* f1 = frame1->_features[i];
         int min_dist = 9999;
         int min_dist_index = -1;
 
         for (size_t j = 0; j < frame2->_features.size(); j++) {
-            std::shared_ptr<Feature> f2 = frame2->_features[j];
+            Feature* f2 = frame2->_features[j];
             int dist = FeatureMatcher::DescriptorDistance(f1->_desc, f2->_desc);
             if (dist < min_dist) {
                 min_dist = dist;
@@ -108,8 +108,8 @@ int FeatureMatcher::SearchBruteForce(std::shared_ptr<FrameHessian> frame1, std::
 }
 
 int FeatureMatcher::CheckFrameDescriptors (
-    std::shared_ptr<FrameHessian> frame1,
-    std::shared_ptr<FrameHessian> frame2,
+    FrameHessian* frame1,
+    FrameHessian* frame2,
     std::list<std::pair<int, int>>& matches
 )
 {
@@ -149,8 +149,8 @@ int FeatureMatcher::CheckFrameDescriptors (
 }
 
 int FeatureMatcher::SearchForTriangulation (
-    std::shared_ptr<FrameHessian> kf1,
-    std::shared_ptr<FrameHessian> kf2,
+    FrameHessian* kf1,
+    FrameHessian* kf2,
     const Matrix3d& E12,
     std::vector< std::pair< int, int > >& matched_points,
     CalibHessian* HCalib,
@@ -260,8 +260,8 @@ int FeatureMatcher::SearchForTriangulation (
 
 // 利用 Bag of Words 加速匹配
 int FeatureMatcher::SearchByBoW(
-    std::shared_ptr<FrameHessian> kf1,
-    std::shared_ptr<FrameHessian> kf2,
+    FrameHessian* kf1,
+    FrameHessian* kf2,
     std::vector<cv::DMatch> &matches )
 {
     if (kf1->_bow_vec.empty() || kf2->_bow_vec.empty())
@@ -378,8 +378,8 @@ int FeatureMatcher::SearchByBoW(
 }
 
 void FeatureMatcher::checkUVDistance(
-    std::shared_ptr<FrameHessian> kf1,
-    std::shared_ptr<FrameHessian> kf2,
+    FrameHessian* kf1,
+    FrameHessian* kf2,
     std::vector<cv::DMatch> &matches,
     std::vector<cv::DMatch> &goodMatches)
 {
@@ -493,10 +493,10 @@ bool FeatureMatcher::CheckDistEpipolarLine(
 }
 
 // bool FeatureMatcher::FindDirectProjection(
-//     std::shared_ptr<FrameHessian> ref, std::shared_ptr<FrameHessian> curr, MapPoint* mp, Vector2d& px_curr, int& search_level)
+//     FrameHessian* ref, FrameHessian* curr, MapPoint* mp, Vector2d& px_curr, int& search_level)
 // {
 //     Eigen::Matrix2d ACR;
-//     std::shared_ptr<Feature> fea = mp->_obs[ref->_keyframe_id];
+//     Feature* fea = mp->_obs[ref->_keyframe_id];
 //     Eigen::Vector2d& px_ref = fea->_pixel;
 //     double depth = ref->_camera->World2Camera( mp->_pos_world, ref->_TCW )[2];
 //     Eigen::Vector3d pt_ref = ref->_camera->Pixel2Camera( px_ref, depth );
@@ -526,7 +526,7 @@ bool FeatureMatcher::CheckDistEpipolarLine(
 // }
 
 // bool FeatureMatcher::FindDirectProjection(
-//     Frame* ref, Frame* curr, std::shared_ptr<Feature> fea_ref, Vector2d& px_curr, int& search_level )
+//     Frame* ref, Frame* curr, Feature* fea_ref, Vector2d& px_curr, int& search_level )
 // {
 //     if ( fea_ref->_depth < 0 )
 //     {
@@ -561,7 +561,7 @@ bool FeatureMatcher::CheckDistEpipolarLine(
 
 
 // void FeatureMatcher::GetWarpAffineMatrix(
-//     const std::shared_ptr<FrameHessian> ref, const std::shared_ptr<FrameHessian> curr,
+//     const FrameHessian* ref, const FrameHessian* curr,
 //     const Eigen::Vector2d& px_ref, const Eigen::Vector3d& pt_ref,
 //     const int& level, const SE3& TCR, Eigen::Matrix2d& ACR )
 // {
@@ -645,7 +645,7 @@ bool FeatureMatcher::CheckDistEpipolarLine(
 //     // LOG(INFO)<<"start from "<<pose_curr.transpose()<<endl;
 
 //     int index = 0;
-//     for ( std::shared_ptr<Feature> fea : ref->_features )
+//     for ( Feature* fea : ref->_features )
 //     {
 //         if ( !fea->_bad && fea->_depth > 0 )
 //         {
@@ -705,7 +705,7 @@ bool FeatureMatcher::CheckDistEpipolarLine(
 //     boost::timer timer;
 //     Mat& img = ref->_pyramid[level];
 //     int scale = 1 << level;
-//     for ( std::shared_ptr<Feature> fea : ref->_features )
+//     for ( Feature* fea : ref->_features )
 //     {
 //         if ( fea->_mappoint && !fea->_mappoint->_bad )
 //         {

@@ -98,12 +98,12 @@ public:
 	~CoarseInitializer();
 
 	//设置第一帧的矫正Hessian,新一帧的Hessian
-	void setFirst(CalibHessian* HCalib, std::shared_ptr<FrameHessian> newFrameHessian);
+	void setFirst(CalibHessian* HCalib, FrameHessian* newFrameHessian);
 	//跟踪帧
-	void setFirstStereo(CalibHessian* HCalib, std::shared_ptr<FrameHessian> newFrameHessian, std::shared_ptr<FrameHessian> newFrameHessian_Right);
-	bool trackFrame(std::shared_ptr<FrameHessian> newFrameHessian, std::shared_ptr<FrameHessian> newFrameHessian_Right, std::vector<IOWrap::Output3DWrapper*> &wraps);
+	void setFirstStereo(CalibHessian* HCalib, FrameHessian* newFrameHessian, FrameHessian* newFrameHessian_Right);
+	bool trackFrame(FrameHessian* newFrameHessian, FrameHessian* newFrameHessian_Right, std::vector<IOWrap::Output3DWrapper*> &wraps);
 	//计算梯度
-	void calcTGrads(std::shared_ptr<FrameHessian> newFrameHessian);
+	void calcTGrads(FrameHessian* newFrameHessian);
 
 	//关键帧的ID号
 	int frameID;
@@ -121,11 +121,11 @@ public:
 	SE3 thisToNext;
 
 	//第一帧的Hessian
-	std::shared_ptr<FrameHessian> firstFrame;
+	FrameHessian* firstFrame;
 	//新一帧的Hessian
-	std::shared_ptr<FrameHessian> newFrame;
+	FrameHessian* newFrame;
 
-	std::shared_ptr<FrameHessian> firstRightFrame;
+	FrameHessian* firstRightFrame;
 
 private:
 	Mat33 K[PYR_LEVELS];

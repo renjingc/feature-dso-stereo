@@ -76,9 +76,9 @@ struct FrameFramePrecalc
 	// 状态量
 	static int instanceCounter;
 	//主导帧
-	std::shared_ptr<FrameHessian> host; // defines row
+	FrameHessian* host; // defines row
 	//目标帧
-	std::shared_ptr<FrameHessian> target; // defines column
+	FrameHessian* target; // defines column
 
 	// precalc values
 	// 预计算的值
@@ -99,7 +99,9 @@ struct FrameFramePrecalc
 
 	inline ~FrameFramePrecalc() {}
 	inline FrameFramePrecalc() {host = target = 0;}
-	void set(std::shared_ptr<FrameHessian> host, std::shared_ptr<FrameHessian> target, CalibHessian* HCalib);
+	void set(FrameHessian* host, FrameHessian* target, CalibHessian* HCalib);
+
+	void setStatic(FrameHessian* host, FrameHessian* target, CalibHessian *HCalib);
 };
 
 /**
@@ -109,12 +111,12 @@ struct FrameHessian
 {
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 	//帧的能量函数
-	EFFrame* efFrame=nullptr;
+	EFFrame* efFrame = nullptr;
 
 	// constant info & pre-calculated values
 	//DepthImageWrap* frame;
 	//每一帧的信息
-	FrameShell* shell=nullptr;
+	FrameShell* shell = nullptr;
 
 	//梯度
 	Eigen::Vector3f* dI;         // trace, fine tracking. Used for direction select (not for gradient histograms etc.)
@@ -122,6 +124,9 @@ struct FrameHessian
 	Eigen::Vector3f* dIp[PYR_LEVELS];  // coarse tracking / coarse initializer. NAN in [0] only.
 	//用于像素的选择，用直方图，金字塔
 	float* absSquaredGrad[PYR_LEVELS];  // only used for pixel select (histograms etc.). no NAN.
+
+	FrameHessian* rightFrame=nullptr; //- Point to right frame, NULL indicates this is a right frame.
+	FrameHessian* leftFrame=nullptr;
 
 	//关键帧id
 	int frameID;            // incremental ID for keyframes only!
@@ -139,37 +144,37 @@ struct FrameHessian
 	bool flaggedForMarginalization;
 
 	//有效点
-	std::vector<std::shared_ptr<PointHessian>> pointHessians;       // contains all ACTIVE points.
+	std::vector<PointHessian*> pointHessians;       // contains all ACTIVE points.
 	//已边缘化的点,在flagPointsForRemoval中根据点的逆深度状态，插入
-	std::vector<std::shared_ptr<PointHessian>> pointHessiansMarginalized; // contains all MARGINALIZED points (= fully marginalized, usually because point went OOB.)
+	std::vector<PointHessian*> pointHessiansMarginalized; // contains all MARGINALIZED points (= fully marginalized, usually because point went OOB.)
 	//出界点/外点,在flagPointsForRemoval中插入
-	std::vector<std::shared_ptr<PointHessian>> pointHessiansOut;    // contains all OUTLIER points (= discarded.).
+	std::vector<PointHessian*> pointHessiansOut;    // contains all OUTLIER points (= discarded.).
 
 	//当前帧生成的点
-	std::vector<std::shared_ptr<ImmaturePoint>> immaturePoints;   // contains all OUTLIER points (= discarded.).
+	std::vector<ImmaturePoint*> immaturePoints;   // contains all OUTLIER points (= discarded.).
 
 	cv::Mat image;
 	// 金字塔，越往上越小，默认缩放倍数是2，因为2可以用SSE优化...虽然目前还没有用SSE
 	std::vector<cv::Mat>  _pyramid;      // gray image pyramid, it must be CV_8U
 
 	//特征点
-	std::vector<std::shared_ptr<Feature>> _features;
+	std::vector<Feature*> _features;
 
 	DBoW2::BowVector _bow_vec;
 	DBoW2::FeatureVector _feature_vec;
 
-        // Variables used by the keyframe database
-        //闭环时用到额
-        long unsigned int mnLoopQuery = 0;
-        int mnLoopWords = 0;
-        float mLoopScore = 0;
-        long unsigned int mnRelocQuery = 0;
-        int mnRelocWords = 0;
-        float mRelocScore = 0;
+	// Variables used by the keyframe database
+	//闭环时用到额
+	long unsigned int mnLoopQuery = 0;
+	int mnLoopWords = 0;
+	float mLoopScore = 0;
+	long unsigned int mnRelocQuery = 0;
+	int mnRelocWords = 0;
+	float mRelocScore = 0;
 
 	// pose relative to keyframes in the window, stored as T_cur_ref
 	// this will be changed by full system and loop closing, so we need a mutex
-	std::map<std::shared_ptr<FrameHessian>, SE3, std::less<std::shared_ptr<FrameHessian>>, Eigen::aligned_allocator<SE3>> mPoseRel;
+	std::map<FrameHessian*, SE3, std::less<FrameHessian*>, Eigen::aligned_allocator<SE3>> mPoseRel;
 	std::mutex mMutexPoseRel;
 
 	//零空间位姿
@@ -303,8 +308,8 @@ struct FrameHessian
 	 */
 	inline ~FrameHessian()
 	{
-		LOG(INFO)<<"FrameHessian release "<<this->idx<<" "<<this->frameID<<" "<<this->shell->id<<" "<<this->pointHessians.size()<<" "
-		<<this->pointHessiansMarginalized.size()<<" "<<this->pointHessiansOut.size()<<" "<<_features.size()<<std::endl;
+		LOG(INFO) << "FrameHessian release " << this->idx << " " << this->frameID << " " << this->shell->id << " " << this->pointHessians.size() << " "
+		          << this->pointHessiansMarginalized.size() << " " << this->pointHessiansOut.size() << " " << _features.size() << std::endl;
 		assert(efFrame == 0);
 		release(); instanceCounter--;
 		for (int i = 0; i < pyrLevelsUsed; i++)
@@ -326,7 +331,7 @@ struct FrameHessian
 		instanceCounter++;
 		flaggedForMarginalization = false;
 		frameID = -1;
-		idx=-1;
+		idx = -1;
 		efFrame = 0;
 		frameEnergyTH = 8 * 8 * patternNum;
 		debugImage = 0;
@@ -344,7 +349,7 @@ struct FrameHessian
 	// 将备选点的描述转换成 bow
 	void ComputeBoW(std::shared_ptr<ORBVocabulary> _vocab);
 
-	set<std::shared_ptr<FrameHessian>> GetConnectedKeyFrames();
+	set<FrameHessian*> GetConnectedKeyFrames();
 
 	void CleanAllFeatures()
 	{
@@ -431,7 +436,7 @@ struct FrameHessian
  */
 class CmpFrameID {
 public:
-	inline bool operator()(const std::shared_ptr<FrameHessian> f1, const std::shared_ptr<FrameHessian> f2) {
+	inline bool operator()(const FrameHessian* f1, const FrameHessian* f2) {
 		return f1->shell->id < f2->shell->id;
 	}
 };
@@ -442,7 +447,7 @@ public:
  */
 class CmpFrameKFID {
 public:
-	inline bool operator()(const std::shared_ptr<FrameHessian> f1, const std::shared_ptr<FrameHessian> f2) {
+	inline bool operator()(const FrameHessian* f1, const FrameHessian* f2) {
 		return f1->frameID < f2->frameID;
 	}
 };

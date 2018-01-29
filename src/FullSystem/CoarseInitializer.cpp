@@ -77,7 +77,7 @@ CoarseInitializer::~CoarseInitializer()
  * @param  wraps                 [description]
  * @return                       [description]
  */
-bool CoarseInitializer::trackFrame(std::shared_ptr<FrameHessian> newFrameHessian, std::shared_ptr<FrameHessian> newFrameHessian_Right, std::vector<IOWrap::Output3DWrapper*> &wraps)
+bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian, FrameHessian* newFrameHessian_Right, std::vector<IOWrap::Output3DWrapper*> &wraps)
 {
 	//新一帧的Hessian
 	newFrame = newFrameHessian;
@@ -960,7 +960,7 @@ void CoarseInitializer::makeGradients(Eigen::Vector3f** data)
  * @param newFrameHessian       [description]
  * @param newFrameHessian_Right [description]
  */
-void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, std::shared_ptr<FrameHessian> newFrameHessian, std::shared_ptr<FrameHessian> newFrameHessian_Right)
+void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, FrameHessian* newFrameHessian, FrameHessian* newFrameHessian_Right)
 {
 	//设置内参
 	makeK(HCalib);
@@ -996,7 +996,7 @@ void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, std::shared_ptr<Fra
 		}
 		else
 		{
-            npts = makePixelStatus(firstFrame->dIp[lvl], statusMapB, w[lvl], h[lvl], densities[lvl] * w[0] * h[0]);
+			npts = makePixelStatus(firstFrame->dIp[lvl], statusMapB, w[lvl], h[lvl], densities[lvl] * w[0] * h[0]);
 		}
 
 		if (points[lvl] != 0) delete[] points[lvl];
@@ -1012,7 +1012,7 @@ void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, std::shared_ptr<Fra
 			{
 				if (lvl == 0 && statusMap[x + y * wl] != 0)
 				{
-					std::shared_ptr<ImmaturePoint> pt(new ImmaturePoint(x, y, firstFrame, statusMap[x + y * wl], HCalib));
+					ImmaturePoint* pt(new ImmaturePoint(x, y, firstFrame, statusMap[x + y * wl], HCalib));
 
 					pt->u_stereo = pt->u;
 					pt->v_stereo = pt->v;
@@ -1157,7 +1157,7 @@ void CoarseInitializer::setFirstStereo(CalibHessian* HCalib, std::shared_ptr<Fra
  * @param HCalib          [description]
  * @param newFrameHessian [description]
  */
-void CoarseInitializer::setFirst(	CalibHessian* HCalib, std::shared_ptr<FrameHessian> newFrameHessian)
+void CoarseInitializer::setFirst(	CalibHessian* HCalib, FrameHessian* newFrameHessian)
 {
 
 	makeK(HCalib);

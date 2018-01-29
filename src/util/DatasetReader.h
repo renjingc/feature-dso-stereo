@@ -137,7 +137,7 @@ public:
 		height = undistort->getSize()[1];
 
 		// load timestamps if possible.
-		loadTimestamps();
+               loadTimestamps();
 		printf("ImageFolderReader: got %d files in %s!\n", (int)files.size(), path.c_str());
 
 	}

@@ -124,9 +124,11 @@ public:
          *  Always called, no overhead if not used.
          *  插入关联
          */
-        virtual void publishGraph(const std::map<long,Eigen::Vector2i> &connectivity) {}
+        // virtual void publishGraph(const std::map<long,Eigen::Vector2i> &connectivity) {}
 
 
+      virtual void publishGraph(
+          const std::map<uint64_t, Eigen::Vector2i, std::less<uint64_t>, Eigen::aligned_allocator<std::pair<const uint64_t, Eigen::Vector2i> > > &connectivity) {}
 
 
 
@@ -144,7 +146,7 @@ public:
          * Always called, negligible overhead if not used.
          * 显示中插入关键帧
          */
-        virtual void publishKeyframes(std::vector<std::shared_ptr<FrameHessian>> &frames, bool final, CalibHessian* HCalib) {}
+        virtual void publishKeyframes(std::vector<FrameHessian*> &frames, bool final, CalibHessian* HCalib) {}
 
         /* Usage:
          * Called once for each tracked frame, with the real-time, low-delay frame pose.
@@ -162,7 +164,7 @@ public:
          * Always called, no overhead if not used.
          * 插入当前图像
          */
-        virtual void pushLiveFrame(std::shared_ptr<FrameHessian> image) {}
+        virtual void pushLiveFrame(FrameHessian* image) {}
 
         /**
          * @brief      Pushes a stereo live frame.
@@ -171,7 +173,7 @@ public:
          * @param[in]  image_right  The image right
          * 插入当前双目的图像
          */
-        virtual void pushStereoLiveFrame(std::shared_ptr<FrameHessian> image,std::shared_ptr<FrameHessian> image_right){}
+        virtual void pushStereoLiveFrame(FrameHessian* image,FrameHessian* image_right){}
 
 
         /* called once after a new keyframe is created, with the color-coded, forward-warped inverse depthmap for that keyframe,
@@ -194,7 +196,7 @@ public:
          * Calling:
          * Always called, almost no overhead if not used.
          */
-        virtual void pushDepthImageFloat(MinimalImageF* image, std::shared_ptr<FrameHessian> KF ) {}
+        virtual void pushDepthImageFloat(MinimalImageF* image, FrameHessian* KF ) {}
 
 
 

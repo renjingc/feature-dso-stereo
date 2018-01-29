@@ -323,7 +323,7 @@ FeatureDetector::FeatureDetector()
     const int npoints = 512;
     std::copy(pattern0, pattern0 + npoints, std::back_inserter(_pattern));
 
-    _old_features = std::vector<std::shared_ptr<Feature>>( _option._grid_cols * _option._grid_rows, nullptr );
+    _old_features = std::vector<Feature*>( _option._grid_cols * _option._grid_rows, nullptr );
 }
 
 FeatureDetector::FeatureDetector(int _image_width, int _image_height,
@@ -367,7 +367,7 @@ FeatureDetector::FeatureDetector(int _image_width, int _image_height,
     const int npoints = 512;
     std::copy(pattern0, pattern0 + npoints, std::back_inserter(_pattern));
 
-    _old_features = std::vector<std::shared_ptr<Feature>>( _option._grid_cols * _option._grid_rows, nullptr );
+    _old_features = std::vector<Feature*>( _option._grid_cols * _option._grid_rows, nullptr );
 }
 
 void FeatureDetector::LoadParams()
@@ -378,19 +378,19 @@ void FeatureDetector::LoadParams()
     // _option._grid_rows = ceil ( double ( _option._image_height ) / _option._cell_size );
     // _option._grid_cols = ceil ( double ( _option._image_width ) / _option._cell_size );
     // _option._detection_threshold = Config::Get<double> ( "feature.detection_threshold" );
-    // _old_features = vector<std::shared_ptr<Feature>>( _option._grid_cols * _option._grid_rows, nullptr );
+    // _old_features = vector<Feature*>( _option._grid_cols * _option._grid_rows, nullptr );
 }
 
 
 // 提取算法
 // 用变阈值可能更好一些
-void FeatureDetector::Detect(std::shared_ptr<FrameHessian> frame, bool overwrite_existing_features)
+void FeatureDetector::Detect(FrameHessian* frame, bool overwrite_existing_features)
 {
-    _new_features = std::vector<std::shared_ptr<Feature>> ( _option._grid_cols * _option._grid_rows, nullptr );
+    _new_features = std::vector<Feature*> ( _option._grid_cols * _option._grid_rows, nullptr );
 
     if ( overwrite_existing_features )
     {
-        _old_features = std::vector<std::shared_ptr<Feature>> ( _option._grid_cols * _option._grid_rows, nullptr );
+        _old_features = std::vector<Feature*> ( _option._grid_cols * _option._grid_rows, nullptr );
         frame->CleanAllFeatures();
     }
     else
@@ -454,7 +454,7 @@ void FeatureDetector::Detect(std::shared_ptr<FrameHessian> frame, bool overwrite
                 {
                     // 比新提的特征好,那就把这个地方的特征给删了
                     //delete _new_features[k];
-                    _new_features[k] = make_shared<Feature> (
+                    _new_features[k] = new Feature(
                         Eigen::Vector2d(xy.x * scale, xy.y * scale), L, score );
                 }
             }
@@ -462,7 +462,7 @@ void FeatureDetector::Detect(std::shared_ptr<FrameHessian> frame, bool overwrite
             {
                 // 没有任何特征
                 const float score = this->ShiTomasiScore ( frame->_pyramid[L], xy.x, xy.y );
-                _new_features[k] =make_shared<Feature> (
+                _new_features[k] = new Feature(
                     Eigen::Vector2d(xy.x * scale, xy.y * scale), L, score );
             }
         }
@@ -470,7 +470,7 @@ void FeatureDetector::Detect(std::shared_ptr<FrameHessian> frame, bool overwrite
 
     int cnt_new_features = 0;
     //LOG(INFO) << "old features: " << frame->_features.size() << std::endl;
-    for ( std::shared_ptr<Feature> fea : _new_features )
+    for ( Feature* fea : _new_features )
     {
         if ( fea ) {
             cnt_new_features++;
@@ -491,12 +491,15 @@ void FeatureDetector::Detect(std::shared_ptr<FrameHessian> frame, bool overwrite
  *
  * @param      frame  The frame
  */
-void FeatureDetector::SetExistingFeatures ( std::shared_ptr<FrameHessian> frame )
+void FeatureDetector::SetExistingFeatures ( FrameHessian* frame )
 {
-    for ( std::shared_ptr<Feature>& fea : _old_features )
-        fea = nullptr;
+    for ( Feature*& fea : _old_features )
+    {
+        delete fea;
+        //fea = nullptr;
+    }
 
-    for ( std::shared_ptr<Feature> fea : frame->_features )
+    for ( Feature* fea : frame->_features )
     {
         int gx = static_cast<int> ( fea->_pixel[0] / _option._cell_size );
         int gy = static_cast<int> ( fea->_pixel[1] / _option._cell_size );
@@ -615,7 +618,7 @@ float FeatureDetector::IC_Angle(
  * @param      desc     The description
  */
 void FeatureDetector::ComputeOrbDescriptor(
-    const std::shared_ptr<Feature> feature, const cv::Mat& img, const cv::Point* pattern, uchar* desc)
+    const Feature* feature, const cv::Mat& img, const cv::Point* pattern, uchar* desc)
 {
     const float factorPI = (float)(CV_PI / 180.f);
     float angle = (float)feature->_angle * factorPI;
@@ -662,9 +665,9 @@ void FeatureDetector::ComputeOrbDescriptor(
 #undef GET_VALUE
 }
 
-void FeatureDetector::ComputeAngleAndDescriptor(std::shared_ptr<FrameHessian> frame)
+void FeatureDetector::ComputeAngleAndDescriptor(FrameHessian* frame)
 {
-    for ( std::shared_ptr<Feature> fea : frame->_features )
+    for ( Feature* fea : frame->_features )
     {
         // compute the angle and descriptor
         fea->_angle = IC_Angle( frame->_pyramid[fea->_level], fea->_pixel / (1 << fea->_level), _umax );
@@ -672,7 +675,7 @@ void FeatureDetector::ComputeAngleAndDescriptor(std::shared_ptr<FrameHessian> fr
     }
 }
 
-void FeatureDetector::ComputeDescriptorAndAngle( std::shared_ptr<Feature> fea)
+void FeatureDetector::ComputeDescriptorAndAngle( Feature* fea)
 {
     fea->_angle = IC_Angle( fea->_frame->_pyramid[fea->_level], fea->_pixel / (1 << fea->_level), _umax );
     ComputeOrbDescriptor( fea, fea->_frame->_pyramid[fea->_level], &_pattern[0], fea->_desc.data );
@@ -684,7 +687,7 @@ void FeatureDetector::ComputeDescriptorAndAngle( std::shared_ptr<Feature> fea)
  * @param      fea   The fea
  *
  */
-void FeatureDetector::ComputeDescriptor( std::shared_ptr<Feature> fea )
+void FeatureDetector::ComputeDescriptor( Feature* fea )
 {
     ComputeOrbDescriptor( fea, fea->_frame->_pyramid[fea->_level], &_pattern[0], fea->_desc.data );
 }

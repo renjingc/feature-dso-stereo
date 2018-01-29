@@ -54,7 +54,7 @@ namespace fdso
  * @param[in]  max               The maximum
  * @param      stats             The statistics
  * @param[in]  tid               The tid
- * 
+ *
  * 全部线性化
  */
 void FullSystem::linearizeAll_Reductor(bool fixLinearization, std::vector<PointFrameResidual*>* toRemove, int min, int max, Vec10* stats, int tid)
@@ -64,8 +64,15 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization, std::vector<PointF
 	{
 		//遍历每一个点与帧产生的残差，进行线性化，即计算点与帧之间的残差和各个雅克比
 		PointFrameResidual* r = activeResiduals[k];
-		//线性化,计算每个点到目标帧的坐标,逆深度,并计算其残差和雅克比和状态
-		(*stats)[0] += r->linearize(&Hcalib);
+		// //线性化,计算每个点到目标帧的坐标,逆深度,并计算其残差和雅克比和状态
+		// (*stats)[0] += r->linearize(&Hcalib);
+
+		if (r->staticStereo) {
+			(*stats)[0] += r->linearizeStatic(&Hcalib);
+			continue;
+		}
+		else
+			(*stats)[0] += r->linearize(&Hcalib);
 
 		if (fixLinearization)
 		{
@@ -74,9 +81,9 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization, std::vector<PointF
 
 			if (r->efResidual->isActive())
 			{
-				if (r->isNew)
+				if (r->isNew) // NO USE: this is just calculate for display
 				{
-					std::shared_ptr<PointHessian> p = r->point;
+					PointHessian* p = r->point;
 					Vec3f ptp_inf = r->host->targetPrecalc[r->target->idx].PRE_KRKiTll * Vec3f(p->u, p->v, 1);	// projected point assuming infinite depth.
 					Vec3f ptp = ptp_inf + r->host->targetPrecalc[r->target->idx].PRE_KtTll * p->idepth_scaled;	// projected point with real depth.
 					float relBS = 0.01 * ((ptp_inf.head<2>() / ptp_inf[2]) - (ptp.head<2>() / ptp[2])).norm();	// 0.01 = one pixel.
@@ -103,7 +110,7 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization, std::vector<PointF
  * @param[in]  max            The maximum
  * @param      stats          The statistics
  * @param[in]  tid            The tid
- * 
+ *
  * 更新残差
  */
 void FullSystem::applyRes_Reductor(bool copyJacobians, int min, int max, Vec10* stats, int tid)
@@ -124,7 +131,7 @@ void FullSystem::setNewFrameEnergyTH()
 	allResVec.clear();
 	allResVec.reserve(activeResiduals.size() * 2);
 	//最新的一帧
-	std::shared_ptr<FrameHessian> newFrame = frameHessians.back();
+	FrameHessian* newFrame = frameHessians.back();
 
 	//遍历全部的点和帧的残差
 	for (PointFrameResidual* r : activeResiduals)
@@ -201,7 +208,7 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
 		//遍历每一个残差
 		for (PointFrameResidual* r : activeResiduals)
 		{
-			std::shared_ptr<PointHessian> ph = r->point;
+			PointHessian* ph = r->point;
 			if (ph->lastResiduals[0].first == r)
 				ph->lastResiduals[0].second = r->state_state;
 			else if (ph->lastResiduals[1].first == r)
@@ -213,7 +220,7 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
 		{
 			for (PointFrameResidual* r : toRemove[i])
 			{
-				std::shared_ptr<PointHessian> ph = r->point;
+				PointHessian* ph = r->point;
 
 				if (ph->lastResiduals[0].first == r)
 					ph->lastResiduals[0].first = 0;
@@ -266,8 +273,8 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 
 	if (setting_solverMode & SOLVER_MOMENTUM)
 	{
-		Hcalib.setValue(Hcalib.value_backup + Hcalib.step);
-		for (std::shared_ptr<FrameHessian> fh : frameHessians)
+		//Hcalib.setValue(Hcalib.value_backup + Hcalib.step);
+		for (FrameHessian* fh : frameHessians)
 		{
 			Vec10 step = fh->step;
 			step.head<6>() += 0.5f * (fh->step_backup.head<6>());
@@ -278,9 +285,11 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 			sumT += step.segment<3>(0).squaredNorm();
 			sumR += step.segment<3>(3).squaredNorm();
 
-			for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
+			for (PointHessian* ph : fh->pointHessians)
 			{
 				float step = ph->step + 0.5f * (ph->step_backup);
+
+				//设置逆深度
 				ph->setIdepth(ph->idepth_backup + step);
 				sumID += step * step;
 				sumNID += fabsf(ph->idepth_backup);
@@ -293,7 +302,7 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 	else
 	{
 		Hcalib.setValue(Hcalib.value_backup + stepfacC * Hcalib.step);
-		for (std::shared_ptr<FrameHessian> fh : frameHessians)
+		for (FrameHessian* fh : frameHessians)
 		{
 			fh->setState(fh->state_backup + pstepfac.cwiseProduct(fh->step));
 			sumA += fh->step[6] * fh->step[6];
@@ -301,7 +310,7 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 			sumT += fh->step.segment<3>(0).squaredNorm();
 			sumR += fh->step.segment<3>(3).squaredNorm();
 
-			for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
+			for (PointHessian* ph : fh->pointHessians)
 			{
 				ph->setIdepth(ph->idepth_backup + stepfacD * ph->step);
 				sumID += ph->step * ph->step;
@@ -356,11 +365,11 @@ void FullSystem::backupState(bool backupLastStep)
 		{
 			Hcalib.step_backup = Hcalib.step;
 			Hcalib.value_backup = Hcalib.value;
-			for (std::shared_ptr<FrameHessian> fh : frameHessians)
+			for (FrameHessian* fh : frameHessians)
 			{
 				fh->step_backup = fh->step;
 				fh->state_backup = fh->get_state();
-				for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
+				for (PointHessian* ph : fh->pointHessians)
 				{
 					ph->idepth_backup = ph->idepth;
 					ph->step_backup = ph->step;
@@ -371,11 +380,11 @@ void FullSystem::backupState(bool backupLastStep)
 		{
 			Hcalib.step_backup.setZero();
 			Hcalib.value_backup = Hcalib.value;
-			for (std::shared_ptr<FrameHessian> fh : frameHessians)
+			for (FrameHessian* fh : frameHessians)
 			{
 				fh->step_backup.setZero();
 				fh->state_backup = fh->get_state();
-				for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
+				for (PointHessian* ph : fh->pointHessians)
 				{
 					ph->idepth_backup = ph->idepth;
 					ph->step_backup = 0;
@@ -386,10 +395,10 @@ void FullSystem::backupState(bool backupLastStep)
 	else
 	{
 		Hcalib.value_backup = Hcalib.value;
-		for (std::shared_ptr<FrameHessian> fh : frameHessians)
+		for (FrameHessian* fh : frameHessians)
 		{
 			fh->state_backup = fh->get_state();
-			for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
+			for (PointHessian* ph : fh->pointHessians)
 				ph->idepth_backup = ph->idepth;
 		}
 	}
@@ -406,13 +415,14 @@ void FullSystem::loadSateBackup()
 	Hcalib.setValue(Hcalib.value_backup);
 
 	//遍历每一帧设置每一帧的状态
-	for (std::shared_ptr<FrameHessian> fh : frameHessians)
+	for (FrameHessian* fh : frameHessians)
 	{
 		fh->setState(fh->state_backup);
 
 		//遍历每一个点，设置每一个的逆深度和零状态逆深度
-		for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
+		for (PointHessian* ph : fh->pointHessians)
 		{
+			//设置逆深度
 			ph->setIdepth(ph->idepth_backup);
 			ph->setIdepthZero(ph->idepth_backup);
 		}
@@ -486,8 +496,8 @@ float FullSystem::optimize(int mnumOptIts)
 	int numLRes = 0;
 
 	//遍历，加入全部的残差
-	for (std::shared_ptr<FrameHessian> fh : frameHessians)
-		for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
+	for (FrameHessian* fh : frameHessians)
+		for (PointHessian* ph : fh->pointHessians)
 		{
 			for (PointFrameResidual* r : ph->residuals)
 			{
@@ -632,7 +642,7 @@ float FullSystem::optimize(int mnumOptIts)
 
 	if (!std::isfinite((double)lastEnergy[0]) || !std::isfinite((double)lastEnergy[1]) || !std::isfinite((double)lastEnergy[2]))
 	{
-    		LOG(WARNING) << "KF Tracking failed: LOST!";
+		LOG(WARNING) << "KF Tracking failed: LOST!";
 		isLost = true;
 	}
 
@@ -650,7 +660,7 @@ float FullSystem::optimize(int mnumOptIts)
 
 	{
 		boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
-		for (std::shared_ptr<FrameHessian> fh : frameHessians)
+		for (FrameHessian* fh : frameHessians)
 		{
 			fh->shell->camToWorld = fh->PRE_camToWorld;
 			fh->shell->aff_g2l = fh->aff_g2l();
@@ -673,10 +683,10 @@ void FullSystem::solveSystem(int iteration, double lambda)
 {
 	//获取零空间
 	ef->lastNullspaces_forLogging = getNullspaces(
-	                                    ef->lastNullspaces_pose,
-	                                    ef->lastNullspaces_scale,
-	                                    ef->lastNullspaces_affA,
-	                                    ef->lastNullspaces_affB);
+	                                  ef->lastNullspaces_pose,
+	                                  ef->lastNullspaces_scale,
+	                                  ef->lastNullspaces_affA,
+	                                  ef->lastNullspaces_affB);
 
 	//开始迭代计算
 	ef->solveSystemF(iteration, lambda, &Hcalib);
@@ -703,14 +713,14 @@ void FullSystem::removeOutliers()
 {
 	int numPointsDropped = 0;
 	//遍历每一个关键帧
-	for (std::shared_ptr<FrameHessian> fh : frameHessians)
+	for (FrameHessian* fh : frameHessians)
 	{
 		// LOG(INFO)<<"removeOutliers before: "<<fh->frameID<<" "<<fh->pointHessians.size()<<" "<<fh->pointHessiansOut.size()<<" "<<fh->pointHessiansMarginalized.size()
 		// 			<<" "<<fh->immaturePoints.size()<<" "<<fh->_features.size()<<std::endl;
 		//遍历每一个点
 		for (unsigned int i = 0; i < fh->pointHessians.size(); i++)
 		{
-			std::shared_ptr<PointHessian> ph = fh->pointHessians[i];
+			PointHessian* ph = fh->pointHessians[i];
 			if (ph == 0) continue;
 
 			//点的残差为0，则说明这个点与其它关键帧没有连接约束，说明该点可以踢了
@@ -718,6 +728,9 @@ void FullSystem::removeOutliers()
 			{
 				fh->pointHessiansOut.push_back(ph);
 				ph->setPointStatus(PointHessian::OUTLIER);
+				if(ph->feaMode)
+					ph->mF->_status=Feature::OUTLIER;
+
 				ph->efPoint->stateFlag = EFPointStatus::PS_DROP;
 				fh->pointHessians[i] = fh->pointHessians.back();
 				fh->pointHessians.pop_back();
@@ -744,10 +757,10 @@ void FullSystem::removeOutliers()
  * 获取零空间的位姿
  */
 std::vector<VecX> FullSystem::getNullspaces(
-    std::vector<VecX> &nullspaces_pose,
-    std::vector<VecX> &nullspaces_scale,
-    std::vector<VecX> &nullspaces_affA,
-    std::vector<VecX> &nullspaces_affB)
+  std::vector<VecX> &nullspaces_pose,
+  std::vector<VecX> &nullspaces_scale,
+  std::vector<VecX> &nullspaces_affA,
+  std::vector<VecX> &nullspaces_affB)
 {
 	//先清空
 	nullspaces_pose.clear();
@@ -762,7 +775,7 @@ std::vector<VecX> FullSystem::getNullspaces(
 	{
 		VecX nullspace_x0(n);
 		nullspace_x0.setZero();
-		for (std::shared_ptr<FrameHessian> fh : frameHessians)
+		for (FrameHessian* fh : frameHessians)
 		{
 			nullspace_x0.segment<6>(CPARS + fh->idx * 8) = fh->nullspaces_pose.col(i);
 			nullspace_x0.segment<3>(CPARS + fh->idx * 8) *= SCALE_XI_TRANS_INVERSE;
@@ -775,7 +788,7 @@ std::vector<VecX> FullSystem::getNullspaces(
 	{
 		VecX nullspace_x0(n);
 		nullspace_x0.setZero();
-		for (std::shared_ptr<FrameHessian> fh : frameHessians)
+		for (FrameHessian* fh : frameHessians)
 		{
 			nullspace_x0.segment<2>(CPARS + fh->idx * 8 + 6) = fh->nullspaces_affine.col(i).head<2>();
 			nullspace_x0[CPARS + fh->idx * 8 + 6] *= SCALE_A_INVERSE;
@@ -788,7 +801,7 @@ std::vector<VecX> FullSystem::getNullspaces(
 
 	VecX nullspace_x0(n);
 	nullspace_x0.setZero();
-	for (std::shared_ptr<FrameHessian> fh : frameHessians)
+	for (FrameHessian* fh : frameHessians)
 	{
 		nullspace_x0.segment<6>(CPARS + fh->idx * 8) = fh->nullspaces_scale;
 		nullspace_x0.segment<3>(CPARS + fh->idx * 8) *= SCALE_XI_TRANS_INVERSE;

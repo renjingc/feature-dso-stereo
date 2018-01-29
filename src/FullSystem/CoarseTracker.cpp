@@ -43,39 +43,73 @@
 namespace fdso
 {
 
+template<int b, typename T>
+T *allocAligned(int size, std::vector<T *> &rawPtrVec) {
+    const int padT = 1 + ((1 << b) / sizeof(T));
+    T *ptr = new T[size + padT];
+    rawPtrVec.push_back(ptr);
+    T *alignedPtr = (T *) ((((uintptr_t) (ptr + padT)) >> b) << b);
+    return alignedPtr;
+}
+
 /**
  *
  */
 CoarseTracker::CoarseTracker(int ww, int hh) : lastRef_aff_g2l(0, 0)
 {
     // make coarse tracking templates.
-    for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)
-    {
-        //设置每层的图像大小
+    // for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)
+    // {
+    //     //设置每层的图像大小
+    //     int wl = ww >> lvl;
+    //     int hl = hh >> lvl;
+    //     //设置每层的逆深度大小
+    //     idepth[lvl] = new float[wl * hl];
+    //     //设置每层的权重
+    //     weightSums[lvl] = new float[wl * hl];
+    //     weightSums_bak[lvl] = new float[wl * hl];
+
+    //     //实际用到的参考帧的点和逆深度和灰度值
+    //     pc_u[lvl] = new float[wl * hl];
+    //     pc_v[lvl] = new float[wl * hl];
+    //     pc_idepth[lvl] = new float[wl * hl];
+    //     pc_color[lvl] = new float[wl * hl];
+    // }
+
+    // // warped buffers
+    // buf_warped_idepth = new float[ww * hh];
+    // buf_warped_u = new float[ww * hh];
+    // buf_warped_v = new float[ww * hh];
+    // buf_warped_dx = new float[ww * hh];
+    // buf_warped_dy = new float[ww * hh];
+    // buf_warped_residual = new float[ww * hh];
+    // buf_warped_weight = new float[ww * hh];
+    // buf_warped_refColor = new float[ww * hh];
+
+    for (int lvl = 0; lvl < pyrLevelsUsed; lvl++) {
         int wl = ww >> lvl;
         int hl = hh >> lvl;
-        //设置每层的逆深度大小
-        idepth[lvl] = new float[wl * hl];
-        //设置每层的权重
-        weightSums[lvl] = new float[wl * hl];
-        weightSums_bak[lvl] = new float[wl * hl];
 
-        //实际用到的参考帧的点和逆深度和灰度值
-        pc_u[lvl] = new float[wl * hl];
-        pc_v[lvl] = new float[wl * hl];
-        pc_idepth[lvl] = new float[wl * hl];
-        pc_color[lvl] = new float[wl * hl];
+        idepth[lvl] = allocAligned<4, float>(wl * hl, ptrToDelete);
+        weightSums[lvl] = allocAligned<4, float>(wl * hl, ptrToDelete);
+        weightSums_bak[lvl] = allocAligned<4, float>(wl * hl, ptrToDelete);
+
+        pc_u[lvl] = allocAligned<4, float>(wl * hl, ptrToDelete);
+        pc_v[lvl] = allocAligned<4, float>(wl * hl, ptrToDelete);
+        pc_idepth[lvl] = allocAligned<4, float>(wl * hl, ptrToDelete);
+        pc_color[lvl] = allocAligned<4, float>(wl * hl, ptrToDelete);
+
     }
 
     // warped buffers
-    buf_warped_idepth = new float[ww * hh];
-    buf_warped_u = new float[ww * hh];
-    buf_warped_v = new float[ww * hh];
-    buf_warped_dx = new float[ww * hh];
-    buf_warped_dy = new float[ww * hh];
-    buf_warped_residual = new float[ww * hh];
-    buf_warped_weight = new float[ww * hh];
-    buf_warped_refColor = new float[ww * hh];
+    buf_warped_idepth = allocAligned<4, float>(ww * hh, ptrToDelete);
+    buf_warped_u = allocAligned<4, float>(ww * hh, ptrToDelete);
+    buf_warped_v = allocAligned<4, float>(ww * hh, ptrToDelete);
+    buf_warped_dx = allocAligned<4, float>(ww * hh, ptrToDelete);
+    buf_warped_dy = allocAligned<4, float>(ww * hh, ptrToDelete);
+    buf_warped_residual = allocAligned<4, float>(ww * hh, ptrToDelete);
+    buf_warped_weight = allocAligned<4, float>(ww * hh, ptrToDelete);
+    buf_warped_refColor = allocAligned<4, float>(ww * hh, ptrToDelete);
 
 
     //新的一帧
@@ -95,26 +129,30 @@ CoarseTracker::CoarseTracker(int ww, int hh) : lastRef_aff_g2l(0, 0)
  */
 CoarseTracker::~CoarseTracker()
 {
-    for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)
-    {
-        delete[] idepth[lvl];
-        delete[] weightSums[lvl];
-        delete[] weightSums_bak[lvl];
+    // for (int lvl = 0; lvl < pyrLevelsUsed; lvl++)
+    // {
+    //     delete[] idepth[lvl];
+    //     delete[] weightSums[lvl];
+    //     delete[] weightSums_bak[lvl];
 
-        delete[] pc_u[lvl];
-        delete[] pc_v[lvl] ;
-        delete[] pc_idepth[lvl];
-        delete[] pc_color[lvl];
-    }
+    //     delete[] pc_u[lvl];
+    //     delete[] pc_v[lvl] ;
+    //     delete[] pc_idepth[lvl];
+    //     delete[] pc_color[lvl];
+    // }
 
-    delete[]  buf_warped_idepth;
-    delete[]  buf_warped_u;
-    delete[]  buf_warped_v;
-    delete[]  buf_warped_dx;
-    delete[]  buf_warped_dy;
-    delete[]  buf_warped_residual;
-    delete[]  buf_warped_weight;
-    delete[]  buf_warped_refColor;
+    // delete[]  buf_warped_idepth;
+    // delete[]  buf_warped_u;
+    // delete[]  buf_warped_v;
+    // delete[]  buf_warped_dx;
+    // delete[]  buf_warped_dy;
+    // delete[]  buf_warped_residual;
+    // delete[]  buf_warped_weight;
+    // delete[]  buf_warped_refColor;
+
+    for (float *ptr : ptrToDelete)
+        delete[] ptr;
+    ptrToDelete.clear();
 }
 
 /**
@@ -157,7 +195,7 @@ void CoarseTracker::makeK(CalibHessian* HCalib)
  * [CoarseTracker::makeCoarseDepthForFirstFrame description]
  * @param fh [description]
  */
-void CoarseTracker::makeCoarseDepthForFirstFrame(std::shared_ptr<FrameHessian> fh)
+void CoarseTracker::makeCoarseDepthForFirstFrame(FrameHessian* fh)
 {
     // make coarse tracking templates for latstRef.
     // 分配逆深度图和权重
@@ -165,7 +203,7 @@ void CoarseTracker::makeCoarseDepthForFirstFrame(std::shared_ptr<FrameHessian> f
     memset(weightSums[0], 0, sizeof(float)*w[0]*h[0]);
 
     //遍历每一个点
-    for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
+    for (PointHessian* ph : fh->pointHessians)
     {
         //获取每一个点的坐标
         int u = ph->u + 0.5f;
@@ -232,19 +270,48 @@ void CoarseTracker::makeCoarseDepthForFirstFrame(std::shared_ptr<FrameHessian> f
             //当前层的逆深度
             float* idepthl = idepth[lvl];   // dont need to make a temp copy of depth, since I only
             // read values with weightSumsl>0, and write ones with weightSumsl<=0.
-            for (int i = w[lvl]; i < wh; i++)
-            {
-                //若权重小与0或者无权重
-                if (weightSumsl_bak[i] <= 0)
-                {
+            // for (int i = w[lvl]; i < wh; i++)
+            // {
+            //     //若权重小与0或者无权重
+            //     if (weightSumsl_bak[i] <= 0)
+            //     {
+            //         float sum = 0, num = 0, numn = 0;
+            //         //寻找四周，四周点的距离更大的权重，根据周围的算当前点的逆深度和权重
+            //         if (weightSumsl_bak[i + 1 + wl] > 0) { sum += idepthl[i + 1 + wl]; num += weightSumsl_bak[i + 1 + wl]; numn++;}
+            //         if (weightSumsl_bak[i - 1 - wl] > 0) { sum += idepthl[i - 1 - wl]; num += weightSumsl_bak[i - 1 - wl]; numn++;}
+            //         if (weightSumsl_bak[i + wl - 1] > 0) { sum += idepthl[i + wl - 1]; num += weightSumsl_bak[i + wl - 1]; numn++;}
+            //         if (weightSumsl_bak[i - wl + 1] > 0) { sum += idepthl[i - wl + 1]; num += weightSumsl_bak[i - wl + 1]; numn++;}
+            //         if (numn > 0)
+            //         {
+            //             idepthl[i] = sum / numn;
+            //             weightSumsl[i] = num / numn;
+            //         }
+            //     }
+            // }
+            for (int i = wl; i < wh; i++) {
+                if (weightSumsl_bak[i] <= 0) {
                     float sum = 0, num = 0, numn = 0;
-                    //寻找四周，四周点的距离更大的权重，根据周围的算当前点的逆深度和权重
-                    if (weightSumsl_bak[i + 1 + wl] > 0) { sum += idepthl[i + 1 + wl]; num += weightSumsl_bak[i + 1 + wl]; numn++;}
-                    if (weightSumsl_bak[i - 1 - wl] > 0) { sum += idepthl[i - 1 - wl]; num += weightSumsl_bak[i - 1 - wl]; numn++;}
-                    if (weightSumsl_bak[i + wl - 1] > 0) { sum += idepthl[i + wl - 1]; num += weightSumsl_bak[i + wl - 1]; numn++;}
-                    if (weightSumsl_bak[i - wl + 1] > 0) { sum += idepthl[i - wl + 1]; num += weightSumsl_bak[i - wl + 1]; numn++;}
-                    if (numn > 0)
-                    {
+                    if (weightSumsl_bak[i + 1 + wl] > 0) {
+                        sum += idepthl[i + 1 + wl];
+                        num += weightSumsl_bak[i + 1 + wl];
+                        numn++;
+                    }
+                    if (weightSumsl_bak[i - 1 - wl] > 0) {
+                        sum += idepthl[i - 1 - wl];
+                        num += weightSumsl_bak[i - 1 - wl];
+                        numn++;
+                    }
+                    if (weightSumsl_bak[i - 1 + wl] > 0) {
+                        sum += idepthl[i - 1 + wl];
+                        num += weightSumsl_bak[i - 1 + wl];
+                        numn++;
+                    }
+                    if (weightSumsl_bak[i + 1 - wl] > 0) {
+                        sum += idepthl[i + 1 - wl];
+                        num += weightSumsl_bak[i + 1 - wl];
+                        numn++;
+                    }
+                    if (numn > 0) {
                         idepthl[i] = sum / numn;
                         weightSumsl[i] = num / numn;
                     }
@@ -264,16 +331,45 @@ void CoarseTracker::makeCoarseDepthForFirstFrame(std::shared_ptr<FrameHessian> f
         memcpy(weightSumsl_bak, weightSumsl, w[lvl]*h[lvl]*sizeof(float));
         float* idepthl = idepth[lvl];   // dotnt need to make a temp copy of depth, since I only
         // read values with weightSumsl>0, and write ones with weightSumsl<=0.
-        for (int i = w[lvl]; i < wh; i++)
-        {
-            if (weightSumsl_bak[i] <= 0)
-            {
+        // for (int i = w[lvl]; i < wh; i++)
+        // {
+        //     if (weightSumsl_bak[i] <= 0)
+        //     {
+        //         float sum = 0, num = 0, numn = 0;
+        //         if (weightSumsl_bak[i + 1] > 0) { sum += idepthl[i + 1]; num += weightSumsl_bak[i + 1]; numn++;}
+        //         if (weightSumsl_bak[i - 1] > 0) { sum += idepthl[i - 1]; num += weightSumsl_bak[i - 1]; numn++;}
+        //         if (weightSumsl_bak[i + wl] > 0) { sum += idepthl[i + wl]; num += weightSumsl_bak[i + wl]; numn++;}
+        //         if (weightSumsl_bak[i - wl] > 0) { sum += idepthl[i - wl]; num += weightSumsl_bak[i - wl]; numn++;}
+        //         if (numn > 0) {idepthl[i] = sum / numn; weightSumsl[i] = num / numn;}
+        //     }
+        // }
+        for (int i = wl; i < wh; i++) {
+            if (weightSumsl_bak[i] <= 0) {
                 float sum = 0, num = 0, numn = 0;
-                if (weightSumsl_bak[i + 1] > 0) { sum += idepthl[i + 1]; num += weightSumsl_bak[i + 1]; numn++;}
-                if (weightSumsl_bak[i - 1] > 0) { sum += idepthl[i - 1]; num += weightSumsl_bak[i - 1]; numn++;}
-                if (weightSumsl_bak[i + wl] > 0) { sum += idepthl[i + wl]; num += weightSumsl_bak[i + wl]; numn++;}
-                if (weightSumsl_bak[i - wl] > 0) { sum += idepthl[i - wl]; num += weightSumsl_bak[i - wl]; numn++;}
-                if (numn > 0) {idepthl[i] = sum / numn; weightSumsl[i] = num / numn;}
+                if (weightSumsl_bak[i + 1 + wl] > 0) {
+                    sum += idepthl[i + 1 + wl];
+                    num += weightSumsl_bak[i + 1 + wl];
+                    numn++;
+                }
+                if (weightSumsl_bak[i - 1 - wl] > 0) {
+                    sum += idepthl[i - 1 - wl];
+                    num += weightSumsl_bak[i - 1 - wl];
+                    numn++;
+                }
+                if (weightSumsl_bak[i - 1 + wl] > 0) {
+                    sum += idepthl[i - 1 + wl];
+                    num += weightSumsl_bak[i - 1 + wl];
+                    numn++;
+                }
+                if (weightSumsl_bak[i + 1 - wl] > 0) {
+                    sum += idepthl[i + 1 - wl];
+                    num += weightSumsl_bak[i + 1 - wl];
+                    numn++;
+                }
+                if (numn > 0) {
+                    idepthl[i] = sum / numn;
+                    weightSumsl[i] = num / numn;
+                }
             }
         }
     }
@@ -333,23 +429,206 @@ void CoarseTracker::makeCoarseDepthForFirstFrame(std::shared_ptr<FrameHessian> f
 //      printf("pc_n[lvl] is %d \n", lpc_n);
     }
 }
+void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, CalibHessian Hcalib)
+{
+    // make coarse tracking templates for latstRef.
+    memset(idepth[0], 0, sizeof(float) * w[0] * h[0]);
+    memset(weightSums[0], 0, sizeof(float) * w[0] * h[0]);
+
+    for (FrameHessian* fh : frameHessians)
+    {
+        for (PointHessian* ph : fh->pointHessians)
+        {
+            if (ph->lastResiduals[0].first != 0 && ph->lastResiduals[0].second == ResState::IN)
+            {
+                PointFrameResidual *r = ph->lastResiduals[0].first;
+                assert(r->efResidual->isActive() && r->target == lastRef);
+                int u = r->centerProjectedTo[0] + 0.5f;
+                int v = r->centerProjectedTo[1] + 0.5f;
+                float new_idepth = r->centerProjectedTo[2];
+                float weight = sqrtf(1e-3 / (ph->efPoint->HdiF + 1e-12));
+//          float weight = 1.0f;
+
+                idepth[0][u + w[0] * v] += new_idepth * weight;
+                weightSums[0][u + w[0] * v] += weight;
+            }
+        }
+    }
+
+
+    for (int lvl = 1; lvl < pyrLevelsUsed; lvl++) {
+        int lvlm1 = lvl - 1;
+        int wl = w[lvl], hl = h[lvl], wlm1 = w[lvlm1];
+
+        float *idepth_l = idepth[lvl];
+        float *weightSums_l = weightSums[lvl];
+
+        float *idepth_lm = idepth[lvlm1];
+        float *weightSums_lm = weightSums[lvlm1];
+
+        for (int y = 0; y < hl; y++)
+            for (int x = 0; x < wl; x++) {
+                int bidx = 2 * x + 2 * y * wlm1;
+                idepth_l[x + y * wl] = idepth_lm[bidx] +
+                                       idepth_lm[bidx + 1] +
+                                       idepth_lm[bidx + wlm1] +
+                                       idepth_lm[bidx + wlm1 + 1];
+
+                weightSums_l[x + y * wl] = weightSums_lm[bidx] +
+                                           weightSums_lm[bidx + 1] +
+                                           weightSums_lm[bidx + wlm1] +
+                                           weightSums_lm[bidx + wlm1 + 1];
+            }
+    }
+
+
+    // dilate idepth by 1.
+    for (int lvl = 0; lvl < 2; lvl++) {
+        int numIts = 1;
+
+
+        for (int it = 0; it < numIts; it++) {
+            int wh = w[lvl] * h[lvl] - w[lvl];
+            int wl = w[lvl];
+            float *weightSumsl = weightSums[lvl];
+            float *weightSumsl_bak = weightSums_bak[lvl];
+            memcpy(weightSumsl_bak, weightSumsl, w[lvl] * h[lvl] * sizeof(float));
+            float *idepthl = idepth[lvl];  // dotnt need to make a temp copy of depth, since I only
+            // read values with weightSumsl>0, and write ones with weightSumsl<=0.
+            for (int i = w[lvl]; i < wh; i++) {
+                if (weightSumsl_bak[i] <= 0) {
+                    float sum = 0, num = 0, numn = 0;
+                    if (weightSumsl_bak[i + 1 + wl] > 0) {
+                        sum += idepthl[i + 1 + wl];
+                        num += weightSumsl_bak[i + 1 + wl];
+                        numn++;
+                    }
+                    if (weightSumsl_bak[i - 1 - wl] > 0) {
+                        sum += idepthl[i - 1 - wl];
+                        num += weightSumsl_bak[i - 1 - wl];
+                        numn++;
+                    }
+                    if (weightSumsl_bak[i + wl - 1] > 0) {
+                        sum += idepthl[i + wl - 1];
+                        num += weightSumsl_bak[i + wl - 1];
+                        numn++;
+                    }
+                    if (weightSumsl_bak[i - wl + 1] > 0) {
+                        sum += idepthl[i - wl + 1];
+                        num += weightSumsl_bak[i - wl + 1];
+                        numn++;
+                    }
+                    if (numn > 0) {
+                        idepthl[i] = sum / numn;
+                        weightSumsl[i] = num / numn;
+                    }
+                }
+            }
+        }
+    }
+
+
+    // dilate idepth by 1 (2 on lower levels).
+    for (int lvl = 2; lvl < pyrLevelsUsed; lvl++) {
+        int wh = w[lvl] * h[lvl] - w[lvl];
+        int wl = w[lvl];
+        float *weightSumsl = weightSums[lvl];
+        float *weightSumsl_bak = weightSums_bak[lvl];
+        memcpy(weightSumsl_bak, weightSumsl, w[lvl] * h[lvl] * sizeof(float));
+        float *idepthl = idepth[lvl];  // dotnt need to make a temp copy of depth, since I only
+        // read values with weightSumsl>0, and write ones with weightSumsl<=0.
+        for (int i = w[lvl]; i < wh; i++) {
+            if (weightSumsl_bak[i] <= 0) {
+                float sum = 0, num = 0, numn = 0;
+                if (weightSumsl_bak[i + 1] > 0) {
+                    sum += idepthl[i + 1];
+                    num += weightSumsl_bak[i + 1];
+                    numn++;
+                }
+                if (weightSumsl_bak[i - 1] > 0) {
+                    sum += idepthl[i - 1];
+                    num += weightSumsl_bak[i - 1];
+                    numn++;
+                }
+                if (weightSumsl_bak[i + wl] > 0) {
+                    sum += idepthl[i + wl];
+                    num += weightSumsl_bak[i + wl];
+                    numn++;
+                }
+                if (weightSumsl_bak[i - wl] > 0) {
+                    sum += idepthl[i - wl];
+                    num += weightSumsl_bak[i - wl];
+                    numn++;
+                }
+                if (numn > 0) {
+                    idepthl[i] = sum / numn;
+                    weightSumsl[i] = num / numn;
+                }
+            }
+        }
+    }
+
+
+    // normalize idepths and weights.
+    for (int lvl = 0; lvl < pyrLevelsUsed; lvl++) {
+        float *weightSumsl = weightSums[lvl];
+        float *idepthl = idepth[lvl];
+        Eigen::Vector3f *dIRefl = lastRef->dIp[lvl];
+
+        int wl = w[lvl], hl = h[lvl];
+
+        int lpc_n = 0;
+        float *lpc_u = pc_u[lvl];
+        float *lpc_v = pc_v[lvl];
+        float *lpc_idepth = pc_idepth[lvl];
+        float *lpc_color = pc_color[lvl];
+
+
+        for (int y = 2; y < hl - 2; y++)
+            for (int x = 2; x < wl - 2; x++) {
+                int i = x + y * wl;
+
+                if (weightSumsl[i] > 0) {
+                    idepthl[i] /= weightSumsl[i];
+                    lpc_u[lpc_n] = x;
+                    lpc_v[lpc_n] = y;
+                    lpc_idepth[lpc_n] = idepthl[i];
+                    lpc_color[lpc_n] = dIRefl[i][0];
+
+
+                    if (!std::isfinite(lpc_color[lpc_n]) || !(idepthl[i] > 0)) {
+                        idepthl[i] = -1;
+                        continue;  // just skip if something is wrong.
+                    }
+                    lpc_n++;
+                }
+                else
+                    idepthl[i] = -1;
+
+                weightSumsl[i] = 1;
+            }
+
+        pc_n[lvl] = lpc_n;
+    }
+
+}
 
 // make depth mainly from static stereo matching and fill the holes from propogation idpeth map.
 /**
  * [CoarseTracker::makeCoarseDepthL0 description]
  * @param frameHessians [description]
- * @param fh_right      [description]
+ * @param fhRight      [description]
  * @param Hcalib        [description]
  * 从每个关键帧中拿出点
  */
-void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>> frameHessians, std::shared_ptr<FrameHessian> fh_right, CalibHessian Hcalib)
+void CoarseTracker::makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians, FrameHessian* fhRight, CalibHessian Hcalib)
 {
     // make coarse tracking templates for latstRef.
     memset(idepth[0], 0, sizeof(float)*w[0]*h[0]);
     memset(weightSums[0], 0, sizeof(float)*w[0]*h[0]);
 
     //目标帧,fh_target就是lastRef
-    std::shared_ptr<FrameHessian> fh_target = frameHessians.back();
+    FrameHessian* fh_target = frameHessians.back();
     //内参
     Mat33f K1 = Mat33f::Identity();
     K1(0, 0) = Hcalib.fxl();
@@ -360,10 +639,10 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>>
     //遍历每一个关键帧,将之前全部的关键帧的点全投影到最新的关键帧上
 
     // LOG(INFO)<< "fh_target frameID: " << fh_target->frameID << std::endl;
-    for (std::shared_ptr<FrameHessian> fh : frameHessians)
+    for (FrameHessian* fh : frameHessians)
     {
         //遍历这个关键帧中的每一个点
-        for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
+        for (PointHessian* ph : fh->pointHessians)
         {
             //判断点的残差状态
             if (ph->lastResiduals[0].first != 0 && ph->lastResiduals[0].second == ResState::IN) //contains information about residuals to the last two (!) frames. ([0] = latest, [1] = the one before).
@@ -378,7 +657,7 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>>
                 int v = r->centerProjectedTo[1] + 0.5f;
 
                 //初始化
-                std::shared_ptr<ImmaturePoint> pt_track(new ImmaturePoint((float)u, (float)v, fh_target, &Hcalib));
+                ImmaturePoint* pt_track(new ImmaturePoint((float)u, (float)v, fh_target, &Hcalib));
 
                 //坐标
                 pt_track->u_stereo = pt_track->u;
@@ -394,7 +673,7 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>>
                 pt_track->idepth_max_stereo = r->centerProjectedTo[2] * 1.9f;
 
                 //左图与右图进行静态匹配
-                ImmaturePointStatus pt_track_right = pt_track->traceStereo(fh_right, K1, 1);
+                ImmaturePointStatus pt_track_right = pt_track->traceStereo(fhRight, K1, 1);
 
                 //新的逆深度
                 float new_idepth = 0;
@@ -402,7 +681,7 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>>
                 if (pt_track_right == ImmaturePointStatus::IPS_GOOD)
                 {
                     //新的点
-                    std::shared_ptr<ImmaturePoint> pt_track_back(new ImmaturePoint(pt_track->lastTraceUV(0), pt_track->lastTraceUV(1), fh_right, &Hcalib));
+                    ImmaturePoint* pt_track_back(new ImmaturePoint(pt_track->lastTraceUV(0), pt_track->lastTraceUV(1), fhRight, &Hcalib));
                     pt_track_back->u_stereo = pt_track_back->u;
                     pt_track_back->v_stereo = pt_track_back->v;
 
@@ -422,19 +701,19 @@ void CoarseTracker::makeCoarseDepthL0(std::vector<std::shared_ptr<FrameHessian>>
                     if (u_delta < 1 && depth > 0 && depth < 50)
                     {
                         new_idepth = pt_track->idepth_stereo;
-                        // delete pt_track;
-                        // delete pt_track_back;
+                        delete pt_track;
+                        delete pt_track_back;
                     }
                     else
                     {
                         new_idepth = r->centerProjectedTo[2];
-                        // delete pt_track;
-                        // delete pt_track_back;
+                        delete pt_track;
+                        delete pt_track_back;
                     }
                 }
                 else {
                     new_idepth = r->centerProjectedTo[2];
-                    // delete pt_track;
+                    delete pt_track;
                 }
 
                 //点权重
@@ -901,7 +1180,7 @@ Vec6 CoarseTracker::calcRes(int lvl, SE3 refToNew, AffLight aff_g2l, float cutof
  * [CoarseTracker::setCTRefForFirstFrame description]
  * @param frameHessians [description]
  */
-void CoarseTracker::setCTRefForFirstFrame(std::vector<std::shared_ptr<FrameHessian>> frameHessians)
+void CoarseTracker::setCTRefForFirstFrame(std::vector<FrameHessian*> frameHessians)
 {
     assert(frameHessians.size() > 0);
     //获取参考帧
@@ -922,18 +1201,36 @@ void CoarseTracker::setCTRefForFirstFrame(std::vector<std::shared_ptr<FrameHessi
 /**
  * [CoarseTracker::setCoarseTrackingRef description]
  * @param frameHessians [description]
- * @param fh_right      [description]
+ * @param fhRight      [description]
  * @param Hcalib        [description]
  */
 void CoarseTracker::setCoarseTrackingRef(
-    std::vector<std::shared_ptr<FrameHessian>> frameHessians, std::shared_ptr<FrameHessian> fh_right, CalibHessian Hcalib)
+    std::vector<FrameHessian*> frameHessians, FrameHessian* fhRight, CalibHessian Hcalib)
 {
     assert(frameHessians.size() > 0);
     //参考帧
     lastRef = frameHessians.back();
 
     //计算当前参考帧的深度图
-    makeCoarseDepthL0(frameHessians, fh_right, Hcalib);
+    makeCoarseDepthL0(frameHessians, fhRight, Hcalib);
+
+    //参考帧id
+    refFrameID = lastRef->shell->id;
+    lastRef_aff_g2l = lastRef->aff_g2l();
+
+    //初始的RMSE
+    firstCoarseRMSE = -1;
+}
+
+void CoarseTracker::setCoarseTrackingRef(
+    std::vector<FrameHessian*> frameHessians, CalibHessian Hcalib)
+{
+    assert(frameHessians.size() > 0);
+    //参考帧
+    lastRef = frameHessians.back();
+
+    //计算当前参考帧的深度图
+    makeCoarseDepthL0(frameHessians, Hcalib);
 
     //参考帧id
     refFrameID = lastRef->shell->id;
@@ -954,7 +1251,7 @@ void CoarseTracker::setCoarseTrackingRef(
  * @return                 [description]
  */
 bool CoarseTracker::trackNewestCoarse(
-    std::shared_ptr<FrameHessian> newFrameHessian,
+    FrameHessian* newFrameHessian,
     SE3 &lastToNew_out, AffLight &aff_g2l_out,
     int coarsestLvl,
     Vec5 minResForAbort,
@@ -1197,21 +1494,21 @@ bool CoarseTracker::trackNewestCoarse(
 
 void CoarseTracker::saveK()
 {
-    static bool first=true;
+    static bool first = true;
 
-    if(first)
+    if (first)
     {
-    std::string path = "/media/ren/99146341-07be-4601-9682-0539688db03f/fdso_tmp/";
-    std::ofstream ofsK(path+"/K.txt");
-    std::ofstream ofsKi(path+"/Ki.txt");
-    for(int i=0;i<PYR_LEVELS;i++)
-    {
-        ofsK<<fx[i]<<" "<<fy[i]<<" "<<cx[i]<<" "<<cy[i]<<std::endl;
-        ofsKi<<fxi[i]<<" "<<fyi[i]<<" "<<cxi[i]<<" "<<cyi[i]<<std::endl;
-    }
-    ofsK.close();
-    ofsKi.close();
-    first=false;
+        std::string path = "/media/ren/99146341-07be-4601-9682-0539688db03f/fdso_tmp/";
+        std::ofstream ofsK(path + "/K.txt");
+        std::ofstream ofsKi(path + "/Ki.txt");
+        for (int i = 0; i < PYR_LEVELS; i++)
+        {
+            ofsK << fx[i] << " " << fy[i] << " " << cx[i] << " " << cy[i] << std::endl;
+            ofsKi << fxi[i] << " " << fyi[i] << " " << cxi[i] << " " << cyi[i] << std::endl;
+        }
+        ofsK.close();
+        ofsKi.close();
+        first = false;
     }
 }
 
@@ -1221,22 +1518,22 @@ void CoarseTracker::saveResult(
     int coarsestLvl,
     Vec5 minResForAbort)
 {
-    std::cout<<"coarsestLvl: "<<coarsestLvl<<std::endl; 
+    std::cout << "coarsestLvl: " << coarsestLvl << std::endl;
     int id = newFrame->shell->incoming_id;
     std::stringstream ss;
-    ss<<std::setw(6)<<std::setfill('0')<<id;
+    ss << std::setw(6) << std::setfill('0') << id;
 
     std::string path = "/media/ren/99146341-07be-4601-9682-0539688db03f/fdso_tmp/" + ss.str();
 
     int status = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (!status)
     {
-        std::ofstream ofsIdepth(path+"/idepth.txt");
-        std::ofstream ofsU(path+"/u.txt");
-        std::ofstream ofsV(path+"/v.txt");
-        std::ofstream ofsColor(path+"/color.txt");
-        std::ofstream ofsNewFrame(path+"/NewFrame.txt");
-        std::ofstream ofsResult(path+"/result.txt");
+        std::ofstream ofsIdepth(path + "/idepth.txt");
+        std::ofstream ofsU(path + "/u.txt");
+        std::ofstream ofsV(path + "/v.txt");
+        std::ofstream ofsColor(path + "/color.txt");
+        std::ofstream ofsNewFrame(path + "/NewFrame.txt");
+        std::ofstream ofsResult(path + "/result.txt");
 
         //保存参考帧的数据和保存当前帧的图像
         for (int lvl = 0; lvl < coarsestLvl; lvl++)
@@ -1257,23 +1554,23 @@ void CoarseTracker::saveResult(
                 float y = lpc_v[i];
                 float color = lpc_color[i];
 
-                ofsIdepth<<id<<" ";
-                ofsU<<x<<" ";
-                ofsV<<y<<" ";
-                ofsColor<<color<<" ";
+                ofsIdepth << id << " ";
+                ofsU << x << " ";
+                ofsV << y << " ";
+                ofsColor << color << " ";
             }
 
             Eigen::Vector3f* dINewl = newFrame->dIp[lvl];
-            for(int i=0;i<w[lvl]*h[lvl];i++)
+            for (int i = 0; i < w[lvl]*h[lvl]; i++)
             {
-                ofsNewFrame<<dINewl[i][0]<<" "<<dINewl[i][1]<<" "<<dINewl[i][2]<<" ";
+                ofsNewFrame << dINewl[i][0] << " " << dINewl[i][1] << " " << dINewl[i][2] << " ";
             }
 
-            ofsNewFrame<<std::endl;
-            ofsIdepth<<std::endl;
-            ofsU<<std::endl;
-            ofsV<<std::endl;
-            ofsColor<<std::endl;
+            ofsNewFrame << std::endl;
+            ofsIdepth << std::endl;
+            ofsU << std::endl;
+            ofsV << std::endl;
+            ofsColor << std::endl;
         }
         ofsIdepth.close();
         ofsU.close();
@@ -1283,25 +1580,25 @@ void CoarseTracker::saveResult(
 
         //保存当前结果:初始位姿,初始a和b,,结果位姿,结果a和b,每一层的残差lastResiduals
         Eigen::Matrix<double, 3, 1> init_T = lastToNew_In.translation().transpose();
-        ofsResult<<coarsestLvl<<std::endl;
-        for(int i=0;i<3;i++)
-            for(int j=0;j<4;j++)
-                ofsResult<<lastToNew_In.matrix()(i,j)<<" ";
-        ofsResult<<std::endl;
+        ofsResult << coarsestLvl << std::endl;
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 4; j++)
+                ofsResult << lastToNew_In.matrix()(i, j) << " ";
+        ofsResult << std::endl;
 
-        for(int i=0;i<3;i++)
-            for(int j=0;j<4;j++)
-                ofsResult<<lastToNew_out.matrix()(i,j)<<" ";
-        ofsResult<<std::endl;
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 4; j++)
+                ofsResult << lastToNew_out.matrix()(i, j) << " ";
+        ofsResult << std::endl;
 
-        ofsResult<<lastRef_aff_g2l.a<<" "<<lastRef_aff_g2l.b<<std::endl;
-        ofsResult<<aff_g2l_In.a<<" "<<aff_g2l_In.b<<std::endl;
-        ofsResult<<aff_g2l_out.a<<" "<<aff_g2l_out.b<<std::endl;
+        ofsResult << lastRef_aff_g2l.a << " " << lastRef_aff_g2l.b << std::endl;
+        ofsResult << aff_g2l_In.a << " " << aff_g2l_In.b << std::endl;
+        ofsResult << aff_g2l_out.a << " " << aff_g2l_out.b << std::endl;
 
         for (int lvl = 0; lvl < coarsestLvl; lvl++)
-            ofsResult<<lastResiduals[lvl]<<" ";
-        ofsResult<<std::endl;
-        ofsResult<<lastFlowIndicators[0]<<" "<<lastFlowIndicators[1]<<" "<<lastFlowIndicators[2]<<std::endl;
+            ofsResult << lastResiduals[lvl] << " ";
+        ofsResult << std::endl;
+        ofsResult << lastFlowIndicators[0] << " " << lastFlowIndicators[1] << " " << lastFlowIndicators[2] << std::endl;
 
         ofsResult.close();
     }
@@ -1466,8 +1763,8 @@ CoarseDistanceMap::~CoarseDistanceMap()
  * 创建距离图
  */
 void CoarseDistanceMap::makeDistanceMap(
-    std::vector<std::shared_ptr<FrameHessian>> frameHessians,
-    std::shared_ptr<FrameHessian> frame)
+    std::vector<FrameHessian*> frameHessians,
+    FrameHessian* frame)
 {
     //第二层的图像大小
     int w1 = w[1];
@@ -1482,7 +1779,7 @@ void CoarseDistanceMap::makeDistanceMap(
     int numItems = 0;
 
     //遍历窗口中每一个关键帧
-    for (std::shared_ptr<FrameHessian> fh : frameHessians)
+    for (FrameHessian* fh : frameHessians)
     {
         if (frame == fh) continue;
 
@@ -1492,7 +1789,7 @@ void CoarseDistanceMap::makeDistanceMap(
         Vec3f Kt = (K[1] * fhToNew.translation().cast<float>());
 
         //遍历每一个激活的点
-        for (std::shared_ptr<PointHessian> ph : fh->pointHessians)
+        for (PointHessian* ph : fh->pointHessians)
         {
             assert(ph->status == PointHessian::ACTIVE);
 
@@ -1521,7 +1818,7 @@ void CoarseDistanceMap::makeDistanceMap(
  * @param frameHessians [description]
  * ？？？无实现
  */
-void CoarseDistanceMap::makeInlierVotes(std::vector<std::shared_ptr<FrameHessian>> frameHessians)
+void CoarseDistanceMap::makeInlierVotes(std::vector<FrameHessian*> frameHessians)
 {
 
 }
