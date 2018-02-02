@@ -24,21 +24,23 @@
  *
  */
 
-#ifndef FEATUREDETECTOR_H_
-#define FEATUREDETECTOR_H_
+#pragma once
 
 #include "util/NumType.h"
 #include "util/settings.h"
 #include "FullSystem/PointHessian.h"
 #include "FullSystem/FrameHessian.h"
 #include "FullSystem/ImmaturePoint.h"
+#include "FullSystem/Frame.h"
 
 using namespace Eigen;
 
 namespace fdso
 {
+class Frame;
 class FrameHessian;
 class ImmaturePoint;
+
 
 class Feature
 {
@@ -51,9 +53,34 @@ public:
         const double& score = 0
     ) : _pixel(pixel), _level(level), _score(score) {_status=Feature::ACTIVE_IMP;}
 
-    enum FeaStatus {ACTIVE_IMP= 0, ACTIVE_PH, OUTLIER};
+    Feature(const Feature &fea)
+    {
+        _status=fea._status;
+        _pixel=fea._pixel;
+        idepth=fea.idepth;
+        _normal=fea._normal;
+        _level=fea._level;
+        _angle=fea._angle;
+        fea._desc.copyTo(_desc);
+        _frame=fea._frame;
+        _bad=fea._bad;
+        _score=fea._score;
+        mImP=nullptr;
+        mPH=nullptr;
+        idepth_hessian=fea.idepth_hessian;
+        maxRelBaseline=fea.maxRelBaseline;
+
+        for(int i=0;i<MAX_RES_PER_POINT;i++)
+            color[i]=fea.color[i];
+    }
+
+    enum FeaStatus {ACTIVE_IMP= 0, ACTIVE_PH,ACTIVE_IDEPTH, OUTLIER};
+
+    // 颜色，每个点都有8个
+    float maxRelBaseline;
+    float idepth_hessian;
+    float color[MAX_RES_PER_POINT];
     FeaStatus _status;
-    int status=0;
     Eigen::Vector2d _pixel = Vector2d(0, 0);                  // 图像位置
     double   idepth = -1;                                                   //逆深度
     Eigen::Vector3d _normal = Vector3d(0, 0, 0);         // 归一化坐标
@@ -61,6 +88,7 @@ public:
     double   _angle = 0;                                                     // 旋转角（2D图像中使用）
     cv::Mat   _desc = cv::Mat(1, 32, CV_8UC1);               // ORB 描述子
     FrameHessian*   _frame = nullptr;                           // 所属的帧，一个特征只属于一个帧
+    Frame*   _host = nullptr;                           // 所属的帧，一个特征只属于一个帧
     // 一个特征只能对应到一个地图点，但一个地图点可对应多个帧
 
     bool     _bad = false;                                                    // bad flag
@@ -69,10 +97,8 @@ public:
     ImmaturePoint* mImP=nullptr;
     PointHessian* mPH=nullptr;
 
-    void ComputeWorldPos()
-    {
-
-    }
+    bool ComputePos(Vec3& pose);
+    bool ComputeWorldPos(Vec3& mWorldPos);
 };
 
 
@@ -145,4 +171,3 @@ private:
 };
 }
 
-#endif // FEATUREDETECTOR_H_

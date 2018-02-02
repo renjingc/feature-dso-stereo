@@ -19,8 +19,8 @@
 namespace fdso
 {
 
-struct FrameHessian;
-struct PointHessian;
+class FrameHessian;
+class PointHessian;
 
 class ImmaturePoint;
 class FrameShell;
@@ -34,8 +34,9 @@ class Feature;
 /**
  * 矫正Hessian矩阵
  */
-struct CalibHessian
+class CalibHessian
 {
+public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   static int instanceCounter;
 

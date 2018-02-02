@@ -37,6 +37,7 @@
 #include "util/settings.h"
 #include "FullSystem/Residuals.h"
 #include "FullSystem/FrameShell.h"
+#include "FullSystem/FeatureDetector.h"
 #include "util/ImageAndExposure.h"
 
 #include <opencv2/core/core.hpp>
@@ -55,8 +56,8 @@ inline Vec2 affFromTo(Vec2 from, Vec2 to) // contains affine parameters as XtoWo
 }
 
 
-struct FrameHessian;
-struct PointHessian;
+class FrameHessian;
+class PointHessian;
 
 class ImmaturePoint;
 class FrameShell;
@@ -69,8 +70,10 @@ class Feature;
 /**
  * 每一帧预计算的残差
  */
-struct FrameFramePrecalc
+class FrameFramePrecalc
 {
+public:
+
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 	// static values
 	// 状态量
@@ -107,8 +110,9 @@ struct FrameFramePrecalc
 /**
  * 每一帧的信息
  */
-struct FrameHessian
+class FrameHessian
 {
+public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 	//帧的能量函数
 	EFFrame* efFrame = nullptr;
@@ -434,7 +438,7 @@ struct FrameHessian
  * Compare frame ID, used to get a sorted map or set of frames
  * 比较帧的id
  */
-class CmpFrameID {
+class CmpFrameHessianID {
 public:
 	inline bool operator()(const FrameHessian* f1, const FrameHessian* f2) {
 		return f1->shell->id < f2->shell->id;
@@ -445,12 +449,14 @@ public:
  * Compare frame by Keyframe ID, used to get a sorted keyframe map or set.
  * 比较帧的关键帧id
  */
-class CmpFrameKFID {
+class CmpFrameHessianKFID {
 public:
 	inline bool operator()(const FrameHessian* f1, const FrameHessian* f2) {
 		return f1->frameID < f2->frameID;
 	}
 };
+
+
 
 }
 

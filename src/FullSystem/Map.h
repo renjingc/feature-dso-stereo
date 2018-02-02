@@ -5,6 +5,8 @@
 #include "FullSystem/PointHessian.h"
 #include "FullSystem/ImmaturePoint.h"
 #include "FullSystem/CalibHessian.h"
+#include "FullSystem/Frame.h"
+#include "IOWrapper/OutputWrapper/Output3DWrapper.h"
 
 #include <set>
 #include <thread>
@@ -14,6 +16,12 @@ using namespace std;
 using namespace fdso;
 
 namespace fdso {
+
+// namespace IOWrap
+// {
+// class Output3DWrapper;
+// }
+
 
 /**
  * The global map contains all keyframes and map points, even if they are outdated.
@@ -31,7 +39,7 @@ public:
      * @param kf
      * 插入关键帧
      */
-    void addKeyFrame(FrameHessian* kf);
+    void addKeyFrame(Frame* kf);//,SE3 current_2_slast=SE3());
 
     /**
      * optimize pose graph of all kfs
@@ -59,11 +67,14 @@ public:
     }
 
     //全部的关键帧
-    std::set<FrameHessian*, CmpFrameID> getAllKFs() { return frames; }
+    std::set<Frame*, CmpFrameID> getAllKFs() { return frames; }
 
-    
+
     int min_id;
     int max_id;
+
+    std::vector<IOWrap::Output3DWrapper*> outputWrapper;
+    std::vector<Frame*>  frameList;
 
 private:
     // the pose graph optimization thread
@@ -73,18 +84,20 @@ private:
     //地图互斥锁
     std::mutex mapMutex; // map mutex to protect its data
 
+
     //全部的关键帧包括ID
-    std::set<FrameHessian*, CmpFrameID> frames;  // all KFs by ID
+    std::set<Frame*, CmpFrameID> frames;  // all KFs by ID
     //关键帧被优化
-    std::set<FrameHessian*, CmpFrameID> framesOpti;  // KFs to be optimized
+    std::set<Frame*, CmpFrameID> framesOpti;  // KFs to be optimized
     //当前关键帧
-    FrameHessian* currentKF = nullptr;
+    Frame* currentKF = nullptr;
 
     //是否在运行位姿图优化
     bool poseGraphRunning = false;  // is pose graph running?
 
     //位姿图互斥锁
     std::mutex mutexPoseGraph;
+
 
 };
 

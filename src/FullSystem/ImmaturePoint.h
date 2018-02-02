@@ -39,7 +39,7 @@ namespace fdso
 /**
  * 点残差状态
  */
-struct ImmaturePointTemporaryResidual
+class ImmaturePointTemporaryResidual
 {
 public:
 	//残差状态

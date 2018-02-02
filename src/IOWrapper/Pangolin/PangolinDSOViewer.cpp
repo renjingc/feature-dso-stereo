@@ -44,7 +44,7 @@ namespace fdso
 namespace IOWrap
 {
 
-PangolinDSOViewer::PangolinDSOViewer(int w, int h, std::string _gtPath,bool startRunThread):
+PangolinDSOViewer::PangolinDSOViewer(int w, int h, std::string _gtPath, bool startRunThread):
 	gtPath(_gtPath)
 {
 	//图像搜小后大小
@@ -181,12 +181,13 @@ void PangolinDSOViewer::run()
 	//显示残差
 	pangolin::Var<bool> settings_showLiveResidual("ui.showResidual", false, true);
 
-	//显示滑动窗口
-	pangolin::Var<bool> settings_showFramesWindow("ui.showFramesWindow", false, true);
-	//显示所有的tracking
-	pangolin::Var<bool> settings_showFullTracking("ui.showFullTracking", false, true);
-	//显示粗跟踪
-	pangolin::Var<bool> settings_showCoarseTracking("ui.showCoarseTracking", false, true);
+	pangolin::Var<bool> settings_showPointCloud("ui.showPointCloud", true, true);
+	// //显示滑动窗口
+	// pangolin::Var<bool> settings_showFramesWindow("ui.showFramesWindow", false, true);
+	// //显示所有的tracking
+	// pangolin::Var<bool> settings_showFullTracking("ui.showFullTracking", false, true);
+	// //显示粗跟踪
+	// pangolin::Var<bool> settings_showCoarseTracking("ui.showCoarseTracking", false, true);
 
 	//参数
 	pangolin::Var<int> settings_sparsity("ui.sparsity", 1, 1, 20, false);
@@ -240,7 +241,10 @@ void PangolinDSOViewer::run()
 	ReadFile.close();
 
 	//黄色
-	float yellow[3] = {1, 1, 0};
+	float blue[3] = {0, 0, 1};
+	float red[3] = {1, 0, 0};
+	float yellow[3] = {0, 1, 0};
+
 
 	// Default hooks for exiting (Esc) and fullscreen (tab).
 	while ( !pangolin::ShouldQuit() && running )
@@ -258,23 +262,36 @@ void PangolinDSOViewer::run()
 			//pangolin::glDrawColouredCube();
 			int refreshed = 0;
 			//遍历全部关键帧
-			for (KeyFrameDisplay* fh : keyframes)
+			// for (KeyFrameDisplay* fh : keyframes)
+			// {
+
+			// 	//是否显示关键帧
+			// 	if (this->settings_showKFCameras)
+			// 		fh->drawCam(3, red, 0.1, false);
+
+			// 	refreshed = + (int)(fh->refreshPC(refreshed < 10, this->settings_scaledVarTH, this->settings_absVarTH,
+			// 	                                  this->settings_pointCloudMode, this->settings_minRelBS, this->settings_sparsity));
+			// 	//画每个点
+			// 	fh->drawPC(1);
+			// }
+
+			for (KeyFrameDisplay* fh : keyframesOpt)
 			{
-				float blue[3] = {0, 0, 1};
-				float red[3] = {1, 0, 0};
-				float yellow[3] = {0, 1, 0};
 				//是否显示关键帧
 				if (this->settings_showKFCameras)
-					fh->drawCam(3, red, 0.1, false);
+					fh->drawCamOpt(3, blue, 0.1, false);
 
-				refreshed = + (int)(fh->refreshPC(refreshed < 10, this->settings_scaledVarTH, this->settings_absVarTH,
-				                                  this->settings_pointCloudMode, this->settings_minRelBS, this->settings_sparsity));
-				//画每个点
-				fh->drawPC(1);
+				if(settings_showPointCloud)
+				{
+					refreshed = + (int)(fh->refreshPC(refreshed < 10, this->settings_scaledVarTH, this->settings_absVarTH,
+					                                  this->settings_pointCloudMode, this->settings_minRelBS, this->settings_sparsity));
+					//画每个点
+					fh->drawPC(1);
+				}
 			}
 
 			//画真值路径
-			if (this->settings_showGroundTrajectory && keyframes.size()>1)
+			if (this->settings_showGroundTrajectory && keyframes.size() > 1)
 			{
 				for (int i = 0; i < matrix_result.size(); i++)
 				{
@@ -361,15 +378,17 @@ void PangolinDSOViewer::run()
 		this->settings_showKFCameras = settings_showKFCameras.Get();
 		this->settings_showGroundTrajectory = settings_showGroundTrajectory.Get();
 		this->settings_showFullTrajectory = settings_showFullTrajectory.Get();
+		this->settings_showPointCloud = settings_showPointCloud.Get();
 
 		setting_render_display3D = settings_show3D.Get();
 		setting_render_displayDepth = settings_showLiveDepth.Get();
 		setting_render_displayVideo =  settings_showLiveVideo.Get();
 		setting_render_displayResidual = settings_showLiveResidual.Get();
 
-		setting_render_renderWindowFrames = settings_showFramesWindow.Get();
-		setting_render_plotTrackingFull = settings_showFullTracking.Get();
-		setting_render_displayCoarseTrackingFull = settings_showCoarseTracking.Get();
+
+		// setting_render_renderWindowFrames = settings_showFramesWindow.Get();
+		// setting_render_plotTrackingFull = settings_showFullTracking.Get();
+		// setting_render_displayCoarseTrackingFull = settings_showCoarseTracking.Get();
 
 		this->settings_absVarTH = settings_absVarTH.Get();
 		this->settings_scaledVarTH = settings_scaledVarTH.Get();
@@ -426,8 +445,10 @@ void PangolinDSOViewer::reset_internal()
 	model3DMutex.lock();
 	for (size_t i = 0; i < keyframes.size(); i++) delete keyframes[i];
 	keyframes.clear();
+	keyframesOpt.clear();
 	allFramePoses.clear();
 	keyframesByKFID.clear();
+	keyframesOptByKFID.clear();
 	connections.clear();
 	model3DMutex.unlock();
 
@@ -534,10 +555,12 @@ void PangolinDSOViewer::drawConstraints()
  * @brief      { function_description }
  *
  * @param[in]  connectivity  The connectivity
+ *
+ * 插入连接connections
  */
 // void PangolinDSOViewer::publishGraph(const std::map<long, Eigen::Vector2i> &connectivity)
 void PangolinDSOViewer::publishGraph(
-        const std::map<uint64_t, Eigen::Vector2i, std::less<uint64_t>, Eigen::aligned_allocator<std::pair<const uint64_t, Eigen::Vector2i>>> &connectivity)
+  const std::map<uint64_t, Eigen::Vector2i, std::less<uint64_t>, Eigen::aligned_allocator<std::pair<const uint64_t, Eigen::Vector2i>>> &connectivity)
 {
 	if (!setting_render_display3D) return;
 	if (disableAllDisplay) return;
@@ -589,6 +612,7 @@ void PangolinDSOViewer::publishGraph(
  * @param      frames     The frames
  * @param[in]  <unnamed>  { parameter_description }
  * @param      HCalib     The h calib
+ * 插入关键帧位姿keyframes
  */
 void PangolinDSOViewer::publishKeyframes(
   std::vector<FrameHessian*> &frames,
@@ -601,8 +625,10 @@ void PangolinDSOViewer::publishKeyframes(
 	boost::unique_lock<boost::mutex> lk(model3DMutex);
 	for (FrameHessian* fh : frames)
 	{
+		//判断ByKFID,是否有当前帧
 		if (keyframesByKFID.find(fh->frameID) == keyframesByKFID.end())
 		{
+			//插入这个关键帧
 			KeyFrameDisplay* kfd = new KeyFrameDisplay();
 			keyframesByKFID[fh->frameID] = kfd;
 			keyframes.push_back(kfd);
@@ -611,11 +637,36 @@ void PangolinDSOViewer::publishKeyframes(
 	}
 }
 
+void PangolinDSOViewer::publishKeyframesOpt(
+  std::vector<Frame*> &frames,
+  bool final,
+  CalibHessian* HCalib)
+{
+	if (!setting_render_display3D) return;
+	if (disableAllDisplay) return;
+
+	boost::unique_lock<boost::mutex> lk(model3DMutex);
+	for (Frame* fh : frames)
+	{
+		//判断ByKFID,是否有当前帧
+		if (keyframesOptByKFID.find(fh->frameID) == keyframesOptByKFID.end())
+		{
+			//插入这个关键帧
+			KeyFrameDisplay* kfd = new KeyFrameDisplay();
+			keyframesOptByKFID[fh->frameID] = kfd;
+			keyframesOpt.push_back(kfd);
+		}
+		keyframesOptByKFID[fh->frameID]->setFromKF(fh, HCalib);
+	}
+}
+
 /**
  * @brief      { function_description }
  *
  * @param      frame   The frame
  * @param      HCalib  The h calib
+ * 插入当前相机位姿currentCam
+ * 并插入allFramePoses
  */
 void PangolinDSOViewer::publishCamPose(FrameShell* frame,
                                        CalibHessian* HCalib)

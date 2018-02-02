@@ -17,7 +17,7 @@ using namespace fdso;
 
 namespace fdso {
 
-    struct Frame;
+    class Frame;
 
     // ---------------------------------------------------------------------------------------------------------
     // some g2o types will be used in pose graph

@@ -28,8 +28,8 @@
 namespace fdso
 {
 
-struct FrameHessian;
-struct PointHessian;
+class FrameHessian;
+class PointHessian;
 
 class ImmaturePoint;
 class FrameShell;
@@ -44,8 +44,9 @@ class Feature;
 /**
  * 每一个点的Hessian
  */
-struct PointHessian
+class PointHessian
 {
+public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   static int instanceCounter;
 
@@ -113,6 +114,7 @@ struct PointHessian
    * [setIdepthScaled description]
    * @param idepth_scaled [description]
    * 设置带尺度的逆深度
+   * 单目的时候用到
    */
   inline void setIdepthScaled(float idepth_scaled) {
     this->idepth = SCALE_IDEPTH_INVERSE * idepth_scaled;

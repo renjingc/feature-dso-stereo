@@ -8,20 +8,22 @@
 
 namespace fdso {
 
+
+
 KeyFrameDatabase::KeyFrameDatabase(std::shared_ptr<ORBVocabulary> voc)
 {
     mpVoc = voc;
     mvInvertedFile.resize(voc->size());
 }
 
-void KeyFrameDatabase::add(FrameHessian* pKF)
+void KeyFrameDatabase::add(Frame* pKF)
 {
     std::unique_lock<std::mutex> lock(mMutex);
     for (DBoW2::BowVector::const_iterator vit = pKF->_bow_vec.begin(), vend = pKF->_bow_vec.end(); vit != vend; vit++)
         mvInvertedFile[vit->first].push_back(pKF);
 }
 
-void KeyFrameDatabase::erase(FrameHessian* pKF)
+void KeyFrameDatabase::erase(Frame* pKF)
 {
     std::unique_lock<std::mutex> lock(mMutex);
 
@@ -48,14 +50,14 @@ void KeyFrameDatabase::clear()
     mvInvertedFile.resize(mpVoc->size());
 }
 
-std::vector<FrameHessian*> KeyFrameDatabase::DetectLoopCandidates(FrameHessian* pKF, float minScore)
+std::vector<Frame*> KeyFrameDatabase::DetectLoopCandidates(Frame* pKF, float minScore)
 {
     //获取关联的帧
-    set<FrameHessian*> spConnectedKeyFrames = pKF->GetConnectedKeyFrames(); // connected kfs
+    set<Frame*> spConnectedKeyFrames = pKF->GetConnectedKeyFrames(); // connected kfs
 
     // find keyframes sharing same words
     //发现相似的帧
-    list<FrameHessian*> lKFsSharingWords;
+    list<Frame*> lKFsSharingWords;
 
     // Search all keyframes that share a word with current keyframes
     // Discard keyframes connected to the query keyframe
@@ -70,7 +72,7 @@ std::vector<FrameHessian*> KeyFrameDatabase::DetectLoopCandidates(FrameHessian* 
             auto &lKFs = mvInvertedFile[vit->first];
 
             for (auto lit = lKFs.begin(), lend = lKFs.end(); lit != lend; lit++) {
-                FrameHessian* pKFi = *lit;
+                Frame* pKFi = *lit;
 
                 if (pKFi->mnLoopQuery != pKF->frameID) {
                     pKFi->mnLoopWords = 0;
@@ -87,13 +89,13 @@ std::vector<FrameHessian*> KeyFrameDatabase::DetectLoopCandidates(FrameHessian* 
     }
 
     if (lKFsSharingWords.empty())
-        return vector<FrameHessian*>();
+        return vector<Frame*>();
 
-    list<pair<float, FrameHessian*>> lScoreAndMatch;
+    list<pair<float, Frame*>> lScoreAndMatch;
 
     // Only compare against those keyframes that share enough words
     int maxCommonWords = (*max_element(lKFsSharingWords.begin(), lKFsSharingWords.end(),
-    [](const FrameHessian* fr1, const FrameHessian* fr2) {
+    [](const Frame * fr1, const Frame * fr2) {
         return fr1->mnLoopWords < fr2->mnLoopWords;
     }))->mnLoopWords;
 
@@ -116,23 +118,23 @@ std::vector<FrameHessian*> KeyFrameDatabase::DetectLoopCandidates(FrameHessian* 
     }
 
     if (lScoreAndMatch.empty())
-        return vector<FrameHessian*>();
+        return vector<Frame*>();
 
-    list<pair<float, FrameHessian*>> lAccScoreAndMatch;
+    list<pair<float, Frame*>> lAccScoreAndMatch;
     float bestAccScore = minScore;
 
     // Lets now accumulate score by covisibility
     for (auto it = lScoreAndMatch.begin(), itend = lScoreAndMatch.end(); it != itend; it++)
     {
-        FrameHessian* pKFi = it->second;
-        set<FrameHessian*> vpNeighs = pKFi->GetConnectedKeyFrames();
+        Frame* pKFi = it->second;
+        set<Frame*> vpNeighs = pKFi->GetConnectedKeyFrames();
 
         float bestScore = it->first;
         float accScore = it->first;
 
-        FrameHessian* pBestKF = pKFi;
+        Frame* pBestKF = pKFi;
         for (auto vit = vpNeighs.begin(), vend = vpNeighs.end(); vit != vend; vit++) {
-            FrameHessian* pKF2 = *vit;
+            Frame* pKF2 = *vit;
 
             if (pKF2->mnLoopQuery == pKF->frameID && pKF2->mnLoopWords > minCommonWords) {
                 accScore += pKF2->mLoopScore;
@@ -151,15 +153,15 @@ std::vector<FrameHessian*> KeyFrameDatabase::DetectLoopCandidates(FrameHessian* 
     // Return all those keyframes with a score higher than 0.75*bestScore
     float minScoreToRetain = 0.80f * bestAccScore;
 
-    set<FrameHessian*> spAlreadyAddedKF;
-    vector<FrameHessian*> vpLoopCandidates;
+    set<Frame*> spAlreadyAddedKF;
+    vector<Frame*> vpLoopCandidates;
     vpLoopCandidates.reserve(lAccScoreAndMatch.size());
 
     for (auto it = lAccScoreAndMatch.begin(), itend = lAccScoreAndMatch.end();
             it != itend; it++) {
         if (it->first > minScoreToRetain)
         {
-            FrameHessian* pKFi = it->second;
+            Frame* pKFi = it->second;
             if (!spAlreadyAddedKF.count(pKFi))
             {
                 // LOG(INFO) << "add candidate " << pKFi->frameID << ", sim score: " << it->first << endl;
@@ -181,7 +183,7 @@ LoopClosing::LoopClosing(FullSystem *fullsystem) :
     mainLoop = thread(&LoopClosing::run, this);
 }
 
-void LoopClosing::insertKeyFrame(FrameHessian* frame)
+void LoopClosing::insertKeyFrame(Frame* frame)
 {
     unique_lock<mutex> lock(mutexKFQueue);
     mvKFQueue.push_back(frame);
@@ -221,12 +223,15 @@ void LoopClosing::run()
         if (mbNeedFinish)
             break;
         usleep(5000);
+
+        // // //发布关键帧和当前窗口中帧的关联
+        mpGlobalMap->outputWrapper[0]->publishKeyframesOpt(mpGlobalMap->frameList, false, mpHcalib);
     }
 
     mbFinished = true;
 }
 
-bool LoopClosing::DetectLoop(FrameHessian* frame)
+bool LoopClosing::DetectLoop(Frame* frame)
 {
     // compute minimum similarity score
     //获取当前帧所有关联的帧
@@ -248,7 +253,7 @@ bool LoopClosing::DetectLoop(FrameHessian* frame)
 
     // query the database imposing the minimum score
     //在数据库里
-    vector<FrameHessian*> vpCandidateKFs = mpKeyFrameDB->DetectLoopCandidates(frame, 2 * minScore);
+    vector<Frame*> vpCandidateKFs = mpKeyFrameDB->DetectLoopCandidates(frame, 2 * minScore);
 
     if (vpCandidateKFs.empty())
     {
@@ -272,7 +277,7 @@ bool LoopClosing::DetectLoop(FrameHessian* frame)
     for (auto &pCandidateKF : vpCandidateKFs)
     {
         // check consistency
-        set<FrameHessian*> spCandidateGroup = pCandidateKF->GetConnectedKeyFrames();
+        set<Frame*> spCandidateGroup = pCandidateKF->GetConnectedKeyFrames();
         spCandidateGroup.insert(pCandidateKF);
 
         bool bEnoughConsistent = false;
@@ -280,7 +285,7 @@ bool LoopClosing::DetectLoop(FrameHessian* frame)
 
         for (size_t iG = 0, iendG = mvConsistentGroups.size(); iG < iendG; iG++)
         {
-            set<FrameHessian*> sPreviousGroup = mvConsistentGroups[iG].first;
+            set<Frame*> sPreviousGroup = mvConsistentGroups[iG].first;
             bool bConsistent = false;
 
             for (auto sit = spCandidateGroup.begin(), send = spCandidateGroup.end(); sit != send; sit++)
@@ -364,7 +369,7 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
 
     for (int i = 0; i < nInitialCandidates; i++)
     {
-        FrameHessian* pKF = mvpEnoughConsistentCandidates[i];
+        Frame* pKF = mvpEnoughConsistentCandidates[i];
         LOG(INFO) << "try " << mpCurrentKF->frameID << " with " << pKF->frameID << endl;
 
         auto connectedKFs = pKF->GetConnectedKeyFrames();
@@ -397,14 +402,15 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
                 Feature* featKF = pKF->_features[m.trainIdx];
                 Feature* featCurrent = mpCurrentKF->_features[m.queryIdx];
 
-                if (featKF->_status == Feature::ACTIVE_PH)
+                if (featKF->_status == Feature::ACTIVE_IDEPTH)
                 {
                     // there should be a 3d point
-                    PointHessian* pt = featKF->mPH;
+                    // PointHessian* pt = featKF->mPH;
                     //LOG(INFO) << "pKF pt3d (u,v,iepth): "<<" "<<pt->u<<" "<<pt->v<<" "<<pt->idepth << std::endl;
-                    pt->ComputeWorldPos();
+                    Vec3 mWorldPos;
+                    featKF->ComputeWorldPos(mWorldPos);
                     //LOG(INFO) << "pKF pt3d: "<<" "<<pt->mWorldPos[0]<<" "<<pt->mWorldPos[1]<<" "<<pt->mWorldPos[2] << std::endl;
-                    cv::Point3f pt3d(pt->mWorldPos[0], pt->mWorldPos[1], pt->mWorldPos[2]);
+                    cv::Point3f pt3d(mWorldPos[0], mWorldPos[1], mWorldPos[2]);
                     p3d.push_back(pt3d);
                     //LOG(INFO) << "mpCurrentKF p2d: "<<" "<<featCurrent->_pixel[0]<<" "<<featCurrent->_pixel[1]<< std::endl;
                     p2d.push_back(cv::Point2f(featCurrent->_pixel[0], featCurrent->_pixel[1]));
@@ -441,23 +447,24 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
 
             for (auto &kfn : pKF->mPoseRel)
             {
-                SE3 TCurKF = TcwEsti * kfn.first->shell->camToWorldOpti;
+                SE3 TCurKF = TcwEsti * kfn.first->camToWorldOpti;
                 unique_lock<mutex> lock(mpCurrentKF->mMutexPoseRel);
                 mpCurrentKF->mPoseRel[kfn.first] = TCurKF;   // add an pose graph edge
             }
 
             {
-                SE3 TCurRef = TcwEsti * pKF->shell->camToWorldOpti;
+                SE3 TCurRef = TcwEsti * pKF->camToWorldOpti;
                 unique_lock<mutex> lock(mpCurrentKF->mMutexPoseRel);
                 mpCurrentKF->mPoseRel[pKF] = TCurRef;   // and an pose graph edge
             }
 
-            SE3 delta = TcwEsti * mpCurrentKF->shell->camToWorldOpti;
+            SE3 delta = TcwEsti * mpCurrentKF->camToWorldOpti;
             double dd = delta.log().norm();
 
             if (dd > 0.1 && (mpCurrentKF->frameID - pKF->frameID) > 50) // if we find a large error, start a pose graph optimization
             {
-                mpCurrentKF->shell->camToWorld=TcwEsti;
+                //mpCurrentKF->camToWorldOpti = TcwEsti;
+                //mpCurrentKF->camToWorld = TcwEsti;
                 std::cout << "Loop detected from kf " << mpCurrentKF->frameID << " to " << pKF->frameID
                           << ", inlier matches: " << cntInliers << endl;
 

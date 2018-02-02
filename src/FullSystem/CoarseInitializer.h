@@ -36,11 +36,11 @@
 
 namespace fdso
 {
-struct CalibHessian;
-struct FrameHessian;
+class CalibHessian;
+class FrameHessian;
 
 
-struct Pnt
+class Pnt
 {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -198,8 +198,9 @@ private:
  * 点云的FLANN
  * 最近邻搜索
  */
-struct FLANNPointcloud
+class FLANNPointcloud
 {
+public:
 	inline FLANNPointcloud() {num = 0; points = 0;}
 	inline FLANNPointcloud(int n, Pnt* p) :  num(n), points(p) {}
        	//点云个数

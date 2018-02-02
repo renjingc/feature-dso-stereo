@@ -23,6 +23,7 @@
 #include "FullSystem/FrameHessian.h"
 #include "FullSystem/PointHessian.h"
 #include "FullSystem/CalibHessian.h"
+#include "FullSystem/Frame.h"
 #include "FullSystem/ResidualProjections.h"
 #include "util/NumType.h"
 
@@ -129,11 +130,20 @@ public:
   // 在Keyframe之间搜索匹配情况，利用BoW加速
   int SearchByBoW( FrameHessian* kf1, FrameHessian* kf2, std::vector<cv::DMatch> &matches );
 
+  // 在Keyframe之间搜索匹配情况，利用BoW加速
+  int SearchByBoW( Frame* kf1, Frame* kf2, std::vector<cv::DMatch> &matches );
+
   void showMatch(FrameHessian* kf1, FrameHessian* kf2, std::vector<cv::DMatch>& matches);
 
   void checkUVDistance(
     FrameHessian* kf1,
     FrameHessian* kf2,
+    std::vector<cv::DMatch> &matches,
+    std::vector<cv::DMatch> &goodMatches);
+
+  void checkUVDistance(
+    Frame* kf1,
+    Frame* kf2,
     std::vector<cv::DMatch> &matches,
     std::vector<cv::DMatch> &goodMatches);
 

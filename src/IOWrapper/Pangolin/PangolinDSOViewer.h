@@ -37,6 +37,7 @@ namespace fdso
 class FrameHessian;
 class CalibHessian;
 class FrameShell;
+class Frame;
 
 
 namespace IOWrap
@@ -77,6 +78,7 @@ public:
 	virtual void publishGraph(
           const std::map<uint64_t, Eigen::Vector2i, std::less<uint64_t>, Eigen::aligned_allocator<std::pair<const uint64_t, Eigen::Vector2i>>> &connectivity) override;
 
+	virtual void publishKeyframesOpt( std::vector<Frame*> &frames, bool final, CalibHessian* HCalib);
 	virtual void publishKeyframes( std::vector<FrameHessian*> &frames, bool final, CalibHessian* HCalib);
 	virtual void publishCamPose(FrameShell* frame, CalibHessian* HCalib);
 
@@ -115,8 +117,14 @@ private:
 	boost::mutex model3DMutex;
 	KeyFrameDisplay* currentCam;
 	std::vector<KeyFrameDisplay*> keyframes;
+
+	std::vector<KeyFrameDisplay*> keyframesOpt;
+
 	std::vector<Vec3f, Eigen::aligned_allocator<Vec3f>> allFramePoses;
+
 	std::map<int, KeyFrameDisplay*> keyframesByKFID;
+	std::map<int, KeyFrameDisplay*> keyframesOptByKFID;
+
 	std::vector<GraphConnection, Eigen::aligned_allocator<GraphConnection>> connections;
 
 
@@ -128,6 +136,7 @@ private:
 	bool settings_showFullTrajectory;
 	bool settings_showActiveConstraints;
 	bool settings_showAllConstraints;
+	bool settings_showPointCloud;
 
 	float settings_scaledVarTH;
 	float settings_absVarTH;

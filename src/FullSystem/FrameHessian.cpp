@@ -53,16 +53,21 @@ void FrameHessian::setStateZero(Vec10 state_zero)
  */
 void FrameHessian::release()
 {
-  for (unsigned int i = 0; i < pointHessians.size(); i++) delete pointHessians[i];
-  for (unsigned int i = 0; i < pointHessiansMarginalized.size(); i++) delete pointHessiansMarginalized[i];
-  for (unsigned int i = 0; i < pointHessiansOut.size(); i++) delete pointHessiansOut[i];
-  for (unsigned int i = 0; i < immaturePoints.size(); i++) delete immaturePoints[i];
-  for (unsigned int i = 0; i < _features.size(); i++) delete _features[i];
+    for (unsigned int i = 0; i < pointHessians.size(); i++) delete pointHessians[i];
+    for (unsigned int i = 0; i < pointHessiansMarginalized.size(); i++) delete pointHessiansMarginalized[i];
+    for (unsigned int i = 0; i < pointHessiansOut.size(); i++) delete pointHessiansOut[i];
+    for (unsigned int i = 0; i < immaturePoints.size(); i++) delete immaturePoints[i];
+    // for (unsigned int i = 0; i < _features.size(); i++)
+    // {
+    //   _features[i]->mImP=nullptr;
+    //   _features[i]->mPH=nullptr;
+    //   // delete _features[i];
+    // }
 
-  pointHessians.clear();
-  pointHessiansMarginalized.clear();
-  pointHessiansOut.clear();
-  immaturePoints.clear();
+    pointHessians.clear();
+    pointHessiansMarginalized.clear();
+    pointHessiansOut.clear();
+    immaturePoints.clear();
     _features.clear();
 }
 
@@ -224,7 +229,7 @@ void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target, CalibHessi
     PRE_b0_mode = host->aff_g2l_0().b;
 }
 
-void FrameFramePrecalc::setStatic(FrameHessian* host, FrameHessian* target, CalibHessian *HCalib) 
+void FrameFramePrecalc::setStatic(FrameHessian* host, FrameHessian* target, CalibHessian *HCalib)
 {
     this->host = host;
     this->target = target;

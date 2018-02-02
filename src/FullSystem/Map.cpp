@@ -19,12 +19,22 @@ using namespace fdso;
 namespace fdso {
 
 //增加关键帧
-void Map::addKeyFrame(FrameHessian* kf)
+void Map::addKeyFrame(Frame* kf)
 {
     std::unique_lock<std::mutex> mapLock(mapMutex);
     if (frames.find(kf) == frames.end())
     {
+        if(frameList.size()>0)
+        {
+            Frame* slast = frameList[frameList.size() - 1];
+            //当前帧
+            Frame* current = kf;
+            SE3 current_2_slast = slast->camToWorld.inverse() * current->camToWorld;
+            kf->camToWorldOpti=slast->camToWorldOpti*current_2_slast;
+        }
+
         frames.insert(kf);
+        frameList.push_back(kf);
     }
 }
 
@@ -72,7 +82,7 @@ void Map::runPoseGraphOptimization()
     int maxKFid = 0;
     int cntEdgePR = 0;
 
-    for (FrameHessian* fh : framesOpti)
+    for (Frame* fh : framesOpti)
     {
         // 每个KF只有P+R
         if (fh->frameID >= min_id && fh->frameID <= max_id)
@@ -85,7 +95,7 @@ void Map::runPoseGraphOptimization()
 
             // P+R
             VertexPR *vPR = new VertexPR();
-            vPR->setEstimate(fh->shell->camToWorldOpti.inverse());
+            vPR->setEstimate(fh->camToWorldOpti.inverse());
             vPR->setId(idKF);
             optimizer.addVertex(vPR);
 
@@ -99,7 +109,7 @@ void Map::runPoseGraphOptimization()
     }
 
     // edges
-    for (FrameHessian* fh : framesOpti)
+    for (Frame* fh : framesOpti)
     {
         unique_lock<mutex> lock(fh->mMutexPoseRel);
         if (fh->frameID >= min_id && fh->frameID <= max_id)
@@ -125,32 +135,41 @@ void Map::runPoseGraphOptimization()
     optimizer.initializeOptimization();
     optimizer.optimize(20);
 
-    std::cout<<"optimize finish"<<std::endl;
+    std::cout << "optimize finish" << std::endl;
 
     // recover the pose and points estimation
-    for (FrameHessian* frame : framesOpti)
+    Frame* slast;
+    for (Frame* frame : framesOpti)
     {
         if (frame->frameID >= min_id && frame->frameID <= max_id)
         {
             VertexPR *vPR = (VertexPR *) optimizer.vertex(frame->frameID);
             SE3 Tcw = vPR->estimate();
-            frame->shell->camToWorldOpti = Tcw.inverse();
-            frame->shell->camToWorld = Tcw.inverse();
+            frame->camToWorldOpti = Tcw.inverse();
+            //frame->camToWorld = Tcw.inverse();
 
             // reset the map point world position because we've changed the keyframe pose
-            for (auto &point : frame->pointHessians)
-            {
-                point->ComputeWorldPos();
-            }
-            for (auto &point : frame->pointHessiansOut)
-            {
-                point->ComputeWorldPos();
-            }
-            for (auto &point : frame->pointHessiansMarginalized)
-            {
-                point->ComputeWorldPos();
-            }
+            // for (auto &point : frame->pointHessians)
+            // {
+            //     point->ComputeWorldPos();
+            // }
+            // for (auto &point : frame->pointHessiansOut)
+            // {
+            //     point->ComputeWorldPos();
+            // }
+            // for (auto &point : frame->pointHessiansMarginalized)
+            // {
+            //     point->ComputeWorldPos();
+            // }
         }
+        else if(frame->frameID > max_id)
+        {
+            //当前帧
+            Frame* current = frame;
+            SE3 current_2_slast = slast->camToWorld.inverse() * current->camToWorld;
+            frame->camToWorldOpti=slast->camToWorldOpti*current_2_slast;
+        }
+        slast=frame;
     }
 
     //优化结束

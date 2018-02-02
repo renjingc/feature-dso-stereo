@@ -391,6 +391,7 @@ int main( int argc, char** argv )
   {
     viewer = new IOWrap::PangolinDSOViewer(wG[0], hG[0], gtPath, false);
     fullSystem->outputWrapper.push_back(viewer);
+    fullSystem->globalMap->outputWrapper.push_back(viewer);
   }
 
 

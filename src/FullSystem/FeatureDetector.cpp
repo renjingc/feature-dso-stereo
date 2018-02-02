@@ -32,6 +32,33 @@
 namespace fdso
 {
 
+bool Feature::ComputePos(Vec3& pose)
+{
+    if (!std::isfinite(idepth))
+        return false;
+
+    pose = 1.0 / this->idepth * Vec3(
+             fxiG[0]  * this->_pixel[0] + cxiG[0],
+             fyiG[0]  * this->_pixel[1] + cyiG[0],
+             1);
+
+    return true;
+}
+bool Feature::ComputeWorldPos(Vec3& mWorldPos)
+{
+      if (!_host || !std::isfinite(idepth))
+        return false;
+
+      SE3 Twc = _host->camToWorldOpti;
+      Vec3 Kip = 1.0 / this->idepth * Vec3(
+                   fxiG[0]  * this->_pixel[0]  + cxiG[0],
+                 fyiG[0]  * this->_pixel[0]  + cyiG[0],
+                 1);
+      mWorldPos = Twc * Kip;
+
+      return true;
+}
+
 static int bit_pattern_31_[256 * 4] =
 {
     8, -3, 9, 5/*mean (0), correlation (0)*/,

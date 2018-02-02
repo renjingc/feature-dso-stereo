@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -30,7 +30,7 @@
  */
 
 #include "FullSystem/FullSystem.h"
- 
+
 #include "stdio.h"
 #include "util/globalFuncs.h"
 #include <Eigen/LU>
@@ -54,21 +54,21 @@ namespace fdso
  * @param      residuals  The residuals
  *
  * @return     { description_of_the_return_value }
- * 
+ *
  * 优化每一个点，将这个点与窗口中的每一个非主导帧的关键帧进行误差迭代，获取该点最新的逆深度
  * 从ImmaturePoint生成PointHessian
  */
 PointHessian* FullSystem::optimizeImmaturePoint(
-		ImmaturePoint* point, int minObs,
-		ImmaturePointTemporaryResidual* residuals)
+  ImmaturePoint* point, int minObs,
+  ImmaturePointTemporaryResidual* residuals)
 {
 	int nres = 0;
 
 	//遍历窗口中的每一帧
-	for(FrameHessian* fh : frameHessians)
+	for (FrameHessian* fh : frameHessians)
 	{
 		//该点的主导帧不是该帧
-		if(fh != point->host)
+		if (fh != point->host)
 		{
 			//设置残差和状态和目标帧
 			residuals[nres].state_NewEnergy = residuals[nres].state_energy = 0;
@@ -78,23 +78,23 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 			nres++;
 		}
 	}
-	assert(nres == ((int)frameHessians.size())-1);
+	assert(nres == ((int)frameHessians.size()) - 1);
 
 	bool print = false;//rand()%50==0;
 
 	//最新的残差和跟新Ｈ和ｂ
 	float lastEnergy = 0;
-	float lastHdd=0;
-	float lastbd=0;
+	float lastHdd = 0;
+	float lastbd = 0;
 
 	//当前点逆深度＝最大逆深度和最小逆深度的１/2
-	float currentIdepth=(point->idepth_max+point->idepth_min)*0.5f;
+	float currentIdepth = (point->idepth_max + point->idepth_min) * 0.5f;
 
 	//遍历每一种目标帧
-	for(int i=0;i<nres;i++)
+	for (int i = 0; i < nres; i++)
 	{
 		//该点线性化残差
-		lastEnergy += point->linearizeResidual(&Hcalib, 1000, residuals+i,lastHdd, lastbd, currentIdepth);
+		lastEnergy += point->linearizeResidual(&Hcalib, 1000, residuals + i, lastHdd, lastbd, currentIdepth);
 
 		//更新残差和状态
 		residuals[i].state_state = residuals[i].state_NewState;
@@ -102,55 +102,55 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 	}
 
 	//若全部的残差值和lastHdd小于阈值100,则说明该点没有很好的约束连接
-	if(!std::isfinite(lastEnergy) || lastHdd < setting_minIdepthH_act)
+	if (!std::isfinite(lastEnergy) || lastHdd < setting_minIdepthH_act)
 	{
-		if(print)
+		if (print)
 			printf("OptPoint: Not well-constrained (%d res, H=%.1f). E=%f. SKIP!\n",
-				nres, lastHdd, lastEnergy);
+			       nres, lastHdd, lastEnergy);
 		return 0;
 	}
 
 	//激活的点，即有约束的点
-	if(print) printf("Activate point. %d residuals. H=%f. Initial Energy: %f. Initial Id=%f\n" ,
-			nres, lastHdd,lastEnergy,currentIdepth);
+	if (print) printf("Activate point. %d residuals. H=%f. Initial Energy: %f. Initial Id=%f\n" ,
+		                  nres, lastHdd, lastEnergy, currentIdepth);
 
 	float lambda = 0.1;
 	//迭代３次
-	for(int iteration=0;iteration<setting_GNItsOnPointActivation;iteration++)
+	for (int iteration = 0; iteration < setting_GNItsOnPointActivation; iteration++)
 	{
 		//初始Ｈ
 		float H = lastHdd;
-		H *= 1+lambda;
-		float step = (1.0/H) * lastbd;
+		H *= 1 + lambda;
+		float step = (1.0 / H) * lastbd;
 
 		//新的逆深度
 		float newIdepth = currentIdepth - step;
 
 		//
-		float newHdd=0; float newbd=0; float newEnergy=0;
+		float newHdd = 0; float newbd = 0; float newEnergy = 0;
 
 		//将每一次误差相加
-		for(int i=0;i<nres;i++)
-			newEnergy += point->linearizeResidual(&Hcalib, 1, residuals+i,newHdd, newbd, newIdepth);
+		for (int i = 0; i < nres; i++)
+			newEnergy += point->linearizeResidual(&Hcalib, 1, residuals + i, newHdd, newbd, newIdepth);
 
-		if(!std::isfinite(lastEnergy) || newHdd < setting_minIdepthH_act)
+		if (!std::isfinite(lastEnergy) || newHdd < setting_minIdepthH_act)
 		{
-			if(print) printf("OptPoint: Not well-constrained (%d res, H=%.1f). E=%f. SKIP!\n",
-					nres,
-					newHdd,
-					lastEnergy);
+			if (print) printf("OptPoint: Not well-constrained (%d res, H=%.1f). E=%f. SKIP!\n",
+				                  nres,
+				                  newHdd,
+				                  lastEnergy);
 			return 0;
 		}
 
-		if(print) printf("%s %d (L %.2f) %s: %f -> %f (idepth %f)!\n",
-				(true || newEnergy < lastEnergy) ? "ACCEPT" : "REJECT",
-				iteration,
-				log10(lambda),
-				"",
-				lastEnergy, newEnergy, newIdepth);
+		if (print) printf("%s %d (L %.2f) %s: %f -> %f (idepth %f)!\n",
+			                  (true || newEnergy < lastEnergy) ? "ACCEPT" : "REJECT",
+			                  iteration,
+			                  log10(lambda),
+			                  "",
+			                  lastEnergy, newEnergy, newIdepth);
 
 		//新的误差小于上一时刻的误差
-		if(newEnergy < lastEnergy)
+		if (newEnergy < lastEnergy)
 		{
 			//更新最新的逆深度
 			currentIdepth = newIdepth;
@@ -160,7 +160,7 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 			lastEnergy = newEnergy;
 
 			//更新与每一帧的残差和状态
-			for(int i=0;i<nres;i++)
+			for (int i = 0; i < nres; i++)
 			{
 				residuals[i].state_state = residuals[i].state_NewState;
 				residuals[i].state_energy = residuals[i].state_NewEnergy;
@@ -175,32 +175,32 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 		}
 
 		//当步进很小了，则跳出
-		if(fabsf(step) < 0.0001*currentIdepth)
+		if (fabsf(step) < 0.0001 * currentIdepth)
 			break;
 	}
 
 	//逆深度错误
-	if(!std::isfinite(currentIdepth))
+	if (!std::isfinite(currentIdepth))
 	{
 		printf("MAJOR ERROR! point idepth is nan after initialization (%f).\n", currentIdepth);
 		return nullptr;//(PointHessian*)((long)(-1));		// yeah I'm like 99% sure this is OK on 32bit systems.
 	}
 
 	//当前点与这一帧有好的残差
-	int numGoodRes=0;
-	for(int i=0;i<nres;i++)
-		if(residuals[i].state_state == ResState::IN) numGoodRes++;
+	int numGoodRes = 0;
+	for (int i = 0; i < nres; i++)
+		if (residuals[i].state_state == ResState::IN) numGoodRes++;
 
 	//好的约束小于阈值，则该点也该out
-	if(numGoodRes < minObs)
+	if (numGoodRes < minObs)
 	{
-		if(print) printf("OptPoint: OUTLIER!\n");
+		if (print) printf("OptPoint: OUTLIER!\n");
 		return nullptr;//(PointHessian*)((long)(-1));		// yeah I'm like 99% sure this is OK on 32bit systems.
 	}
 
 	//新建该点Hessian
 	PointHessian* p(new PointHessian(point, &Hcalib));
-	if(!std::isfinite(p->energyTH)) 
+	if (!std::isfinite(p->energyTH))
 	{
 		delete p;
 		return nullptr;
@@ -217,9 +217,11 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 	p->setIdepth(currentIdepth);
 	p->setPointStatus(PointHessian::ACTIVE);
 
+	//这里还没有与feature连接,不需要加
+
 	//遍历与之相关每一帧
-	for(int i=0;i<nres;i++)
-		if(residuals[i].state_state == ResState::IN)
+	for (int i = 0; i < nres; i++)
+		if (residuals[i].state_state == ResState::IN)
 		{
 			//创建该点与每一个帧的残差
 			PointFrameResidual* r = new PointFrameResidual(p, p->host, residuals[i].target);
@@ -231,68 +233,68 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 			p->residuals.push_back(r);
 
 			//若当前的目标帧为最新的一帧
-			if(r->target == frameHessians.back())
+			if (r->target == frameHessians.back())
 			{
 				p->lastResiduals[0].first = r;
 				p->lastResiduals[0].second = ResState::IN;
 			}
 			//若当前窗口中小于２帧，该帧的目标帧＝＝０
 			//若当前窗口大于２帧，该帧的目标的帧为前面的面一帧
-			else if(r->target == (frameHessians.size()<2 ? 0 : frameHessians[frameHessians.size()-2]))
+			else if (r->target == (frameHessians.size() < 2 ? 0 : frameHessians[frameHessians.size() - 2]))
 			{
 				p->lastResiduals[1].first = r;
 				p->lastResiduals[1].second = ResState::IN;
 			}
 		}
 
-   //- Also add static stereo residual.
-    //- Should check out first if the right Frame can see this point.
-    //- And if previous do not add a residual, static stereo residual will not be added.
+	//- Also add static stereo residual.
+	//- Should check out first if the right Frame can see this point.
+	//- And if previous do not add a residual, static stereo residual will not be added.
 
 // #if STEREO_MODE
-    if (!p->residuals.empty())
-    {
-      Mat33f K = Mat33f::Identity();
-      K(0, 0) = Hcalib.fxl();
-      K(1, 1) = Hcalib.fyl();
-      K(0, 2) = Hcalib.cxl();
-      K(1, 2) = Hcalib.cyl();
+	if (!p->residuals.empty())
+	{
+		Mat33f K = Mat33f::Identity();
+		K(0, 0) = Hcalib.fxl();
+		K(1, 1) = Hcalib.fyl();
+		K(0, 2) = Hcalib.cxl();
+		K(1, 2) = Hcalib.cyl();
 
-      point->u_stereo = point->u;
-      point->v_stereo = point->v;
-      point->idepth_min_stereo = 0;
-      point->idepth_max_stereo = NAN;
+		point->u_stereo = point->u;
+		point->v_stereo = point->v;
+		point->idepth_min_stereo = 0;
+		point->idepth_max_stereo = NAN;
 
-      ImmaturePointStatus traceLeft2RightStatus = point->traceStereo(point->host->rightFrame, K, 1);
-      if (traceLeft2RightStatus == ImmaturePointStatus::IPS_GOOD) {
-        ImmaturePoint *ipRight = new ImmaturePoint(point->lastTraceUV(0), point->lastTraceUV(1),
-                                                   point->host->rightFrame,
-                                                   point->my_type, &Hcalib);
+		ImmaturePointStatus traceLeft2RightStatus = point->traceStereo(point->host->rightFrame, K, 1);
+		if (traceLeft2RightStatus == ImmaturePointStatus::IPS_GOOD) {
+			ImmaturePoint *ipRight = new ImmaturePoint(point->lastTraceUV(0), point->lastTraceUV(1),
+			    point->host->rightFrame,
+			    point->my_type, &Hcalib);
 
-        ipRight->u_stereo = ipRight->u;
-        ipRight->v_stereo = ipRight->v;
-        ipRight->idepth_min_stereo = point->idepth_min = 0;
-        ipRight->idepth_max_stereo = point->idepth_max = NAN;
+			ipRight->u_stereo = ipRight->u;
+			ipRight->v_stereo = ipRight->v;
+			ipRight->idepth_min_stereo = point->idepth_min = 0;
+			ipRight->idepth_max_stereo = point->idepth_max = NAN;
 
-        ImmaturePointStatus traceRigh2LeftStatus = ipRight->traceStereo(point->host, K, 0);
+			ImmaturePointStatus traceRigh2LeftStatus = ipRight->traceStereo(point->host, K, 0);
 
-        float u_stereo_delta = abs(point->u_stereo - ipRight->lastTraceUV(0));
-        float depth = 1.0f / point->idepth_stereo;
-        if (traceRigh2LeftStatus == ImmaturePointStatus::IPS_GOOD && u_stereo_delta < 1 && depth > 0 &&
-            depth < 70) {
-          PointFrameResidual *r = new PointFrameResidual(p, p->host, p->host->rightFrame);
-          r->staticStereo = true;
-          r->state_NewEnergy = r->state_energy = 0;
-          r->state_NewState = ResState::OUTLIER;
-          r->setState(ResState::IN);
-          p->residuals.push_back(r);
-        }
-        delete ipRight;
-      }
-    }
+			float u_stereo_delta = abs(point->u_stereo - ipRight->lastTraceUV(0));
+			float depth = 1.0f / point->idepth_stereo;
+			if (traceRigh2LeftStatus == ImmaturePointStatus::IPS_GOOD && u_stereo_delta < 1 && depth > 0 &&
+			    depth < 70) {
+				PointFrameResidual *r = new PointFrameResidual(p, p->host, p->host->rightFrame);
+				r->staticStereo = true;
+				r->state_NewEnergy = r->state_energy = 0;
+				r->state_NewState = ResState::OUTLIER;
+				r->setState(ResState::IN);
+				p->residuals.push_back(r);
+			}
+			delete ipRight;
+		}
+	}
 // #endif
 
-	if(print) printf("point activated!\n");
+	if (print) printf("point activated!\n");
 
 
 

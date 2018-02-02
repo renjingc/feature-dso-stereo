@@ -68,7 +68,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 		for (int i = setting_maxFrames; i < (int)frameHessians.size(); i++)
 		{
 			FrameHessian* fh = frameHessians[i - setting_maxFrames];
-            		LOG(INFO) << "frame " << fh->frameID << " is set as marged" << endl;
+			LOG(INFO) << "frame " << fh->frameID << " is set as marged" << endl;
 			fh->flaggedForMarginalization = true;
 		}
 		return;
@@ -233,8 +233,54 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 	LOG(INFO) << "frame " << frame->frameID << " frame marged" << endl;
 	//从队列中删除该帧
 
-	deleteOutOrder<FrameHessian>(frameHessians,frame);
-    	deleteOutOrder<FrameHessian>(frameHessiansRight, frame->rightFrame);
+	// Frame* tempF(new Frame());
+	// tempF->id = frame->shell->id;
+
+	// //获取所有关键帧
+	// auto allKFs = globalMap->getAllKFs();
+
+	// std::set<Frame*, CmpFrameID>::iterator iter;
+	// iter = allKFs.find(tempF);
+	// if (iter != allKFs.end())
+	// {
+	// 	//找到要删除的这一帧的特征的指针,构造新的特征
+	// 	std::vector<Feature*> temPFeaLst;
+	// 	for(auto &fea : (*iter)->_features)
+	// 	{
+	// 		if(fea->_status==Feature::ACTIVE_IDEPTH)
+	// 			fea->idepth=fea->mPH->idepth;
+
+	// 		Feature* tmpFea(new Feature(*fea));
+	// 		temPFeaLst.push_back(tmpFea);
+	// 	}
+	// 	//清空特征,放入新的特征
+	// 	(*iter)->_features.clear();
+	// 	for(auto & fea: temPFeaLst)
+	// 	{
+	// 		(*iter)->_features.push_back(fea);
+	// 	}
+	// }
+	// else
+	// {
+	// 	cout << "Cannot find the Frame!" << endl;
+	// }
+
+	// delete tempF;
+
+	for (unsigned int i = 0; i < frame-> _features.size(); i++)
+	{
+		frame->_features[i]->mImP = nullptr;
+		frame->_features[i]->mPH = nullptr;
+	}
+
+	for (unsigned int i = 0; i < frame->rightFrame->_features.size(); i++)
+	{
+		frame->rightFrame->_features[i]->mImP = nullptr;
+		frame->rightFrame->_features[i]->mPH = nullptr;
+	}
+
+	deleteOutOrder<FrameHessian>(frameHessians, frame);
+	deleteOutOrder<FrameHessian>(frameHessiansRight, frame->rightFrame);
 	// deleteOutOrder<FrameHessian>(frameHessiansRight, frame->rightFrame);
 
 	//重置每一帧的idx
@@ -242,7 +288,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 		frameHessians[i]->idx = i;
 
 	for (unsigned int i = 0; i < frameHessiansRight.size(); i++)
-      		frameHessiansRight[i]->idx = i;
+		frameHessiansRight[i]->idx = i;
 
 	//重新设置每一帧之间的关系
 	setPrecalcValues();

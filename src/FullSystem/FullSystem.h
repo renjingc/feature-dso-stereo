@@ -64,10 +64,10 @@ class Output3DWrapper;
 class PixelSelector;
 class PCSyntheticPoint;
 class CoarseTracker;
-struct FrameHessian;
-struct PointHessian;
+class FrameHessian;
+class PointHessian;
 class CoarseInitializer;
-struct ImmaturePointTemporaryResidual;
+class ImmaturePointTemporaryResidual;
 class ImageAndExposure;
 class CoarseDistanceMap;
 

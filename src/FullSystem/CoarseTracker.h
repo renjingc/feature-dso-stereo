@@ -39,9 +39,9 @@
 
 namespace fdso
 {
-struct CalibHessian;
-struct FrameHessian;
-struct PointFrameResidual;
+class CalibHessian;
+class FrameHessian;
+class PointFrameResidual;
 
 /**
  *

@@ -83,7 +83,68 @@ void KeyFrameDisplay::setFromF(FrameShell* frame, CalibHessian* HCalib)
 	camToWorld = frame->camToWorld;
 	needRefresh = true;
 
+	originFrameShell = frame;
+}
+
+void KeyFrameDisplay::setFromF(Frame* frame, CalibHessian* HCalib)
+{
+	id = frame->id;
+	fx = HCalib->fxl();
+	fy = HCalib->fyl();
+	cx = HCalib->cxl();
+	cy = HCalib->cyl();
+	width = wG[0];
+	height = hG[0];
+	fxi = 1 / fx;
+	fyi = 1 / fy;
+	cxi = -cx / fx;
+	cyi = -cy / fy;
+	camToWorld = frame->camToWorldOpti;
+	needRefresh = true;
+
 	originFrame = frame;
+}
+
+void KeyFrameDisplay::setFromKF(Frame* fh,CalibHessian* HCalib)
+{
+	setFromF(fh, HCalib);
+
+	// add all traces, inlier and outlier points.
+	int npoints = fh->_features.size();
+
+	if (numSparseBufferSize < npoints)
+	{
+		if (originalInputSparse != 0) delete originalInputSparse;
+		numSparseBufferSize = npoints + 100;
+		originalInputSparse = new InputPointSparse<MAX_RES_PER_POINT>[numSparseBufferSize];
+	}
+
+	InputPointSparse<MAX_RES_PER_POINT>* pc = originalInputSparse;
+	numSparsePoints = 0;
+	for(Feature* f:fh->_features)
+	{
+		if(f->_status==Feature::ACTIVE_IDEPTH)
+		{
+			for (int i = 0; i < patternNum; i++)
+			{
+				pc[numSparsePoints].color[i] = f->color[i];
+			}
+
+			pc[numSparsePoints].u = f->_pixel[0];
+			pc[numSparsePoints].v = f->_pixel[1];
+			pc[numSparsePoints].idpeth = f->idepth;
+			pc[numSparsePoints].idepth_hessian = f->idepth_hessian;
+			pc[numSparsePoints].relObsBaseline = f->maxRelBaseline;
+			pc[numSparsePoints].numGoodRes = 0;		//没用
+			pc[numSparsePoints].status = 1;			//0不显示,1或2显示
+			numSparsePoints++;
+		}
+	}
+
+	assert(numSparsePoints <= npoints);
+
+	camToWorld = fh->camToWorldOpti;
+	needRefresh = true;
 }
 
 void KeyFrameDisplay::setFromKF(FrameHessian* fh, CalibHessian* HCalib)
@@ -219,6 +280,7 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH, in
 	Vec3b* tmpColorBuffer = new Vec3b[numSparsePoints * patternNum];
 	int vertexBufferNumPoints = 0;
 
+	//my_displayMode =1
 	for (int i = 0; i < numSparsePoints; i++)
 	{
 		/* display modes:
@@ -247,7 +309,6 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH, in
 
 		if (originalInputSparse[i].relObsBaseline < my_minRelBS)
 			continue;
-
 
 		for (int pnt = 0; pnt < patternNum; pnt++)
 		{
@@ -385,20 +446,74 @@ void KeyFrameDisplay::drawGTCam(Sophus::Matrix4f m, float lineWidth, float* colo
 	glEnd();
 	glPopMatrix();
 }
+void KeyFrameDisplay::drawCamOpt(float lineWidth, float* color, float sizeFactor, bool drawOrig)
+{
+	if (width == 0)
+		return;
 
+	// if(originFrame)
+	// 	camToWorld=originFrame->camToWorldOpti;
+
+	float sz = sizeFactor;
+
+	glPushMatrix();
+
+
+	Sophus::Matrix4f m = camToWorld.matrix().cast<float>();
+	glMultMatrixf((GLfloat*)m.data());
+
+	if (color == 0)
+	{
+		glColor3f(1, 0, 0);
+	}
+	else
+		glColor3f(color[0], color[1], color[2]);
+
+	glLineWidth(lineWidth);
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, 0);
+	glVertex3f(sz * (0 - cx) / fx, sz * (0 - cy) / fy, sz);
+	glVertex3f(0, 0, 0);
+	glVertex3f(sz * (0 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+	glVertex3f(0, 0, 0);
+	glVertex3f(sz * (width - 1 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+	glVertex3f(0, 0, 0);
+	glVertex3f(sz * (width - 1 - cx) / fx, sz * (0 - cy) / fy, sz);
+
+	glVertex3f(sz * (width - 1 - cx) / fx, sz * (0 - cy) / fy, sz);
+	glVertex3f(sz * (width - 1 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+
+	glVertex3f(sz * (width - 1 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+	glVertex3f(sz * (0 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+
+	glVertex3f(sz * (0 - cx) / fx, sz * (height - 1 - cy) / fy, sz);
+	glVertex3f(sz * (0 - cx) / fx, sz * (0 - cy) / fy, sz);
+
+	glVertex3f(sz * (0 - cx) / fx, sz * (0 - cy) / fy, sz);
+	glVertex3f(sz * (width - 1 - cx) / fx, sz * (0 - cy) / fy, sz);
+
+	glEnd();
+	glPopMatrix();
+}
 void KeyFrameDisplay::drawCam(float lineWidth, float* color, float sizeFactor, bool drawOrig)
 {
 	if (width == 0)
 		return;
 
-        //画原始位姿
-        if (drawOrig && originFrame)
-        {
-            	camToWorld = originFrame->camToWorld;
+	// if(originFrame)
+	// 	camToWorld=originFrame->camToWorldOpti;
+
+	else
+	{
+	        //画原始位姿
+	        if (drawOrig && originFrameShell)
+	        {
+	            	camToWorld = originFrameShell->camToWorld;
+	        }
+	        // // //画优化后的位姿
+	        else if (drawOrig == false && originFrameShell)
+	            camToWorld = originFrameShell->camToWorldOpti;
         }
-        // // //画优化后的位姿
-        else if (drawOrig == false && originFrame)
-            camToWorld = originFrame->camToWorldOpti;
 
 	float sz = sizeFactor;
 
@@ -453,7 +568,6 @@ void KeyFrameDisplay::drawPC(float pointSize)
 
 	if (!bufferValid || numGLBufferGoodPoints == 0)
 		return;
-
 
 	glDisable(GL_LIGHTING);
 

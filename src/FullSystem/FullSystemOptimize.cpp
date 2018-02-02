@@ -291,6 +291,13 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 
 				//设置逆深度
 				ph->setIdepth(ph->idepth_backup + step);
+
+				// if (ph->feaMode)
+				// {
+				// 	ph->mF->_status = Feature::ACTIVE_IDEPTH;
+				// 	ph->mF->idepth = ph->idepth_backup + step;
+				// }
+
 				sumID += step * step;
 				sumNID += fabsf(ph->idepth_backup);
 				numID++;
@@ -313,6 +320,14 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 			for (PointHessian* ph : fh->pointHessians)
 			{
 				ph->setIdepth(ph->idepth_backup + stepfacD * ph->step);
+
+				// if (ph->feaMode)
+				// {
+				// 	ph->mF->_status = Feature::ACTIVE_IDEPTH;
+				// 	ph->mF->idepth = ph->idepth_backup + stepfacD * ph->step;
+				// }
+
+
 				sumID += ph->step * ph->step;
 				sumNID += fabsf(ph->idepth_backup);
 				numID++;
@@ -425,6 +440,13 @@ void FullSystem::loadSateBackup()
 			//设置逆深度
 			ph->setIdepth(ph->idepth_backup);
 			ph->setIdepthZero(ph->idepth_backup);
+
+			// if (ph->feaMode)
+			// {
+			// 	ph->mF->_status = Feature::ACTIVE_IDEPTH;
+			// 	ph->mF->idepth = ph->idepth_backup;
+			// }
+
 		}
 
 	}
@@ -728,8 +750,8 @@ void FullSystem::removeOutliers()
 			{
 				fh->pointHessiansOut.push_back(ph);
 				ph->setPointStatus(PointHessian::OUTLIER);
-				if(ph->feaMode)
-					ph->mF->_status=Feature::OUTLIER;
+				if (ph->feaMode)
+					ph->mF->_status = Feature::OUTLIER;
 
 				ph->efPoint->stateFlag = EFPointStatus::PS_DROP;
 				fh->pointHessians[i] = fh->pointHessians.back();

@@ -38,10 +38,17 @@ namespace fdso
 class CalibHessian;
 class FrameHessian;
 class FrameShell;
+class Frame;
 
 namespace IOWrap
 {
 
+/**
+ * @brief      { struct_description }
+ *
+ * @tparam     ppp   { description }
+ * 输入点云
+ */
 template<int ppp>
 struct InputPointSparse
 {
@@ -55,6 +62,10 @@ struct InputPointSparse
 	unsigned char status;
 };
 
+/**
+ * @brief      { struct_description }
+ * 边
+ */
 struct MyVertex
 {
 	float point[3];
@@ -74,15 +85,19 @@ public:
 	// keeping some additional information so we can render it differently.
 	void setFromKF(FrameHessian* fh, CalibHessian* HCalib);
 
+	void setFromKF(Frame* fh, CalibHessian* HCalib);
+
 	// copies points from KF over to internal buffer,
 	// keeping some additional information so we can render it differently.
 	void setFromF(FrameShell* fs, CalibHessian* HCalib);
+	void setFromF(Frame* frame, CalibHessian* HCalib);
 
 	// copies & filters internal data to GL buffer for rendering. if nothing to do: does nothing.
 	bool refreshPC(bool canRefresh, float scaledTH, float absTH, int mode, float minBS, int sparsity);
 
 	// renders cam & pointcloud.
 	void drawCam(float lineWidth = 1, float* color = 0, float sizeFactor = 1,bool drawOrig=true);
+	void drawCamOpt(float lineWidth = 1, float* color = 0, float sizeFactor = 1,bool drawOrig=true);
 	void drawPC(float pointSize);
 
 	// render ground truth
@@ -103,7 +118,8 @@ private:
 	float fxi, fyi, cxi, cyi;
 	int width, height;
 
-	FrameShell* originFrame;
+	FrameShell* originFrameShell;
+	Frame* originFrame;
 
 	float my_scaledTH, my_absTH, my_scale;
 	int my_sparsifyFactor;

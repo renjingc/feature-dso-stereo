@@ -38,8 +38,8 @@
 
 namespace fdso
 {
-struct FrameHessian;
-struct PointHessian;
+class FrameHessian;
+class PointHessian;
 
 /**
  * @brief      Class for frame shell.

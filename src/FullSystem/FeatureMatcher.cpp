@@ -260,6 +260,179 @@ int FeatureMatcher::SearchForTriangulation (
 
 // 利用 Bag of Words 加速匹配
 int FeatureMatcher::SearchByBoW(
+    Frame* kf1,
+    Frame* kf2,
+    std::vector<cv::DMatch> &matches )
+{
+    if (kf1->_bow_vec.empty() || kf2->_bow_vec.empty())
+        return 0;
+
+    DBoW2::FeatureVector& fv1 = kf1->_feature_vec;
+    DBoW2::FeatureVector& fv2 = kf2->_feature_vec;
+
+//    std::cout<<"featureVector: "<<fv1.size()<<" "<<fv2.size()<<std::endl;
+
+    int cnt_matches = 0;
+
+    std::vector<int> rotHist[HISTO_LENGTH]; // rotation 的统计直方图
+    for ( int i = 0; i < HISTO_LENGTH; i++ )
+        rotHist[i].reserve(500);
+    float factor = 1.0f / HISTO_LENGTH;
+
+    DBoW2::FeatureVector::const_iterator f1it = fv1.begin();
+    DBoW2::FeatureVector::const_iterator f2it = fv2.begin();
+    DBoW2::FeatureVector::const_iterator f1end = fv1.end();
+    DBoW2::FeatureVector::const_iterator f2end = fv2.end();
+
+    while ( f1it != f1end && f2it != f2end ) {
+        if ( f1it->first == f2it->first ) {
+            const std::vector<unsigned int> indices_f1 = f1it->second;
+            const std::vector<unsigned int> indices_f2 = f2it->second;
+
+            // 遍历 f1 中该 node 的特征点
+            for ( size_t if1 = 0; if1 < indices_f1.size(); if1++ ) {
+                const unsigned int real_idx_f1 = indices_f1[if1];
+                cv::Mat desp_f1 = kf1->_features[real_idx_f1]->_desc;
+                int bestDist1 = 256;  // 最好的距离
+                int bestIdxF2 = -1;
+                int bestDist2 = 256;  // 第二好的距离
+
+                for ( size_t if2 = 0; if2 < indices_f2.size(); if2++) {
+                    const unsigned int real_idx_f2 = indices_f2[if2];
+                    const cv::Mat& desp_f2 = kf2->_features[real_idx_f2]->_desc;
+                    const int dist = DescriptorDistance( desp_f1, desp_f2 );
+                    if ( dist < bestDist1 ) {
+                        bestDist2 = bestDist1;
+                        bestDist1 = dist;
+                        bestIdxF2 = real_idx_f2;
+                    } else if ( dist < bestDist2 ) {
+                        bestDist2 = dist;
+                    }
+                }
+//                std::cout<<bestDist1<<" "<<bestDist2<<" "<<_options.th_low<<" "<<_options.knnRatio<<std::endl;
+                if ( bestDist1 < _options.th_low ) {
+                    // 最小匹配距离小于阈值
+                    if ( float(bestDist1) < _options.knnRatio * float(bestDist2) ) {
+                        // 最好的匹配明显比第二好的匹配好
+                        matches.push_back(cv::DMatch(real_idx_f1, bestIdxF2, float(bestDist1)));
+                        //matches[ real_idx_f1 ] = bestIdxF2;
+                        if ( _options.checkOrientation ) {
+                            float rot = kf1->_features[real_idx_f1]->_angle - kf2->_features[bestIdxF2]->_angle;
+                            if ( rot < 0 ) rot += 360;
+                            int bin = round(rot * factor);
+                            if ( bin == HISTO_LENGTH )
+                                bin = 0;
+                            assert( bin >= 0 &&  bin < HISTO_LENGTH );
+                            rotHist[bin].push_back( bestIdxF2 );
+                        }
+                        cnt_matches++;
+                    }
+                }
+            }
+
+            f1it++;
+            f2it++;
+
+        } else if ( f1it->first < f2it->first ) {       // f1 iterator 比较小
+            f1it = fv1.lower_bound( f2it->first );
+        } else {        // f2 iterator 比较少
+            f2it = fv2.lower_bound( f1it->first );
+        }
+    }
+
+    if ( _options.checkOrientation ) {
+        // 根据方向删除误匹配
+        int ind1 = -1;
+        int ind2 = -1;
+        int ind3 = -1;
+
+        ComputeThreeMaxima(rotHist, HISTO_LENGTH, ind1, ind2, ind3 );
+
+        for ( int i = 0; i < HISTO_LENGTH; i++ ) {
+            if ( i == ind1 || i == ind2 || i == ind3 ) // 保留之
+                continue;
+            for ( size_t j = 0; j < rotHist[i].size(); j++ ) {
+                rotHist[i][j];
+                // TODO 删掉值为 rotHist[i][j] 的匹配
+
+                cnt_matches--;
+            }
+        }
+    }
+
+//    cnt_matches = 0;
+//    std::vector<cv::DMatch> matches_tmp=matches;
+//    matches.clear();
+//    double min_dis = std::min_element( matches_tmp.begin(), matches_tmp.end(), [](const cv::DMatch & m1, const cv::DMatch & m2) {return m1.distance < m2.distance;})->distance;
+//    min_dis = min_dis < 20 ? 20 : min_dis;
+//    min_dis = min_dis > 50 ? 50 : min_dis;
+//    //LOG(INFO) << "min dis=" << min_dis << endl;
+//    for ( cv::DMatch& m : matches_tmp )
+//        if ( m.distance < 2 * min_dis)
+//        {
+//            matches.push_back(m);
+//            cnt_matches++;
+//        }
+
+    return cnt_matches;
+}
+
+void FeatureMatcher::checkUVDistance(
+    Frame* kf1,
+    Frame* kf2,
+    std::vector<cv::DMatch> &matches,
+    std::vector<cv::DMatch> &goodMatches)
+{
+    goodMatches.clear();
+    // for ( cv::DMatch& m : matches )
+    // {
+    //     cv::circle( img_show,
+    //                 cv::Point2f(kf1->_features[m.queryIdx]->_pixel[0], kf1->_features[m.queryIdx]->_pixel[1]),
+    //                 2, cv::Scalar(255, 250, 255), 2 );
+    //     cv::circle( img_show,
+    //                 cv::Point2f(kf1->image.cols + kf2->_features[m.trainIdx]->_pixel[0], kf2->_features[m.trainIdx]->_pixel[1]),
+    //                 2, cv::Scalar(255, 250, 255), 2 );
+    //     cv::line( img_show,
+    //               cv::Point2f(kf1->_features[m.queryIdx]->_pixel[0], kf1->_features[m.queryIdx]->_pixel[1]),
+    //               cv::Point2f(kf2->image.cols + kf2->_features[m.trainIdx]->_pixel[0], kf2->_features[m.trainIdx]->_pixel[1]),
+    //               cv::Scalar(255, 250, 255), 1
+    //             );
+    // }
+    // Filter Matches with Vector Field consensus (VFC)
+  // a - preprocess data format
+    vector<cv::Point2f> X;
+    vector<cv::Point2f> Y;
+    X.clear();
+    Y.clear();
+    for (unsigned int i = 0; i < matches.size(); i++)
+    {
+        int idx1 = matches[i].queryIdx;
+        int idx2 = matches[i].trainIdx;
+        X.push_back(cv::Point2f(kf1->_features[idx1]->_pixel[0],kf1->_features[idx1]->_pixel[1]));
+        Y.push_back(cv::Point2f(kf2->_features[idx2]->_pixel[0],kf2->_features[idx2]->_pixel[1]));
+    }
+
+  // b - main - vfc
+
+    VFC myvfc;
+    myvfc.setData(X, Y);
+    myvfc.optimize();
+    vector<int> matchIdx = myvfc.obtainCorrectMatch();
+
+  // c - post process
+  std::vector<cv::DMatch > correctMatches;
+  correctMatches.clear();
+  for (unsigned int i = 0; i < matchIdx.size(); i++)
+  {
+    int idx = matchIdx[i];
+    correctMatches.push_back(matches[idx]);
+    goodMatches.push_back(matches[idx]);
+  }
+}
+
+
+// 利用 Bag of Words 加速匹配
+int FeatureMatcher::SearchByBoW(
     FrameHessian* kf1,
     FrameHessian* kf2,
     std::vector<cv::DMatch> &matches )

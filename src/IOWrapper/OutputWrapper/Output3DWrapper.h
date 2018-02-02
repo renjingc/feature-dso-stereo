@@ -41,6 +41,7 @@ namespace fdso
 class FrameHessian;
 class CalibHessian;
 class FrameShell;
+class Frame;
 
 namespace IOWrap
 {
@@ -147,6 +148,7 @@ public:
          * 显示中插入关键帧
          */
         virtual void publishKeyframes(std::vector<FrameHessian*> &frames, bool final, CalibHessian* HCalib) {}
+        virtual void publishKeyframesOpt(std::vector<Frame*> &frames, bool final, CalibHessian* HCalib) {}
 
         /* Usage:
          * Called once for each tracked frame, with the real-time, low-delay frame pose.
