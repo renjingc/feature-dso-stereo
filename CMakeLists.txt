@@ -77,6 +77,7 @@ set(dso_SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/FullSystem/LoopClosing.cc
   ${PROJECT_SOURCE_DIR}/src/FullSystem/Map.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/vfc.cpp
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/Frame.cpp
 )
 
 
