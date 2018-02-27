@@ -222,6 +222,16 @@ public:
 	inline AffLight aff_g2l() const {return AffLight(get_state_scaled()[6], get_state_scaled()[7]);}
 	inline AffLight aff_g2l_0() const {return AffLight(get_state_zero()[6] * SCALE_A, get_state_zero()[7] * SCALE_B);}
 
+#if STEREO_MODE
+
+    inline AffLight aff_g2l_r() const { return AffLight(get_state_scaled()[8], get_state_scaled()[9]); }
+
+    inline AffLight aff_g2l_r_0() const {
+      return AffLight(get_state_zero()[8] * SCALE_A, get_state_zero()[9] * SCALE_B);
+    }
+
+#endif
+
 	/**
 	 * [setStateZero description]
 	 * @param state_zero [description]
@@ -290,20 +300,28 @@ public:
 		setStateZero(state);
 	};
 
-	/**
-	 * [setEvalPT_scaled description]
-	 * @param worldToCam_evalPT [description]
-	 * @param aff_g2l           [description]
-	 */
-	inline void setEvalPT_scaled(SE3 worldToCam_evalPT, AffLight aff_g2l)
-	{
-		Vec10 initial_state = Vec10::Zero();
-		initial_state[6] = aff_g2l.a;
-		initial_state[7] = aff_g2l.b;
-		this->worldToCam_evalPT = worldToCam_evalPT;
-		setStateScaled(initial_state);
-		setStateZero(this->get_state());
-	};
+#if STEREO_MODE
+
+    inline void setEvalPT_scaled(const SE3 &worldToCam_evalPT, const AffLight &aff_g2l, const AffLight &aff_g2l_r) {
+      Vec10 initial_state = Vec10::Zero();
+      initial_state[6] = aff_g2l.a;
+      initial_state[7] = aff_g2l.b;
+      initial_state[8] = aff_g2l_r.a;
+      initial_state[9] = aff_g2l_r.b;
+      this->worldToCam_evalPT = worldToCam_evalPT;
+      setStateScaled(initial_state);
+      setStateZero(this->get_state());
+    };
+#else
+    inline void setEvalPT_scaled(const SE3 &worldToCam_evalPT, const AffLight &aff_g2l) {
+      Vec10 initial_state = Vec10::Zero();
+      initial_state[6] = aff_g2l.a;
+      initial_state[7] = aff_g2l.b;
+      this->worldToCam_evalPT = worldToCam_evalPT;
+      setStateScaled(initial_state);
+      setStateZero(this->get_state());
+    };
+#endif
 
 	void release();
 
@@ -383,11 +401,43 @@ public:
 		       && pixel[1] / (1 << level) >= boarder && pixel[1] / (1 << level) < image.rows - boarder;
 	}
 
-	/**
-	 * [getPrior description]
-	 * @return [description]
-	 * 获得先验的
-	 */
+#if STEREO_MODE
+
+    inline Vec10 getPrior() {
+      Vec10 p = Vec10::Zero();
+      if (frameID == 0) {
+        p.head<3>() = Vec3::Constant(setting_initialTransPrior);
+        p.segment<3>(3) = Vec3::Constant(setting_initialRotPrior);
+        if (setting_solverMode & SOLVER_REMOVE_POSEPRIOR) p.head<6>().setZero();
+
+        p[6] = setting_initialAffAPrior;
+        p[7] = setting_initialAffBPrior;
+        p[8] = setting_initialAffAPrior;
+        p[9] = setting_initialAffBPrior;
+      }
+      else {
+        if (setting_affineOptModeA < 0) {
+          p[6] = setting_initialAffAPrior;
+          p[8] = setting_initialAffAPrior;
+        }
+        else {
+          p[6] = setting_affineOptModeA;
+          p[8] = setting_affineOptModeA;
+        }
+
+        if (setting_affineOptModeB < 0) {
+          p[7] = setting_initialAffBPrior;
+          p[9] = setting_initialAffBPrior;
+        }
+        else {
+          p[7] = setting_affineOptModeB;
+          p[9] = setting_affineOptModeB;
+        }
+      }
+      return p;
+    }
+
+#else
 	inline Vec10 getPrior()
 	{
 		Vec10 p =  Vec10::Zero();
@@ -421,6 +471,7 @@ public:
 		p[9] = setting_initialAffBPrior;
 		return p;
 	}
+#endif
 
 	/**
 	 * [getPriorZero description]

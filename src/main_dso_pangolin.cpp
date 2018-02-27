@@ -48,6 +48,7 @@
 
 #include <opencv/cv.hpp>
 #include <opencv/highgui.h>
+#include "util/IMUMeasurement.h"
 
 std::string vignette = "";
 std::string gammaCalib = "";
@@ -368,6 +369,8 @@ int main( int argc, char** argv )
   reader->setGlobalCalibration();
   reader_right->setGlobalCalibration();
 
+  double lastImuEndTimestamp = 0.0f;
+
   if (setting_photometricCalibration > 0 && reader->getPhotometricGamma() == 0)
   {
     printf("ERROR: dont't have photometric calibation. Need to use commandline options mode=1 or mode=2 ");
@@ -504,7 +507,10 @@ int main( int argc, char** argv )
 
       if (MODE_SLAM)
       {
-        if (!skipFrame) fullSystem->addActiveFrame(img_left, img_right, i);
+        std::vector<IMUMeasurement> imuMeasurements;
+        lastImuEndTimestamp = img_left->timestamp;
+//        std::cout << imuMeasurements.size() << std::endl;
+        if (!skipFrame) fullSystem->addActiveFrame(img_left, img_right,imuMeasurements, i);
       }
 
       if (MODE_STEREOMATCH)

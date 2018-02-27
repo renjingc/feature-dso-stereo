@@ -43,6 +43,8 @@ float wM3G;
 float hM3G;
 
 float baseline;
+SE3 T_SC0;
+IMUParameters imuParameters;
 
 void setGlobalCalib(int w, int h, Eigen::Matrix3f K)
 {
@@ -106,5 +108,29 @@ void setGlobalCalib(int w, int h, Eigen::Matrix3f K)
 	}
 }
 
+void setGlobalIMUCalib()
+{
+	Mat44 T;
+	T << 0.0148655429818, -0.999880929698, 0.00414029679422, -0.0216401454975,
+	0.999557249008, 0.0149672133247, 0.025715529948, -0.064676986768,
+	-0.0257744366974, 0.00375618835797, 0.999660727178, 0.00981073058949,
+	0.0, 0.0, 0.0, 1.0;
+	T_SC0.setRotationMatrix(T.topLeftCorner(3, 3));
+	T_SC0.translation() = T.topRightCorner(3, 1);
+
+	imuParameters.a_max = 176.0; // # acceleration saturation [m/s^2]
+	imuParameters.g_max = 7.8; // # gyro saturation [rad/s]
+	imuParameters.sigma_g_c = 12.0e-4; // # gyro noise density [rad/s/sqrt(Hz)]
+	imuParameters.sigma_a_c = 8.0e-3; // # accelerometer noise density [m/s^2/sqrt(Hz)]
+	imuParameters.sigma_bg = 0.03; // # gyro bias prior [rad/s]
+	imuParameters.sigma_ba = 0.1; // # accelerometer bias prior [m/s^2]
+	imuParameters.sigma_gw_c = 4.0e-6; // # gyro drift noise density [rad/s^s/sqrt(Hz)]
+	imuParameters.sigma_aw_c = 4.0e-5; // # accelerometer drift noise density [m/s^2/sqrt(Hz)]
+	imuParameters.tau = 3600.0; // # reversion time constant, currently not in use [s]
+	imuParameters.g = 9.81007; // # Earth's acceleration due to gravity [m/s^2]
+	imuParameters.a0 << 0.0, 0.0, 0.0; // # Accelerometer bias [m/s^2]
+	imuParameters.rate = 200;
+	imuParameters.T_BS = SE3();
+}
 
 }

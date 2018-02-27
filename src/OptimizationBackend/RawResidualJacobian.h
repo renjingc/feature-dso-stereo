@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -24,8 +24,9 @@
 
 #pragma once
 
- 
+
 #include "util/NumType.h"
+#include "util/settings.h"
 
 namespace fdso
 {
@@ -51,15 +52,33 @@ struct RawResidualJacobian
 
 	// = the two columns of d[r] / d[ab]
 	//光学部分之光度参数 Jab,使用模式残差的
-	EIGEN_ALIGN16 VecNRf JabF[2];			// 9x2
+#if STEREO_MODE
+	// = the two columns of d[r] / d[ab]. Includes rightFrame ab.
+	VecNRf JabF[4];      // 8x4
+#else
+	// = the two columns of d[r] / d[ab]
+	VecNRf JabF[2];      // 8x2
+#endif
 
 
 	// = JIdx^T * JIdx (inner product). Only as a shorthand.
 	EIGEN_ALIGN16 Mat22f JIdx2;				// 2x2
+
+
+#if STEREO_MODE
+	//- = Jab^T * JIdx (innter product). Only as a shorhand. Includes rightFrame ab.
+	Mat42f JabJIdx;
+#else
 	// = Jab^T * JIdx (inner product). Only as a shorthand.
-	EIGEN_ALIGN16 Mat22f JabJIdx;			// 2x2
+	Mat22f JabJIdx;      // 2x2
+#endif
+#if STEREO_MODE
+	// = Jab^T * Jab (inner product). Only as a shorthand. Includes rightFrame ab.
+	Mat44f Jab2;      // 4x4
+#else
 	// = Jab^T * Jab (inner product). Only as a shorthand.
-	EIGEN_ALIGN16 Mat22f Jab2;			// 2x2
+	Mat22f Jab2;      // 2x2
+#endif
 
 };
 }

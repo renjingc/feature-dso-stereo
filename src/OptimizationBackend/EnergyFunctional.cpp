@@ -32,7 +32,9 @@
 #include "OptimizationBackend/AccumulatedSCHessian.h"
 #include "OptimizationBackend/AccumulatedTopHessian.h"
 
-
+// #if !defined(__SSE3__) && !defined(__SSE2__) && !defined(__SSE1__)
+// #include "SSE2NEON.h"
+// #endif
 
 namespace fdso
 {
@@ -42,7 +44,103 @@ bool EFAdjointsValid = false;
 bool EFIndicesValid = false;
 bool EFDeltaValid = false;
 
+#if STEREO_MODE
 
+void EnergyFunctional::setAdjointsF(CalibHessian *Hcalib) {
+
+	if (adHost != 0) delete[] adHost;
+	if (adTarget != 0) delete[] adTarget;
+	adHost = new Mat1010[nFrames * nFrames];
+	adTarget = new Mat1010[nFrames * nFrames];
+
+	for (int h = 0; h < nFrames; h++)
+		for (int t = 0; t < nFrames; t++) {
+			FrameHessian *host = frames[h]->data;
+			FrameHessian *target = frames[t]->data;
+
+			SE3 hostToTarget = target->get_worldToCam_evalPT() * host->get_worldToCam_evalPT().inverse();
+
+			Mat1010 AH = Mat1010::Identity();
+			Mat1010 AT = Mat1010::Identity();
+
+			AH.topLeftCorner<6, 6>() = -hostToTarget.Adj().transpose();
+			AT.topLeftCorner<6, 6>() = Mat66::Identity();
+
+
+			Vec2f affLL = AffLight::fromToVecExposure(host->ab_exposure, target->ab_exposure, host->aff_g2l_0(),
+			              target->aff_g2l_0()).cast<float>();
+			//- original
+//        AT(6, 6) = -affLL[0];
+//        AH(6, 6) = affLL[0];
+//        AT(7, 7) = -1;
+//        AH(7, 7) = affLL[0];
+
+#if STEREO_MODE
+			if (t == h) {
+				AT(6, 6) = 0;
+				AH(6, 6) = affLL[0];
+				AT(7, 7) = 0;
+				AH(7, 7) = 0;
+
+				AT(8, 8) = -affLL[0];
+				AH(8, 8) = 0;
+				AT(9, 9) = -1;
+				AH(9, 9) = 0;
+			}
+			else {
+				AT(6, 6) = -affLL[0];
+				AH(6, 6) = affLL[0];
+				AT(7, 7) = -1;
+				AH(7, 7) = 0;
+
+				AT(8, 8) = 0;
+				AH(8, 8) = 0;
+				AT(9, 9) = 0;
+				AH(9, 9) = 0;
+			}
+#else
+			AT(6, 6) = -affLL[0];
+			AH(6, 6) = affLL[0];
+			AT(7, 7) = -1;
+			AH(7, 7) = 0;
+#endif
+			AH.block<3, 10>(0, 0) *= SCALE_XI_TRANS;
+			AH.block<3, 10>(3, 0) *= SCALE_XI_ROT;
+			AH.block<1, 10>(6, 0) *= SCALE_A;
+			AH.block<1, 10>(7, 0) *= SCALE_B;
+			AH.block<1, 10>(8, 0) *= SCALE_A;
+			AH.block<1, 10>(9, 0) *= SCALE_B;
+			AT.block<3, 10>(0, 0) *= SCALE_XI_TRANS;
+			AT.block<3, 10>(3, 0) *= SCALE_XI_ROT;
+			AT.block<1, 10>(6, 0) *= SCALE_A;
+			AT.block<1, 10>(7, 0) *= SCALE_B;
+			AT.block<1, 10>(8, 0) *= SCALE_A;
+			AT.block<1, 10>(9, 0) *= SCALE_B;
+
+			adHost[h + t * nFrames] = AH;
+			adTarget[h + t * nFrames] = AT;
+		}
+	cPrior = VecC::Constant(setting_initialCalibHessian);
+
+
+	if (adHostF != 0) delete[] adHostF;
+	if (adTargetF != 0) delete[] adTargetF;
+	adHostF = new Mat1010f[nFrames * nFrames];
+	adTargetF = new Mat1010f[nFrames * nFrames];
+
+	for (int h = 0; h < nFrames; h++)
+		for (int t = 0; t < nFrames; t++) {
+			adHostF[h + t * nFrames] = adHost[h + t * nFrames].cast<float>();
+			adTargetF[h + t * nFrames] = adTarget[h + t * nFrames].cast<float>();
+		}
+
+	cPriorF = cPrior.cast<float>();
+
+
+	EFAdjointsValid = true;
+}
+
+#else
 void EnergyFunctional::setAdjointsF(CalibHessian *Hcalib) {
 
 	if (adHost != 0) delete[] adHost;
@@ -102,7 +200,7 @@ void EnergyFunctional::setAdjointsF(CalibHessian *Hcalib) {
 
 	EFAdjointsValid = true;
 }
-
+#endif
 
 EnergyFunctional::EnergyFunctional() {
 	adHost = 0;
@@ -157,7 +255,32 @@ EnergyFunctional::~EnergyFunctional() {
 	delete accSSE_bot;
 }
 
+#if STEREO_MODE
 
+void EnergyFunctional::setDeltaF(CalibHessian *HCalib) {
+	if (adHTdeltaF != 0) delete[] adHTdeltaF;
+	adHTdeltaF = new Mat110f[nFrames * nFrames];
+	for (int h = 0; h < nFrames; h++)
+		for (int t = 0; t < nFrames; t++) {
+			int idx = h + t * nFrames;
+			adHTdeltaF[idx] =
+			  frames[h]->data->get_state_minus_stateZero().head<10>().cast<float>().transpose() * adHostF[idx]
+			  + frames[t]->data->get_state_minus_stateZero().head<10>().cast<float>().transpose() * adTargetF[idx];
+		}
+
+	cDeltaF = HCalib->value_minus_value_zero.cast<float>();
+	for (EFFrame *f : frames) {
+		f->delta = f->data->get_state_minus_stateZero().head<10>();
+		f->delta_prior = (f->data->get_state() - f->data->getPriorZero()).head<10>();
+
+		for (EFPoint *p : f->points)
+			p->deltaF = p->data->idepth - p->data->idepth_zero;
+	}
+
+	EFDeltaValid = true;
+}
+
+#else
 void EnergyFunctional::setDeltaF(CalibHessian *HCalib) {
 	if (adHTdeltaF != 0) delete[] adHTdeltaF;
 	adHTdeltaF = new Mat18f[nFrames * nFrames];
@@ -180,6 +303,7 @@ void EnergyFunctional::setDeltaF(CalibHessian *HCalib) {
 
 	EFDeltaValid = true;
 }
+#endif
 
 // accumulates & shifts L.
 void EnergyFunctional::accumulateAF_MT(MatXX &H, VecX &b, bool MT) {
@@ -238,25 +362,39 @@ void EnergyFunctional::accumulateSCF_MT(MatXX &H, VecX &b, bool MT) {
 }
 
 void EnergyFunctional::resubstituteF_MT(VecX x, CalibHessian *HCalib, bool MT) {
+#if STEREO_MODE
+	assert(x.size() == CPARS + nFrames * 10);
+#else
 	assert(x.size() == CPARS + nFrames * 8);
+#endif
 
 	VecXf xF = x.cast<float>();
 	HCalib->step = -x.head<CPARS>();
 
-	Mat18f *xAd = new Mat18f[nFrames * nFrames];
 	VecCf cstep = xF.head<CPARS>();
+
+#if STEREO_MODE
+	Mat110f *xAd = new Mat110f[nFrames * nFrames];
+	for (EFFrame *h : frames) {
+		h->data->step = -x.segment<10>(CPARS + 10 * h->idx);
+
+		for (EFFrame *t : frames)
+			xAd[nFrames * h->idx + t->idx] =
+			  xF.segment<10>(CPARS + 10 * h->idx).transpose() * adHostF[h->idx + nFrames * t->idx]
+			  + xF.segment<10>(CPARS + 10 * t->idx).transpose() * adTargetF[h->idx + nFrames * t->idx];
+	}
+#else
+	Mat18f *xAd = new Mat18f[nFrames * nFrames];
 	for (EFFrame *h : frames) {
 		h->data->step.head<8>() = -x.segment<8>(CPARS + 8 * h->idx);
 		h->data->step.tail<2>().setZero();
-
-//      h->data->rightFrame->step.head<8>() = -x.segment<8>(CPARS + 8 * h->idx);
-//      h->data->rightFrame->step.tail<2>().setZero();
 
 		for (EFFrame *t : frames)
 			xAd[nFrames * h->idx + t->idx] =
 			  xF.segment<8>(CPARS + 8 * h->idx).transpose() * adHostF[h->idx + nFrames * t->idx]
 			  + xF.segment<8>(CPARS + 8 * t->idx).transpose() * adTargetF[h->idx + nFrames * t->idx];
 	}
+#endif
 
 	if (MT)
 		red->reduce(boost::bind(&EnergyFunctional::resubstituteFPt,
@@ -267,6 +405,56 @@ void EnergyFunctional::resubstituteF_MT(VecX x, CalibHessian *HCalib, bool MT) {
 	delete[] xAd;
 }
 
+#if STEREO_MODE
+void EnergyFunctional::resubstituteFPt(
+  const VecCf &xc, Mat110f *xAd, int min, int max, Vec10 *stats, int tid) {
+	for (int k = min; k < max; k++) {
+		EFPoint *p = allPoints[k];
+
+		int ngoodres = 0;
+		for (EFResidual *r : p->residualsAll) if (r->isActive()) ngoodres++;
+		if (ngoodres == 0) {
+			p->data->step = 0;
+			continue;
+		}
+//      std::cout << "p->bdSumF: " << p->bdSumF << std::endl;
+//      std::cout << "p->Hcd_accAF: " << p->Hcd_accAF << std::endl;
+//      std::cout << "p->Hcd_accLF: " << p->Hcd_accLF << std::endl;
+//      std::cout << "xc: " << xc << std::endl;
+//      std::cout << "p->HdiF: " << p->HdiF << std::endl;
+
+		float b = p->bdSumF;
+		//- original I think this code snippet is wrong.
+//      b -= xc.dot(p->Hcd_accAF + p->Hcd_accLF);
+//
+//      for (EFResidual *r : p->residualsAll) {
+//        if (!r->isActive()) continue;
+//        if (r->targetIDX == -1) { //- static stereo residual
+//          b -= xAd[r->hostIDX * nFrames + r->hostIDX] * r->JpJdF;
+//        }
+//        else {
+//          b -= xAd[r->hostIDX * nFrames + r->targetIDX] * r->JpJdF;
+//        }
+//      }
+
+		b += xc.dot(p->Hcd_accAF + p->Hcd_accLF);
+
+		for (EFResidual *r : p->residualsAll) {
+			if (!r->isActive()) continue;
+			if (r->targetIDX == -1) { //- static stereo residual
+				b += xAd[r->hostIDX * nFrames + r->hostIDX] * r->JpJdF;
+			}
+			else {
+				b += xAd[r->hostIDX * nFrames + r->targetIDX] * r->JpJdF;
+			}
+		}
+
+		p->data->step = -b * p->HdiF;
+		assert(std::isfinite(p->data->step));
+	}
+}
+
+#else
 void EnergyFunctional::resubstituteFPt(
   const VecCf &xc, Mat18f *xAd, int min, int max, Vec10 *stats, int tid) {
 	for (int k = min; k < max; k++) {
@@ -292,10 +480,10 @@ void EnergyFunctional::resubstituteFPt(
 		}
 
 		p->data->step = -b * p->HdiF;
-		assert(std::isfinite(p->data->step));
+		// assert(std::isfinite(p->data->step));
 	}
 }
-
+#endif
 
 double EnergyFunctional::calcMEnergyF() {
 
@@ -307,7 +495,77 @@ double EnergyFunctional::calcMEnergyF() {
 	return delta.dot(2 * bM + HM * delta);
 }
 
+#if STEREO_MODE
 
+void EnergyFunctional::calcLEnergyPt(int min, int max, Vec10 *stats, int tid) {
+
+	Accumulator1 E;
+	E.initialize();
+	VecCf dc = cDeltaF;
+
+	for (int i = min; i < max; i++) {
+		EFPoint *p = allPoints[i];
+		float dd = p->deltaF;
+
+		for (EFResidual *r : p->residualsAll) {
+			if (!r->isLinearized || !r->isActive()) continue;
+
+			Mat110f dp;
+			if (r->targetIDX == -1) { //- static stereo residual
+				dp = adHTdeltaF[r->hostIDX + nFrames * r->hostIDX];
+			}
+			else { //- temporal stereo residual
+				dp = adHTdeltaF[r->hostIDX + nFrames * r->targetIDX];
+			}
+			RawResidualJacobian *rJ = r->J;
+
+
+
+			// compute Jp*delta
+			float Jp_delta_x_1 = rJ->Jpdxi[0].dot(dp.head<6>())
+			                     + rJ->Jpdc[0].dot(dc)
+			                     + rJ->Jpdd[0] * dd;
+
+			float Jp_delta_y_1 = rJ->Jpdxi[1].dot(dp.head<6>())
+			                     + rJ->Jpdc[1].dot(dc)
+			                     + rJ->Jpdd[1] * dd;
+
+			__m128 Jp_delta_x = _mm_set1_ps(Jp_delta_x_1);
+			__m128 Jp_delta_y = _mm_set1_ps(Jp_delta_y_1);
+			__m128 delta_a = _mm_set1_ps((float) (dp[6]));
+			__m128 delta_b = _mm_set1_ps((float) (dp[7]));
+			__m128 delta_a_r = _mm_set1_ps((float) (dp[8]));
+			__m128 delta_b_r = _mm_set1_ps((float) (dp[9]));
+
+			for (int i = 0; i + 3 < patternNum; i += 4) {
+				// PATTERN: E = (2*res_toZeroF + J*delta) * J*delta.
+				__m128 Jdelta = _mm_mul_ps(_mm_load_ps(((float *) (rJ->JIdx)) + i), Jp_delta_x);
+				Jdelta = _mm_add_ps(Jdelta, _mm_mul_ps(_mm_load_ps(((float *) (rJ->JIdx + 1)) + i), Jp_delta_y));
+				Jdelta = _mm_add_ps(Jdelta, _mm_mul_ps(_mm_load_ps(((float *) (rJ->JabF)) + i), delta_a));
+				Jdelta = _mm_add_ps(Jdelta, _mm_mul_ps(_mm_load_ps(((float *) (rJ->JabF + 1)) + i), delta_b));
+				Jdelta = _mm_add_ps(Jdelta, _mm_mul_ps(_mm_load_ps(((float *) (rJ->JabF + 2)) + i), delta_a_r));
+				Jdelta = _mm_add_ps(Jdelta, _mm_mul_ps(_mm_load_ps(((float *) (rJ->JabF + 3)) + i), delta_b_r));
+
+				__m128 r0 = _mm_load_ps(((float *) &r->res_toZeroF) + i);
+				r0 = _mm_add_ps(r0, r0);
+				r0 = _mm_add_ps(r0, Jdelta);
+				Jdelta = _mm_mul_ps(Jdelta, r0);
+				E.updateSSENoShift(Jdelta);
+			}
+			for (int i = ((patternNum >> 2) << 2); i < patternNum; i++) {
+				float Jdelta = rJ->JIdx[0][i] * Jp_delta_x_1 + rJ->JIdx[1][i] * Jp_delta_y_1 +
+				               rJ->JabF[0][i] * dp[6] + rJ->JabF[1][i] * dp[7] +
+				               rJ->JabF[1][i] * dp[8] + rJ->JabF[3][i] * dp[9];
+				E.updateSingleNoShift((float) (Jdelta * (Jdelta + 2 * r->res_toZeroF[i])));
+			}
+		}
+		E.updateSingle(p->deltaF * p->deltaF * p->priorF);
+	}
+	E.finish();
+	(*stats)[0] += E.A;
+}
+
+#else
 void EnergyFunctional::calcLEnergyPt(int min, int max, Vec10 *stats, int tid) {
 
 	Accumulator11 E;
@@ -371,6 +629,7 @@ void EnergyFunctional::calcLEnergyPt(int min, int max, Vec10 *stats, int tid) {
 	E.finish();
 	(*stats)[0] += E.A;
 }
+#endif
 
 
 double EnergyFunctional::calcLEnergyF_MT() {
@@ -422,12 +681,21 @@ EFFrame *EnergyFunctional::insertFrame(FrameHessian* fh, CalibHessian *Hcalib) {
 	nFrames++;
 	fh->efFrame = eff;
 
+#if STEREO_MODE
+	assert(HM.cols() == 10 * nFrames + CPARS - 10);
+	bM.conservativeResize(10 * nFrames + CPARS);
+	HM.conservativeResize(10 * nFrames + CPARS, 10 * nFrames + CPARS);
+	bM.tail<10>().setZero();
+	HM.rightCols<10>().setZero();
+	HM.bottomRows<10>().setZero();
+#else
 	assert(HM.cols() == 8 * nFrames + CPARS - 8);
 	bM.conservativeResize(8 * nFrames + CPARS);
 	HM.conservativeResize(8 * nFrames + CPARS, 8 * nFrames + CPARS);
 	bM.tail<8>().setZero();
 	HM.rightCols<8>().setZero();
 	HM.bottomRows<8>().setZero();
+#endif
 
 	EFIndicesValid = false;
 	EFAdjointsValid = false;
@@ -485,6 +753,117 @@ void EnergyFunctional::dropResidual(EFResidual *r) {
 	delete r;
 }
 
+#if STEREO_MODE
+
+void EnergyFunctional::marginalizeFrame(EFFrame *efF) {
+
+	assert(EFDeltaValid);
+	assert(EFAdjointsValid);
+	assert(EFIndicesValid);
+
+	assert((int) efF->points.size() == 0);
+	int ndim = nFrames * 10 + CPARS - 10;// new dimension
+	int odim = nFrames * 10 + CPARS;// old dimension
+
+//	VecX eigenvaluesPre = HM.eigenvalues().real();
+//	std::sort(eigenvaluesPre.data(), eigenvaluesPre.data()+eigenvaluesPre.size());
+//
+
+//  printf("bM.size(): %ld, %ld\n", bM.rows(), bM.cols());
+//  printf("HM.size(): %ld, %ld\n", HM.rows(), HM.cols());
+
+	if ((int) efF->idx != (int) frames.size() - 1) {
+		int io = efF->idx * 10 + CPARS;  // index of frame to move to end
+		int ntail = 10 * (nFrames - efF->idx - 1);
+		assert((io + 10 + ntail) == nFrames * 10 + CPARS);
+
+		Vec10 bTmp = bM.segment<10>(io);
+		VecX tailTMP = bM.tail(ntail);
+		bM.segment(io, ntail) = tailTMP;
+		bM.tail<10>() = bTmp;
+
+		MatXX HtmpCol = HM.block(0, io, odim, 10);
+		MatXX rightColsTmp = HM.rightCols(ntail);
+		HM.block(0, io, odim, ntail) = rightColsTmp;
+		HM.rightCols(10) = HtmpCol;
+
+		MatXX HtmpRow = HM.block(io, 0, 10, odim);
+		MatXX botRowsTmp = HM.bottomRows(ntail);
+		HM.block(io, 0, ntail, odim) = botRowsTmp;
+		HM.bottomRows(10) = HtmpRow;
+	}
+
+//	// marginalize. First add prior here, instead of to active.
+	HM.bottomRightCorner<10, 10>().diagonal() += efF->prior;
+	bM.tail<10>() += efF->prior.cwiseProduct(efF->delta_prior);
+
+//	std::cout << std::setprecision(16) << "HMPre:\n" << HM << "\n\n";
+
+	VecX SVec = (HM.diagonal().cwiseAbs() + VecX::Constant(HM.cols(), 10)).cwiseSqrt();
+	VecX SVecI = SVec.cwiseInverse();
+//	printf("SVec.size(): %ld, %ld\n", SVec.rows(), SVec.cols());
+
+//	std::cout << std::setprecision(16) << "SVec: " << SVec.transpose() << "\n\n";
+//	std::cout << std::setprecision(16) << "SVecI: " << SVecI.transpose() << "\n\n";
+
+	// scale!
+	MatXX HMScaled = SVecI.asDiagonal() * HM * SVecI.asDiagonal();
+	VecX bMScaled = SVecI.asDiagonal() * bM;
+
+	// invert bottom part!
+	Mat1010 hpi = HMScaled.bottomRightCorner<10, 10>();
+	hpi = 0.5f * (hpi + hpi);
+//    std::cout << "hpi: " << hpi << std::endl;
+	hpi = hpi.inverse();
+//    std::cout << "hpi: " << hpi << std::endl;
+	hpi = 0.5f * (hpi + hpi);
+
+	// schur-complement!
+	MatXX bli = HMScaled.bottomLeftCorner(10, ndim).transpose() * hpi;
+	HMScaled.topLeftCorner(ndim, ndim).noalias() -= bli * HMScaled.bottomLeftCorner(10, ndim);
+	bMScaled.head(ndim).noalias() -= bli * bMScaled.tail<10>();
+
+	//unscale!
+	HMScaled = SVec.asDiagonal() * HMScaled * SVec.asDiagonal();
+	bMScaled = SVec.asDiagonal() * bMScaled;
+
+	// set.
+	HM = 0.5 * (HMScaled.topLeftCorner(ndim, ndim) + HMScaled.topLeftCorner(ndim, ndim).transpose());
+	bM = bMScaled.head(ndim);
+
+	assert(std::isfinite(bM.norm()));
+
+	// remove from vector, without changing the order!
+	for (unsigned int i = efF->idx; i + 1 < frames.size(); i++) {
+		frames[i] = frames[i + 1];
+		frames[i]->idx = i;
+	}
+	frames.pop_back();
+	nFrames--;
+	efF->data->efFrame = 0;
+
+	assert((int) frames.size() * 10 + CPARS == (int) HM.rows());
+	assert((int) frames.size() * 10 + CPARS == (int) HM.cols());
+	assert((int) frames.size() * 10 + CPARS == (int) bM.size());
+	assert((int) frames.size() == (int) nFrames);
+
+//	VecX eigenvaluesPost = HM.eigenvalues().real();
+//	std::sort(eigenvaluesPost.data(), eigenvaluesPost.data()+eigenvaluesPost.size());
+
+//	std::cout << std::setprecision(16) << "HMPost:\n" << HM << "\n\n";
+
+//	std::cout << "EigPre:: " << eigenvaluesPre.transpose() << "\n";
+//	std::cout << "EigPost: " << eigenvaluesPost.transpose() << "\n";
+
+	EFIndicesValid = false;
+	EFAdjointsValid = false;
+	EFDeltaValid = false;
+
+	makeIDX();
+	delete efF;
+}
+
+#else
 void EnergyFunctional::marginalizeFrame(EFFrame *efF) {
 
 	assert(EFDeltaValid);
@@ -597,7 +976,7 @@ void EnergyFunctional::marginalizeFrame(EFFrame *efF) {
 	makeIDX();
 	delete efF;
 }
-
+#endif
 
 void EnergyFunctional::marginalizePointsF() {
 	assert(EFDeltaValid);
@@ -800,9 +1179,11 @@ void EnergyFunctional::solveSystemF(int iteration, double lambda, CalibHessian *
 
 		lastHS = HFinal_top;
 		lastbS = bFinal_top;
-
+#if STEREO_MODE
+		for (int i = 0; i < 10 * nFrames + CPARS; i++) HFinal_top(i, i) *= (1 + lambda);
+#else
 		for (int i = 0; i < 8 * nFrames + CPARS; i++) HFinal_top(i, i) *= (1 + lambda);
-
+#endif
 	}
 	else { // here
 
@@ -813,7 +1194,11 @@ void EnergyFunctional::solveSystemF(int iteration, double lambda, CalibHessian *
 		lastHS = HFinal_top - H_sc;
 		lastbS = bFinal_top;
 
+#if STEREO_MODE
+		for (int i = 0; i < 10 * nFrames + CPARS; i++) HFinal_top(i, i) *= (1 + lambda);
+#else
 		for (int i = 0; i < 8 * nFrames + CPARS; i++) HFinal_top(i, i) *= (1 + lambda);
+#endif
 		HFinal_top -= H_sc * (1.0f / (1 + lambda));
 	}
 
@@ -886,7 +1271,8 @@ void EnergyFunctional::makeIDX() {
 			allPoints.push_back(p);
 			for (EFResidual *r : p->residualsAll) {
 				r->hostIDX = r->host->idx;
-				if (r->target == 0) //- static stereo residual
+				//if (r->target == 0) //- static stereo residual
+				if (r->data->staticStereo) //- static stereo residual
 					r->targetIDX = -1;
 				else
 					r->targetIDX = r->target->idx;
@@ -899,10 +1285,17 @@ void EnergyFunctional::makeIDX() {
 
 
 VecX EnergyFunctional::getStitchedDeltaF() const {
+#if STEREO_MODE
+	VecX d = VecX(CPARS + nFrames * 10);
+	d.head<CPARS>() = cDeltaF.cast<double>();
+	for (int h = 0; h < nFrames; h++) d.segment<10>(CPARS + 10 * h) = frames[h]->delta;
+	return d;
+#else
 	VecX d = VecX(CPARS + nFrames * 8);
 	d.head<CPARS>() = cDeltaF.cast<double>();
 	for (int h = 0; h < nFrames; h++) d.segment<8>(CPARS + 8 * h) = frames[h]->delta;
 	return d;
+#endif
 }
 
 

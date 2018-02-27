@@ -8,6 +8,9 @@
 #include "FullSystem/ImmaturePoint.h"
 #include "util/nanoflann.h"
 
+// #if !defined(__SSE3__) && !defined(__SSE2__) && !defined(__SSE1__)
+// #include "SSE2NEON.h"
+// #endif
 
 namespace fdso
 {
@@ -53,6 +56,8 @@ CoarseInitializer::CoarseInitializer(int ww, int hh) : thisToNext_aff(0, 0), thi
 	wM.diagonal()[3] = wM.diagonal()[4] = wM.diagonal()[5] = SCALE_XI_TRANS;
 	wM.diagonal()[6] = SCALE_A;
 	wM.diagonal()[7] = SCALE_B;
+
+	T_WC_ini = SE3();
 }
 
 /**
@@ -427,7 +432,7 @@ Vec3f CoarseInitializer::calcResAndGS(
 	float cxl = cx[lvl];
 	float cyl = cy[lvl];
 
-	Accumulator11 E;
+	Accumulator1 E;
 	acc9.initialize();
 	E.initialize();
 
@@ -622,7 +627,7 @@ Vec3f CoarseInitializer::calcResAndGS(
 	// calculate alpha energy, and decide if we cap it.
 	// 计算alpha能量，然后决定我们是否正则项。
 	// EAlpha？？？ EAlpha根本没计算，EAlpha.A一直=0
-	Accumulator11 EAlpha;
+	Accumulator1 EAlpha;
 	EAlpha.initialize();
 	//遍历每一个点
 	for (int i = 0; i < npts; i++)

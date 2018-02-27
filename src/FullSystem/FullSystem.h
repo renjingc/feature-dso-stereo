@@ -50,9 +50,13 @@
 #include "FullSystem/OptimizerPnP.h"
 
 #include "FullSystem/Map.h"
+#include "util/IMUMeasurement.h"
 
 #include <math.h>
 #include <boost/timer.hpp>
+
+#include "util/IMUPropagation.h"
+#include "util/IMUMeasurement.h"
 
 namespace fdso
 {
@@ -213,8 +217,8 @@ public:
 	virtual ~FullSystem();
 
 	// adds a new frame, and creates point & residual structs.
-	void addActiveFrame(ImageAndExposure* image, ImageAndExposure* image_right, int id);
-
+	void addActiveFrame(ImageAndExposure *image, ImageAndExposure *imageRight, std::vector<IMUMeasurement> &imuMeasurements,
+	                    int id);
 	// marginalizes a frame. drops / marginalizes points & residuals.
 	void marginalizeFrame(FrameHessian* frame);
 	void blockUntilMappingIsFinished();
@@ -245,6 +249,8 @@ public:
 	//矫正类
 	CalibHessian Hcalib;
 
+	IMUParameters imuParameters;
+
 	//全部的关键帧
 	Map* globalMap = nullptr;
 
@@ -266,15 +272,18 @@ private:
 	//
 	double linAllPointSinle(PointHessian* point, float outlierTHSlack, bool plot);
 
+	// mainPipelineFunctions
+	//主跟踪函数
+	Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fhRight, SE3 initT, bool usePnP);
+	Vec4 trackNewCoarseStereo(FrameHessian *fh, FrameHessian *fhRight, SE3 initT, bool usePnP);
+
+	//关键帧的更新
+	void traceNewCoarseKey(FrameHessian* fh, FrameHessian* fhRight);
+
 	//非关键帧的跟踪
 	void traceNewCoarseNonKey(FrameHessian* fh, FrameHessian* fhRight);
 
 
-	// mainPipelineFunctions
-	//主跟踪函数
-	Vec4 trackNewCoarse(FrameHessian* fh, FrameHessian* fhRight, SE3 initT,bool usePnP);
-	//关键帧的更新
-	void traceNewCoarseKey(FrameHessian* fh, FrameHessian* fhRight);
 	//更新一个点
 	void activatePoints();
 	void activatePointsMT();
@@ -343,12 +352,14 @@ private:
 	long int statistics_numMargResBwd;
 	float statistics_lastFineTrackRMSE;
 
+	const SE3 leftToRight_SE3;
 
 	// =================== changed by tracker-thread. protected by trackMutex ============
 	//跟踪互斥锁
 	boost::mutex trackMutex;
 	//全部帧的信息
 	std::vector<FrameShell*> allFrameHistory;
+	std::vector<FrameShell *> allFrameHistoryRight;
 
 	//初始化类
 	CoarseInitializer* coarseInitializer;
@@ -393,6 +404,7 @@ private:
 	boost::mutex coarseTrackerSwapMutex;			// if tracker sees that there is a new reference, tracker locks [coarseTrackerSwapMutex] and swaps the two.
 	CoarseTracker* coarseTracker_forNewKF;			// set as as reference. protected by [coarseTrackerSwapMutex].
 	CoarseTracker* coarseTracker;					// always used to track new frames. protected by [trackMutex].
+	IMUPropagation *imuPropagation;
 	float minIdJetVisTracker, maxIdJetVisTracker;
 	float minIdJetVisDebug, maxIdJetVisDebug;
 

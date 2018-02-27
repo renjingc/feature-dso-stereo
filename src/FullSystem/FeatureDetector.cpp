@@ -52,7 +52,7 @@ bool Feature::ComputeWorldPos(Vec3& mWorldPos)
       SE3 Twc = _host->camToWorldOpti;
       Vec3 Kip = 1.0 / this->idepth * Vec3(
                    fxiG[0]  * this->_pixel[0]  + cxiG[0],
-                 fyiG[0]  * this->_pixel[0]  + cyiG[0],
+                 fyiG[0]  * this->_pixel[1]  + cyiG[0],
                  1);
       mWorldPos = Twc * Kip;
 

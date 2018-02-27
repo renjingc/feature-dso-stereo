@@ -119,6 +119,7 @@ public:
 	AffLight thisToNext_aff;
 	//到下一时刻的变换矩阵
 	SE3 thisToNext;
+	SE3 T_WC_ini; // the pose of first cam0 frame.
 
 	//第一帧的Hessian
 	FrameHessian* firstFrame;

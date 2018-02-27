@@ -40,6 +40,9 @@ public:
 
     void release();
 
+    bool update;
+    bool lastUpdate;
+
     int id;
     int frameID;
     // constantly adapted.

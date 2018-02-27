@@ -67,7 +67,7 @@ public:
     // Consistent group, the first is a group of keyframes that are considered as consistent, and the second is how many times they are detected
     typedef pair<set<Frame*>, int> ConsistentGroup;
 
-    LoopClosing(FullSystem* fullSystem);
+    LoopClosing(FullSystem* fullsystem);
 
     void insertKeyFrame(Frame* frame);
 

@@ -33,6 +33,7 @@
 #include <algorithm>
 
 #include "util/Undistort.h"
+#include "util/IMUMeasurement.h"
 #include "IOWrapper/OpenCV/ImageRW.h"
 
 #if HAS_ZIPLIB

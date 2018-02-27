@@ -279,7 +279,7 @@ void PangolinDSOViewer::run()
 			{
 				//是否显示关键帧
 				if (this->settings_showKFCameras)
-					fh->drawCamOpt(3, blue, 0.1, false);
+					fh->drawCamOpt(3, red, 0.1, false);
 
 				if(settings_showPointCloud)
 				{
@@ -648,15 +648,18 @@ void PangolinDSOViewer::publishKeyframesOpt(
 	boost::unique_lock<boost::mutex> lk(model3DMutex);
 	for (Frame* fh : frames)
 	{
-		//判断ByKFID,是否有当前帧
-		if (keyframesOptByKFID.find(fh->frameID) == keyframesOptByKFID.end())
+		if(fh->update)
 		{
-			//插入这个关键帧
-			KeyFrameDisplay* kfd = new KeyFrameDisplay();
-			keyframesOptByKFID[fh->frameID] = kfd;
-			keyframesOpt.push_back(kfd);
+			//判断ByKFID,是否有当前帧
+			if (keyframesOptByKFID.find(fh->frameID) == keyframesOptByKFID.end())
+			{
+				//插入这个关键帧
+				KeyFrameDisplay* kfd = new KeyFrameDisplay();
+				keyframesOptByKFID[fh->frameID] = kfd;
+				keyframesOpt.push_back(kfd);
+			}
+			keyframesOptByKFID[fh->frameID]->setFromKF(fh, HCalib);
 		}
-		keyframesOptByKFID[fh->frameID]->setFromKF(fh, HCalib);
 	}
 }
 

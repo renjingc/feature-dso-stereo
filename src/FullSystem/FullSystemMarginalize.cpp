@@ -70,6 +70,22 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 			FrameHessian* fh = frameHessians[i - setting_maxFrames];
 			LOG(INFO) << "frame " << fh->frameID << " is set as marged" << endl;
 			fh->flaggedForMarginalization = true;
+
+			Frame* f1;
+			Frame* tempF(new Frame());
+			tempF->id = fh->shell->id;
+			//获取所有关键帧
+			auto allKFs = globalMap->getAllKFs();
+
+			std::set<Frame*, CmpFrameID>::iterator iter;
+			iter = allKFs.find(tempF);
+			if (iter != allKFs.end())
+			{
+				f1 = (*iter);
+				//遍历所有关键帧
+				f1->update = false;
+			}
+			delete tempF;
 		}
 		return;
 	}
@@ -105,6 +121,22 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 			LOG(INFO) << "frame " << fh->frameID << " is set as marged" << endl;
 			fh->flaggedForMarginalization = true;
 			flagged++;
+
+			Frame* f1;
+			Frame* tempF(new Frame());
+			tempF->id = fh->shell->id;
+			//获取所有关键帧
+			auto allKFs = globalMap->getAllKFs();
+
+			std::set<Frame*, CmpFrameID>::iterator iter;
+			iter = allKFs.find(tempF);
+			if (iter != allKFs.end())
+			{
+				f1 = (*iter);
+				//遍历所有关键帧
+				f1->update = false;
+			}
+			delete tempF;
 		}
 		else
 		{
@@ -158,6 +190,22 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 		LOG(INFO) << "frame " << toMarginalize->frameID << " is set as marged" << endl;
 		toMarginalize->flaggedForMarginalization = true;
 		flagged++;
+
+		Frame* f1;
+		Frame* tempF(new Frame());
+		tempF->id = toMarginalize->shell->id;
+		//获取所有关键帧
+		auto allKFs = globalMap->getAllKFs();
+
+		std::set<Frame*, CmpFrameID>::iterator iter;
+		iter = allKFs.find(tempF);
+		if (iter != allKFs.end())
+		{
+			f1 = (*iter);
+			//遍历所有关键帧
+			f1->update = false;
+		}
+		delete tempF;
 	}
 
 //	printf("FRAMES LEFT: ");

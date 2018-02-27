@@ -75,15 +75,19 @@ namespace fdso
 
 #define todouble(x) (x).cast<double>()
 
+
 typedef Sophus::SE3d SE3;
 typedef Sophus::Sim3d Sim3;
 typedef Sophus::SO3d SO3;
 
-#define CPARS 4
+
+#define CPARS 4 //-- Calibration Parameters
+
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatXX;
 typedef Eigen::Matrix<double, CPARS, CPARS> MatCC;
 #define MatToDynamic(x) MatXX(x)
+
 
 typedef Eigen::Matrix<double, CPARS, 10> MatC10;
 typedef Eigen::Matrix<double, 10, 10> Mat1010;
@@ -102,7 +106,10 @@ typedef Eigen::Matrix<double, CPARS, 8> MatC8;
 typedef Eigen::Matrix<float, 8, CPARS> Mat8Cf;
 typedef Eigen::Matrix<float, CPARS, 8> MatC8f;
 
-
+typedef Eigen::Matrix<double, 10, CPARS> Mat10C;
+typedef Eigen::Matrix<double, CPARS, 10> MatC10;
+typedef Eigen::Matrix<float, 10, CPARS> Mat10Cf;
+typedef Eigen::Matrix<float, CPARS, 10> MatC10f;
 
 typedef Eigen::Matrix<double, 8, 8> Mat88;
 typedef Eigen::Matrix<double, 7, 7> Mat77;
@@ -129,6 +136,11 @@ typedef Eigen::Matrix<float, 3, 1> Vec3f;
 typedef Eigen::Matrix<float, 2, 1> Vec2f;
 typedef Eigen::Matrix<float, 6, 1> Vec6f;
 
+typedef Eigen::AngleAxisd AngleAxis;
+typedef Eigen::Matrix<double, 9, 1> SpeedAndBias;
+typedef Eigen::Matrix<double, 15, 15> covariance_t;
+typedef Eigen::Matrix<double, 15, 15> jacobian_t;
+
 typedef Eigen::Matrix<double, 4, 9> Mat49;
 typedef Eigen::Matrix<double, 8, 9> Mat89;
 
@@ -140,13 +152,16 @@ typedef Eigen::Matrix<double, 1, 8> Mat18;
 typedef Eigen::Matrix<double, 9, 1> Mat91;
 typedef Eigen::Matrix<double, 1, 9> Mat19;
 
+
 typedef Eigen::Matrix<double, 8, 4> Mat84;
 typedef Eigen::Matrix<double, 4, 8> Mat48;
 typedef Eigen::Matrix<double, 4, 4> Mat44;
 
+
 typedef Eigen::Matrix<float, MAX_RES_PER_POINT, 1> VecNRf;
 typedef Eigen::Matrix<float, 12, 1> Vec12f;
 typedef Eigen::Matrix<float, 1, 8> Mat18f;
+typedef Eigen::Matrix<float, 1, 10> Mat110f;
 typedef Eigen::Matrix<float, 6, 6> Mat66f;
 typedef Eigen::Matrix<float, 8, 8> Mat88f;
 typedef Eigen::Matrix<float, 8, 4> Mat84f;
@@ -155,14 +170,17 @@ typedef Eigen::Matrix<float, 10, 1> Vec10f;
 typedef Eigen::Matrix<float, 6, 6> Mat66f;
 typedef Eigen::Matrix<float, 4, 1> Vec4f;
 typedef Eigen::Matrix<float, 4, 4> Mat44f;
+typedef Eigen::Matrix<float, 3, 4> Mat34f;
+typedef Eigen::Matrix<float, 11, 11> Mat1111f;
+typedef Eigen::Matrix<float, 11, 1> Vec11f;
 typedef Eigen::Matrix<float, 12, 12> Mat1212f;
 typedef Eigen::Matrix<float, 12, 1> Vec12f;
 typedef Eigen::Matrix<float, 13, 13> Mat1313f;
+typedef Eigen::Matrix<float, 15, 15> Mat1515f;
 typedef Eigen::Matrix<float, 10, 10> Mat1010f;
 typedef Eigen::Matrix<float, 13, 1> Vec13f;
 typedef Eigen::Matrix<float, 9, 9> Mat99f;
 typedef Eigen::Matrix<float, 9, 1> Vec9f;
-typedef	Eigen::Matrix<float, 3, 4> Mat34f;
 
 typedef Eigen::Matrix<float, 4, 2> Mat42f;
 typedef Eigen::Matrix<float, 6, 2> Mat62f;
@@ -177,10 +195,16 @@ typedef Eigen::Matrix < float, 8 + CPARS + 1, 8 + CPARS + 1 > MatPCPCf;
 typedef Eigen::Matrix < double, 8 + CPARS + 1, 1 > VecPC;
 typedef Eigen::Matrix < float, 8 + CPARS + 1, 1 > VecPCf;
 
+typedef Eigen::Matrix < double, 10 + CPARS + 1, 10 + CPARS + 1 > MatPCPC15;
+typedef Eigen::Matrix < float, 10 + CPARS + 1, 10 + CPARS + 1 > MatPCPC15f;
+typedef Eigen::Matrix < double, 10 + CPARS + 1, 1 > VecPC15;
+typedef Eigen::Matrix < float, 10 + CPARS + 1, 1 > VecPC15f;
+
 typedef Eigen::Matrix<float, 14, 14> Mat1414f;
 typedef Eigen::Matrix<float, 14, 1> Vec14f;
 typedef Eigen::Matrix<double, 14, 14> Mat1414;
 typedef Eigen::Matrix<double, 14, 1> Vec14;
+
 
 // I_frame = exp(a)*I_global + b. // I_global = exp(-a)*(I_frame - b).
 //每个点像素的变换光度GAffine变换，即affine brightness transfer function 线性相应的逆函数

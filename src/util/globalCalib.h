@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -26,22 +26,27 @@
 #pragma once
 #include "util/settings.h"
 #include "util/NumType.h"
+#include "IMUMeasurement.h"
 
 namespace fdso
 {
-	extern int wG[PYR_LEVELS], hG[PYR_LEVELS];
-	extern float fxG[PYR_LEVELS], fyG[PYR_LEVELS],
-		  cxG[PYR_LEVELS], cyG[PYR_LEVELS];
+extern int wG[PYR_LEVELS], hG[PYR_LEVELS];
+extern float fxG[PYR_LEVELS], fyG[PYR_LEVELS],
+       cxG[PYR_LEVELS], cyG[PYR_LEVELS];
 
-	extern float fxiG[PYR_LEVELS], fyiG[PYR_LEVELS],
-		  cxiG[PYR_LEVELS], cyiG[PYR_LEVELS];
+extern float fxiG[PYR_LEVELS], fyiG[PYR_LEVELS],
+       cxiG[PYR_LEVELS], cyiG[PYR_LEVELS];
 
-	extern Eigen::Matrix3f KG[PYR_LEVELS],KiG[PYR_LEVELS];
+extern Eigen::Matrix3f KG[PYR_LEVELS], KiG[PYR_LEVELS];
 
-	extern float wM3G;
-	extern float hM3G;
+extern float wM3G;
+extern float hM3G;
 
-    extern float baseline;
+extern float baseline;
+extern SE3 T_SC0;
+extern IMUParameters imuParameters;
 
-	void setGlobalCalib(int w, int h, Eigen::Matrix3f K );
+void setGlobalCalib(int w, int h, Eigen::Matrix3f K );
+
+void setGlobalIMUCalib();
 }

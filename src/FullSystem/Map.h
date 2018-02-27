@@ -16,7 +16,7 @@ using namespace std;
 using namespace fdso;
 
 namespace fdso {
-
+class FullSystem;
 // namespace IOWrap
 // {
 // class Output3DWrapper;
@@ -32,8 +32,7 @@ namespace fdso {
 
 class Map {
 public:
-    Map() {}
-
+    Map(FullSystem* fullsystem);
     /**
      * add a keyframe into the global map
      * @param kf
@@ -98,7 +97,7 @@ private:
     //位姿图互斥锁
     std::mutex mutexPoseGraph;
 
-
+    CalibHessian* mpHcalib = nullptr;
 };
 
 }

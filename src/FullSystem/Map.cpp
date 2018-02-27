@@ -5,6 +5,7 @@
 #include "FullSystem/ImmaturePoint.h"
 #include "FullSystem/CalibHessian.h"
 #include "FullSystem/PR.h"
+#include "FullSystem/FullSystem.h"
 
 // need g2o stuffs here and only here
 #include <g2o/core/block_solver.h>
@@ -18,6 +19,10 @@ using namespace fdso;
 
 namespace fdso {
 
+Map::Map(FullSystem* fullsystem):mpHcalib(&fullsystem->Hcalib)
+{
+
+}
 //增加关键帧
 void Map::addKeyFrame(Frame* kf)
 {
@@ -82,7 +87,7 @@ void Map::runPoseGraphOptimization()
     int maxKFid = 0;
     int cntEdgePR = 0;
 
-    for (Frame* fh : framesOpti)
+    for (Frame* fh : frames)
     {
         // 每个KF只有P+R
         if (fh->frameID >= min_id && fh->frameID <= max_id)
@@ -109,7 +114,7 @@ void Map::runPoseGraphOptimization()
     }
 
     // edges
-    for (Frame* fh : framesOpti)
+    for (Frame* fh : frames)
     {
         unique_lock<mutex> lock(fh->mMutexPoseRel);
         if (fh->frameID >= min_id && fh->frameID <= max_id)
@@ -139,7 +144,7 @@ void Map::runPoseGraphOptimization()
 
     // recover the pose and points estimation
     Frame* slast;
-    for (Frame* frame : framesOpti)
+    for (Frame* frame : frames)
     {
         if (frame->frameID >= min_id && frame->frameID <= max_id)
         {
@@ -169,7 +174,16 @@ void Map::runPoseGraphOptimization()
             SE3 current_2_slast = slast->camToWorld.inverse() * current->camToWorld;
             frame->camToWorldOpti=slast->camToWorldOpti*current_2_slast;
         }
+        frame->lastUpdate=frame->update;
+        frame->update=true;
         slast=frame;
+    }
+
+    outputWrapper[0]->publishKeyframesOpt(frameList, false, mpHcalib);
+
+    for (Frame* frame : frames)
+    {
+        frame->update=frame->lastUpdate;
     }
 
     //优化结束

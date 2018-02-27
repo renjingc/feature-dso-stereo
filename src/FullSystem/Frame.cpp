@@ -4,10 +4,12 @@ namespace fdso {
 
 Frame::Frame(FrameHessian* frame)
 {
+  update=true;
+  lastUpdate=update;
   id = frame->shell->id;
   frameID = frame->frameID;
   camToWorld = frame->shell->camToWorld;
-  camToWorldOpti = frame->shell->camToWorldOpti;
+  camToWorldOpti = frame->shell->camToWorld;
 
   for (auto &fea : frame->_features)
   {

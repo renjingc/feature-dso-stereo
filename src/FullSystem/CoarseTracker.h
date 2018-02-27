@@ -61,12 +61,23 @@ public:
 
 	void saveK();
 
+#if STEREO_MODE
+	bool trackNewestCoarseStereo(
+	  FrameHessian *newFrameHessian,
+	  FrameHessian *newFrameHessianRight,
+	  SE3 &lastToNew_out,
+	  AffLight &aff_g2l_out, AffLight &aff_g2l_r_out,
+	  int coarsestLvl, Vec5 minResForAbort,
+	  IOWrap::Output3DWrapper *wrap = 0);
+
+#else
 	//跟踪新一帧
 	bool trackNewestCoarse(
 	  FrameHessian* newFrameHessian,
 	  SE3 &lastToNew_out, AffLight &aff_g2l_out,
 	  int coarsestLvl, Vec5 minResForAbort,
 	  IOWrap::Output3DWrapper* wrap = 0);
+#endif
 
 	//设置第一帧的参考帧
 	void setCTRefForFirstFrame(
@@ -110,6 +121,7 @@ public:
 	AffLight lastRef_aff_g2l;
 	//新的一帧
 	FrameHessian* newFrame;
+	FrameHessian *newFrameRight;
 	//参考帧的ID
 	int refFrameID;
 
@@ -136,12 +148,22 @@ private:
 
 	//计算残差，更新H和b矩阵，这个函数没实现？
 	Vec6 calcResAndGS(int lvl, Mat88 &H_out, Vec8 &b_out, SE3 refToNew, AffLight aff_g2l, float cutoffTH);
+
+#if STEREO_MODE
+	//计算残差
+	Vec6 calcResStereo(int lvl, const SE3 &refToNew, AffLight aff_g2l, AffLight aff_g2l_r, float cutoffTH);
+	//更新H和b矩阵
+	void calcGSSSEStereo(int lvl, Mat1010 &H_out, Vec10 &b_out, const SE3 &refToNew, AffLight aff_g2l, AffLight aff_g2l_r);
+
+#else
 	//计算残差
 	Vec6 calcRes(int lvl, SE3 refToNew, AffLight aff_g2l, float cutoffTH);
 	//更新H和b矩阵
 	void calcGSSSE(int lvl, Mat88 &H_out, Vec8 &b_out, SE3 refToNew, AffLight aff_g2l);
 	//更新H和b矩阵，这个函数没实现？
 	void calcGS(int lvl, Mat88 &H_out, Vec8 &b_out, SE3 refToNew, AffLight aff_g2l);
+
+#endif
 
 	// pc buffers
 	// 按有效的一个个顺序递增
@@ -173,11 +195,23 @@ private:
 	//变换后的
 	int buf_warped_n;
 
+	//- warped buffers for stereo
+	float *buf_warped_idepth_r;
+	float *buf_warped_dx_r;
+	float *buf_warped_dy_r;
+	float *buf_warped_residual_r;
+	float *buf_warped_weight_r;
+
 
 	std::vector<float *> ptrToDelete;
 
 	//Hessian矩阵
+#if STEREO_MODE
+	Accumulator11 acc;
+#else
 	Accumulator9 acc;
+#endif
+
 };
 
 /**

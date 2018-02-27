@@ -151,7 +151,7 @@ std::vector<Frame*> KeyFrameDatabase::DetectLoopCandidates(Frame* pKF, float min
     }
 
     // Return all those keyframes with a score higher than 0.75*bestScore
-    float minScoreToRetain = 0.80f * bestAccScore;
+    float minScoreToRetain = 0.75f * bestAccScore;
 
     set<Frame*> spAlreadyAddedKF;
     vector<Frame*> vpLoopCandidates;
@@ -210,13 +210,17 @@ void LoopClosing::run()
         }
 
         //mpCurrentKF->ComputeBoW(mpVoc);
-        if (DetectLoop(mpCurrentKF))
+
+        if (true)
         {
-            if (mpGlobalMap->idle() && CorrectLoop(mpHcalib))
+            if (DetectLoop(mpCurrentKF))
             {
-                // start a pose graph optimization
-                LOG(INFO) << "call global pose graph!" << endl;
-                mpGlobalMap->optimizeALLKFs();
+                if (mpGlobalMap->idle() && CorrectLoop(mpHcalib))
+                {
+                    // start a pose graph optimization
+                    LOG(INFO) << "call global pose graph!" << endl;
+                    mpGlobalMap->optimizeALLKFs();
+                }
             }
         }
 
@@ -224,8 +228,11 @@ void LoopClosing::run()
             break;
         usleep(5000);
 
+        // boost::timer t;
         // // //发布关键帧和当前窗口中帧的关联
         mpGlobalMap->outputWrapper[0]->publishKeyframesOpt(mpGlobalMap->frameList, false, mpHcalib);
+
+        // std::cout << "publishKeyframesOpt t: " << t.elapsed() << std::endl;
     }
 
     mbFinished = true;
@@ -438,6 +445,13 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
 
             if (cntInliers < 10)
                 return false;
+
+            // Eigen::Matrix<double, 3, 1> mpCurrentKF_T = mpCurrentKF->camToWorldOpti.translation().transpose();
+            // Eigen::Matrix<double, 3, 1> pKF_T = pKF->camToWorldOpti.translation().transpose();
+            // std::cout<<"mpCurrentKF "<<mpCurrentKF_T(0,0)<<" "<<mpCurrentKF_T(1,0)<<" "<<mpCurrentKF_T(2,0)<<endl;
+            // std::cout<<"pKF "<<pKF_T(0,0)<<" "<<pKF_T(1,0)<<" "<<pKF_T(2,0)<<endl;
+
+            // std::cout<<"relative t r"<<t<<endl<<R<<endl;
 
             // and then test with the estimated Tcw
             SE3 TcwEsti(
