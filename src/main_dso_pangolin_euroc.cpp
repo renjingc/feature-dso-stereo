@@ -21,6 +21,8 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+
 #include <thread>
 #include <locale.h>
 #include <signal.h>
@@ -29,8 +31,10 @@
 #include <unistd.h>
 #include <chrono>
 
+
 #include "IOWrapper/OutputWrapper/Output3DWrapper.h"
 #include "IOWrapper/OpenCV/ImageDisplay.h"
+
 
 #include <boost/thread.hpp>
 #include "util/settings.h"
@@ -43,12 +47,14 @@
 #include "OptimizationBackend/MatrixAccumulators.h"
 #include "FullSystem/PixelSelector2.h"
 
+
 #include "IOWrapper/Pangolin/PangolinDSOViewer.h"
 #include "IOWrapper/OutputWrapper/SampleOutputWrapper.h"
 
 #include <opencv/cv.hpp>
 #include <opencv/highgui.h>
 #include "util/IMUMeasurement.h"
+
 
 std::string vignette = "";
 std::string gammaCalib = "";
@@ -58,15 +64,17 @@ std::string calibRight = "";
 std::string vocPath = "./vocab/ORBvoc.bin";
 std::string gtPath = "/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/dataset/poses/00.txt";
 
+
 double rescale = 1;
 bool reversePlay = false;
 bool disableROS = false;
 int startIdx = 0;
 int endIdx = 100000;
 bool prefetch = false;
-float playbackSpeed = 0; // 0 for linearize (play as fast as possible, while sequentializing tracking & mapping). otherwise, factor on timestamps.
+float playbackSpeed = 0;  // 0 for linearize (play as fast as possible, while sequentializing tracking & mapping). otherwise, factor on timestamps.
 bool preload = false;
 bool useSampleOutput = false;
+
 
 int mode = 0;
 
@@ -74,14 +82,13 @@ bool firstRosSpin = false;
 
 using namespace fdso;
 
-void my_exit_handler(int s)
-{
+
+void my_exit_handler(int s) {
   printf("Caught signal %d\n", s);
   exit(1);
 }
 
-void exitThread()
-{
+void exitThread() {
   struct sigaction sigIntHandler;
   sigIntHandler.sa_handler = my_exit_handler;
   sigemptyset(&sigIntHandler.sa_mask);
@@ -92,11 +99,9 @@ void exitThread()
   while (true) pause();
 }
 
-void settingsDefault(int preset)
-{
+void settingsDefault(int preset) {
   printf("\n=============== PRESET Settings: ===============\n");
-  if (preset == 0 || preset == 1)
-  {
+  if (preset == 0 || preset == 1) {
     printf("DEFAULT settings:\n"
            "- %s real-time enforcing\n"
            "- 2000 active points\n"
@@ -114,16 +119,16 @@ void settingsDefault(int preset)
     setting_maxOptIterations = 6;
     setting_minOptIterations = 1;
 
-    setting_kfGlobalWeight = 0.3; // original is 1.0. 0.3 is a balance between speed and accuracy. if tracking lost, set this para higher
-    setting_maxShiftWeightT = 0.04f * (640 + 128);  // original is 0.04f * (640+480); this para is depend on the crop size.
-    setting_maxShiftWeightR = 0.04f * (640 + 128);   // original is 0.0f * (640+480);
-    setting_maxShiftWeightRT = 0.02f * (640 + 128); // original is 0.02f * (640+480);
+    setting_kfGlobalWeight = 0.3;   // original is 1.0. 0.3 is a balance between speed and accuracy. if tracking lost, set this para higher
+    setting_maxShiftWeightT =
+      0.04f * (640 + 128);   // original is 0.04f * (640+480); this para is depend on the crop size.
+    setting_maxShiftWeightR = 0.04f * (640 + 128);    // original is 0.0f * (640+480);
+    setting_maxShiftWeightRT = 0.02f * (640 + 128);  // original is 0.02f * (640+480);
 
     setting_logStuff = false;
   }
 
-  if (preset == 2 || preset == 3)
-  {
+  if (preset == 2 || preset == 3) {
     printf("FAST settings:\n"
            "- %s real-time enforcing\n"
            "- 800 active points\n"
@@ -131,10 +136,10 @@ void settingsDefault(int preset)
            "- 1-4 LM iteration each KF\n"
            "- 424 x 320 image resolution\n", preset == 0 ? "no " : "5x");
 
-    playbackSpeed = (preset == 2 ? 0 : 3);
+    playbackSpeed = (preset == 2 ? 0 : 5);
     preload = preset == 3;
-    setting_desiredImmatureDensity = 1200;
-    setting_desiredPointDensity = 1600;
+    setting_desiredImmatureDensity = 600;
+    setting_desiredPointDensity = 800;
     setting_minFrames = 4;
     setting_maxFrames = 6;
     setting_maxOptIterations = 4;
@@ -149,31 +154,28 @@ void settingsDefault(int preset)
   printf("==============================================\n");
 }
 
-void parseArgument(char* arg)
-{
+void parseArgument(char *arg) {
   int option;
   float foption;
   char buf[1000];
 
-  if (1 == sscanf(arg, "sampleoutput=%d", &option))
-  {
-    if (option == 1)
-    {
+
+  if (1 == sscanf(arg, "sampleoutput=%d", &option)) {
+    if (option == 1) {
       useSampleOutput = true;
       printf("USING SAMPLE OUTPUT WRAPPER!\n");
     }
     return;
   }
 
-  if (1 == sscanf(arg, "quiet=%d", &option))
-  {
-    if (option == 1)
-    {
+  if (1 == sscanf(arg, "quiet=%d", &option)) {
+    if (option == 1) {
       setting_debugout_runquiet = true;
       printf("QUIET MODE, I'll shut up!\n");
     }
     return;
   }
+
   if (1 == sscanf(arg, "vocab=%s", buf)) {
     vocPath = buf;
     printf("loading vocabulary from %s!\n", vocPath.c_str());
@@ -184,26 +186,24 @@ void parseArgument(char* arg)
     printf("loading gtPath from %s!\n", gtPath.c_str());
     return;
   }
-  if (1 == sscanf(arg, "preset=%d", &option))
-  {
+
+  if (1 == sscanf(arg, "preset=%d", &option)) {
     settingsDefault(option);
     return;
   }
 
-  if (1 == sscanf(arg, "rec=%d", &option))
-  {
-    if (option == 0)
-    {
+
+  if (1 == sscanf(arg, "rec=%d", &option)) {
+    if (option == 0) {
       disableReconfigure = true;
       printf("DISABLE RECONFIGURE!\n");
     }
     return;
   }
 
-  if (1 == sscanf(arg, "noros=%d", &option))
-  {
-    if (option == 1)
-    {
+
+  if (1 == sscanf(arg, "noros=%d", &option)) {
+    if (option == 1) {
       disableROS = true;
       disableReconfigure = true;
       printf("DISABLE ROS (AND RECONFIGURE)!\n");
@@ -211,73 +211,59 @@ void parseArgument(char* arg)
     return;
   }
 
-  if (1 == sscanf(arg, "nolog=%d", &option))
-  {
-    if (option == 1)
-    {
+  if (1 == sscanf(arg, "nolog=%d", &option)) {
+    if (option == 1) {
       setting_logStuff = false;
       printf("DISABLE LOGGING!\n");
     }
     return;
   }
-  if (1 == sscanf(arg, "reverse=%d", &option))
-  {
-    if (option == 1)
-    {
+  if (1 == sscanf(arg, "reverse=%d", &option)) {
+    if (option == 1) {
       reversePlay = true;
       printf("REVERSE!\n");
     }
     return;
   }
-  if (1 == sscanf(arg, "nogui=%d", &option))
-  {
-    if (option == 1)
-    {
+  if (1 == sscanf(arg, "nogui=%d", &option)) {
+    if (option == 1) {
       disableAllDisplay = true;
       printf("NO GUI!\n");
     }
     return;
   }
-  if (1 == sscanf(arg, "nomt=%d", &option))
-  {
-    if (option == 1)
-    {
+  if (1 == sscanf(arg, "nomt=%d", &option)) {
+    if (option == 1) {
       multiThreading = false;
       printf("NO MultiThreading!\n");
     }
     return;
   }
-  if (1 == sscanf(arg, "prefetch=%d", &option))
-  {
-    if (option == 1)
-    {
+  if (1 == sscanf(arg, "prefetch=%d", &option)) {
+    if (option == 1) {
       prefetch = true;
       printf("PREFETCH!\n");
     }
     return;
   }
-  if (1 == sscanf(arg, "start=%d", &option))
-  {
+  if (1 == sscanf(arg, "start=%d", &option)) {
     startIdx = option;
     printf("START AT %d!\n", startIdx);
     return;
   }
-  if (1 == sscanf(arg, "end=%d", &option))
-  {
+  if (1 == sscanf(arg, "end=%d", &option)) {
     endIdx = option;
     printf("END AT %d!\n", endIdx);
     return;
   }
 
-  if (1 == sscanf(arg, "files=%s", buf))
-  {
+  if (1 == sscanf(arg, "files=%s", buf)) {
     source = buf;
     printf("loading data from %s!\n", source.c_str());
     return;
   }
 
-  if (1 == sscanf(arg, "calib=%s", buf))
-  {
+  if (1 == sscanf(arg, "calib=%s", buf)) {
     calib = buf;
     printf("loading calibration from %s!\n", calib.c_str());
     return;
@@ -289,64 +275,58 @@ void parseArgument(char* arg)
     return;
   }
 
-  if (1 == sscanf(arg, "vignette=%s", buf))
-  {
+  if (1 == sscanf(arg, "vignette=%s", buf)) {
     vignette = buf;
     printf("loading vignette from %s!\n", vignette.c_str());
     return;
   }
 
-  if (1 == sscanf(arg, "gamma=%s", buf))
-  {
+  if (1 == sscanf(arg, "gamma=%s", buf)) {
     gammaCalib = buf;
     printf("loading gammaCalib from %s!\n", gammaCalib.c_str());
     return;
   }
 
-  if (1 == sscanf(arg, "rescale=%f", &foption))
-  {
+  if (1 == sscanf(arg, "rescale=%f", &foption)) {
     rescale = foption;
     printf("RESCALE %f!\n", rescale);
     return;
   }
 
-  if (1 == sscanf(arg, "speed=%f", &foption))
-  {
+  if (1 == sscanf(arg, "speed=%f", &foption)) {
     playbackSpeed = foption;
     printf("PLAYBACK SPEED %f!\n", playbackSpeed);
     return;
   }
 
-  if (1 == sscanf(arg, "save=%d", &option))
-  {
-    if (option == 1)
-    {
+  if (1 == sscanf(arg, "save=%d", &option)) {
+    if (option == 1) {
       debugSaveImages = true;
-      if (42 == system("rm -rf images_out")) printf("system call returned 42 - what are the odds?. This is only here to shut up the compiler.\n");
-      if (42 == system("mkdir images_out")) printf("system call returned 42 - what are the odds?. This is only here to shut up the compiler.\n");
-      if (42 == system("rm -rf images_out")) printf("system call returned 42 - what are the odds?. This is only here to shut up the compiler.\n");
-      if (42 == system("mkdir images_out")) printf("system call returned 42 - what are the odds?. This is only here to shut up the compiler.\n");
+      if (42 == system("rm -rf images_out"))
+        printf("system call returned 42 - what are the odds?. This is only here to shut up the compiler.\n");
+      if (42 == system("mkdir images_out"))
+        printf("system call returned 42 - what are the odds?. This is only here to shut up the compiler.\n");
+      if (42 == system("rm -rf images_out"))
+        printf("system call returned 42 - what are the odds?. This is only here to shut up the compiler.\n");
+      if (42 == system("mkdir images_out"))
+        printf("system call returned 42 - what are the odds?. This is only here to shut up the compiler.\n");
       printf("SAVE IMAGES!\n");
     }
     return;
   }
 
-  if (1 == sscanf(arg, "mode=%d", &option))
-  {
+  if (1 == sscanf(arg, "mode=%d", &option)) {
     mode = option;
-    if (option == 0)
-    {
+    if (option == 0) {
       printf("PHOTOMETRIC MODE WITH CALIBRATION!\n");
     }
-    if (option == 1)
-    {
+    if (option == 1) {
       printf("PHOTOMETRIC MODE WITHOUT CALIBRATION!\n");
       setting_photometricCalibration = 0;
       setting_affineOptModeA = 0; //-1: fix. >=0: optimize (with prior, if > 0).
       setting_affineOptModeB = 0; //-1: fix. >=0: optimize (with prior, if > 0).
     }
-    if (option == 2)
-    {
+    if (option == 2) {
       printf("PHOTOMETRIC MODE WITH PERFECT IMAGES!\n");
       setting_photometricCalibration = 0;
       setting_affineOptModeA = -1; //-1: fix. >=0: optimize (with prior, if > 0).
@@ -359,11 +339,10 @@ void parseArgument(char* arg)
   printf("could not parse argument \"%s\"!!!!\n", arg);
 }
 
-int main( int argc, char** argv )
-{
+int main(int argc, char **argv) {
   //setlocale(LC_ALL, "");
   google::InitGoogleLogging((const char *)argv[0]);
-  google::SetLogDestination(google::GLOG_INFO, "./fdso");
+  google::SetLogDestination(google::GLOG_INFO, "./fdso_euroc");
 
   for (int i = 1; i < argc; i++)
     parseArgument(argv[i]);
@@ -371,16 +350,23 @@ int main( int argc, char** argv )
   // hook crtl+C.
   boost::thread exThread = boost::thread(exitThread);
 
-//image_0 image_1
-  ImageFolderReader* reader = new ImageFolderReader(source + "/image_0", calib, gammaCalib, vignette);
-  ImageFolderReader* reader_right = new ImageFolderReader(source + "/image_1", calibRight, gammaCalib, vignette);
+  ImageFolderReader *reader = new ImageFolderReader(source + "/cam0/data_rec", "euroc",
+      source + "/cam0/data.csv",/*place for timestamp file*/
+      calib,
+      gammaCalib, vignette);
+  ImageFolderReader *reader_right = new ImageFolderReader(source + "/cam1/data_rec", "euroc",
+      source + "/cam1/data.csv",/*place for timestamp file*/
+      calibRight, gammaCalib, vignette);
   reader->setGlobalCalibration();
   reader_right->setGlobalCalibration();
 
+  IMUFileReader *reader_imu = new IMUFileReader(source + "/imu0/data.csv");
+  //- Initialize imu related parameters.
+  setGlobalIMUCalib();
+
   double lastImuEndTimestamp = 0.0f;
 
-  if (setting_photometricCalibration > 0 && reader->getPhotometricGamma() == 0)
-  {
+  if (setting_photometricCalibration > 0 && reader->getPhotometricGamma() == 0) {
     printf("ERROR: dont't have photometric calibation. Need to use commandline options mode=1 or mode=2 ");
     exit(1);
   }
@@ -393,13 +379,13 @@ int main( int argc, char** argv )
   voc->loadFromBinaryFile(vocPath);
 
   // build system
-  FullSystem* fullSystem = new FullSystem(voc);
+  FullSystem *fullSystem = new FullSystem(voc);
   fullSystem->setGammaFunction(reader->getPhotometricGamma());
   fullSystem->linearizeOperation = (playbackSpeed == 0);
 
-  IOWrap::PangolinDSOViewer* viewer = 0;
-  if (!disableAllDisplay)
-  {
+
+  IOWrap::PangolinDSOViewer *viewer = 0;
+  if (!disableAllDisplay) {
     viewer = new IOWrap::PangolinDSOViewer(wG[0], hG[0], gtPath, false);
     fullSystem->outputWrapper.push_back(viewer);
     fullSystem->globalMap->outputWrapper.push_back(viewer);
@@ -411,7 +397,7 @@ int main( int argc, char** argv )
 
   // to make MacOS happy: run this in dedicated thread -- and use this one to run the GUI.
   std::thread runthread([&]() {
-    std::vector<int> idsToPlay;       // left images
+    std::vector<int> idsToPlay;        // left images
     std::vector<double> timesToPlayAt;
 
     std::vector<int> idsToPlayRight;    // right images
@@ -419,45 +405,36 @@ int main( int argc, char** argv )
 
     int linc = 1;
 
-    for (int i = lstart; i >= 0 && i < reader->getNumImages() && linc * i < linc * lend; i += linc)
-    {
+    for (int i = lstart; i >= 0 && i < reader->getNumImages() && linc * i < linc * lend; i += linc) {
       idsToPlay.push_back(i);
-      if (timesToPlayAt.size() == 0)
-      {
-        timesToPlayAt.push_back((double)0);
+      if (timesToPlayAt.size() == 0) {
+        timesToPlayAt.push_back((double) 0);
       }
-      else
-      {
+      else {
         double tsThis = reader->getTimestamp(idsToPlay[idsToPlay.size() - 1]);
         double tsPrev = reader->getTimestamp(idsToPlay[idsToPlay.size() - 2]);
-        timesToPlayAt.push_back(timesToPlayAt.back() +  fabs(tsThis - tsPrev) / playbackSpeed);
+        timesToPlayAt.push_back(timesToPlayAt.back() + fabs(tsThis - tsPrev) / playbackSpeed);
       }
     }
 
-    for (int i = lstart; i >= 0 && i < reader_right->getNumImages() && linc * i < linc * lend; i += linc)
-    {
+    for (int i = lstart; i >= 0 && i < reader_right->getNumImages() && linc * i < linc * lend; i += linc) {
       idsToPlayRight.push_back(i);
-      if (timesToPlayAtRight.size() == 0)
-      {
-        timesToPlayAtRight.push_back((double)0);
+      if (timesToPlayAtRight.size() == 0) {
+        timesToPlayAtRight.push_back((double) 0);
       }
-      else
-      {
+      else {
         double tsThis = reader_right->getTimestamp(idsToPlay[idsToPlay.size() - 1]);
         double tsPrev = reader_right->getTimestamp(idsToPlay[idsToPlay.size() - 2]);
-        timesToPlayAtRight.push_back(timesToPlayAtRight.back() +  fabs(tsThis - tsPrev) / playbackSpeed);
+        timesToPlayAtRight.push_back(timesToPlayAtRight.back() + fabs(tsThis - tsPrev) / playbackSpeed);
       }
     }
 
-    std::vector<ImageAndExposure*> preloadedImagesLeft;
-    std::vector<ImageAndExposure*> preloadedImagesRight;
-    //preload = false;
-    LOG(INFO) << "start" << std::endl;
-    if (preload)
-    {
+
+    std::vector<ImageAndExposure *> preloadedImagesLeft;
+    std::vector<ImageAndExposure *> preloadedImagesRight;
+    if (preload) {
       printf("LOADING ALL IMAGES!\n");
-      for (int ii = 0; ii < (int)idsToPlay.size(); ii++)
-      {
+      for (int ii = 0; ii < (int) idsToPlay.size(); ii++) {
         int i = idsToPlay[ii];
         preloadedImagesLeft.push_back(reader->getImage(i));
         preloadedImagesRight.push_back(reader_right->getImage(i));
@@ -470,9 +447,9 @@ int main( int argc, char** argv )
     clock_t started = clock();
     double sInitializerOffset = 0;
 
-    for (int ii = 0; ii < (int)idsToPlay.size(); ii++)
-    {
-      if (!fullSystem->initialized) // if not initialized: reset start time.
+
+    for (int ii = 1; ii < (int) idsToPlay.size(); ii++) {
+      if (!fullSystem->initialized)  // if not initialized: reset start time.
       {
         gettimeofday(&tv_start, NULL);
         started = clock();
@@ -482,8 +459,8 @@ int main( int argc, char** argv )
       int i = idsToPlay[ii];
 
 
-      ImageAndExposure* img_left;
-      ImageAndExposure* img_right;
+      ImageAndExposure *img_left;
+      ImageAndExposure *img_right;
       if (preload) {
         img_left = preloadedImagesLeft[ii];
         img_right = preloadedImagesRight[ii];
@@ -494,40 +471,54 @@ int main( int argc, char** argv )
       }
 
       bool skipFrame = false;
-      if (playbackSpeed != 0)
-      {
-        struct timeval tv_now; gettimeofday(&tv_now, NULL);
-        double sSinceStart = sInitializerOffset + ((tv_now.tv_sec - tv_start.tv_sec) + (tv_now.tv_usec - tv_start.tv_usec) / (1000.0f * 1000.0f));
+      if (playbackSpeed != 0) {
+        struct timeval tv_now;
+        gettimeofday(&tv_now, NULL);
+        double sSinceStart = sInitializerOffset + ((tv_now.tv_sec - tv_start.tv_sec) +
+                             (tv_now.tv_usec - tv_start.tv_usec) / (1000.0f * 1000.0f));
 
         if (sSinceStart < timesToPlayAt[ii])
-          usleep((int)((timesToPlayAt[ii] - sSinceStart) * 1000 * 1000));
-        else if (sSinceStart > timesToPlayAt[ii] + 0.5 + 0.1 * (ii % 2))
-        {
+          usleep((int) ((timesToPlayAt[ii] - sSinceStart) * 1000 * 1000));
+        else if (sSinceStart > timesToPlayAt[ii] + 0.5 + 0.1 * (ii % 2)) {
           printf("SKIPFRAME %d (play at %f, now it is %f)!\n", ii, timesToPlayAt[ii], sSinceStart);
           skipFrame = true;
         }
       }
 
+//      cv::Mat matLeft(img_left->h, img_left->w, CV_32F, img_left->image);
+//      cv::Mat matRight(img_right->h, img_right->w, CV_32F, img_right->image);
+//
+//      cv::imshow("left", matLeft / 254.0f);
+//      cv::imshow("right", matRight / 254.0f);
+
+//      cv::Mat matMatches;
+//      cv::drawMatches(matLeft, keypoints_left, matRight, keypoints_right, matches, matMatches);
+//      cv::imshow("matches", matMatches);
+//      cv::waitKey(0);
+
       // if MODE_SLAM is true, it runs slam.
       bool MODE_SLAM = true;
       // if MODE_STEREOMATCH is true, it does stereo matching and output idepth image.
-      bool MODE_STEREOMATCH = false;
+      bool MODE_STEREOMATCH = true;
 
-      if (MODE_SLAM)
-      {
+      if (MODE_SLAM) {
+        // Add IMU measurements.
         std::vector<IMUMeasurement> imuMeasurements;
+        reader_imu->getIMUMeasurementsBetween(lastImuEndTimestamp, img_left->timestamp, imuMeasurements);
         lastImuEndTimestamp = img_left->timestamp;
 //        std::cout << imuMeasurements.size() << std::endl;
-        if (!skipFrame) fullSystem->addActiveFrame(img_left, img_right,imuMeasurements, i);
+        img_right->exposure_time = 0.5f;
+        if (!skipFrame) fullSystem->addActiveFrame(img_left, img_right, imuMeasurements, i);
       }
 
-      if (MODE_STEREOMATCH)
-      {
+      if (MODE_STEREOMATCH) {
         std::chrono::steady_clock::time_point t0 = std::chrono::steady_clock::now();
 
         cv::Mat idepthMap(img_left->h, img_left->w, CV_32FC3, cv::Scalar(0, 0, 0));
         cv::Mat &idepth_temp = idepthMap;
         fullSystem->stereoMatch(img_left, img_right, i, idepth_temp);
+
+        imshow("idepth_temp",idepth_temp*255);
 
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
         double ttStereoMatch = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0).count();
@@ -538,20 +529,19 @@ int main( int argc, char** argv )
       delete img_right;
 
       // initializer fail
-      if (fullSystem->initFailed || setting_fullResetRequested)
-      {
-        if (ii < 250 || setting_fullResetRequested)
-        {
+      if (fullSystem->initFailed || setting_fullResetRequested) {
+        if (ii < 250 || setting_fullResetRequested) {
           printf("RESETTING!\n");
 
-          std::vector<IOWrap::Output3DWrapper*> wraps = fullSystem->outputWrapper;
+          std::vector<IOWrap::Output3DWrapper *> wraps = fullSystem->outputWrapper;
           delete fullSystem;
 
-          for (IOWrap::Output3DWrapper* ow : wraps) ow->reset();
+          for (IOWrap::Output3DWrapper *ow : wraps) ow->reset();
 
           fullSystem = new FullSystem(voc);
           fullSystem->setGammaFunction(reader->getPhotometricGamma());
           fullSystem->linearizeOperation = (playbackSpeed == 0);
+
 
           fullSystem->outputWrapper = wraps;
 
@@ -559,24 +549,28 @@ int main( int argc, char** argv )
         }
       }
 
-      if (fullSystem->isLost)
-      {
+      if (fullSystem->isLost) {
         printf("LOST!!\n");
         break;
       }
+
     }
+
 
     fullSystem->blockUntilMappingIsFinished();
     clock_t ended = clock();
     struct timeval tv_end;
     gettimeofday(&tv_end, NULL);
 
-    fullSystem->printResult("/home/ren/project/fdso/result.txt");
+
+    fullSystem->printResult("result.txt");
+
 
     int numFramesProcessed = abs(idsToPlay[0] - idsToPlay.back());
     double numSecondsProcessed = fabs(reader->getTimestamp(idsToPlay[0]) - reader->getTimestamp(idsToPlay.back()));
-    double MilliSecondsTakenSingle = 1000.0f * (ended - started) / (float)(CLOCKS_PER_SEC);
-    double MilliSecondsTakenMT = sInitializerOffset + ((tv_end.tv_sec - tv_start.tv_sec) * 1000.0f + (tv_end.tv_usec - tv_start.tv_usec) / 1000.0f);
+    double MilliSecondsTakenSingle = 1000.0f * (ended - started) / (float) (CLOCKS_PER_SEC);
+    double MilliSecondsTakenMT = sInitializerOffset + ((tv_end.tv_sec - tv_start.tv_sec) * 1000.0f +
+                                 (tv_end.tv_usec - tv_start.tv_usec) / 1000.0f);
     printf("\n======================"
            "\n%d Frames (%.1f fps)"
            "\n%.2fms per frame (single core); "
@@ -586,29 +580,29 @@ int main( int argc, char** argv )
            "\n======================\n\n",
            numFramesProcessed, numFramesProcessed / numSecondsProcessed,
            MilliSecondsTakenSingle / numFramesProcessed,
-           MilliSecondsTakenMT / (float)numFramesProcessed,
+           MilliSecondsTakenMT / (float) numFramesProcessed,
            1000 / (MilliSecondsTakenSingle / numSecondsProcessed),
            1000 / (MilliSecondsTakenMT / numSecondsProcessed));
     //fullSystem->printFrameLifetimes();
-    if (setting_logStuff)
-    {
+    if (setting_logStuff) {
       std::ofstream tmlog;
       tmlog.open("logs/time.txt", std::ios::trunc | std::ios::out);
-      tmlog << 1000.0f * (ended - started) / (float)(CLOCKS_PER_SEC * reader->getNumImages()) << " "
-            << ((tv_end.tv_sec - tv_start.tv_sec) * 1000.0f + (tv_end.tv_usec - tv_start.tv_usec) / 1000.0f) / (float)reader->getNumImages() << "\n";
+      tmlog << 1000.0f * (ended - started) / (float) (CLOCKS_PER_SEC * reader->getNumImages()) << " "
+            << ((tv_end.tv_sec - tv_start.tv_sec) * 1000.0f + (tv_end.tv_usec - tv_start.tv_usec) / 1000.0f) /
+            (float) reader->getNumImages() << "\n";
       tmlog.flush();
       tmlog.close();
     }
 
   });
 
+
   if (viewer != 0)
     viewer->run();
 
   runthread.join();
 
-  for (IOWrap::Output3DWrapper* ow : fullSystem->outputWrapper)
-  {
+  for (IOWrap::Output3DWrapper *ow : fullSystem->outputWrapper) {
     ow->join();
     delete ow;
   }
@@ -618,6 +612,8 @@ int main( int argc, char** argv )
 
   printf("DELETE READER!\n");
   delete reader;
+  delete reader_right;
+  delete reader_imu;
 
   printf("EXIT NOW!\n");
   return 0;

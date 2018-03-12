@@ -380,19 +380,19 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
         LOG(INFO) << "try " << mpCurrentKF->frameID << " with " << pKF->frameID << endl;
 
         auto connectedKFs = pKF->GetConnectedKeyFrames();
-        vector<cv::DMatch> matches, goofMatches;
+        vector<cv::DMatch> matches, goodMatches;
         int nmatches = matcher.SearchByBoW(mpCurrentKF, pKF, matches);
-        matcher.checkUVDistance(mpCurrentKF, pKF, matches, goofMatches);
+        matcher.checkUVDistance(mpCurrentKF, pKF, matches, goodMatches);
 
-        if (goofMatches.size() < 10)
+        if (goodMatches.size() < 10)
         {
-            LOG(INFO) << "no enough matches: " << goofMatches.size() << endl;
+            LOG(INFO) << "no enough matches: " << goodMatches.size() << endl;
             vbDiscarded[i] = true;
             continue;
         }
         else
         {
-            //matcher.showMatch(mpCurrentKF,pKF,goofMatches);
+            //matcher.showMatch(mpCurrentKF,pKF,goodMatches);
             LOG(INFO) << "let's try opencv's solve pnp ransac first " << std::endl;
             // well let's try opencv's solve pnp ransac first
             // TODO sim3 maybe better, but DSO's scale is not likely to drift?
@@ -401,10 +401,10 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
             cv::Mat inliers;
             vector<int> matchIdx;
 
-            // LOG(INFO)<<"goofMatches size(): "<<goofMatches.size()<<std::endl;
-            for (size_t k = 0; k < goofMatches.size(); k++)
+            // LOG(INFO)<<"goodMatches size(): "<<goodMatches.size()<<std::endl;
+            for (size_t k = 0; k < goodMatches.size(); k++)
             {
-                auto &m = goofMatches[k];
+                auto &m = goodMatches[k];
 
                 Feature* featKF = pKF->_features[m.trainIdx];
                 Feature* featCurrent = mpCurrentKF->_features[m.queryIdx];
@@ -485,7 +485,7 @@ bool LoopClosing::CorrectLoop(CalibHessian* Hcalib)
                 success = true;
                 mpGlobalMap->min_id = pKF->frameID;
                 mpGlobalMap->max_id = mpCurrentKF->frameID;
-                //matcher.showMatch(mpCurrentKF,pKF,goofMatches);
+                //matcher.showMatch(mpCurrentKF,pKF,goodMatches);
             }
         }
         nCandidates++;

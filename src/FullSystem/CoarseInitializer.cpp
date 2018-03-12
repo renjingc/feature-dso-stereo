@@ -195,6 +195,7 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian, FrameHessian* 
 				Hl(i, i) *= (1 + lambda);
 			//HI=HI-Hsc*1/(1+lambda)
 			//梯度下降，lambda越大则更新越小
+			//这里的意思是减去带有逆深度权重的Hessian,若某个点的逆深度雅克比越大,则相当于了HI
 			Hl -= Hsc * (1 / (1 + lambda));
 
 			//bI=b-bsc*1/(1+lambda)
@@ -550,8 +551,12 @@ Vec3f CoarseInitializer::calcResAndGS(
 			dp3[idx] = -u * v * dxInterp - (1 + v * v) * dyInterp;
 			dp4[idx] = (1 + u * u) * dxInterp + u * v * dyInterp;
 			dp5[idx] = -v * dxInterp + u * dyInterp;
+
+			//Jab a
 			dp6[idx] = - hw * r2new_aff[0] * rlR;
+			//Jab b
 			dp7[idx] = - hw * 1;
+			//几何部分之逆深度Jpdd
 			dd[idx] = dxInterp * dxdd  + dyInterp * dydd;
 
 			//huber的残差
@@ -669,6 +674,7 @@ Vec3f CoarseInitializer::calcResAndGS(
 		alphaOpt = alphaW;
 	}
 
+	//带有逆深度雅克比权重的Hesaaian矩阵
 	acc9SC.initialize();
 	for (int i = 0; i < npts; i++)
 	{
@@ -701,6 +707,8 @@ Vec3f CoarseInitializer::calcResAndGS(
 	//printf("nelements in H: %d, in E: %d, in Hsc: %d / 9!\n", (int)acc9.num, (int)E.num, (int)acc9SC.num*9);
 	H_out = acc9.H.topLeftCorner<8, 8>(); // / acc9.num;
 	b_out = acc9.H.topRightCorner<8, 1>(); // / acc9.num;
+
+	//带有逆深度雅克比权重的Hesaaian矩阵,即是J/(j+jpdd*2)
 	H_out_sc = acc9SC.H.topLeftCorner<8, 8>(); // / acc9.num;
 	b_out_sc = acc9SC.H.topRightCorner<8, 1>(); // / acc9.num;
 
