@@ -211,7 +211,7 @@ void LoopClosing::run()
 
         //mpCurrentKF->ComputeBoW(mpVoc);
 
-        if (true)
+        if (openLoop)
         {
             if (DetectLoop(mpCurrentKF))
             {

@@ -10,6 +10,7 @@ Frame::Frame(FrameHessian* frame)
   frameID = frame->frameID;
   camToWorld = frame->shell->camToWorld;
   camToWorldOpti = frame->shell->camToWorld;
+  timestamp=frame->shell->timestamp;
 
   for (auto &fea : frame->_features)
   {

@@ -216,4 +216,6 @@ extern int staticNCCPattern35[15][2];
 
 extern int sparsityFactor;
 
+extern bool openLoop;
+
 }

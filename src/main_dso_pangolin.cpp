@@ -57,6 +57,7 @@ std::string calib = "";
 std::string calibRight = "";
 std::string vocPath = "./vocab/ORBvoc.bin";
 std::string gtPath = "/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/dataset/poses/00.txt";
+std::string resultFile="/home/ren/work/fdso0117/fdso/result/result05.txt";
 
 double rescale = 1;
 bool reversePlay = false;
@@ -67,6 +68,7 @@ bool prefetch = false;
 float playbackSpeed = 0; // 0 for linearize (play as fast as possible, while sequentializing tracking & mapping). otherwise, factor on timestamps.
 bool preload = false;
 bool useSampleOutput = false;
+
 
 int mode = 0;
 
@@ -229,6 +231,20 @@ void parseArgument(char* arg)
     }
     return;
   }
+  if (1 == sscanf(arg, "openLoop=%d", &option))
+  {
+    if (option == 1)
+    {
+      openLoop = true;
+      printf("openLoop!\n");
+    }
+    else
+    {
+      openLoop = false;
+      printf("closeLoop!\n");
+    }
+    return;
+  }
   if (1 == sscanf(arg, "nogui=%d", &option))
   {
     if (option == 1)
@@ -286,6 +302,12 @@ void parseArgument(char* arg)
   if (1 == sscanf(arg, "calibRight=%s", buf)) {
     calibRight = buf;
     printf("loading calibration from %s!\n", calibRight.c_str());
+    return;
+  }
+
+  if (1 == sscanf(arg, "resultFile=%s", buf)) {
+    resultFile = buf;
+    printf("save result to %s!\n", resultFile.c_str());
     return;
   }
 
@@ -481,7 +503,7 @@ int main( int argc, char** argv )
 
       int i = idsToPlay[ii];
 
-
+      //左右图像
       ImageAndExposure* img_left;
       ImageAndExposure* img_right;
       if (preload) {
@@ -493,6 +515,7 @@ int main( int argc, char** argv )
         img_right = reader_right->getImage(i);
       }
 
+      //是否跳帧
       bool skipFrame = false;
       if (playbackSpeed != 0)
       {
@@ -571,11 +594,17 @@ int main( int argc, char** argv )
     struct timeval tv_end;
     gettimeofday(&tv_end, NULL);
 
-    fullSystem->printResult("/home/ren/project/fdso/result.txt");
+    //保存结果
+    // fullSystem->printResult("/home/ren/project/fdso/result.txt");
+    fullSystem->printResultOpt(resultFile);
 
+    //总运行帧数
     int numFramesProcessed = abs(idsToPlay[0] - idsToPlay.back());
+    //总运行时间
     double numSecondsProcessed = fabs(reader->getTimestamp(idsToPlay[0]) - reader->getTimestamp(idsToPlay.back()));
+    //单CPU下的运行时间
     double MilliSecondsTakenSingle = 1000.0f * (ended - started) / (float)(CLOCKS_PER_SEC);
+    //多核下的运行时间
     double MilliSecondsTakenMT = sInitializerOffset + ((tv_end.tv_sec - tv_start.tv_sec) * 1000.0f + (tv_end.tv_usec - tv_start.tv_usec) / 1000.0f);
     printf("\n======================"
            "\n%d Frames (%.1f fps)"
@@ -590,6 +619,8 @@ int main( int argc, char** argv )
            1000 / (MilliSecondsTakenSingle / numSecondsProcessed),
            1000 / (MilliSecondsTakenMT / numSecondsProcessed));
     //fullSystem->printFrameLifetimes();
+
+    //保存运行时间
     if (setting_logStuff)
     {
       std::ofstream tmlog;

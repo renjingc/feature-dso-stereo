@@ -232,6 +232,7 @@ public:
 	void stereoMatch(FrameHessian* fh, FrameHessian* fhRight);
 
 	void printResult(std::string file);
+	void printResultOpt(std::string file);
 
 	void debugPlot(std::string name);
 

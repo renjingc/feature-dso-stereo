@@ -331,5 +331,6 @@ int staticPatternPadding[10] = {
 	4
 };
 
+bool openLoop=true;
 
 }

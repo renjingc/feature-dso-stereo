@@ -83,6 +83,8 @@ public:
 	//目标帧
 	FrameHessian* target; // defines column
 
+	double timestamp;		// timestamp passed into DSO.
+
 	// precalc values
 	// 预计算的值
 	Mat33f PRE_RTll;  //R

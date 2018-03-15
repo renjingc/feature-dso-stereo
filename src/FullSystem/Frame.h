@@ -45,6 +45,7 @@ public:
 
     int id;
     int frameID;
+    double timestamp;       // timestamp passed into DSO.
     // constantly adapted.
     //相对于世界坐标系的变换
     SE3 camToWorld;

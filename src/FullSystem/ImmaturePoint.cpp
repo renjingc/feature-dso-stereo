@@ -1184,7 +1184,7 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame, Mat33f hostToFra
 	}
 	else
 	{
-		//则根据x方向设置最新的最小逆深度和最大逆深度
+		//则根据y方向设置最新的最小逆深度和最大逆深度
 		idepth_min = (pr[2] * (bestV - errorInPixel * dy) - pr[1]) / (hostToFrame_Kt[1] - hostToFrame_Kt[2] * (bestV - errorInPixel * dy));
 		idepth_max = (pr[2] * (bestV + errorInPixel * dy) - pr[1]) / (hostToFrame_Kt[1] - hostToFrame_Kt[2] * (bestV + errorInPixel * dy));
 	}

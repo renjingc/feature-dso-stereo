@@ -274,6 +274,44 @@ void FullSystem::setGammaFunction(float* BInv)
 	Hcalib.B[255] = 255;
 }
 
+void FullSystem::printResultOpt(std::string file)
+{
+	boost::unique_lock<boost::mutex> lock(trackMutex);
+	boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
+
+	std::ofstream myfile;
+	myfile.open (file.c_str());
+	myfile << std::setprecision(15);
+	int i = 0;
+
+	//获取所有关键帧
+	auto allKFs = globalMap->getAllKFs();
+
+	Eigen::Matrix<double, 3, 3> last_R = (*(allKFs.begin()))->camToWorldOpti.so3().matrix();
+	Eigen::Matrix<double, 3, 1> last_T = (*(allKFs.begin()))->camToWorldOpti.translation().transpose();
+
+	for (auto &s : allKFs)
+	{
+		const Eigen::Matrix<double, 3, 3> R = s->camToWorldOpti.so3().matrix();
+		const Eigen::Matrix<double, 3, 1> T = s->camToWorldOpti.translation().transpose();
+
+		last_R = R;
+		last_T = T;
+
+		myfile <<s->id<<" "<<R(0, 0) << " " << R(0, 1) << " " << R(0, 2) << " " << T(0, 0) << " " <<
+		       R(1, 0) << " " << R(1, 1) << " " << R(1, 2) << " " << T(1, 0) << " " <<
+		       R(2, 0) << " " << R(2, 1) << " " << R(2, 2) << " " << T(2, 0) << "\n";
+
+//		myfile << s->timestamp <<
+//			" " << s->camToWorld.translation().transpose()<<
+//			" " << s->camToWorld.so3().unit_quaternion().x()<<
+//			" " << s->camToWorld.so3().unit_quaternion().y()<<
+//			" " << s->camToWorld.so3().unit_quaternion().z()<<
+//			" " << s->camToWorld.so3().unit_quaternion().w() << "\n";
+		i++;
+	}
+	myfile.close();
+}
 /**
  * [FullSystem::printResult description]
  * @param file [description]
@@ -2011,52 +2049,52 @@ void FullSystem::addActiveFrame( ImageAndExposure * image, ImageAndExposure * im
 	{
 		bool usePnP = false;
 		SE3 initT1, initT;
-		int cntInliers = 0;
-		std::vector<bool> mvbOutlier;
-		if (frameHessians.size() > 3)
-		{
-			TicToc t;
-			boost::timer bt;
-			std::vector<cv::DMatch> matches, goofMatches;
-			FrameHessian* pKF = frameHessians[frameHessians.size() - 1];
-			int nmatches = matcher->SearchByBoW(fh, pKF, matches);
-			matcher->checkUVDistance(fh, pKF, matches, goofMatches);
-			LOG(INFO) << "match time size: " << t.toc() << "ms " << goofMatches.size() << std::endl;
-			//matcher->showMatch(fh,pKF,goofMatches);
+		// int cntInliers = 0;
+		// std::vector<bool> mvbOutlier;
+		// if (frameHessians.size() > 3)
+		// {
+		// 	TicToc t;
+		// 	boost::timer bt;
+		// 	std::vector<cv::DMatch> matches, goofMatches;
+		// 	FrameHessian* pKF = frameHessians[frameHessians.size() - 1];
+		// 	int nmatches = matcher->SearchByBoW(fh, pKF, matches);
+		// 	matcher->checkUVDistance(fh, pKF, matches, goofMatches);
+		// 	LOG(INFO) << "match time size: " << t.toc() << "ms " << goofMatches.size() << std::endl;
+		// 	//matcher->showMatch(fh,pKF,goofMatches);
 
-			vector<cv::Point3f> p3d;
-			vector<cv::Point2f> p2d;
-			vector<int> matchIdx;
-			for (size_t k = 0; k < goofMatches.size(); k++)
-			{
-				auto &m = goofMatches[k];
+		// 	vector<cv::Point3f> p3d;
+		// 	vector<cv::Point2f> p2d;
+		// 	vector<int> matchIdx;
+		// 	for (size_t k = 0; k < goofMatches.size(); k++)
+		// 	{
+		// 		auto &m = goofMatches[k];
 
-				Feature* featKF = pKF->_features[m.trainIdx];
-				Feature* featCurrent = fh->_features[m.queryIdx];
+		// 		Feature* featKF = pKF->_features[m.trainIdx];
+		// 		Feature* featCurrent = fh->_features[m.queryIdx];
 
-				//if (featKF->mImP && featKF->mImP->lastTraceStatus == ImmaturePointStatus::IPS_GOOD)
-				//{
-				if (featKF->_status == Feature::ACTIVE_IDEPTH)
-				{
-					// there should be a 3d point
-					// ImmaturePoint* pt = featKF->mImP;
-					Vec3 pose;
-					featKF->ComputePos(pose);
-					LOG(INFO) << "pKF pt3d: " << " " << pose[0] << " " << pose[1] << " " << pose[2] << std::endl;
-					cv::Point3f pt3d(pose[0], pose[1], pose[2]);
-					p3d.push_back(pt3d);
-					LOG(INFO) << "mpCurrentKF p2d: " << " " << featCurrent->_pixel[0] << " " << featCurrent->_pixel[1] << std::endl;
-					p2d.push_back(cv::Point2f(featCurrent->_pixel[0], featCurrent->_pixel[1]));
-					matchIdx.push_back(k);
-				}
-			}
+		// 		//if (featKF->mImP && featKF->mImP->lastTraceStatus == ImmaturePointStatus::IPS_GOOD)
+		// 		//{
+		// 		if (featKF->_status == Feature::ACTIVE_IDEPTH)
+		// 		{
+		// 			// there should be a 3d point
+		// 			// ImmaturePoint* pt = featKF->mImP;
+		// 			Vec3 pose;
+		// 			featKF->ComputePos(pose);
+		// 			LOG(INFO) << "pKF pt3d: " << " " << pose[0] << " " << pose[1] << " " << pose[2] << std::endl;
+		// 			cv::Point3f pt3d(pose[0], pose[1], pose[2]);
+		// 			p3d.push_back(pt3d);
+		// 			LOG(INFO) << "mpCurrentKF p2d: " << " " << featCurrent->_pixel[0] << " " << featCurrent->_pixel[1] << std::endl;
+		// 			p2d.push_back(cv::Point2f(featCurrent->_pixel[0], featCurrent->_pixel[1]));
+		// 			matchIdx.push_back(k);
+		// 		}
+		// 	}
 
-			if (pnpCv(initT1, p2d, p3d, K, cntInliers, mvbOutlier, initT))
-			{
-				if (checkEstimatedPose(cntInliers, initT))
-					usePnP = true;
-			}
-		}
+		// 	if (pnpCv(initT1, p2d, p3d, K, cntInliers, mvbOutlier, initT))
+		// 	{
+		// 		if (checkEstimatedPose(cntInliers, initT))
+		// 			usePnP = true;
+		// 	}
+		// }
 
 		// =========================== SWAP tracking reference?. =========================
 		//如果当前关键帧的参考帧ID大于当前跟踪的参考帧ID
