@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.5.1, 2018-01-17T23:16:55. -->
+<!-- Written by QtCreator 3.5.1, 2018-02-26T15:23:52. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -157,7 +157,11 @@
      <value type="int">14</value>
     </valuelist>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">dso_dataset</value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments">files=/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/kitti_gray/dataset/sequences/00 calib=/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/kitti_gray/dataset/sequences/00/kitti_s_camera.txt vocab=/home/ren/work/dso_semantic/vocab/ORBvoc.bin preset=3 mode=1</value>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments">files=/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/kitti_gray/dataset/sequences/00
+calib=/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/kitti_gray/dataset/sequences/00/kitti_s_camera.txt
+vocab=/home/ren/work/dso_semantic/vocab/ORBvoc.bin
+gtPath=/media/ren/99146341-07be-4601-9682-0539688db03f/我的数据集/图像公开数据集/kitti/dataset/poses/00.txt
+preset=2 mode=1</value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>

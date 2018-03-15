@@ -55,8 +55,11 @@
 #include <math.h>
 #include <boost/timer.hpp>
 
-#include "util/IMUPropagation.h"
+// #include "util/IMUPropagation.h"
 #include "util/IMUMeasurement.h"
+
+#include "imu_factor.h"
+#include "integration_base.h"
 
 namespace fdso
 {
@@ -216,6 +219,9 @@ public:
 	FullSystem(std::shared_ptr<ORBVocabulary> voc);
 	virtual ~FullSystem();
 
+	void send_imu(IMUMeasurement imuMeasurements);
+	void processIMU(double dt, const Eigen::Vector3d &linear_acceleration, const Eigen::Vector3d &angular_velocity);
+
 	// adds a new frame, and creates point & residual structs.
 	void addActiveFrame(ImageAndExposure *image, ImageAndExposure *imageRight, std::vector<IMUMeasurement> &imuMeasurements,
 	                    int id);
@@ -260,6 +266,36 @@ public:
 
 	void setGammaFunction(float* BInv);
 	void setOriginalCalib(VecXf originalCalib, int originalW, int originalH);
+
+	double current_time = -1;
+
+	//第一帧imu
+    	bool first_imu;
+
+    	//预处理预积分滑动
+    	IntegrationBase *pre_integrations[(WINDOW_SIZE + 1)];
+    	IntegrationBase *tmp_pre_integration;
+    	//加速度和陀螺仪信息
+    	Eigen::Vector3d acc_0, gyr_0;
+
+    	//滑动位置
+    	Eigen::Vector3d Ps[(WINDOW_SIZE + 1)];
+    	//滑动速度
+    	Eigen::Vector3d Vs[(WINDOW_SIZE + 1)];
+    	//滑动旋转
+    	Eigen::Matrix3d Rs[(WINDOW_SIZE + 1)];
+    	//滑动加速度计和陀螺仪偏差
+    	Eigen::Vector3d Bas[(WINDOW_SIZE + 1)];
+    	Eigen::Vector3d Bgs[(WINDOW_SIZE + 1)];
+
+    	vector<double> dt_buf[(WINDOW_SIZE + 1)];
+    	//线性加速度和角速度
+    	vector<Eigen::Vector3d> linear_acceleration_buf[(WINDOW_SIZE + 1)];
+    	vector<Eigen::Vector3d> angular_velocity_buf[(WINDOW_SIZE + 1)];
+
+    	Vector3d g;
+
+    	int frame_count;
 
 private:
 
@@ -405,7 +441,11 @@ private:
 	boost::mutex coarseTrackerSwapMutex;			// if tracker sees that there is a new reference, tracker locks [coarseTrackerSwapMutex] and swaps the two.
 	CoarseTracker* coarseTracker_forNewKF;			// set as as reference. protected by [coarseTrackerSwapMutex].
 	CoarseTracker* coarseTracker;					// always used to track new frames. protected by [trackMutex].
-	IMUPropagation *imuPropagation;
+
+
+	// IMUPropagation *imuPropagation;
+
+
 	float minIdJetVisTracker, maxIdJetVisTracker;
 	float minIdJetVisDebug, maxIdJetVisDebug;
 

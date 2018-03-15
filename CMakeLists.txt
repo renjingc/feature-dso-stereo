@@ -78,6 +78,8 @@ set(dso_SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/FullSystem/Map.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/vfc.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/Frame.cpp
+
+  ${PROJECT_SOURCE_DIR}/src/FullSystem/utility.cpp
 )
 
 
@@ -142,7 +144,7 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/thirdparty/g2o/
   ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/)
 
-add_library(dso ${dso_SOURCE_FILES} ${dso_opencv_SOURCE_FILES} ${dso_pangolin_SOURCE_FILES})
+add_library(fdso ${dso_SOURCE_FILES} ${dso_opencv_SOURCE_FILES} ${dso_pangolin_SOURCE_FILES})
 
 #set_property( TARGET dso APPEND_STRING PROPERTY COMPILE_FLAGS -Wall )
 
@@ -165,7 +167,23 @@ set( THIRD_PARTY_LIBS
 if (OpenCV_FOUND AND Pangolin_FOUND)
 	message("--- compiling dso_dataset.")
 	add_executable(dso_dataset ${PROJECT_SOURCE_DIR}/src/main_dso_pangolin.cpp )
-       target_link_libraries(dso_dataset dso    ${THIRD_PARTY_LIBS})
+       target_link_libraries(dso_dataset fdso ${THIRD_PARTY_LIBS})
+
+        add_executable(convert_groundtruth_euroc ${PROJECT_SOURCE_DIR}/src/main_convert_groundtruth_euroc_dataset.cpp)
+        target_link_libraries(convert_groundtruth_euroc)
+
+        add_executable(convert_groundtruth_kitti ${PROJECT_SOURCE_DIR}/src/main_convert_groundtruth_kitti_dataset.cpp)
+        target_link_libraries(convert_groundtruth_kitti)
+
+        add_executable(dso_dataset_kitti ${PROJECT_SOURCE_DIR}/src/main_dso_pangolin_kitti.cpp)
+        target_link_libraries(dso_dataset_kitti fdso ${THIRD_PARTY_LIBS})
+
+        add_executable(dso_dataset_euroc ${PROJECT_SOURCE_DIR}/src/main_dso_pangolin_euroc.cpp )
+        target_link_libraries(dso_dataset_euroc fdso ${THIRD_PARTY_LIBS})
+
+        add_executable(euroc_rectify ${PROJECT_SOURCE_DIR}/src/main_rectify_euroc_dataset.cpp)
+        target_link_libraries(euroc_rectify ${OpenCV_LIBS} pthread)
+
 else()
 	message("--- not building dso_dataset, since either don't have openCV or Pangolin.")
 endif()

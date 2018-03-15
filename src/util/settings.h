@@ -5,6 +5,8 @@
 #include <string.h>
 #include <string>
 #include <cmath>
+#include <vector>
+#include "util/NumType.h"
 
 
 namespace fdso
@@ -217,5 +219,49 @@ extern int staticNCCPattern35[15][2];
 extern int sparsityFactor;
 
 extern bool openLoop;
+
+//各种优化变量的维度
+//位姿7维
+//速度9维
+//特征1维
+enum SIZE_PARAMETERIZATION
+{
+    SIZE_POSE = 7,
+    SIZE_SPEEDBIAS = 9,
+    SIZE_FEATURE = 1
+};
+
+//状态信息
+enum StateOrder
+{
+    O_P = 0,
+    O_R = 3,
+    O_V = 6,
+    O_BA = 9,
+    O_BG = 12
+};
+
+//噪声
+enum NoiseOrder
+{
+    O_AN = 0,
+    O_GN = 3,
+    O_AW = 6,
+    O_GW = 9
+};
+
+extern int ESTIMATE_EXTRINSIC;
+
+extern double ACC_N, ACC_W;
+extern double GYR_N, GYR_W;
+
+extern std::vector<Eigen::Matrix3d> RIC;
+extern std::vector<Eigen::Vector3d> TIC;
+extern Eigen::Vector3d G;
+
+extern double BIAS_ACC_THRESHOLD;
+extern double BIAS_GYR_THRESHOLD;
+
+const int WINDOW_SIZE = 10;
 
 }

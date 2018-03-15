@@ -182,6 +182,35 @@ FullSystem::FullSystem(std::shared_ptr<ORBVocabulary> voc):
 	matcher = new FeatureMatcher(65, 100, 30, 100, 0.7);
 	globalMap = new Map(this);
 	loopClosing = new LoopClosing(this);
+
+	first_imu=false;
+
+	frame_count = 0;
+
+    //清除每一个滑动窗口的值
+    	for (int i = 0; i < WINDOW_SIZE + 1; i++)
+    	{
+        	Rs[i].setIdentity();
+        	Ps[i].setZero();
+        	Vs[i].setZero();
+        	Bas[i].setZero();
+        	Bgs[i].setZero();
+        	dt_buf[i].clear();
+        	linear_acceleration_buf[i].clear();
+        	angular_velocity_buf[i].clear();
+
+        	if (pre_integrations[i] != nullptr)
+        	{
+            		delete pre_integrations[i];
+        	}
+        	pre_integrations[i] = nullptr;
+    	}
+
+
+    	if (tmp_pre_integration != nullptr)
+        	delete tmp_pre_integration;
+
+	tmp_pre_integration = nullptr;
 }
 
 /**
@@ -1947,6 +1976,84 @@ void FullSystem::flagPointsForRemoval()
 }
 
 /**
+ * @brief      Sends an imu.
+ *
+ * @param[in]  imu_msg  The imu message
+ */
+void FullSystem::send_imu(IMUMeasurement imuMeasurements)
+{
+    double t = imuMeasurements.timestamp;
+    if (current_time < 0)
+        current_time = t;
+    //间隔时间
+    double dt = t - current_time;
+    current_time = t;
+
+    double ba[]{0.0, 0.0, 0.0};
+    double bg[]{0.0, 0.0, 0.0};
+
+    //速度和角速度
+    double dx = imuMeasurements.acc[0]- ba[0];
+    double dy = imuMeasurements.acc[1] - ba[1];
+    double dz = imuMeasurements.acc[2] - ba[2];
+
+    double rx = imuMeasurements.gyr[0] - bg[0];
+    double ry = imuMeasurements.gyr[1] - bg[1];
+    double rz = imuMeasurements.gyr[2] - bg[2];
+    //ROS_DEBUG("IMU %f, dt: %f, acc: %f %f %f, gyr: %f %f %f", t, dt, dx, dy, dz, rx, ry, rz);
+
+    //处理imu
+    processIMU(dt, Vector3d(dx, dy, dz), Vector3d(rx, ry, rz));
+}
+
+void FullSystem::processIMU(double dt, const Eigen::Vector3d &linear_acceleration, const Eigen::Vector3d &angular_velocity)
+{
+    //是否是第一帧imu
+    if (!first_imu)
+    {
+        first_imu = true;
+        acc_0 = linear_acceleration;
+        gyr_0 = angular_velocity;
+    }
+
+    //如果该帧滑动窗口的预积分为空，则新建一个
+    if (!pre_integrations[frame_count])
+    {
+        pre_integrations[frame_count] = new IntegrationBase{acc_0, gyr_0, Bas[frame_count], Bgs[frame_count]};
+    }
+    if (frame_count != 0)
+    {
+        //加入时间，线性加速度，角速度
+        pre_integrations[frame_count]->push_back(dt, linear_acceleration, angular_velocity);
+        //调用imu的预积分
+        //if(solver_flag != NON_LINEAR)
+            tmp_pre_integration->push_back(dt, linear_acceleration, angular_velocity);
+        dt_buf[frame_count].push_back(dt);
+        linear_acceleration_buf[frame_count].push_back(linear_acceleration);
+        angular_velocity_buf[frame_count].push_back(angular_velocity);
+
+        //提供优化的初始值
+        int j = frame_count;
+        //当前帧的角度*(上一imu时刻的加速度-偏置)-重力
+        Eigen::Vector3d un_acc_0 = Rs[j] * (acc_0 - Bas[j]) - g;
+        //计算角度变化
+        Eigen::Vector3d un_gyr = 0.5 * (gyr_0 + angular_velocity) - Bgs[j];
+        //更新角度
+        Rs[j] *= Utility::deltaQ(un_gyr * dt).toRotationMatrix();
+
+        //当前帧的角度*(当前imu时刻的加速度-偏置)-重力
+        Eigen::Vector3d un_acc_1 = Rs[j] * (linear_acceleration - Bas[j]) - g;
+
+        //两个IMU时刻的加速度取平均
+        Eigen::Vector3d un_acc = 0.5 * (un_acc_0 + un_acc_1);
+        //当前帧imu得到的位姿和速度
+        Ps[j] += dt * Vs[j] + 0.5 * dt * dt * un_acc;
+        Vs[j] += dt * un_acc;
+    }
+    acc_0 = linear_acceleration;
+    gyr_0 = angular_velocity;
+}
+/**
  * [FullSystem::addActiveFrame description]
  * @param image       [description]
  * @param image_right [description]
@@ -2025,9 +2132,10 @@ void FullSystem::addActiveFrame( ImageAndExposure * image, ImageAndExposure * im
 		// use initializer!
 		if (coarseInitializer->frameID < 0)	// first frame set. fh is kept by coarseInitializer.
 		{
-			//- Initialize IMU
-			Sophus::Quaterniond q_WS = imuPropagation->initializeRollPitchFromMeasurements(imuMeasurements);
-			q_WS.setIdentity();
+			// //- Initialize IMU
+			// Sophus::Quaterniond q_WS = imuPropagation->initializeRollPitchFromMeasurements(imuMeasurements);
+			// q_WS.setIdentity();
+
 			// T_WS * T_SC0 = T_WC0
 			coarseInitializer->T_WC_ini = SE3(Sophus::Quaterniond::Identity(), Vec3(0, 0, 0)) * T_SC0;
 			//设置初始的双目

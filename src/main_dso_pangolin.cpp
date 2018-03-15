@@ -69,7 +69,6 @@ float playbackSpeed = 0; // 0 for linearize (play as fast as possible, while seq
 bool preload = false;
 bool useSampleOutput = false;
 
-
 int mode = 0;
 
 bool firstRosSpin = false;
@@ -380,6 +379,7 @@ void parseArgument(char* arg)
 
   printf("could not parse argument \"%s\"!!!!\n", arg);
 }
+
 
 int main( int argc, char** argv )
 {
