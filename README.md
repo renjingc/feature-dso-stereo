@@ -47,6 +47,6 @@ KITTI结果
 
 平均
 ![avatar](result/plot_error/avg_rl.png)
-![avatar](result/plot_error/avg_rl.png)
-![avatar](result/plot_error/avg_rl.png)
-![avatar](result/plot_error/avg_rl.png)
+![avatar](result/plot_error/avg_rs.png)
+![avatar](result/plot_error/avg_tl.png)
+![avatar](result/plot_error/avg_ts.png)
