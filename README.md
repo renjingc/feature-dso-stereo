@@ -6,6 +6,9 @@ KITTI结果
 显示
 ![avatar](result/show.png)
 
+00路径
+![avatar](result/plot_path/00.png)
+
 02路径
 ![avatar](result/plot_path/02.png)
 
@@ -20,6 +23,12 @@ KITTI结果
 
 
 误差
+
+00路径
+![avatar](result/plot_error/00_rl.png)
+![avatar](result/plot_error/00_rs.png)
+![avatar](result/plot_error/00_tl.png)
+![avatar](result/plot_error/00_ts.png)
 
 02路径
 ![avatar](result/plot_error/02_rl.png)
